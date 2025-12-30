@@ -10,6 +10,7 @@ import { AIReflectionPanel } from "@/components/journal/AIReflectionPanel";
 import { useSessionId } from "@/hooks/useSessionId";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface JournalEntry {
   id: string;
@@ -19,14 +20,6 @@ interface JournalEntry {
   source: string | null;
   created_at: string;
 }
-
-const prompts = [
-  "What small moment brought you peace today?",
-  "What are you grateful for right now?",
-  "What's been on your mind lately?",
-  "How are you really feeling today?",
-  "What would make tomorrow better?",
-];
 
 export default function Journal() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -39,6 +32,21 @@ export default function Journal() {
   const [showReflection, setShowReflection] = useState(false);
   const sessionId = useSessionId();
   const { toast } = useToast();
+  const { t, language } = useTranslation();
+
+  const prompts = language === "de" ? [
+    t("journal.prompt1"),
+    t("journal.prompt2"),
+    t("journal.prompt3"),
+    t("journal.prompt4"),
+    t("journal.prompt5"),
+  ] : [
+    "What small moment brought you peace today?",
+    "What are you grateful for right now?",
+    "What's been on your mind lately?",
+    "How are you really feeling today?",
+    "What would make tomorrow better?",
+  ];
 
   const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
 
@@ -119,8 +127,8 @@ export default function Journal() {
   const handleGetPatterns = async () => {
     if (entries.length < 2) {
       toast({
-        title: "Not enough entries",
-        description: "Write at least 2 journal entries to see patterns.",
+        title: t("journal.notEnoughEntries"),
+        description: t("journal.writeAtLeast2"),
       });
       return;
     }
@@ -152,8 +160,8 @@ export default function Journal() {
     } catch (error) {
       console.error('Error getting patterns:', error);
       toast({
-        title: "Error",
-        description: "Failed to get AI reflection. Please try again.",
+        title: t("common.error"),
+        description: t("journal.reflectionError"),
         variant: "destructive",
       });
       setShowReflection(false);
@@ -165,8 +173,8 @@ export default function Journal() {
   const handleGetThemes = async () => {
     if (entries.length < 3) {
       toast({
-        title: "Not enough entries",
-        description: "Write at least 3 journal entries to see themes.",
+        title: t("journal.notEnoughEntries"),
+        description: t("journal.writeAtLeast3"),
       });
       return;
     }
@@ -196,8 +204,8 @@ export default function Journal() {
     } catch (error) {
       console.error('Error getting themes:', error);
       toast({
-        title: "Error",
-        description: "Failed to get themes. Please try again.",
+        title: t("common.error"),
+        description: t("journal.themesError"),
         variant: "destructive",
       });
       setShowReflection(false);
@@ -213,7 +221,7 @@ export default function Journal() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="Journal" subtitle="Your private space" />
+      <PageHeader title={t("journal.title")} subtitle={t("journal.subtitle")} />
 
       <div className="px-4 py-4 max-w-lg mx-auto">
         {/* Search bar */}
@@ -221,7 +229,7 @@ export default function Journal() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search entries..."
+            placeholder={t("journal.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-muted/50 border border-border/50 rounded-xl pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30"
@@ -240,7 +248,7 @@ export default function Journal() {
             }}
           >
             <Plus className="w-5 h-5" />
-            New Entry
+            {t("journal.newEntry")}
           </Button>
           
           {entries.length >= 2 && (
@@ -252,7 +260,7 @@ export default function Journal() {
               disabled={isReflecting}
             >
               <Sparkles className="w-4 h-4" />
-              Patterns
+              {t("journal.patterns")}
             </Button>
           )}
         </div>
@@ -281,9 +289,9 @@ export default function Journal() {
             animate={{ opacity: 1 }}
           >
             <CalmCard variant="gentle" className="text-center py-8">
-              <p className="text-muted-foreground mb-2">No entries yet</p>
+              <p className="text-muted-foreground mb-2">{t("journal.noEntries")}</p>
               <p className="text-sm text-muted-foreground">
-                Start writing to capture your thoughts
+                {t("journal.startWriting")}
               </p>
             </CalmCard>
           </motion.div>
@@ -304,7 +312,7 @@ export default function Journal() {
                   disabled={isReflecting}
                 >
                   <TrendingUp className="w-4 h-4" />
-                  Discover themes in your entries
+                  {t("journal.discoverThemes")}
                 </Button>
               </motion.div>
             )}
@@ -340,7 +348,7 @@ export default function Journal() {
             className="mt-8"
           >
             <CalmCard variant="gentle">
-              <h4 className="font-medium text-foreground mb-2">Today's Prompt</h4>
+              <h4 className="font-medium text-foreground mb-2">{t("journal.todaysPrompt")}</h4>
               <p className="text-sm text-muted-foreground leading-relaxed italic">
                 "{randomPrompt}"
               </p>

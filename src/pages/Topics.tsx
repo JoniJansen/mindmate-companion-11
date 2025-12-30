@@ -6,12 +6,14 @@ import { TopicCard } from "@/components/topics/TopicCard";
 import { TopicDetail } from "@/components/topics/TopicDetail";
 import { topics, Topic } from "@/data/topics";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Topics() {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [progress, setProgress] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
+  const { t, getTopicTranslation } = useTranslation();
 
   // Load progress from localStorage
   useEffect(() => {
@@ -35,8 +37,8 @@ export default function Topics() {
     saveProgress(newProgress);
     
     toast({
-      title: "Step completed",
-      description: "Great progress! Keep going.",
+      title: t("topics.stepCompleted"),
+      description: t("topics.greatProgress"),
     });
   };
 
@@ -47,10 +49,22 @@ export default function Topics() {
     return Math.round((completed / steps) * 100);
   };
 
-  const filteredTopics = topics.filter(topic =>
-    topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    topic.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const getTranslatedTitle = (topic: Topic) => {
+    const translation = getTopicTranslation(topic.id);
+    return translation?.title || topic.title;
+  };
+
+  const getTranslatedDescription = (topic: Topic) => {
+    const translation = getTopicTranslation(topic.id);
+    return translation?.description || topic.description;
+  };
+
+  const filteredTopics = topics.filter(topic => {
+    const title = getTranslatedTitle(topic).toLowerCase();
+    const description = getTranslatedDescription(topic).toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return title.includes(query) || description.includes(query);
+  });
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -77,7 +91,7 @@ export default function Topics() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <PageHeader title="Topics" subtitle="Choose what to explore" />
+            <PageHeader title={t("topics.title")} subtitle={t("topics.subtitle")} />
 
             <div className="px-4 py-4 max-w-lg mx-auto">
               {/* Search */}
@@ -85,7 +99,7 @@ export default function Topics() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search topics..."
+                  placeholder={t("topics.searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-muted/50 border border-border/50 rounded-xl pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30"
@@ -101,6 +115,8 @@ export default function Topics() {
                     progress={getTopicProgress(topic.id, topic.steps.length)}
                     onClick={() => setSelectedTopic(topic)}
                     index={index}
+                    translatedTitle={getTranslatedTitle(topic)}
+                    translatedDescription={getTranslatedDescription(topic)}
                   />
                 ))}
               </div>
@@ -111,7 +127,7 @@ export default function Topics() {
                   animate={{ opacity: 1 }}
                   className="text-center py-12"
                 >
-                  <p className="text-muted-foreground">No topics match your search</p>
+                  <p className="text-muted-foreground">{t("topics.noMatch")}</p>
                 </motion.div>
               )}
             </div>

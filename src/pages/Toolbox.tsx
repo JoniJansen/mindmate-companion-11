@@ -13,16 +13,7 @@ import { ExerciseCard } from "@/components/toolbox/ExerciseCard";
 import { ExercisePlayer } from "@/components/toolbox/ExercisePlayer";
 import { exercises, Exercise } from "@/data/exercises";
 import { useToast } from "@/hooks/use-toast";
-
-const categories = [
-  { id: 'all', label: 'All' },
-  { id: 'breathing', label: 'Breathing' },
-  { id: 'cognitive', label: 'Cognitive' },
-  { id: 'grounding', label: 'Grounding' },
-  { id: 'journaling', label: 'Journaling' },
-  { id: 'values', label: 'Values' },
-  { id: 'boundaries', label: 'Boundaries' },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Toolbox() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
@@ -30,6 +21,17 @@ export default function Toolbox() {
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [suggestedExercises, setSuggestedExercises] = useState<Exercise[]>([]);
   const { toast } = useToast();
+  const { t, getExerciseTranslation } = useTranslation();
+
+  const categories = [
+    { id: 'all', label: t("category.all") },
+    { id: 'breathing', label: t("category.breathing") },
+    { id: 'cognitive', label: t("category.cognitive") },
+    { id: 'grounding', label: t("category.grounding") },
+    { id: 'journaling', label: t("category.journaling") },
+    { id: 'values', label: t("category.values") },
+    { id: 'boundaries', label: t("category.boundaries") },
+  ];
 
   // Load completed exercises from localStorage
   useEffect(() => {
@@ -53,8 +55,8 @@ export default function Toolbox() {
     localStorage.setItem('completed_exercises', JSON.stringify([...newCompleted]));
     
     toast({
-      title: "Exercise completed",
-      description: "Great job taking care of yourself.",
+      title: t("toolbox.exerciseCompleted"),
+      description: t("toolbox.greatJob"),
     });
   };
 
@@ -62,9 +64,19 @@ export default function Toolbox() {
     ? exercises 
     : exercises.filter(e => e.category === activeCategory);
 
+  const getExerciseTitle = (exercise: Exercise) => {
+    const translation = getExerciseTranslation(exercise.id);
+    return translation?.title || exercise.title;
+  };
+
+  const getExerciseDescription = (exercise: Exercise) => {
+    const translation = getExerciseTranslation(exercise.id);
+    return translation?.description || exercise.description;
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="Toolbox" subtitle="Evidence-based exercises" />
+      <PageHeader title={t("toolbox.title")} subtitle={t("toolbox.subtitle")} />
 
       <div className="px-4 py-4 max-w-lg mx-auto">
         {/* AI Suggestions */}
@@ -76,7 +88,7 @@ export default function Toolbox() {
           >
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-foreground">Suggested for you</span>
+              <span className="text-sm font-medium text-foreground">{t("toolbox.suggestedForYou")}</span>
             </div>
             
             <div className="grid gap-3">
@@ -98,7 +110,7 @@ export default function Toolbox() {
                         <exercise.icon className={`w-6 h-6 ${index === 0 ? 'text-calm' : 'text-gentle'}`} />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-medium text-foreground">{exercise.title}</h3>
+                        <h3 className="font-medium text-foreground">{getExerciseTitle(exercise)}</h3>
                         <p className="text-sm text-muted-foreground">{exercise.duration}</p>
                       </div>
                       <Button size="sm" variant={index === 0 ? "calm" : "soft"}>
@@ -141,7 +153,7 @@ export default function Toolbox() {
           transition={{ delay: 0.2 }}
         >
           <h2 className="text-lg font-semibold text-foreground mb-4">
-            {activeCategory === 'all' ? 'All Exercises' : categories.find(c => c.id === activeCategory)?.label}
+            {activeCategory === 'all' ? t("toolbox.allExercises") : categories.find(c => c.id === activeCategory)?.label}
           </h2>
           
           <div className="space-y-3">
@@ -152,13 +164,15 @@ export default function Toolbox() {
                 onClick={() => setSelectedExercise(exercise)}
                 index={index}
                 isCompleted={completedExercises.has(exercise.id)}
+                translatedTitle={getExerciseTitle(exercise)}
+                translatedDescription={getExerciseDescription(exercise)}
               />
             ))}
           </div>
 
           {filteredExercises.length === 0 && (
             <CalmCard variant="gentle" className="text-center py-8">
-              <p className="text-muted-foreground">No exercises in this category</p>
+              <p className="text-muted-foreground">{t("toolbox.noExercises")}</p>
             </CalmCard>
           )}
         </motion.div>
@@ -176,9 +190,9 @@ export default function Toolbox() {
                 <Brain className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <h4 className="font-medium text-foreground mb-1">Tip</h4>
+                <h4 className="font-medium text-foreground mb-1">{t("toolbox.tip")}</h4>
                 <p className="text-sm text-muted-foreground">
-                  Start with shorter exercises. Even 60 seconds of breathing can shift your state.
+                  {t("toolbox.tipText")}
                 </p>
               </div>
             </div>

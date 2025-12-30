@@ -12,67 +12,128 @@ import {
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const crisisLines = [
-  {
-    name: "National Suicide Prevention Lifeline",
-    number: "988",
-    tel: "tel:988",
-    description: "24/7, free and confidential support",
-    available: "24/7",
-    isText: false,
-  },
-  {
-    name: "Crisis Text Line",
-    number: "Text HOME to 741741",
-    tel: "sms:741741?body=HOME",
-    description: "Free, 24/7 crisis support via text",
-    available: "24/7",
-    isText: true,
-  },
-  {
-    name: "SAMHSA National Helpline",
-    number: "1-800-662-4357",
-    tel: "tel:1-800-662-4357",
-    description: "Treatment referrals and information",
-    available: "24/7",
-    isText: false,
-  },
-  {
-    name: "International Association for Suicide Prevention",
-    number: "Find local resources",
-    tel: "https://www.iasp.info/resources/Crisis_Centres/",
-    description: "Crisis centers worldwide",
-    available: "Varies by location",
-    isText: false,
-    isLink: true,
-  },
-];
+interface CrisisLine {
+  name: string;
+  number: string;
+  tel: string;
+  description: string;
+  available: string;
+  isText?: boolean;
+  isLink?: boolean;
+}
 
-const resources = [
-  {
-    title: "Find a Therapist Near You",
-    description: "Search for licensed mental health professionals",
-    icon: MapPin,
-  },
-  {
-    title: "Understanding Crisis Signs",
-    description: "Learn about warning signs and how to help",
-    icon: AlertTriangle,
-  },
-  {
-    title: "Self-Care During Difficult Times",
-    description: "Coping strategies and immediate relief techniques",
-    icon: Heart,
-  },
-];
+interface Resource {
+  title: string;
+  description: string;
+  icon: typeof MapPin;
+}
 
 export default function Safety() {
+  const { t, language } = useTranslation();
+
+  // German crisis lines
+  const germanCrisisLines: CrisisLine[] = [
+    {
+      name: t("crisis.telefonseelsorge"),
+      number: t("crisis.telefonseelsorgeNum"),
+      tel: "tel:0800-111-0-111",
+      description: t("crisis.telefonseelsorgeDesc"),
+      available: t("safety.24_7"),
+      isText: false,
+    },
+    {
+      name: t("crisis.telefonseelsorge2"),
+      number: t("crisis.telefonseelsorge2Num"),
+      tel: "tel:0800-111-0-222",
+      description: t("crisis.telefonseelsorgeDesc"),
+      available: t("safety.24_7"),
+      isText: false,
+    },
+    {
+      name: t("crisis.nummerGegenKummer"),
+      number: t("crisis.nummerGegenKummerNum"),
+      tel: "tel:116-111",
+      description: t("crisis.nummerGegenKummerDesc"),
+      available: t("crisis.nummerGegenKummerHours"),
+      isText: false,
+    },
+    {
+      name: t("crisis.international"),
+      number: t("crisis.findLocalResources"),
+      tel: "https://www.iasp.info/resources/Crisis_Centres/",
+      description: t("crisis.crisisCentersWorldwide"),
+      available: t("safety.variesByLocation"),
+      isText: false,
+      isLink: true,
+    },
+  ];
+
+  // English crisis lines
+  const englishCrisisLines: CrisisLine[] = [
+    {
+      name: "National Suicide Prevention Lifeline",
+      number: "988",
+      tel: "tel:988",
+      description: "24/7, free and confidential support",
+      available: "24/7",
+      isText: false,
+    },
+    {
+      name: "Crisis Text Line",
+      number: "Text HOME to 741741",
+      tel: "sms:741741?body=HOME",
+      description: "Free, 24/7 crisis support via text",
+      available: "24/7",
+      isText: true,
+    },
+    {
+      name: "SAMHSA National Helpline",
+      number: "1-800-662-4357",
+      tel: "tel:1-800-662-4357",
+      description: "Treatment referrals and information",
+      available: "24/7",
+      isText: false,
+    },
+    {
+      name: t("crisis.international"),
+      number: t("crisis.findLocalResources"),
+      tel: "https://www.iasp.info/resources/Crisis_Centres/",
+      description: t("crisis.crisisCentersWorldwide"),
+      available: t("safety.variesByLocation"),
+      isText: false,
+      isLink: true,
+    },
+  ];
+
+  const crisisLines = language === "de" ? germanCrisisLines : englishCrisisLines;
+
+  const resources: Resource[] = [
+    {
+      title: t("resource.findTherapist"),
+      description: t("resource.findTherapistDesc"),
+      icon: MapPin,
+    },
+    {
+      title: t("resource.understandingSigns"),
+      description: t("resource.understandingSignsDesc"),
+      icon: AlertTriangle,
+    },
+    {
+      title: t("resource.selfCare"),
+      description: t("resource.selfCareDesc"),
+      icon: Heart,
+    },
+  ];
+
+  const emergencyNumber = language === "de" ? "112" : "911";
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader 
-        title="Safety & Support" 
-        subtitle="You're not alone"
+        title={t("safety.title")} 
+        subtitle={t("safety.subtitle")}
         showBack 
         backTo="/chat"
       />
@@ -89,15 +150,15 @@ export default function Safety() {
               <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-foreground mb-1">
-                  If you're in immediate danger
+                  {t("safety.immediateDANGER")}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Please call emergency services (911) or go to your nearest emergency room.
+                  {t("safety.callEmergency")}
                 </p>
                 <Button variant="destructive" size="sm" asChild>
-                  <a href="tel:911">
+                  <a href={`tel:${emergencyNumber}`}>
                     <Phone className="w-4 h-4 mr-2" />
-                    Call 911
+                    {t("safety.call112")}
                   </a>
                 </Button>
               </div>
@@ -113,7 +174,7 @@ export default function Safety() {
           className="mb-8"
         >
           <h2 className="text-lg font-semibold text-foreground mb-4">
-            Crisis Support Lines
+            {t("safety.crisisLines")}
           </h2>
           
           <div className="space-y-3">
@@ -164,10 +225,10 @@ export default function Safety() {
             <div className="text-center py-2">
               <Heart className="w-8 h-8 text-gentle mx-auto mb-3" />
               <h3 className="font-semibold text-foreground mb-2">
-                It's okay to ask for help
+                {t("safety.okToAskForHelp")}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Reaching out takes courage. Whatever you're going through, trained professionals are ready to listen and support you without judgment.
+                {t("safety.reachingOut")}
               </p>
             </div>
           </CalmCard>
@@ -180,7 +241,7 @@ export default function Safety() {
           transition={{ delay: 0.4 }}
         >
           <h2 className="text-lg font-semibold text-foreground mb-4">
-            Additional Resources
+            {t("safety.additionalResources")}
           </h2>
           
           <div className="space-y-3">
