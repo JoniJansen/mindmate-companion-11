@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, Phone, Sparkles } from "lucide-react";
+import { Send, Mic, Phone, Sparkles, FileText, ListChecks, BookOpen, Dumbbell, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -40,10 +40,19 @@ const quickReplies = [
   "Help me relax",
 ];
 
+const actionButtons = [
+  { id: "summarize", label: "Summarize", icon: FileText, prompt: "Please provide a brief, caring summary of our conversation so far. Highlight the main themes we discussed and any insights that emerged." },
+  { id: "nextsteps", label: "Next steps", icon: ListChecks, prompt: "Based on our conversation, what are 2-3 gentle, actionable next steps I could consider? Keep them small and achievable." },
+  { id: "journal", label: "Save to journal", icon: BookOpen, action: "journal" as const },
+  { id: "exercises", label: "Exercises", icon: Dumbbell, action: "toolbox" as const },
+  { id: "crisis", label: "Crisis help", icon: AlertTriangle, action: "safety" as const },
+];
+
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showActions, setShowActions] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -200,7 +209,7 @@ export default function Chat() {
     }
   };
 
-  const handleSend = async (content: string) => {
+  const handleSend = async (content: string, isSystemAction = false) => {
     if (!content.trim() || isLoading) return;
 
     const userMessage: Message = {
@@ -210,21 +219,50 @@ export default function Chat() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    // For system actions, we don't show the prompt in the UI
+    if (!isSystemAction) {
+      setMessages((prev) => [...prev, userMessage]);
+    }
     setInputValue("");
+    setShowActions(false);
     setIsLoading(true);
 
-    const chatMessages = [...messages, userMessage].map((m) => ({
+    const chatMessages = [...messages, ...(isSystemAction ? [] : [userMessage])].map((m) => ({
       role: m.role,
       content: m.content,
     }));
 
+    // Add the action prompt to the messages sent to AI
+    const messagesForAI = isSystemAction 
+      ? [...chatMessages, { role: "user" as const, content: content.trim() }]
+      : chatMessages;
+
     await streamChat({
-      messages: chatMessages,
+      messages: messagesForAI,
       onDelta: (chunk) => upsertAssistant(chunk),
       onDone: () => setIsLoading(false),
       onError: handleError,
     });
+  };
+
+  const handleActionButton = (action: typeof actionButtons[0]) => {
+    if ('action' in action && action.action) {
+      // Navigate to the specified page
+      if (action.action === "journal") {
+        // Save conversation summary to localStorage for the journal page
+        const conversationSummary = messages
+          .map((m) => `${m.role === "user" ? "Me" : "MindMate"}: ${m.content}`)
+          .join("\n\n");
+        localStorage.setItem("mindmate-journal-draft", conversationSummary);
+        navigate("/journal");
+      } else {
+        navigate(`/${action.action}`);
+      }
+    } else if ('prompt' in action && action.prompt) {
+      // Send the prompt to the AI
+      handleSend(action.prompt, true);
+    }
+    setShowActions(false);
   };
 
   return (
@@ -302,6 +340,38 @@ export default function Chat() {
         </div>
       </div>
 
+      {/* Action buttons */}
+      <AnimatePresence>
+        {showActions && messages.length > 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="px-4 pb-2"
+          >
+            <div className="max-w-lg mx-auto flex flex-wrap gap-2">
+              {actionButtons.map((action) => {
+                const Icon = action.icon;
+                const isDestructive = action.id === "crisis";
+                return (
+                  <Button
+                    key={action.id}
+                    variant={isDestructive ? "destructive" : "gentle"}
+                    size="sm"
+                    onClick={() => handleActionButton(action)}
+                    disabled={isLoading}
+                    className="text-xs gap-1.5"
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {action.label}
+                  </Button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Quick replies */}
       {messages.length <= 1 && !isLoading && (
         <div className="px-4 pb-2">
@@ -324,7 +394,13 @@ export default function Chat() {
       {/* Input area */}
       <div className="border-t border-border/50 bg-card/80 backdrop-blur-lg p-4 mb-20">
         <div className="max-w-lg mx-auto flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="text-muted-foreground shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`shrink-0 transition-colors ${showActions ? "text-primary" : "text-muted-foreground"}`}
+            onClick={() => setShowActions(!showActions)}
+            disabled={messages.length <= 2}
+          >
             <Sparkles className="w-5 h-5" />
           </Button>
 
