@@ -12,6 +12,7 @@ import Topics from "./pages/Topics";
 import Toolbox from "./pages/Toolbox";
 import Summary from "./pages/Summary";
 import Safety from "./pages/Safety";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           {/* Standalone pages */}
           <Route path="/summary" element={<Summary />} />
           <Route path="/safety" element={<Safety />} />
+          <Route path="/settings" element={<Settings />} />
           
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
