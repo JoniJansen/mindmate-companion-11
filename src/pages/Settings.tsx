@@ -16,6 +16,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Preferences {
   language: "en" | "de";
@@ -33,26 +34,27 @@ const defaultPreferences: Preferences = {
   notifications: true,
 };
 
-const languageOptions = [
-  { value: "en", label: "English", flag: "🇬🇧" },
-  { value: "de", label: "Deutsch", flag: "🇩🇪" },
-];
-
-const toneOptions = [
-  { value: "gentle", label: "Gentle", description: "Warm, soft, and nurturing" },
-  { value: "neutral", label: "Balanced", description: "Calm and supportive" },
-  { value: "structured", label: "Structured", description: "Clear and methodical" },
-];
-
-const addressOptions = [
-  { value: "du", label: "Informal (Du)", description: "Casual and friendly" },
-  { value: "sie", label: "Formal (Sie)", description: "Professional and respectful" },
-];
-
 export default function Settings() {
   const [preferences, setPreferences] = useState<Preferences>(defaultPreferences);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t, language } = useTranslation();
+
+  const languageOptions = [
+    { value: "en", label: "English", flag: "🇬🇧" },
+    { value: "de", label: "Deutsch", flag: "🇩🇪" },
+  ];
+
+  const toneOptions = [
+    { value: "gentle", label: t("tone.gentle"), description: t("tone.gentleDesc") },
+    { value: "neutral", label: t("tone.balanced"), description: t("tone.balancedDesc") },
+    { value: "structured", label: t("tone.structured"), description: t("tone.structuredDesc") },
+  ];
+
+  const addressOptions = [
+    { value: "du", label: t("address.informal"), description: t("address.informalDesc") },
+    { value: "sie", label: t("address.formal"), description: t("address.formalDesc") },
+  ];
 
   useEffect(() => {
     try {
@@ -71,8 +73,8 @@ export default function Settings() {
     localStorage.setItem("mindmate-preferences", JSON.stringify(updated));
     
     toast({
-      title: "Settings saved",
-      description: "Your preferences have been updated.",
+      title: t("settings.saved"),
+      description: t("settings.preferencesUpdated"),
     });
   };
 
@@ -83,8 +85,8 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader 
-        title="Settings" 
-        subtitle="Customize your experience"
+        title={t("settings.title")} 
+        subtitle={t("settings.subtitle")}
         showBack 
         backTo="/chat"
       />
@@ -95,7 +97,7 @@ export default function Settings() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">Language & Region</h2>
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">{t("settings.languageRegion")}</h2>
           <CalmCard variant="elevated">
             <button
               onClick={() => toggleSection("language")}
@@ -106,7 +108,7 @@ export default function Settings() {
                   <Globe className="w-5 h-5 text-primary" />
                 </div>
                 <div className="text-left">
-                  <p className="font-medium text-foreground">Language</p>
+                  <p className="font-medium text-foreground">{t("settings.language")}</p>
                   <p className="text-sm text-muted-foreground">
                     {languageOptions.find(l => l.value === preferences.language)?.label}
                   </p>
@@ -151,7 +153,7 @@ export default function Settings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
         >
-          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">Conversation Style</h2>
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">{t("settings.conversationStyle")}</h2>
           <CalmCard variant="elevated">
             <button
               onClick={() => toggleSection("tone")}
@@ -162,7 +164,7 @@ export default function Settings() {
                   <MessageSquare className="w-5 h-5 text-calm" />
                 </div>
                 <div className="text-left">
-                  <p className="font-medium text-foreground">Conversation Tone</p>
+                  <p className="font-medium text-foreground">{t("settings.conversationTone")}</p>
                   <p className="text-sm text-muted-foreground">
                     {toneOptions.find(t => t.value === preferences.tone)?.label}
                   </p>
@@ -217,7 +219,7 @@ export default function Settings() {
                       <User className="w-5 h-5 text-gentle" />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-foreground">Address Form</p>
+                      <p className="font-medium text-foreground">{t("settings.addressForm")}</p>
                       <p className="text-sm text-muted-foreground">
                         {addressOptions.find(a => a.value === preferences.addressForm)?.label}
                       </p>
@@ -264,7 +266,7 @@ export default function Settings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">Appearance</h2>
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">{t("settings.appearance")}</h2>
           <div className="space-y-3">
             <CalmCard variant="elevated">
               <div className="flex items-center justify-between">
@@ -277,8 +279,8 @@ export default function Settings() {
                     )}
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">Dark Mode</p>
-                    <p className="text-sm text-muted-foreground">Use dark theme</p>
+                    <p className="font-medium text-foreground">{t("settings.darkMode")}</p>
+                    <p className="text-sm text-muted-foreground">{t("settings.useDarkTheme")}</p>
                   </div>
                 </div>
                 <Switch
@@ -295,8 +297,8 @@ export default function Settings() {
                     <Bell className="w-5 h-5 text-foreground" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">Reminders</p>
-                    <p className="text-sm text-muted-foreground">Daily check-in notifications</p>
+                    <p className="font-medium text-foreground">{t("settings.reminders")}</p>
+                    <p className="text-sm text-muted-foreground">{t("settings.dailyCheckin")}</p>
                   </div>
                 </div>
                 <Switch
@@ -314,7 +316,7 @@ export default function Settings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
-          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">Support</h2>
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">{t("settings.support")}</h2>
           <div className="space-y-3">
             <CalmCard variant="default" className="cursor-pointer hover:shadow-card transition-shadow">
               <div className="flex items-center justify-between">
@@ -323,8 +325,8 @@ export default function Settings() {
                     <Shield className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">Privacy & Data</p>
-                    <p className="text-sm text-muted-foreground">Manage your information</p>
+                    <p className="font-medium text-foreground">{t("settings.privacyData")}</p>
+                    <p className="text-sm text-muted-foreground">{t("settings.manageInfo")}</p>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -338,8 +340,8 @@ export default function Settings() {
                     <HelpCircle className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">Help & Support</p>
-                    <p className="text-sm text-muted-foreground">FAQs and contact us</p>
+                    <p className="font-medium text-foreground">{t("settings.helpSupport")}</p>
+                    <p className="text-sm text-muted-foreground">{t("settings.faqContact")}</p>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -356,7 +358,7 @@ export default function Settings() {
           className="text-center pt-4"
         >
           <p className="text-xs text-muted-foreground">MindMate v1.0.0</p>
-          <p className="text-xs text-muted-foreground mt-1">Made with care for your wellbeing</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("settings.madeWithCare")}</p>
         </motion.div>
       </div>
     </div>
