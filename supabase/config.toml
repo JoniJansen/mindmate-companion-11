@@ -2,3 +2,6 @@ project_id = "djnbvnufmegiursvqbhp"
 
 [functions.chat]
 verify_jwt = false
+
+[functions.journal-reflect]
+verify_jwt = false
