@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { ChevronLeft, MoreHorizontal } from "lucide-react";
+import { ChevronLeft, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -9,6 +9,7 @@ interface PageHeaderProps {
   showBack?: boolean;
   backTo?: string;
   rightElement?: ReactNode;
+  showSettings?: boolean;
   className?: string;
 }
 
@@ -18,6 +19,7 @@ export function PageHeader({
   showBack = false, 
   backTo,
   rightElement,
+  showSettings = true,
   className = ""
 }: PageHeaderProps) {
   const navigate = useNavigate();
@@ -51,11 +53,16 @@ export function PageHeader({
             )}
           </div>
         </div>
-        {rightElement || (
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
-            <MoreHorizontal className="w-5 h-5" />
+        {rightElement || (showSettings && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-muted-foreground hover:text-foreground"
+            onClick={() => navigate("/settings")}
+          >
+            <Settings className="w-5 h-5" />
           </Button>
-        )}
+        ))}
       </div>
     </header>
   );
