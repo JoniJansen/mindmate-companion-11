@@ -1,0 +1,208 @@
+import { 
+  Wind, 
+  Brain, 
+  BookOpen, 
+  Compass, 
+  Shield, 
+  Anchor,
+  LucideIcon
+} from "lucide-react";
+
+export interface ExerciseStep {
+  instruction: string;
+  duration?: number; // in seconds
+}
+
+export interface Exercise {
+  id: string;
+  title: string;
+  description: string;
+  longDescription: string;
+  duration: string;
+  durationSeconds: number;
+  icon: LucideIcon;
+  category: 'breathing' | 'cognitive' | 'journaling' | 'values' | 'boundaries' | 'grounding';
+  color: string;
+  steps: ExerciseStep[];
+  prompts?: string[];
+}
+
+export const exercises: Exercise[] = [
+  {
+    id: 'breathing-60',
+    title: '60-Second Breathing',
+    description: 'Quick calm when you need it most',
+    longDescription: 'A rapid relaxation technique using deep diaphragmatic breathing. Perfect for moments of acute stress or before important situations.',
+    duration: '1 min',
+    durationSeconds: 60,
+    icon: Wind,
+    category: 'breathing',
+    color: 'calm',
+    steps: [
+      { instruction: 'Find a comfortable position and close your eyes', duration: 5 },
+      { instruction: 'Breathe in slowly through your nose... 1... 2... 3... 4...', duration: 5 },
+      { instruction: 'Hold gently... 1... 2...', duration: 3 },
+      { instruction: 'Exhale slowly through your mouth... 1... 2... 3... 4... 5... 6...', duration: 7 },
+      { instruction: 'Breathe in... feeling calm enter your body...', duration: 5 },
+      { instruction: 'Hold...', duration: 3 },
+      { instruction: 'Exhale... releasing tension...', duration: 7 },
+      { instruction: 'Breathe in... 1... 2... 3... 4...', duration: 5 },
+      { instruction: 'Hold...', duration: 3 },
+      { instruction: 'Exhale completely... 1... 2... 3... 4... 5... 6...', duration: 7 },
+      { instruction: 'One more breath in... deep and slow...', duration: 5 },
+      { instruction: 'Hold...', duration: 3 },
+      { instruction: 'And release... letting go completely...', duration: 7 },
+      { instruction: 'Gently open your eyes. Notice how you feel.', duration: 5 },
+    ],
+  },
+  {
+    id: 'thought-reframing',
+    title: 'Thought Reframing',
+    description: 'Challenge unhelpful thinking patterns',
+    longDescription: 'Based on Cognitive Behavioral Therapy (CBT), this exercise helps you identify, examine, and reframe thoughts that may be causing distress.',
+    duration: '5 min',
+    durationSeconds: 300,
+    icon: Brain,
+    category: 'cognitive',
+    color: 'primary',
+    steps: [
+      { instruction: 'Think of a situation that\'s been bothering you', duration: 20 },
+      { instruction: 'What thought comes up about this situation?', duration: 20 },
+      { instruction: 'How does this thought make you feel? (Rate intensity 1-10)', duration: 15 },
+      { instruction: 'What evidence supports this thought?', duration: 30 },
+      { instruction: 'What evidence goes against this thought?', duration: 30 },
+      { instruction: 'Is there another way to look at this situation?', duration: 30 },
+      { instruction: 'What would you tell a friend who had this thought?', duration: 30 },
+      { instruction: 'Create a more balanced thought about this situation', duration: 40 },
+      { instruction: 'How do you feel now? (Rate intensity 1-10)', duration: 15 },
+      { instruction: 'Notice any shift in your feelings. Even small changes matter.', duration: 20 },
+    ],
+    prompts: [
+      'What thought is troubling you right now?',
+      'Is this thought 100% true, or might there be exceptions?',
+      'What\'s the worst that could happen? Could you cope with it?',
+      'What\'s the best that could happen?',
+      'What\'s most likely to happen?',
+    ],
+  },
+  {
+    id: 'journaling-prompts',
+    title: 'Guided Journaling',
+    description: 'Reflective prompts for self-discovery',
+    longDescription: 'Structured prompts to help you explore your thoughts and feelings. Writing helps process emotions and gain clarity.',
+    duration: '10 min',
+    durationSeconds: 600,
+    icon: BookOpen,
+    category: 'journaling',
+    color: 'gentle',
+    steps: [
+      { instruction: 'Find a quiet space and something to write with', duration: 15 },
+      { instruction: 'Take 3 deep breaths to center yourself', duration: 15 },
+      { instruction: 'Choose a prompt that resonates with you', duration: 20 },
+      { instruction: 'Write freely without editing or judging', duration: 300 },
+      { instruction: 'Read what you\'ve written with compassion', duration: 60 },
+      { instruction: 'Underline any insights or patterns you notice', duration: 45 },
+      { instruction: 'Write one thing you want to remember from this', duration: 45 },
+    ],
+    prompts: [
+      'What am I feeling right now, and where do I feel it in my body?',
+      'What would I do if I knew I couldn\'t fail?',
+      'What am I avoiding, and why?',
+      'What do I need to forgive myself for?',
+      'What brings me energy, and what drains it?',
+      'What would my wisest self say to me right now?',
+      'What am I grateful for today, even if it\'s small?',
+    ],
+  },
+  {
+    id: 'values-clarification',
+    title: 'Values Clarification',
+    description: 'Discover what truly matters to you',
+    longDescription: 'Understanding your core values helps guide decisions and brings meaning to daily life. This exercise helps you identify and prioritize what matters most.',
+    duration: '8 min',
+    durationSeconds: 480,
+    icon: Compass,
+    category: 'values',
+    color: 'accent',
+    steps: [
+      { instruction: 'Think of a time when you felt truly alive and fulfilled', duration: 30 },
+      { instruction: 'What was happening? What values were you honoring?', duration: 45 },
+      { instruction: 'Now think of a time when you felt frustrated or off-track', duration: 30 },
+      { instruction: 'What value might have been compromised?', duration: 30 },
+      { instruction: 'From the list below, choose your top 10 values', duration: 60 },
+      { instruction: 'Now narrow it down to your top 5', duration: 45 },
+      { instruction: 'Finally, identify your top 3 core values', duration: 45 },
+      { instruction: 'For each value, write one way you can honor it this week', duration: 90 },
+      { instruction: 'Reflect: How aligned is your life with these values?', duration: 45 },
+    ],
+    prompts: [
+      'Authenticity • Adventure • Balance • Compassion • Courage',
+      'Creativity • Family • Freedom • Growth • Health',
+      'Honesty • Independence • Joy • Justice • Kindness',
+      'Knowledge • Love • Peace • Purpose • Security',
+      'Service • Spirituality • Success • Trust • Wisdom',
+    ],
+  },
+  {
+    id: 'boundary-prep',
+    title: 'Boundary Setting',
+    description: 'Prepare to communicate your limits',
+    longDescription: 'Setting boundaries can feel challenging but is essential for wellbeing. This exercise helps you prepare for boundary conversations with clarity and confidence.',
+    duration: '7 min',
+    durationSeconds: 420,
+    icon: Shield,
+    category: 'boundaries',
+    color: 'primary',
+    steps: [
+      { instruction: 'Think of a situation where you need to set a boundary', duration: 20 },
+      { instruction: 'What specifically is happening that doesn\'t feel okay?', duration: 30 },
+      { instruction: 'How does this situation affect you? (emotionally, physically, practically)', duration: 40 },
+      { instruction: 'What do you need instead?', duration: 30 },
+      { instruction: 'Use this format: "When [behavior], I feel [emotion], and I need [boundary]"', duration: 60 },
+      { instruction: 'Practice saying it out loud, calmly and clearly', duration: 45 },
+      { instruction: 'Anticipate possible responses. How will you stay firm?', duration: 45 },
+      { instruction: 'Remind yourself: Setting boundaries is an act of self-respect', duration: 20 },
+      { instruction: 'Visualize the conversation going well', duration: 45 },
+      { instruction: 'Notice how it feels to advocate for yourself', duration: 25 },
+    ],
+    prompts: [
+      '"I\'m not available for that."',
+      '"I need some time to think about this."',
+      '"That doesn\'t work for me."',
+      '"I understand, and my answer is still no."',
+      '"I care about you, and I also need to take care of myself."',
+    ],
+  },
+  {
+    id: 'grounding-54321',
+    title: '5-4-3-2-1 Grounding',
+    description: 'Anchor to the present moment',
+    longDescription: 'A sensory-based grounding technique that quickly brings you back to the present moment. Especially helpful during anxiety or overwhelm.',
+    duration: '3 min',
+    durationSeconds: 180,
+    icon: Anchor,
+    category: 'grounding',
+    color: 'calm',
+    steps: [
+      { instruction: 'Take a slow, deep breath', duration: 8 },
+      { instruction: 'Look around and name 5 things you can SEE', duration: 25 },
+      { instruction: 'Notice details: colors, shapes, textures...', duration: 15 },
+      { instruction: 'Now focus on 4 things you can TOUCH', duration: 25 },
+      { instruction: 'Feel the textures, temperatures, sensations...', duration: 15 },
+      { instruction: 'Listen for 3 things you can HEAR', duration: 25 },
+      { instruction: 'Notice sounds near and far...', duration: 15 },
+      { instruction: 'Identify 2 things you can SMELL', duration: 20 },
+      { instruction: 'And 1 thing you can TASTE', duration: 15 },
+      { instruction: 'Take another deep breath', duration: 8 },
+      { instruction: 'Notice how you feel now, grounded in this moment', duration: 15 },
+    ],
+  },
+];
+
+export const getExerciseById = (id: string): Exercise | undefined => {
+  return exercises.find(e => e.id === id);
+};
+
+export const getExercisesByCategory = (category: Exercise['category']): Exercise[] => {
+  return exercises.filter(e => e.category === category);
+};
