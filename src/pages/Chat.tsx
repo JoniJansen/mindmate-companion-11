@@ -41,7 +41,7 @@ const quickReplies = [
 ];
 
 const actionButtons = [
-  { id: "summarize", label: "Summarize", icon: FileText, prompt: "Please provide a brief, caring summary of our conversation so far. Highlight the main themes we discussed and any insights that emerged." },
+  { id: "endsession", label: "End & Summarize", icon: FileText, action: "summary" as const },
   { id: "nextsteps", label: "Next steps", icon: ListChecks, prompt: "Based on our conversation, what are 2-3 gentle, actionable next steps I could consider? Keep them small and achievable." },
   { id: "journal", label: "Save to journal", icon: BookOpen, action: "journal" as const },
   { id: "exercises", label: "Exercises", icon: Dumbbell, action: "toolbox" as const },
@@ -255,6 +255,12 @@ export default function Chat() {
           .join("\n\n");
         localStorage.setItem("mindmate-journal-draft", conversationSummary);
         navigate("/journal");
+      } else if (action.action === "summary") {
+        // Save messages and navigate to summary
+        localStorage.setItem("mindmate-chat-messages", JSON.stringify(
+          messages.map(m => ({ role: m.role, content: m.content }))
+        ));
+        navigate("/summary", { state: { messages: messages.map(m => ({ role: m.role, content: m.content })) } });
       } else {
         navigate(`/${action.action}`);
       }
