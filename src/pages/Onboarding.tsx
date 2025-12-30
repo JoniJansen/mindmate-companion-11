@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Heart, ArrowRight, Check, Globe, MessageCircle, User } from "lucide-react";
@@ -19,6 +19,73 @@ interface OnboardingState {
 const steps = ["welcome", "disclaimer", "preferences"] as const;
 type Step = typeof steps[number];
 
+const translations = {
+  en: {
+    continue: "Continue",
+    getStarted: "Get Started",
+    welcome: {
+      title: "Welcome to MindMate",
+      subtitle: "Your calm companion for everyday mental wellness. I'm here to listen, support your reflection, and help you build healthy habits—anytime you need.",
+    },
+    disclaimer: {
+      title: "Before we begin",
+      text: "MindMate is a supportive AI companion designed to help you reflect on your thoughts and feelings. However, it is",
+      notReplacement: "not a replacement",
+      textEnd: "for professional psychotherapy, counseling, or medical treatment.",
+      crisis: "If you're experiencing a mental health crisis, please reach out to a qualified professional or emergency services.",
+      checkbox: "I understand that this app does not replace psychotherapy or medical treatment, and I agree to the terms of use.",
+    },
+    preferences: {
+      title: "Personalize your experience",
+      subtitle: "You can change these anytime in settings",
+      language: "Language",
+      tone: "Conversation tone",
+      tones: {
+        gentle: "Gentle",
+        neutral: "Neutral",
+        structured: "Structured",
+      },
+      addressForm: "Form of address",
+      addressForms: {
+        du: "Informal",
+        sie: "Formal",
+      },
+    },
+  },
+  de: {
+    continue: "Weiter",
+    getStarted: "Los geht's",
+    welcome: {
+      title: "Willkommen bei MindMate",
+      subtitle: "Dein ruhiger Begleiter für dein tägliches mentales Wohlbefinden. Ich bin hier, um zuzuhören, deine Reflexion zu unterstützen und dir zu helfen, gesunde Gewohnheiten aufzubauen—wann immer du mich brauchst.",
+    },
+    disclaimer: {
+      title: "Bevor wir beginnen",
+      text: "MindMate ist ein unterstützender KI-Begleiter, der dir helfen soll, über deine Gedanken und Gefühle zu reflektieren. Er ist jedoch",
+      notReplacement: "kein Ersatz",
+      textEnd: "für professionelle Psychotherapie, Beratung oder medizinische Behandlung.",
+      crisis: "Wenn du dich in einer psychischen Krise befindest, wende dich bitte an einen qualifizierten Fachmann oder die Notdienste.",
+      checkbox: "Ich verstehe, dass diese App keine Psychotherapie oder medizinische Behandlung ersetzt, und ich stimme den Nutzungsbedingungen zu.",
+    },
+    preferences: {
+      title: "Personalisiere dein Erlebnis",
+      subtitle: "Du kannst diese Einstellungen jederzeit ändern",
+      language: "Sprache",
+      tone: "Gesprächston",
+      tones: {
+        gentle: "Sanft",
+        neutral: "Neutral",
+        structured: "Strukturiert",
+      },
+      addressForm: "Anrede",
+      addressForms: {
+        du: "Du (informell)",
+        sie: "Sie (formell)",
+      },
+    },
+  },
+};
+
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome");
   const [state, setState] = useState<OnboardingState>({
@@ -30,6 +97,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
 
   const currentStepIndex = steps.indexOf(currentStep);
+  const t = translations[state.language];
 
   const handleNext = () => {
     const nextIndex = currentStepIndex + 1;
@@ -71,11 +139,12 @@ export default function Onboarding() {
       <div className="flex-1 flex flex-col px-6 pb-6">
         <AnimatePresence mode="wait">
           {currentStep === "welcome" && (
-            <WelcomeStep key="welcome" />
+            <WelcomeStep key="welcome" t={t.welcome} />
           )}
           {currentStep === "disclaimer" && (
             <DisclaimerStep
               key="disclaimer"
+              t={t.disclaimer}
               accepted={state.disclaimerAccepted}
               onAcceptChange={(accepted) =>
                 setState((s) => ({ ...s, disclaimerAccepted: accepted }))
@@ -85,6 +154,7 @@ export default function Onboarding() {
           {currentStep === "preferences" && (
             <PreferencesStep
               key="preferences"
+              t={t.preferences}
               language={state.language}
               tone={state.tone}
               addressForm={state.addressForm}
@@ -103,7 +173,7 @@ export default function Onboarding() {
             onClick={handleNext}
             disabled={!canProceed()}
           >
-            {currentStep === "preferences" ? "Get Started" : "Continue"}
+            {currentStep === "preferences" ? t.getStarted : t.continue}
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
@@ -112,7 +182,11 @@ export default function Onboarding() {
   );
 }
 
-function WelcomeStep() {
+interface WelcomeStepProps {
+  t: typeof translations.en.welcome;
+}
+
+function WelcomeStep({ t }: WelcomeStepProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -130,23 +204,23 @@ function WelcomeStep() {
       </motion.div>
 
       <h1 className="text-2xl font-bold text-foreground mb-4">
-        Welcome to MindMate
+        {t.title}
       </h1>
 
       <p className="text-muted-foreground text-base leading-relaxed max-w-sm">
-        Your calm companion for everyday mental wellness. I'm here to listen, 
-        support your reflection, and help you build healthy habits—anytime you need.
+        {t.subtitle}
       </p>
     </motion.div>
   );
 }
 
 interface DisclaimerStepProps {
+  t: typeof translations.en.disclaimer;
   accepted: boolean;
   onAcceptChange: (accepted: boolean) => void;
 }
 
-function DisclaimerStep({ accepted, onAcceptChange }: DisclaimerStepProps) {
+function DisclaimerStep({ t, accepted, onAcceptChange }: DisclaimerStepProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -156,19 +230,17 @@ function DisclaimerStep({ accepted, onAcceptChange }: DisclaimerStepProps) {
       className="flex-1 flex flex-col justify-center"
     >
       <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
-        Before we begin
+        {t.title}
       </h2>
 
       <div className="bg-gentle-soft rounded-2xl p-5 mb-8">
         <p className="text-foreground text-sm leading-relaxed">
-          MindMate is a supportive AI companion designed to help you reflect on 
-          your thoughts and feelings. However, it is{" "}
-          <span className="font-medium">not a replacement</span> for professional 
-          psychotherapy, counseling, or medical treatment.
+          {t.text}{" "}
+          <span className="font-medium">{t.notReplacement}</span>{" "}
+          {t.textEnd}
         </p>
         <p className="text-muted-foreground text-sm leading-relaxed mt-3">
-          If you're experiencing a mental health crisis, please reach out to a 
-          qualified professional or emergency services.
+          {t.crisis}
         </p>
       </div>
 
@@ -179,8 +251,7 @@ function DisclaimerStep({ accepted, onAcceptChange }: DisclaimerStepProps) {
           className="mt-0.5"
         />
         <span className="text-sm text-foreground leading-relaxed">
-          I understand that this app does not replace psychotherapy or medical treatment, 
-          and I agree to the terms of use.
+          {t.checkbox}
         </span>
       </label>
     </motion.div>
@@ -188,6 +259,7 @@ function DisclaimerStep({ accepted, onAcceptChange }: DisclaimerStepProps) {
 }
 
 interface PreferencesStepProps {
+  t: typeof translations.en.preferences;
   language: Language;
   tone: Tone;
   addressForm: AddressForm;
@@ -197,6 +269,7 @@ interface PreferencesStepProps {
 }
 
 function PreferencesStep({
+  t,
   language,
   tone,
   addressForm,
@@ -213,18 +286,15 @@ function PreferencesStep({
       className="flex-1 flex flex-col pt-4"
     >
       <h2 className="text-xl font-semibold text-foreground mb-2 text-center">
-        Personalize your experience
+        {t.title}
       </h2>
       <p className="text-muted-foreground text-sm text-center mb-8">
-        You can change these anytime in settings
+        {t.subtitle}
       </p>
 
       <div className="space-y-6">
         {/* Language */}
-        <PreferenceSection
-          icon={Globe}
-          title="Language"
-        >
+        <PreferenceSection icon={Globe} title={t.language}>
           <div className="flex gap-2">
             <OptionButton
               selected={language === "en"}
@@ -242,52 +312,48 @@ function PreferencesStep({
         </PreferenceSection>
 
         {/* Tone */}
-        <PreferenceSection
-          icon={MessageCircle}
-          title="Conversation tone"
-        >
+        <PreferenceSection icon={MessageCircle} title={t.tone}>
           <div className="flex gap-2 flex-wrap">
             <OptionButton
               selected={tone === "gentle"}
               onClick={() => onToneChange("gentle")}
             >
-              Gentle
+              {t.tones.gentle}
             </OptionButton>
             <OptionButton
               selected={tone === "neutral"}
               onClick={() => onToneChange("neutral")}
             >
-              Neutral
+              {t.tones.neutral}
             </OptionButton>
             <OptionButton
               selected={tone === "structured"}
               onClick={() => onToneChange("structured")}
             >
-              Structured
+              {t.tones.structured}
             </OptionButton>
           </div>
         </PreferenceSection>
 
-        {/* Form of address */}
-        <PreferenceSection
-          icon={User}
-          title="Form of address"
-        >
-          <div className="flex gap-2">
-            <OptionButton
-              selected={addressForm === "du"}
-              onClick={() => onAddressFormChange("du")}
-            >
-              Du (informal)
-            </OptionButton>
-            <OptionButton
-              selected={addressForm === "sie"}
-              onClick={() => onAddressFormChange("sie")}
-            >
-              Sie (formal)
-            </OptionButton>
-          </div>
-        </PreferenceSection>
+        {/* Form of address - only show for German */}
+        {language === "de" && (
+          <PreferenceSection icon={User} title={t.addressForm}>
+            <div className="flex gap-2">
+              <OptionButton
+                selected={addressForm === "du"}
+                onClick={() => onAddressFormChange("du")}
+              >
+                {t.addressForms.du}
+              </OptionButton>
+              <OptionButton
+                selected={addressForm === "sie"}
+                onClick={() => onAddressFormChange("sie")}
+              >
+                {t.addressForms.sie}
+              </OptionButton>
+            </div>
+          </PreferenceSection>
+        )}
       </div>
     </motion.div>
   );
