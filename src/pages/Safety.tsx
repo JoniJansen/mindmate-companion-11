@@ -17,20 +17,35 @@ const crisisLines = [
   {
     name: "National Suicide Prevention Lifeline",
     number: "988",
+    tel: "tel:988",
     description: "24/7, free and confidential support",
     available: "24/7",
+    isText: false,
   },
   {
     name: "Crisis Text Line",
     number: "Text HOME to 741741",
+    tel: "sms:741741?body=HOME",
     description: "Free, 24/7 crisis support via text",
     available: "24/7",
+    isText: true,
   },
   {
     name: "SAMHSA National Helpline",
     number: "1-800-662-4357",
+    tel: "tel:1-800-662-4357",
     description: "Treatment referrals and information",
     available: "24/7",
+    isText: false,
+  },
+  {
+    name: "International Association for Suicide Prevention",
+    number: "Find local resources",
+    tel: "https://www.iasp.info/resources/Crisis_Centres/",
+    description: "Crisis centers worldwide",
+    available: "Varies by location",
+    isText: false,
+    isLink: true,
   },
 ];
 
@@ -79,9 +94,11 @@ export default function Safety() {
                 <p className="text-sm text-muted-foreground mb-3">
                   Please call emergency services (911) or go to your nearest emergency room.
                 </p>
-                <Button variant="destructive" size="sm">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call 911
+                <Button variant="destructive" size="sm" asChild>
+                  <a href="tel:911">
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call 911
+                  </a>
                 </Button>
               </div>
             </div>
@@ -118,12 +135,16 @@ export default function Safety() {
                         {line.available}
                       </div>
                     </div>
-                    <Button variant="calm" size="icon">
-                      {line.number.includes("Text") ? (
-                        <MessageCircle className="w-4 h-4" />
-                      ) : (
-                        <Phone className="w-4 h-4" />
-                      )}
+                    <Button variant="calm" size="icon" asChild>
+                      <a href={line.tel} target={line.isLink ? "_blank" : undefined} rel={line.isLink ? "noopener noreferrer" : undefined}>
+                        {line.isText ? (
+                          <MessageCircle className="w-4 h-4" />
+                        ) : line.isLink ? (
+                          <ExternalLink className="w-4 h-4" />
+                        ) : (
+                          <Phone className="w-4 h-4" />
+                        )}
+                      </a>
                     </Button>
                   </div>
                 </CalmCard>

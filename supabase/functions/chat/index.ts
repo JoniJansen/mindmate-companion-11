@@ -12,7 +12,34 @@ interface Preferences {
   addressForm: "du" | "sie";
 }
 
-function buildSystemPrompt(preferences: Preferences): string {
+// Crisis keywords that trigger safety response
+const CRISIS_KEYWORDS = [
+  // Self-harm
+  "self-harm", "self harm", "hurt myself", "hurting myself", "cut myself", "cutting myself",
+  "harm myself", "harming myself", "injure myself", "burn myself",
+  // Suicidal thoughts
+  "suicide", "suicidal", "kill myself", "end my life", "end it all", "want to die",
+  "don't want to live", "dont want to live", "better off dead", "no reason to live",
+  "take my own life", "not worth living", "can't go on", "cant go on",
+  // Immediate danger
+  "in danger", "going to hurt", "someone is hurting me", "being abused", "being hurt",
+  "not safe", "unsafe at home", "afraid for my life",
+  // Violence
+  "hurt someone", "kill someone", "violent thoughts", "abuse", "domestic violence",
+  "being beaten", "attacked"
+];
+
+function detectCrisis(messages: { role: string; content: string }[]): boolean {
+  const recentMessages = messages.slice(-3); // Check last 3 messages
+  const lowerContent = recentMessages
+    .filter(m => m.role === "user")
+    .map(m => m.content.toLowerCase())
+    .join(" ");
+  
+  return CRISIS_KEYWORDS.some(keyword => lowerContent.includes(keyword));
+}
+
+function buildSystemPrompt(preferences: Preferences, isCrisis: boolean): string {
   const languageInstruction = preferences.language === "de" 
     ? "Respond in German." 
     : "Respond in English.";
@@ -29,6 +56,56 @@ function buildSystemPrompt(preferences: Preferences): string {
       : "Use formal 'Sie' address form."
     : "";
 
+  // Crisis-specific system prompt
+  if (isCrisis) {
+    return `You are MindMate, a psychological companion. The user has expressed something that suggests they may be in crisis or distress. This is your TOP PRIORITY.
+
+${languageInstruction}
+${addressInstruction}
+
+## CRISIS RESPONSE PROTOCOL (Follow this EXACTLY)
+
+1. **Immediate Empathy & Validation** (First)
+   - Acknowledge their pain with genuine warmth
+   - Let them know their feelings are valid
+   - Thank them for trusting you with this
+
+2. **Safety Assessment** (Second)
+   - Gently ask if they are in immediate danger right now
+   - Ask if they are safe where they are
+   - Ask if there is someone with them
+
+3. **Professional Resources** (Third)
+   - Strongly encourage contacting crisis support:
+     * National Suicide Prevention Lifeline: 988 (US)
+     * Crisis Text Line: Text HOME to 741741
+     * Emergency services: 911
+   - Mention these are available 24/7, free, and confidential
+
+4. **Gentle Support** (Fourth)
+   - Offer to stay with them in conversation if helpful
+   - Remind them that reaching out takes courage
+   - Let them know professional help makes a difference
+
+## Critical Rules
+- NEVER minimize their feelings
+- NEVER give medical advice or diagnose
+- NEVER promise you can fix the situation
+- NEVER leave them without crisis resources
+- DO pause normal coaching—their safety comes first
+- DO be patient and non-judgmental
+- DO remind them they are not alone
+
+## Tone
+- Extra gentle, warm, and caring
+- Calm and steady
+- Non-judgmental and supportive
+- Hopeful but realistic
+
+Remember: You are NOT a replacement for professional help. Your role is to provide immediate emotional support, assess safety, and connect them with professional crisis resources.`;
+  }
+
+  // Normal system prompt
   return `You are MindMate, a psychological companion and coaching assistant. You are NOT a therapist, psychologist, or medical professional. You are a supportive AI companion designed to help people reflect on their thoughts and feelings.
 
 ${languageInstruction}
@@ -40,6 +117,20 @@ ${addressInstruction}
 - Ask clarifying questions to help them explore their thoughts
 - Offer small, actionable suggestions when appropriate
 - Help build healthy habits and self-awareness
+
+## Crisis Detection (ALWAYS monitor for this)
+If the user mentions ANYTHING related to:
+- Self-harm or hurting themselves
+- Suicidal thoughts or wanting to end their life
+- Being in immediate danger
+- Violence, abuse, or unsafe situations
+
+You MUST:
+1. Pause normal conversation immediately
+2. Respond with deep empathy and validation
+3. Ask if they are safe and in immediate danger
+4. Provide crisis resources (988, Crisis Text Line, 911)
+5. Encourage professional support
 
 ## Strict Rules (NEVER break these)
 - NEVER provide medical diagnoses or claim to diagnose conditions
@@ -90,10 +181,15 @@ serve(async (req) => {
       addressForm: "du",
     };
 
-    const systemPrompt = buildSystemPrompt(userPreferences);
+    // Detect if this is a crisis situation
+    const isCrisis = detectCrisis(messages || []);
+    const systemPrompt = buildSystemPrompt(userPreferences, isCrisis);
 
     console.log("Chat request received with", messages?.length || 0, "messages");
     console.log("Preferences:", userPreferences);
+    if (isCrisis) {
+      console.log("CRISIS DETECTED - Using crisis response protocol");
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
