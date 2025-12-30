@@ -8,6 +8,8 @@ interface ExerciseCardProps {
   onClick: () => void;
   index: number;
   isCompleted?: boolean;
+  translatedTitle?: string;
+  translatedDescription?: string;
 }
 
 const colorMap: Record<string, string> = {
@@ -17,7 +19,7 @@ const colorMap: Record<string, string> = {
   accent: "bg-accent/10 text-accent",
 };
 
-export function ExerciseCard({ exercise, onClick, index, isCompleted }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, onClick, index, isCompleted, translatedTitle, translatedDescription }: ExerciseCardProps) {
   const Icon = exercise.icon;
 
   return (
@@ -38,7 +40,7 @@ export function ExerciseCard({ exercise, onClick, index, isCompleted }: Exercise
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-medium text-foreground">{exercise.title}</h3>
+              <h3 className="font-medium text-foreground">{translatedTitle || exercise.title}</h3>
               {isCompleted && (
                 <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                   Done
@@ -46,7 +48,7 @@ export function ExerciseCard({ exercise, onClick, index, isCompleted }: Exercise
               )}
             </div>
             <p className="text-sm text-muted-foreground line-clamp-1">
-              {exercise.description}
+              {translatedDescription || exercise.description}
             </p>
           </div>
 

@@ -8,6 +8,8 @@ interface TopicCardProps {
   progress?: number;
   onClick: () => void;
   index: number;
+  translatedTitle?: string;
+  translatedDescription?: string;
 }
 
 const colorMap: Record<string, string> = {
@@ -18,7 +20,7 @@ const colorMap: Record<string, string> = {
   warm: "border-l-orange-400 bg-orange-50/50 dark:bg-orange-900/10",
 };
 
-export function TopicCard({ topic, progress = 0, onClick, index }: TopicCardProps) {
+export function TopicCard({ topic, progress = 0, onClick, index, translatedTitle, translatedDescription }: TopicCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -36,8 +38,8 @@ export function TopicCard({ topic, progress = 0, onClick, index }: TopicCardProp
           </div>
           
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-foreground">{topic.title}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-1">{topic.description}</p>
+            <h3 className="font-medium text-foreground">{translatedTitle || topic.title}</h3>
+            <p className="text-sm text-muted-foreground line-clamp-1">{translatedDescription || topic.description}</p>
             {progress > 0 && (
               <div className="mt-2">
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
