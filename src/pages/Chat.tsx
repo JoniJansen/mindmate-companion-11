@@ -18,6 +18,7 @@ interface Preferences {
   language: "en" | "de";
   tone: "gentle" | "neutral" | "structured";
   addressForm: "du" | "sie";
+  innerDialogue: boolean;
 }
 
 const getPreferences = (): Preferences => {
@@ -29,7 +30,7 @@ const getPreferences = (): Preferences => {
   } catch {
     // Ignore parse errors
   }
-  return { language: "en", tone: "gentle", addressForm: "du" };
+  return { language: "en", tone: "gentle", addressForm: "du", innerDialogue: false };
 };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;

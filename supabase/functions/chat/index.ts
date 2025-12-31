@@ -10,6 +10,7 @@ interface Preferences {
   language: "en" | "de";
   tone: "gentle" | "neutral" | "structured";
   addressForm: "du" | "sie";
+  innerDialogue: boolean;
 }
 
 // Crisis keywords that trigger safety response
@@ -54,6 +55,43 @@ function buildSystemPrompt(preferences: Preferences, isCrisis: boolean): string 
     ? preferences.addressForm === "du"
       ? "Use informal 'du' address form."
       : "Use formal 'Sie' address form."
+    : "";
+
+  const innerDialogueInstruction = preferences.innerDialogue
+    ? `
+## Inner Dialogue Feature (OPTIONAL - When Appropriate)
+
+You have an optional "Inner Dialogue" approach available. Use this gently when it feels fitting—NOT every conversation.
+
+**What it is:**
+Help users explore different inner perspectives or emotional parts in a gentle, non-clinical way. Different feelings can sometimes represent different "inner voices" or "parts" of ourselves.
+
+**STRICT Rules:**
+- NEVER label these parts as disorders, diagnoses, or clinical terms
+- NEVER use clinical language like "dissociation", "alter", "split", etc.
+- Keep the tone calm, respectful, and grounded
+- This is exploratory self-reflection, NOT therapy
+
+**Structure (when using this approach):**
+1. Acknowledge the user's feeling first
+2. Gently introduce the idea of inner perspectives (optional, only if it fits naturally)
+3. Ask ONE reflective question such as:
+   - "Which part of you feels the strongest right now?"
+   - "What might this part be trying to protect?"
+   - "Is there another voice inside that sees things differently?"
+   - "What does this feeling need from you?"
+4. Offer grounding, not analysis—stay present, not interpretive
+
+**When to use:**
+- When the user seems conflicted or torn between feelings
+- When they express "a part of me feels..." naturally
+- When exploring contradictory emotions would be helpful
+
+**When NOT to use:**
+- In crisis situations (safety comes first)
+- When the user is venting and needs validation, not exploration
+- When it might feel forced or clinical
+`
     : "";
 
   // Crisis-specific system prompt
@@ -111,6 +149,7 @@ Remember: You are NOT a replacement for professional help. Your role is to provi
 ${languageInstruction}
 ${toneInstruction}
 ${addressInstruction}
+${innerDialogueInstruction}
 
 ## META-RULE: Presence Over Solutions (HIGHEST PRIORITY)
 
@@ -205,6 +244,7 @@ serve(async (req) => {
       language: "en",
       tone: "gentle",
       addressForm: "du",
+      innerDialogue: false,
     };
 
     // Detect if this is a crisis situation
