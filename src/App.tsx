@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,9 +18,39 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Initialize theme on app load
+function ThemeInitializer() {
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("mindmate-theme");
+      if (stored) {
+        const theme = JSON.parse(stored);
+        const root = document.documentElement;
+        
+        // Determine actual mode
+        let actualMode: "light" | "dark" = theme.mode === "system"
+          ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+          : theme.mode;
+
+        // Apply dark/light class
+        if (actualMode === "dark") {
+          root.classList.add("dark");
+        } else {
+          root.classList.remove("dark");
+        }
+      }
+    } catch {
+      // Use defaults
+    }
+  }, []);
+
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <ThemeInitializer />
       <Toaster />
       <Sonner />
       <BrowserRouter>

@@ -11,19 +11,21 @@ import {
   HelpCircle,
   ChevronRight,
   Check,
-  Sparkles
+  Sparkles,
+  Palette,
+  Monitor
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useTheme, accentColorOptions, themeModeOptions, ThemeMode, AccentColor } from "@/hooks/useTheme";
 
 interface Preferences {
   language: "en" | "de";
   tone: "gentle" | "neutral" | "structured";
   addressForm: "du" | "sie";
-  darkMode: boolean;
   notifications: boolean;
   innerDialogue: boolean;
 }
@@ -32,7 +34,6 @@ const defaultPreferences: Preferences = {
   language: "en",
   tone: "gentle",
   addressForm: "du",
-  darkMode: false,
   notifications: true,
   innerDialogue: false,
 };
@@ -42,6 +43,7 @@ export default function Settings() {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const { toast } = useToast();
   const { t, language } = useTranslation();
+  const { mode, accentColor, setMode, setAccentColor, isDark } = useTheme();
 
   const languageOptions = [
     { value: "en", label: "English", flag: "🇬🇧" },
@@ -81,8 +83,40 @@ export default function Settings() {
     });
   };
 
+  const handleThemeModeChange = (newMode: ThemeMode) => {
+    setMode(newMode);
+    toast({
+      title: t("settings.saved"),
+      description: t("settings.preferencesUpdated"),
+    });
+  };
+
+  const handleAccentColorChange = (newColor: AccentColor) => {
+    setAccentColor(newColor);
+    toast({
+      title: t("settings.saved"),
+      description: t("settings.preferencesUpdated"),
+    });
+  };
+
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const getModeIcon = () => {
+    if (mode === "system") return <Monitor className="w-5 h-5 text-foreground" />;
+    if (mode === "dark" || isDark) return <Moon className="w-5 h-5 text-foreground" />;
+    return <Sun className="w-5 h-5 text-foreground" />;
+  };
+
+  const getModeLabel = () => {
+    const option = themeModeOptions.find(o => o.value === mode);
+    return language === "de" ? option?.labelDe : option?.label;
+  };
+
+  const getAccentLabel = () => {
+    const option = accentColorOptions.find(o => o.value === accentColor);
+    return language === "de" ? option?.labelDe : option?.label;
   };
 
   return (
@@ -263,7 +297,7 @@ export default function Settings() {
           )}
         </motion.div>
 
-        {/* Appearance & Notifications */}
+        {/* Appearance - Theme & Colors */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -271,28 +305,104 @@ export default function Settings() {
         >
           <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">{t("settings.appearance")}</h2>
           <div className="space-y-3">
+            {/* Theme Mode */}
             <CalmCard variant="elevated">
-              <div className="flex items-center justify-between">
+              <button
+                onClick={() => toggleSection("themeMode")}
+                className="w-full flex items-center justify-between"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                    {preferences.darkMode ? (
-                      <Moon className="w-5 h-5 text-foreground" />
-                    ) : (
-                      <Sun className="w-5 h-5 text-foreground" />
-                    )}
+                    {getModeIcon()}
                   </div>
-                  <div>
+                  <div className="text-left">
                     <p className="font-medium text-foreground">{t("settings.darkMode")}</p>
-                    <p className="text-sm text-muted-foreground">{t("settings.useDarkTheme")}</p>
+                    <p className="text-sm text-muted-foreground">{getModeLabel()}</p>
                   </div>
                 </div>
-                <Switch
-                  checked={preferences.darkMode}
-                  onCheckedChange={(checked) => updatePreference("darkMode", checked)}
-                />
-              </div>
+                <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSection === "themeMode" ? "rotate-90" : ""}`} />
+              </button>
+              
+              {expandedSection === "themeMode" && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  className="mt-4 pt-4 border-t border-border/50 space-y-2"
+                >
+                  {themeModeOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleThemeModeChange(option.value)}
+                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
+                        mode === option.value 
+                          ? "bg-primary-soft" 
+                          : "hover:bg-muted/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {option.value === "light" && <Sun className="w-5 h-5 text-foreground" />}
+                        {option.value === "dark" && <Moon className="w-5 h-5 text-foreground" />}
+                        {option.value === "system" && <Monitor className="w-5 h-5 text-foreground" />}
+                        <span className="font-medium text-foreground">
+                          {language === "de" ? option.labelDe : option.label}
+                        </span>
+                      </div>
+                      {mode === option.value && (
+                        <Check className="w-5 h-5 text-primary" />
+                      )}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
             </CalmCard>
 
+            {/* Accent Color */}
+            <CalmCard variant="elevated">
+              <button
+                onClick={() => toggleSection("accentColor")}
+                className="w-full flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+                    <Palette className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-foreground">{t("settings.accentColor")}</p>
+                    <p className="text-sm text-muted-foreground">{getAccentLabel()}</p>
+                  </div>
+                </div>
+                <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSection === "accentColor" ? "rotate-90" : ""}`} />
+              </button>
+              
+              {expandedSection === "accentColor" && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  className="mt-4 pt-4 border-t border-border/50"
+                >
+                  <div className="grid grid-cols-3 gap-3">
+                    {accentColorOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => handleAccentColorChange(option.value)}
+                        className={`flex flex-col items-center p-3 rounded-xl transition-colors ${
+                          accentColor === option.value 
+                            ? "bg-primary-soft ring-2 ring-primary" 
+                            : "hover:bg-muted/50"
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full ${option.color} mb-2`} />
+                        <span className="text-xs font-medium text-foreground text-center">
+                          {language === "de" ? option.labelDe : option.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </CalmCard>
+
+            {/* Notifications */}
             <CalmCard variant="elevated">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
