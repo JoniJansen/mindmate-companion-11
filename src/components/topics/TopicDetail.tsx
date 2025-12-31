@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Topic, TopicStep, TopicExercise } from "@/data/topics";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TopicDetailProps {
   topic: Topic;
@@ -20,16 +21,21 @@ const stepTypeIcon = {
   chat: MessageCircle,
 };
 
-const stepTypeLabel = {
-  reflection: 'Reflection',
-  exercise: 'Exercise',
-  journal: 'Journal',
-  chat: 'Chat',
-};
-
 export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDetailProps) {
   const [activeTab, setActiveTab] = useState<'path' | 'exercises'>('path');
   const navigate = useNavigate();
+  const { t, getTopicTranslation } = useTranslation();
+
+  const translation = getTopicTranslation(topic.id);
+  const topicTitle = translation?.title || topic.title;
+  const topicLongDescription = translation?.longDescription || topic.longDescription;
+
+  const stepTypeLabel: Record<string, string> = {
+    reflection: t("topics.stepType.reflection"),
+    exercise: t("topics.stepType.exercise"),
+    journal: t("topics.stepType.journal"),
+    chat: t("topics.stepType.chat"),
+  };
 
   const completedSteps = topic.steps.filter(s => progress[`${topic.id}-${s.id}`]).length;
   const progressPercent = Math.round((completedSteps / topic.steps.length) * 100);
@@ -65,7 +71,7 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="text-2xl">{topic.icon}</span>
-            <h1 className="text-xl font-semibold text-foreground">{topic.title}</h1>
+            <h1 className="text-xl font-semibold text-foreground">{topicTitle}</h1>
           </div>
         </div>
       </div>
@@ -73,15 +79,15 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
       {/* Description */}
       <CalmCard variant="gentle" className="mb-6">
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {topic.longDescription}
+          {topicLongDescription}
         </p>
       </CalmCard>
 
       {/* Progress */}
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-muted-foreground">Your progress</span>
-          <span className="font-medium text-foreground">{completedSteps}/{topic.steps.length} steps</span>
+          <span className="text-muted-foreground">{t("topics.yourProgress")}</span>
+          <span className="font-medium text-foreground">{completedSteps}/{topic.steps.length} {t("topics.steps")}</span>
         </div>
         <div className="h-2 bg-muted rounded-full overflow-hidden">
           <motion.div
@@ -101,7 +107,7 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
           onClick={() => setActiveTab('path')}
           className="flex-1"
         >
-          Reflection Path
+          {t("topics.reflectionPath")}
         </Button>
         <Button
           variant={activeTab === 'exercises' ? 'default' : 'outline'}
@@ -109,7 +115,7 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
           onClick={() => setActiveTab('exercises')}
           className="flex-1"
         >
-          Exercises
+          {t("topics.exercises")}
         </Button>
       </div>
 
@@ -214,7 +220,7 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
 
             {topic.exercises.length === 0 && (
               <CalmCard variant="gentle" className="text-center py-6">
-                <p className="text-muted-foreground">No exercises for this topic yet</p>
+                <p className="text-muted-foreground">{t("topics.noExercises")}</p>
               </CalmCard>
             )}
           </motion.div>

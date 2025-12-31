@@ -4,6 +4,7 @@ import { X, Play, Pause, RotateCcw, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Exercise } from "@/data/exercises";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ExercisePlayerProps {
   exercise: Exercise;
@@ -16,6 +17,10 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [isPlaying, setIsPlaying] = useState(false);
   const [stepProgress, setStepProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const { t, getExerciseTranslation } = useTranslation();
+
+  const translation = getExerciseTranslation(exercise.id);
+  const exerciseTitle = translation?.title || exercise.title;
 
   const step = exercise.steps[currentStep];
   const totalSteps = exercise.steps.length;
@@ -74,7 +79,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
           <X className="w-5 h-5" />
         </Button>
         <span className="text-sm text-muted-foreground">
-          {exercise.title}
+          {exerciseTitle}
         </span>
         <div className="w-10" />
       </div>
@@ -104,18 +109,18 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
                 <Check className="w-10 h-10 text-primary" />
               </div>
               <h2 className="text-2xl font-semibold text-foreground mb-2">
-                Well done
+                {t("common.wellDone")}
               </h2>
               <p className="text-muted-foreground mb-8">
-                You completed the {exercise.title} exercise.
+                {t("toolbox.completedExercise")}
               </p>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={handleRestart}>
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  Again
+                  {t("common.again")}
                 </Button>
                 <Button variant="calm" onClick={handleComplete}>
-                  Finish
+                  {t("common.finish")}
                 </Button>
               </div>
             </motion.div>
@@ -144,7 +149,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
               {/* Step counter */}
               <span className="text-sm text-muted-foreground mb-4 block">
-                Step {currentStep + 1} of {totalSteps}
+                {t("common.step")} {currentStep + 1} {t("common.of")} {totalSteps}
               </span>
 
               {/* Instruction */}
@@ -180,12 +185,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
             {isPlaying ? (
               <>
                 <Pause className="w-5 h-5 mr-2" />
-                Pause
+                {t("common.pause")}
               </>
             ) : (
               <>
                 <Play className="w-5 h-5 mr-2" />
-                {currentStep === 0 && stepProgress === 0 ? 'Start' : 'Resume'}
+                {currentStep === 0 && stepProgress === 0 ? t("common.start") : t("common.resume")}
               </>
             )}
           </Button>
@@ -196,7 +201,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       {!isComplete && exercise.prompts && exercise.prompts.length > 0 && (
         <div className="px-4 pb-4">
           <CalmCard variant="gentle" className="max-w-md mx-auto">
-            <p className="text-xs text-muted-foreground mb-2">Helpful prompts:</p>
+            <p className="text-xs text-muted-foreground mb-2">{t("common.helpfulPrompts")}:</p>
             <p className="text-sm text-foreground italic">
               {exercise.prompts[currentStep % exercise.prompts.length]}
             </p>

@@ -7,17 +7,19 @@ import {
   ListTodo, 
   Sparkles 
 } from "lucide-react";
-
-const navItems = [
-  { to: "/journal", icon: BookOpen, label: "Journal" },
-  { to: "/mood", icon: Smile, label: "Mood" },
-  { to: "/chat", icon: MessageCircle, label: "Chat" },
-  { to: "/topics", icon: ListTodo, label: "Topics" },
-  { to: "/toolbox", icon: Sparkles, label: "Toolbox" },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function BottomNav() {
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { to: "/journal", icon: BookOpen, labelKey: "nav.journal" },
+    { to: "/mood", icon: Smile, labelKey: "nav.mood" },
+    { to: "/chat", icon: MessageCircle, labelKey: "nav.chat" },
+    { to: "/topics", icon: ListTodo, labelKey: "nav.topics" },
+    { to: "/toolbox", icon: Sparkles, labelKey: "nav.toolbox" },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border/50 safe-bottom">
@@ -72,7 +74,7 @@ export function BottomNav() {
               } ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}>
-                {item.label}
+                {t(item.labelKey)}
               </span>
             </NavLink>
           );

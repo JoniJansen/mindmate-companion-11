@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Message {
   id: string;
@@ -33,21 +34,6 @@ const getPreferences = (): Preferences => {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-const quickReplies = [
-  "I'm feeling good today",
-  "I'm a bit stressed",
-  "I need someone to talk to",
-  "Help me relax",
-];
-
-const actionButtons = [
-  { id: "endsession", label: "End & Summarize", icon: FileText, action: "summary" as const },
-  { id: "nextsteps", label: "Next steps", icon: ListChecks, prompt: "Based on our conversation, what are 2-3 gentle, actionable next steps I could consider? Keep them small and achievable." },
-  { id: "journal", label: "Save to journal", icon: BookOpen, action: "journal" as const },
-  { id: "exercises", label: "Exercises", icon: Dumbbell, action: "toolbox" as const },
-  { id: "crisis", label: "Crisis help", icon: AlertTriangle, action: "safety" as const },
-];
-
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -56,7 +42,23 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const preferences = useRef<Preferences>(getPreferences());
+
+  const quickReplies = [
+    t("chat.quickReply1"),
+    t("chat.quickReply2"),
+    t("chat.quickReply3"),
+    t("chat.quickReply4"),
+  ];
+
+  const actionButtons = [
+    { id: "endsession", label: t("chat.endSummarize"), icon: FileText, action: "summary" as const },
+    { id: "nextsteps", label: t("chat.nextSteps"), icon: ListChecks, prompt: "Based on our conversation, what are 2-3 gentle, actionable next steps I could consider? Keep them small and achievable." },
+    { id: "journal", label: t("chat.saveToJournal"), icon: BookOpen, action: "journal" as const },
+    { id: "exercises", label: t("chat.exercises"), icon: Dumbbell, action: "toolbox" as const },
+    { id: "crisis", label: t("chat.crisisHelp"), icon: AlertTriangle, action: "safety" as const },
+  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -83,7 +85,7 @@ export default function Chat() {
 
   const handleError = (error: string) => {
     toast({
-      title: "Connection issue",
+      title: t("chat.connectionIssue"),
       description: error,
       variant: "destructive",
     });
@@ -274,8 +276,8 @@ export default function Chat() {
   return (
     <div className="flex flex-col h-screen bg-background">
       <PageHeader
-        title="MindMate"
-        subtitle="Always here for you"
+        title={t("chat.title")}
+        subtitle={t("chat.subtitle")}
         rightElement={
           <Button
             variant="ghost"
@@ -416,7 +418,7 @@ export default function Chat() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend(inputValue)}
-              placeholder="Type your message..."
+              placeholder={t("chat.inputPlaceholder")}
               disabled={isLoading}
               className="w-full bg-muted/50 border border-border/50 rounded-xl px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 disabled:opacity-50"
             />

@@ -14,7 +14,7 @@ export const translations: Translations = {
   // Navigation & Common
   "nav.chat": { en: "Chat", de: "Chat" },
   "nav.journal": { en: "Journal", de: "Tagebuch" },
-  "nav.toolbox": { en: "Toolbox", de: "Werkzeugkasten" },
+  "nav.toolbox": { en: "Toolbox", de: "Werkzeuge" },
   "nav.topics": { en: "Topics", de: "Themen" },
   "nav.mood": { en: "Mood", de: "Stimmung" },
   "nav.settings": { en: "Settings", de: "Einstellungen" },
@@ -34,6 +34,29 @@ export const translations: Translations = {
   "common.error": { en: "Error", de: "Fehler" },
   "common.share": { en: "Share", de: "Teilen" },
   "common.export": { en: "Export", de: "Exportieren" },
+  "common.pause": { en: "Pause", de: "Pause" },
+  "common.resume": { en: "Resume", de: "Fortsetzen" },
+  "common.again": { en: "Again", de: "Nochmal" },
+  "common.finish": { en: "Finish", de: "Beenden" },
+  "common.step": { en: "Step", de: "Schritt" },
+  "common.of": { en: "of", de: "von" },
+  "common.wellDone": { en: "Well done", de: "Gut gemacht" },
+  "common.helpfulPrompts": { en: "Helpful prompts", de: "Hilfreiche Impulse" },
+
+  // Chat page
+  "chat.title": { en: "MindMate", de: "MindMate" },
+  "chat.subtitle": { en: "Always here for you", de: "Immer für dich da" },
+  "chat.inputPlaceholder": { en: "Type your message...", de: "Schreibe deine Nachricht..." },
+  "chat.endSummarize": { en: "End & Summarize", de: "Beenden & Zusammenfassen" },
+  "chat.nextSteps": { en: "Next steps", de: "Nächste Schritte" },
+  "chat.saveToJournal": { en: "Save to journal", de: "Im Tagebuch speichern" },
+  "chat.exercises": { en: "Exercises", de: "Übungen" },
+  "chat.crisisHelp": { en: "Crisis help", de: "Krisenhilfe" },
+  "chat.quickReply1": { en: "I'm feeling good today", de: "Mir geht es heute gut" },
+  "chat.quickReply2": { en: "I'm a bit stressed", de: "Ich bin etwas gestresst" },
+  "chat.quickReply3": { en: "I need someone to talk to", de: "Ich brauche jemanden zum Reden" },
+  "chat.quickReply4": { en: "Help me relax", de: "Hilf mir zu entspannen" },
+  "chat.connectionIssue": { en: "Connection issue", de: "Verbindungsproblem" },
 
   // Journal page
   "journal.title": { en: "Journal", de: "Tagebuch" },
@@ -50,6 +73,16 @@ export const translations: Translations = {
   "journal.writeAtLeast3": { en: "Write at least 3 journal entries to see themes.", de: "Schreibe mindestens 3 Tagebucheinträge, um Themen zu sehen." },
   "journal.reflectionError": { en: "Failed to get AI reflection. Please try again.", de: "KI-Reflexion konnte nicht abgerufen werden. Bitte versuche es erneut." },
   "journal.themesError": { en: "Failed to get themes. Please try again.", de: "Themen konnten nicht abgerufen werden. Bitte versuche es erneut." },
+  "journal.howAreYouFeeling": { en: "How are you feeling?", de: "Wie fühlst du dich?" },
+  "journal.titlePlaceholder": { en: "Give your entry a title (optional)", de: "Gib deinem Eintrag einen Titel (optional)" },
+  "journal.contentPlaceholder": { en: "Start writing... This is your private space to express yourself freely.", de: "Beginne zu schreiben... Dies ist dein privater Raum, um dich frei auszudrücken." },
+  "journal.emptyEntry": { en: "Empty entry", de: "Leerer Eintrag" },
+  "journal.pleaseWriteSomething": { en: "Please write something before saving.", de: "Bitte schreibe etwas, bevor du speicherst." },
+  "journal.saved": { en: "Saved", de: "Gespeichert" },
+  "journal.entrySaved": { en: "Your journal entry has been saved.", de: "Dein Tagebucheintrag wurde gespeichert." },
+  "journal.saveFailed": { en: "Failed to save entry. Please try again.", de: "Eintrag konnte nicht gespeichert werden. Bitte versuche es erneut." },
+  "journal.reflect": { en: "Reflect", de: "Reflektieren" },
+  "journal.saving": { en: "Saving...", de: "Speichern..." },
 
   // Journal prompts
   "journal.prompt1": { en: "What small moment brought you peace today?", de: "Welcher kleine Moment hat dir heute Frieden gebracht?" },
@@ -68,6 +101,7 @@ export const translations: Translations = {
   "toolbox.tipText": { en: "Start with shorter exercises. Even 60 seconds of breathing can shift your state.", de: "Beginne mit kürzeren Übungen. Schon 60 Sekunden Atmen können deinen Zustand verändern." },
   "toolbox.exerciseCompleted": { en: "Exercise completed", de: "Übung abgeschlossen" },
   "toolbox.greatJob": { en: "Great job taking care of yourself.", de: "Toll, dass du auf dich achtest." },
+  "toolbox.completedExercise": { en: "You completed the exercise.", de: "Du hast die Übung abgeschlossen." },
 
   // Categories
   "category.all": { en: "All", de: "Alle" },
@@ -85,6 +119,15 @@ export const translations: Translations = {
   "topics.noMatch": { en: "No topics match your search", de: "Keine Themen entsprechen deiner Suche" },
   "topics.stepCompleted": { en: "Step completed", de: "Schritt abgeschlossen" },
   "topics.greatProgress": { en: "Great progress! Keep going.", de: "Toller Fortschritt! Weiter so." },
+  "topics.yourProgress": { en: "Your progress", de: "Dein Fortschritt" },
+  "topics.steps": { en: "steps", de: "Schritte" },
+  "topics.reflectionPath": { en: "Reflection Path", de: "Reflexionspfad" },
+  "topics.exercises": { en: "Exercises", de: "Übungen" },
+  "topics.noExercises": { en: "No exercises for this topic yet", de: "Noch keine Übungen für dieses Thema" },
+  "topics.stepType.reflection": { en: "Reflection", de: "Reflexion" },
+  "topics.stepType.exercise": { en: "Exercise", de: "Übung" },
+  "topics.stepType.journal": { en: "Journal", de: "Tagebuch" },
+  "topics.stepType.chat": { en: "Chat", de: "Chat" },
 
   // Settings page
   "settings.title": { en: "Settings", de: "Einstellungen" },
