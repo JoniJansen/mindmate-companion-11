@@ -10,7 +10,8 @@ import {
   Shield, 
   HelpCircle,
   ChevronRight,
-  Check
+  Check,
+  Sparkles
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
@@ -24,6 +25,7 @@ interface Preferences {
   addressForm: "du" | "sie";
   darkMode: boolean;
   notifications: boolean;
+  innerDialogue: boolean;
 }
 
 const defaultPreferences: Preferences = {
@@ -32,6 +34,7 @@ const defaultPreferences: Preferences = {
   addressForm: "du",
   darkMode: false,
   notifications: true,
+  innerDialogue: false,
 };
 
 export default function Settings() {
@@ -304,6 +307,24 @@ export default function Settings() {
                 <Switch
                   checked={preferences.notifications}
                   onCheckedChange={(checked) => updatePreference("notifications", checked)}
+                />
+              </div>
+            </CalmCard>
+
+            <CalmCard variant="elevated">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gentle-soft flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-gentle" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{t("settings.innerDialogue")}</p>
+                    <p className="text-sm text-muted-foreground">{t("settings.innerDialogueDesc")}</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={preferences.innerDialogue}
+                  onCheckedChange={(checked) => updatePreference("innerDialogue", checked)}
                 />
               </div>
             </CalmCard>

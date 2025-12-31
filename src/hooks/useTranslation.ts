@@ -142,6 +142,8 @@ export const translations: Translations = {
   "settings.useDarkTheme": { en: "Use dark theme", de: "Dunkles Design verwenden" },
   "settings.reminders": { en: "Reminders", de: "Erinnerungen" },
   "settings.dailyCheckin": { en: "Daily check-in notifications", de: "Tägliche Check-in-Benachrichtigungen" },
+  "settings.innerDialogue": { en: "Inner Dialogue", de: "Innerer Dialog" },
+  "settings.innerDialogueDesc": { en: "Explore different inner perspectives", de: "Erkunde verschiedene innere Perspektiven" },
   "settings.support": { en: "Support", de: "Hilfe" },
   "settings.privacyData": { en: "Privacy & Data", de: "Datenschutz & Daten" },
   "settings.manageInfo": { en: "Manage your information", de: "Verwalte deine Informationen" },
