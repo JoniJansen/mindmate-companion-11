@@ -241,74 +241,323 @@ export const translations: Translations = {
 };
 
 // Exercise translations
-export const exerciseTranslations: Record<string, { en: { title: string; description: string; longDescription: string }; de: { title: string; description: string; longDescription: string } }> = {
+export const exerciseTranslations: Record<string, { 
+  en: { title: string; description: string; longDescription: string; steps?: string[]; prompts?: string[] }; 
+  de: { title: string; description: string; longDescription: string; steps?: string[]; prompts?: string[] } 
+}> = {
   "breathing-60": {
     en: { title: "60-Second Breathing", description: "Quick calm when you need it most", longDescription: "A rapid relaxation technique using deep diaphragmatic breathing. Perfect for moments of acute stress or before important situations." },
-    de: { title: "60-Sekunden-Atmung", description: "Schnelle Ruhe, wenn du sie am meisten brauchst", longDescription: "Eine schnelle Entspannungstechnik mit tiefer Zwerchfellatmung. Perfekt für Momente akuten Stresses oder vor wichtigen Situationen." }
+    de: { 
+      title: "60-Sekunden-Atmung", 
+      description: "Schnelle Ruhe, wenn du sie am meisten brauchst", 
+      longDescription: "Eine schnelle Entspannungstechnik mit tiefer Zwerchfellatmung. Perfekt für Momente akuten Stresses oder vor wichtigen Situationen.",
+      steps: [
+        "Finde eine bequeme Position und schließe deine Augen",
+        "Atme langsam durch die Nase ein... 1... 2... 3... 4...",
+        "Halte sanft... 1... 2...",
+        "Atme langsam durch den Mund aus... 1... 2... 3... 4... 5... 6...",
+        "Atme ein... spüre, wie Ruhe in deinen Körper fließt...",
+        "Halte...",
+        "Atme aus... lass Anspannung los...",
+        "Atme ein... 1... 2... 3... 4...",
+        "Halte...",
+        "Atme vollständig aus... 1... 2... 3... 4... 5... 6...",
+        "Noch ein Atemzug... tief und langsam...",
+        "Halte...",
+        "Und loslassen... vollständig entspannen...",
+        "Öffne sanft deine Augen. Bemerke, wie du dich fühlst."
+      ]
+    }
   },
   "thought-reframing": {
     en: { title: "Thought Reframing", description: "Challenge unhelpful thinking patterns", longDescription: "Based on Cognitive Behavioral Therapy (CBT), this exercise helps you identify, examine, and reframe thoughts that may be causing distress." },
-    de: { title: "Gedanken umformulieren", description: "Hinterfrage nicht hilfreiche Denkmuster", longDescription: "Basierend auf der Kognitiven Verhaltenstherapie (KVT) hilft dir diese Übung, Gedanken zu identifizieren, zu untersuchen und umzuformulieren, die Stress verursachen könnten." }
+    de: { 
+      title: "Gedanken umformulieren", 
+      description: "Hinterfrage nicht hilfreiche Denkmuster", 
+      longDescription: "Basierend auf der Kognitiven Verhaltenstherapie (KVT) hilft dir diese Übung, Gedanken zu identifizieren, zu untersuchen und umzuformulieren, die Stress verursachen könnten.",
+      steps: [
+        "Denke an eine Situation, die dich beschäftigt",
+        "Welcher Gedanke kommt bei dieser Situation auf?",
+        "Wie lässt dich dieser Gedanke fühlen? (Intensität 1-10)",
+        "Welche Beweise unterstützen diesen Gedanken?",
+        "Welche Beweise sprechen gegen diesen Gedanken?",
+        "Gibt es eine andere Art, diese Situation zu betrachten?",
+        "Was würdest du einem Freund sagen, der diesen Gedanken hat?",
+        "Formuliere einen ausgewogeneren Gedanken zu dieser Situation",
+        "Wie fühlst du dich jetzt? (Intensität 1-10)",
+        "Bemerke jede Veränderung in deinen Gefühlen. Auch kleine Änderungen zählen."
+      ],
+      prompts: [
+        "Welcher Gedanke beschäftigt dich gerade?",
+        "Ist dieser Gedanke zu 100% wahr, oder gibt es Ausnahmen?",
+        "Was ist das Schlimmste, das passieren könnte? Könntest du damit umgehen?",
+        "Was ist das Beste, das passieren könnte?",
+        "Was passiert am wahrscheinlichsten?"
+      ]
+    }
   },
   "journaling-prompts": {
     en: { title: "Guided Journaling", description: "Reflective prompts for self-discovery", longDescription: "Structured prompts to help you explore your thoughts and feelings. Writing helps process emotions and gain clarity." },
-    de: { title: "Geführtes Tagebuchschreiben", description: "Reflektierende Impulse zur Selbstentdeckung", longDescription: "Strukturierte Impulse, die dir helfen, deine Gedanken und Gefühle zu erkunden. Schreiben hilft, Emotionen zu verarbeiten und Klarheit zu gewinnen." }
+    de: { 
+      title: "Geführtes Tagebuchschreiben", 
+      description: "Reflektierende Impulse zur Selbstentdeckung", 
+      longDescription: "Strukturierte Impulse, die dir helfen, deine Gedanken und Gefühle zu erkunden. Schreiben hilft, Emotionen zu verarbeiten und Klarheit zu gewinnen.",
+      steps: [
+        "Finde einen ruhigen Ort und etwas zum Schreiben",
+        "Nimm 3 tiefe Atemzüge, um dich zu zentrieren",
+        "Wähle einen Impuls, der dich anspricht",
+        "Schreibe frei, ohne zu bearbeiten oder zu urteilen",
+        "Lies, was du geschrieben hast, mit Mitgefühl",
+        "Unterstreiche Erkenntnisse oder Muster, die dir auffallen",
+        "Schreibe eine Sache auf, die du dir merken möchtest"
+      ],
+      prompts: [
+        "Was fühle ich gerade und wo spüre ich es in meinem Körper?",
+        "Was würde ich tun, wenn ich wüsste, dass ich nicht scheitern kann?",
+        "Was vermeide ich und warum?",
+        "Was muss ich mir selbst verzeihen?",
+        "Was gibt mir Energie und was nimmt sie mir?",
+        "Was würde mein weisestes Selbst mir jetzt sagen?",
+        "Wofür bin ich heute dankbar, auch wenn es klein ist?"
+      ]
+    }
   },
   "values-clarification": {
     en: { title: "Values Clarification", description: "Discover what truly matters to you", longDescription: "Understanding your core values helps guide decisions and brings meaning to daily life. This exercise helps you identify and prioritize what matters most." },
-    de: { title: "Werteklärung", description: "Entdecke, was dir wirklich wichtig ist", longDescription: "Das Verstehen deiner Kernwerte hilft bei Entscheidungen und bringt Bedeutung in den Alltag. Diese Übung hilft dir, herauszufinden, was dir am wichtigsten ist." }
+    de: { 
+      title: "Werteklärung", 
+      description: "Entdecke, was dir wirklich wichtig ist", 
+      longDescription: "Das Verstehen deiner Kernwerte hilft bei Entscheidungen und bringt Bedeutung in den Alltag. Diese Übung hilft dir, herauszufinden, was dir am wichtigsten ist.",
+      steps: [
+        "Denke an eine Zeit, in der du dich lebendig und erfüllt gefühlt hast",
+        "Was ist passiert? Welche Werte hast du gelebt?",
+        "Denke jetzt an eine Zeit, als du frustriert oder vom Weg abgekommen warst",
+        "Welcher Wert könnte verletzt worden sein?",
+        "Wähle aus der Liste unten deine Top 10 Werte",
+        "Reduziere auf deine Top 5",
+        "Identifiziere deine 3 Kernwerte",
+        "Schreibe für jeden Wert eine Möglichkeit, wie du ihn diese Woche leben kannst",
+        "Reflektiere: Wie sehr stimmt dein Leben mit diesen Werten überein?"
+      ],
+      prompts: [
+        "Authentizität • Abenteuer • Balance • Mitgefühl • Mut",
+        "Kreativität • Familie • Freiheit • Wachstum • Gesundheit",
+        "Ehrlichkeit • Unabhängigkeit • Freude • Gerechtigkeit • Freundlichkeit",
+        "Wissen • Liebe • Frieden • Sinn • Sicherheit",
+        "Dienst • Spiritualität • Erfolg • Vertrauen • Weisheit"
+      ]
+    }
   },
   "boundary-prep": {
     en: { title: "Boundary Setting", description: "Prepare to communicate your limits", longDescription: "Setting boundaries can feel challenging but is essential for wellbeing. This exercise helps you prepare for boundary conversations with clarity and confidence." },
-    de: { title: "Grenzen setzen", description: "Bereite dich darauf vor, deine Grenzen zu kommunizieren", longDescription: "Grenzen zu setzen kann sich herausfordernd anfühlen, ist aber wichtig für dein Wohlbefinden. Diese Übung hilft dir, Grenzgespräche mit Klarheit und Selbstvertrauen vorzubereiten." }
+    de: { 
+      title: "Grenzen setzen", 
+      description: "Bereite dich darauf vor, deine Grenzen zu kommunizieren", 
+      longDescription: "Grenzen zu setzen kann sich herausfordernd anfühlen, ist aber wichtig für dein Wohlbefinden. Diese Übung hilft dir, Grenzgespräche mit Klarheit und Selbstvertrauen vorzubereiten.",
+      steps: [
+        "Denke an eine Situation, in der du eine Grenze setzen musst",
+        "Was genau passiert, das sich nicht okay anfühlt?",
+        "Wie beeinflusst dich diese Situation? (emotional, körperlich, praktisch)",
+        "Was brauchst du stattdessen?",
+        "Nutze dieses Format: \"Wenn [Verhalten], fühle ich [Emotion], und ich brauche [Grenze]\"",
+        "Übe es laut zu sagen, ruhig und klar",
+        "Antizipiere mögliche Reaktionen. Wie bleibst du standhaft?",
+        "Erinnere dich: Grenzen setzen ist ein Akt der Selbstachtung",
+        "Visualisiere, wie das Gespräch gut verläuft",
+        "Bemerke, wie es sich anfühlt, für dich einzustehen"
+      ],
+      prompts: [
+        "\"Das ist für mich nicht verfügbar.\"",
+        "\"Ich brauche etwas Zeit, um darüber nachzudenken.\"",
+        "\"Das funktioniert für mich nicht.\"",
+        "\"Ich verstehe, und meine Antwort ist weiterhin nein.\"",
+        "\"Du bist mir wichtig, und ich muss auch auf mich achten.\""
+      ]
+    }
   },
   "grounding-54321": {
     en: { title: "5-4-3-2-1 Grounding", description: "Anchor to the present moment", longDescription: "A sensory-based grounding technique that quickly brings you back to the present moment. Especially helpful during anxiety or overwhelm." },
-    de: { title: "5-4-3-2-1 Erdung", description: "Verankere dich im gegenwärtigen Moment", longDescription: "Eine sensorische Erdungstechnik, die dich schnell in den gegenwärtigen Moment zurückbringt. Besonders hilfreich bei Angst oder Überforderung." }
+    de: { 
+      title: "5-4-3-2-1 Erdung", 
+      description: "Verankere dich im gegenwärtigen Moment", 
+      longDescription: "Eine sensorische Erdungstechnik, die dich schnell in den gegenwärtigen Moment zurückbringt. Besonders hilfreich bei Angst oder Überforderung.",
+      steps: [
+        "Nimm einen langsamen, tiefen Atemzug",
+        "Schau dich um und benenne 5 Dinge, die du SEHEN kannst",
+        "Beachte Details: Farben, Formen, Texturen...",
+        "Konzentriere dich jetzt auf 4 Dinge, die du BERÜHREN kannst",
+        "Spüre die Texturen, Temperaturen, Empfindungen...",
+        "Höre auf 3 Dinge, die du HÖREN kannst",
+        "Bemerke Geräusche nah und fern...",
+        "Identifiziere 2 Dinge, die du RIECHEN kannst",
+        "Und 1 Sache, die du SCHMECKEN kannst",
+        "Nimm noch einen tiefen Atemzug",
+        "Bemerke, wie du dich jetzt fühlst, geerdet in diesem Moment"
+      ]
+    }
   }
 };
 
-// Topic translations
-export const topicTranslations: Record<string, { en: { title: string; description: string; longDescription: string }; de: { title: string; description: string; longDescription: string } }> = {
+// Topic translations with steps
+export const topicTranslations: Record<string, { 
+  en: { title: string; description: string; longDescription: string; steps?: { title: string; description: string }[] }; 
+  de: { title: string; description: string; longDescription: string; steps?: { title: string; description: string }[] } 
+}> = {
   "stress-overwhelm": {
     en: { title: "Stress & Overwhelm", description: "When everything feels like too much", longDescription: "Stress is your body's natural response to demands, but chronic overwhelm can drain your energy and clarity. This path helps you understand your stress patterns and build sustainable coping strategies." },
-    de: { title: "Stress & Überforderung", description: "Wenn alles zu viel wird", longDescription: "Stress ist die natürliche Reaktion deines Körpers auf Anforderungen, aber chronische Überforderung kann deine Energie und Klarheit aufzehren. Dieser Pfad hilft dir, deine Stressmuster zu verstehen und nachhaltige Bewältigungsstrategien aufzubauen." }
+    de: { 
+      title: "Stress & Überforderung", 
+      description: "Wenn alles zu viel wird", 
+      longDescription: "Stress ist die natürliche Reaktion deines Körpers auf Anforderungen, aber chronische Überforderung kann deine Energie und Klarheit aufzehren. Dieser Pfad hilft dir, deine Stressmuster zu verstehen und nachhaltige Bewältigungsstrategien aufzubauen.",
+      steps: [
+        { title: "Benenne, was dich belastet", description: "Identifiziere die spezifischen Quellen deines Stresses" },
+        { title: "Erkunde deine Stresssignale", description: "Erkenne, wie sich Stress in deinem Körper und Geist zeigt" },
+        { title: "Probiere eine Erdungsübung", description: "Übe eine beruhigende Technik, um sofortige Anspannung zu reduzieren" },
+        { title: "Finde eine kleine Veränderung", description: "Finde eine Sache, die du anpassen oder loslassen kannst" },
+        { title: "Erstelle einen Stressbewältigungsplan", description: "Baue ein personalisiertes Werkzeugset zum Umgang mit Überforderung" }
+      ]
+    }
   },
   "relationships": {
     en: { title: "Relationships", description: "Navigating connections with others", longDescription: "Healthy relationships require communication, boundaries, and self-awareness. This path helps you explore your relationship patterns and develop deeper, more authentic connections." },
-    de: { title: "Beziehungen", description: "Verbindungen mit anderen navigieren", longDescription: "Gesunde Beziehungen erfordern Kommunikation, Grenzen und Selbstbewusstsein. Dieser Pfad hilft dir, deine Beziehungsmuster zu erkunden und tiefere, authentischere Verbindungen zu entwickeln." }
+    de: { 
+      title: "Beziehungen", 
+      description: "Verbindungen mit anderen navigieren", 
+      longDescription: "Gesunde Beziehungen erfordern Kommunikation, Grenzen und Selbstbewusstsein. Dieser Pfad hilft dir, deine Beziehungsmuster zu erkunden und tiefere, authentischere Verbindungen zu entwickeln.",
+      steps: [
+        { title: "Reflektiere über eine Beziehung", description: "Wähle eine Beziehung, die du tiefer erkunden möchtest" },
+        { title: "Identifiziere deine Bedürfnisse", description: "Was brauchst du von dieser Beziehung?" },
+        { title: "Erkunde Kommunikationsmuster", description: "Wie drückst du dich aus? Was könnte sich ändern?" },
+        { title: "Übe ein Gespräch", description: "Bereite dich auf ein schwieriges oder wichtiges Gespräch vor" },
+        { title: "Setze eine Intention", description: "Definiere einen kleinen Schritt zur Verbesserung dieser Verbindung" }
+      ]
+    }
   },
   "family": {
     en: { title: "Family", description: "Complex dynamics and healing", longDescription: "Family relationships can be our deepest source of both joy and pain. This path helps you navigate complex family dynamics with more clarity and peace." },
-    de: { title: "Familie", description: "Komplexe Dynamiken und Heilung", longDescription: "Familienbeziehungen können unsere tiefste Quelle für Freude und Schmerz sein. Dieser Pfad hilft dir, komplexe Familiendynamiken mit mehr Klarheit und Frieden zu navigieren." }
+    de: { 
+      title: "Familie", 
+      description: "Komplexe Dynamiken und Heilung", 
+      longDescription: "Familienbeziehungen können unsere tiefste Quelle für Freude und Schmerz sein. Dieser Pfad hilft dir, komplexe Familiendynamiken mit mehr Klarheit und Frieden zu navigieren.",
+      steps: [
+        { title: "Kartiere deine Familienlandschaft", description: "Erkunde die wichtigsten Beziehungen und Dynamiken" },
+        { title: "Identifiziere vererbte Muster", description: "Welche Verhaltensweisen oder Überzeugungen hast du von der Familie gelernt?" },
+        { title: "Verarbeite eine bestimmte Erinnerung", description: "Arbeite einen Moment durch, der dich noch beeinflusst" },
+        { title: "Schreibe eine Erzählung um", description: "Finde eine neue Perspektive auf eine alte Geschichte" },
+        { title: "Wähle deine Reaktion", description: "Entscheide, wie du in Zukunft auftreten möchtest" },
+        { title: "Übe Selbstmitgefühl", description: "Lass Schuld oder Scham bezüglich Familienbeziehungen los" }
+      ]
+    }
   },
   "self-esteem": {
     en: { title: "Self-Esteem", description: "Building a kinder relationship with yourself", longDescription: "Self-esteem isn't about being perfect—it's about accepting yourself as you are while growing into who you want to become. This path helps you build genuine self-worth." },
-    de: { title: "Selbstwertgefühl", description: "Eine freundlichere Beziehung zu dir selbst aufbauen", longDescription: "Selbstwertgefühl bedeutet nicht, perfekt zu sein – es geht darum, dich so zu akzeptieren, wie du bist, während du zu dem wirst, der du sein möchtest. Dieser Pfad hilft dir, echtes Selbstwertgefühl aufzubauen." }
+    de: { 
+      title: "Selbstwertgefühl", 
+      description: "Eine freundlichere Beziehung zu dir selbst aufbauen", 
+      longDescription: "Selbstwertgefühl bedeutet nicht, perfekt zu sein – es geht darum, dich so zu akzeptieren, wie du bist, während du zu dem wirst, der du sein möchtest. Dieser Pfad hilft dir, echtes Selbstwertgefühl aufzubauen.",
+      steps: [
+        { title: "Bemerke deinen inneren Kritiker", description: "Werde dir negativer Selbstgespräche bewusst" },
+        { title: "Hinterfrage einen einschränkenden Glauben", description: "Stelle eine Sache in Frage, die du über dich glaubst" },
+        { title: "Erkenne deine Stärken an", description: "Erkenne, was du der Welt gibst" },
+        { title: "Übe Selbstmitgefühl", description: "Behandle dich so, wie du einen guten Freund behandeln würdest" },
+        { title: "Feiere kleine Erfolge", description: "Bemerke und schätze deine täglichen Leistungen" },
+        { title: "Erstelle eine Affirmation", description: "Schreibe eine Aussage, die deinen wahren Wert widerspiegelt" }
+      ]
+    }
   },
   "work-burnout": {
     en: { title: "Work & Burnout", description: "Finding balance and preventing exhaustion", longDescription: "Burnout happens when demands consistently exceed your resources. This path helps you recognize warning signs, set better boundaries, and rediscover meaning in your work." },
-    de: { title: "Arbeit & Burnout", description: "Balance finden und Erschöpfung vorbeugen", longDescription: "Burnout entsteht, wenn Anforderungen dauerhaft deine Ressourcen übersteigen. Dieser Pfad hilft dir, Warnzeichen zu erkennen, bessere Grenzen zu setzen und den Sinn in deiner Arbeit wiederzuentdecken." }
+    de: { 
+      title: "Arbeit & Burnout", 
+      description: "Balance finden und Erschöpfung vorbeugen", 
+      longDescription: "Burnout entsteht, wenn Anforderungen dauerhaft deine Ressourcen übersteigen. Dieser Pfad hilft dir, Warnzeichen zu erkennen, bessere Grenzen zu setzen und den Sinn in deiner Arbeit wiederzuentdecken.",
+      steps: [
+        { title: "Bewerte dein Burnout-Level", description: "Erkenne, wo du auf dem Erschöpfungsspektrum stehst" },
+        { title: "Identifiziere Energiefresser", description: "Welche Aspekte der Arbeit erschöpfen dich am meisten?" },
+        { title: "Finde deine Energiequellen", description: "Entdecke, was dich bei der Arbeit und außerhalb auflädt" },
+        { title: "Setze eine Grenze", description: "Wähle eine Grenze zum Schutz deines Wohlbefindens" },
+        { title: "Verbinde dich wieder mit deinem Sinn", description: "Erinnere dich, warum deine Arbeit für dich wichtig ist" }
+      ]
+    }
   },
   "decisions-direction": {
     en: { title: "Decisions & Direction", description: "Finding clarity when feeling stuck", longDescription: "Making decisions can feel paralyzing, especially when you're unsure of what you want. This path helps you connect with your values and gain clarity on your next steps." },
-    de: { title: "Entscheidungen & Richtung", description: "Klarheit finden, wenn du feststeckst", longDescription: "Entscheidungen zu treffen kann sich lähmend anfühlen, besonders wenn du unsicher bist, was du willst. Dieser Pfad hilft dir, dich mit deinen Werten zu verbinden und Klarheit über deine nächsten Schritte zu gewinnen." }
+    de: { 
+      title: "Entscheidungen & Richtung", 
+      description: "Klarheit finden, wenn du feststeckst", 
+      longDescription: "Entscheidungen zu treffen kann sich lähmend anfühlen, besonders wenn du unsicher bist, was du willst. Dieser Pfad hilft dir, dich mit deinen Werten zu verbinden und Klarheit über deine nächsten Schritte zu gewinnen.",
+      steps: [
+        { title: "Definiere die Entscheidung", description: "Werde dir klar, worüber du eigentlich entscheidest" },
+        { title: "Erkunde deine Ängste", description: "Wovor hast du Angst?" },
+        { title: "Verbinde dich mit deinen Werten", description: "Was ist dir in dieser Situation am wichtigsten?" },
+        { title: "Stelle dir beide Wege vor", description: "Visualisiere dich in jedem Szenario" },
+        { title: "Höre auf deinen Körper", description: "Bemerke, was sich körperlich richtig anfühlt" },
+        { title: "Mache einen kleinen Schritt", description: "Verpflichte dich zur nächsten kleinen Handlung" }
+      ]
+    }
   },
   "loneliness": {
     en: { title: "Loneliness", description: "Feeling connected even when alone", longDescription: "Loneliness is a signal that our need for connection isn't being met. This path helps you understand your loneliness and find meaningful ways to connect—with others and yourself." },
-    de: { title: "Einsamkeit", description: "Verbunden fühlen, auch wenn du allein bist", longDescription: "Einsamkeit ist ein Signal, dass unser Bedürfnis nach Verbindung nicht erfüllt wird. Dieser Pfad hilft dir, deine Einsamkeit zu verstehen und bedeutungsvolle Wege zu finden, dich zu verbinden – mit anderen und mit dir selbst." }
+    de: { 
+      title: "Einsamkeit", 
+      description: "Verbunden fühlen, auch wenn du allein bist", 
+      longDescription: "Einsamkeit ist ein Signal, dass unser Bedürfnis nach Verbindung nicht erfüllt wird. Dieser Pfad hilft dir, deine Einsamkeit zu verstehen und bedeutungsvolle Wege zu finden, dich zu verbinden – mit anderen und mit dir selbst.",
+      steps: [
+        { title: "Erkenne das Gefühl an", description: "Erlaube dir, dich einsam zu fühlen" },
+        { title: "Erkunde, was fehlt", description: "Welche Art von Verbindung sehnst du dir?" },
+        { title: "Übe Selbstverbindung", description: "Baue eine Beziehung zu dir selbst auf" },
+        { title: "Identifiziere Verbindungsmöglichkeiten", description: "Wo könntest du die Verbindung finden, die du brauchst?" },
+        { title: "Mache einen kleinen sozialen Schritt", description: "Melde dich auf eine kleine Art und Weise" }
+      ]
+    }
   },
   "boundaries": {
     en: { title: "Boundaries", description: "Protecting your energy and peace", longDescription: "Boundaries aren't walls—they're the guidelines that help you preserve your wellbeing while maintaining healthy relationships. This path helps you set and maintain boundaries with compassion." },
-    de: { title: "Grenzen", description: "Deine Energie und deinen Frieden schützen", longDescription: "Grenzen sind keine Mauern – sie sind Richtlinien, die dir helfen, dein Wohlbefinden zu bewahren und gleichzeitig gesunde Beziehungen aufrechtzuerhalten. Dieser Pfad hilft dir, Grenzen mit Mitgefühl zu setzen und aufrechtzuerhalten." }
+    de: { 
+      title: "Grenzen", 
+      description: "Deine Energie und deinen Frieden schützen", 
+      longDescription: "Grenzen sind keine Mauern – sie sind Richtlinien, die dir helfen, dein Wohlbefinden zu bewahren und gleichzeitig gesunde Beziehungen aufrechtzuerhalten. Dieser Pfad hilft dir, Grenzen mit Mitgefühl zu setzen und aufrechtzuerhalten.",
+      steps: [
+        { title: "Erkenne, wo Grenzen gebraucht werden", description: "Identifiziere Situationen, in denen du dich erschöpft oder verärgert fühlst" },
+        { title: "Verstehe deinen Grenzenstil", description: "Erkunde, wie du aktuell mit Grenzen umgehst" },
+        { title: "Definiere eine spezifische Grenze", description: "Werde dir klar, welche Grenze du setzen möchtest" },
+        { title: "Übe Nein zu sagen", description: "Übe die Sprache des Grenzensetzens" },
+        { title: "Umgang mit Widerstand", description: "Bereite dich auf Widerstand von anderen vor" },
+        { title: "Halte deine Grenze aufrecht", description: "Bleibe über die Zeit konsequent" }
+      ]
+    }
   },
   "breakups": {
     en: { title: "Breakups", description: "Healing and moving forward", longDescription: "Breakups can shake our sense of self and future. This path helps you process the pain, learn from the experience, and open yourself to new possibilities." },
-    de: { title: "Trennungen", description: "Heilung und weitergehen", longDescription: "Trennungen können unser Selbstbild und unsere Zukunftsvorstellungen erschüttern. Dieser Pfad hilft dir, den Schmerz zu verarbeiten, aus der Erfahrung zu lernen und dich für neue Möglichkeiten zu öffnen." }
+    de: { 
+      title: "Trennungen", 
+      description: "Heilung und weitergehen", 
+      longDescription: "Trennungen können unser Selbstbild und unsere Zukunftsvorstellungen erschüttern. Dieser Pfad hilft dir, den Schmerz zu verarbeiten, aus der Erfahrung zu lernen und dich für neue Möglichkeiten zu öffnen.",
+      steps: [
+        { title: "Erlaube dir zu trauern", description: "Gib allen Emotionen Raum" },
+        { title: "Verarbeite die Geschichte", description: "Verstehe, was passiert ist" },
+        { title: "Gewinne deine Identität zurück", description: "Erinnere dich, wer du außerhalb der Beziehung bist" },
+        { title: "Übe Selbstfürsorge", description: "Nähre dich durch den Übergang" },
+        { title: "Finde die Lektionen", description: "Was hast du über dich und die Liebe gelernt?" },
+        { title: "Stelle dir deine Zukunft vor", description: "Öffne dich für neue Möglichkeiten" },
+        { title: "Schaffe Abschluss", description: "Lass die Vergangenheit mit Intention los" }
+      ]
+    }
   },
   "anxiety": {
     en: { title: "Anxiety", description: "Calming the worried mind", longDescription: "Anxiety is your mind trying to protect you, but sometimes it goes into overdrive. This path helps you understand your anxiety, reduce its intensity, and find more peace." },
-    de: { title: "Angst", description: "Den besorgten Geist beruhigen", longDescription: "Angst ist der Versuch deines Geistes, dich zu schützen, aber manchmal übertreibt er. Dieser Pfad hilft dir, deine Angst zu verstehen, ihre Intensität zu reduzieren und mehr Frieden zu finden." }
+    de: { 
+      title: "Angst", 
+      description: "Den besorgten Geist beruhigen", 
+      longDescription: "Angst ist der Versuch deines Geistes, dich zu schützen, aber manchmal übertreibt er. Dieser Pfad hilft dir, deine Angst zu verstehen, ihre Intensität zu reduzieren und mehr Frieden zu finden.",
+      steps: [
+        { title: "Identifiziere deine Auslöser", description: "Bemerke, welche Situationen deine Angst auslösen" },
+        { title: "Verstehe deine Angst", description: "Erkunde, was deine Angst dir sagen will" },
+        { title: "Lerne eine Beruhigungstechnik", description: "Übe ein Werkzeug, um Angst im Moment zu reduzieren" },
+        { title: "Hinterfrage ängstliche Gedanken", description: "Stelle die Richtigkeit besorgter Gedanken in Frage" },
+        { title: "Baue dein Werkzeugset", description: "Erstelle einen personalisierten Angstbewältigungsplan" }
+      ]
+    }
   }
 };
 

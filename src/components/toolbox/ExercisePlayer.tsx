@@ -21,6 +21,24 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   const translation = getExerciseTranslation(exercise.id);
   const exerciseTitle = translation?.title || exercise.title;
+  
+  // Get translated steps if available
+  const translatedSteps = translation?.steps;
+  const getStepInstruction = (index: number) => {
+    if (translatedSteps && translatedSteps[index]) {
+      return translatedSteps[index];
+    }
+    return exercise.steps[index]?.instruction || "";
+  };
+  
+  // Get translated prompts if available
+  const translatedPrompts = translation?.prompts;
+  const getPrompt = (index: number) => {
+    if (translatedPrompts && translatedPrompts[index % translatedPrompts.length]) {
+      return translatedPrompts[index % translatedPrompts.length];
+    }
+    return exercise.prompts?.[index % (exercise.prompts?.length || 1)] || "";
+  };
 
   const step = exercise.steps[currentStep];
   const totalSteps = exercise.steps.length;
@@ -137,9 +155,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
                 <motion.div
                   className="w-20 h-20 rounded-full bg-calm/20 mx-auto mb-4 flex items-center justify-center"
                   animate={isPlaying ? {
-                    scale: step.instruction.toLowerCase().includes('breathe in') ? [1, 1.3] :
-                           step.instruction.toLowerCase().includes('exhale') ? [1.3, 1] :
-                           step.instruction.toLowerCase().includes('hold') ? 1.3 : 1,
+                    scale: getStepInstruction(currentStep).toLowerCase().includes('atme') && getStepInstruction(currentStep).toLowerCase().includes('ein') ? [1, 1.3] :
+                           getStepInstruction(currentStep).toLowerCase().includes('breathe in') ? [1, 1.3] :
+                           getStepInstruction(currentStep).toLowerCase().includes('aus') ? [1.3, 1] :
+                           getStepInstruction(currentStep).toLowerCase().includes('exhale') ? [1.3, 1] :
+                           getStepInstruction(currentStep).toLowerCase().includes('halt') ? 1.3 :
+                           getStepInstruction(currentStep).toLowerCase().includes('hold') ? 1.3 : 1,
                   } : {}}
                   transition={{ duration: step.duration || 5, ease: "easeInOut" }}
                 >
@@ -154,7 +175,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
               {/* Instruction */}
               <h2 className="text-base sm:text-lg font-medium text-foreground leading-relaxed mb-4">
-                {step.instruction}
+                {getStepInstruction(currentStep)}
               </h2>
 
               {/* Step progress bar */}
@@ -175,7 +196,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
                   <CalmCard variant="gentle" className="text-left">
                     <p className="text-xs text-muted-foreground mb-1">{t("common.helpfulPrompts")}:</p>
                     <p className="text-sm text-foreground italic">
-                      {exercise.prompts[currentStep % exercise.prompts.length]}
+                      {getPrompt(currentStep)}
                     </p>
                   </CalmCard>
                 </div>

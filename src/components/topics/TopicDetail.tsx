@@ -29,6 +29,10 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
   const translation = getTopicTranslation(topic.id);
   const topicTitle = translation?.title || topic.title;
   const topicLongDescription = translation?.longDescription || topic.longDescription;
+  const translatedSteps = translation?.steps;
+  
+  const getStepTitle = (index: number) => translatedSteps?.[index]?.title || topic.steps[index]?.title;
+  const getStepDescription = (index: number) => translatedSteps?.[index]?.description || topic.steps[index]?.description;
 
   const stepTypeLabel: Record<string, string> = {
     reflection: t("topics.stepType.reflection"),
@@ -158,10 +162,10 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className={`font-medium ${isComplete ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                            {step.title}
+                            {getStepTitle(index)}
                           </h3>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">{step.description}</p>
+                        <p className="text-sm text-muted-foreground mb-2">{getStepDescription(index)}</p>
                         <div className="flex items-center gap-2">
                           <Icon className="w-3 h-3 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">{stepTypeLabel[step.type]}</span>
