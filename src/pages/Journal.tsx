@@ -7,6 +7,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { JournalEditor } from "@/components/journal/JournalEditor";
 import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
 import { AIReflectionPanel } from "@/components/journal/AIReflectionPanel";
+import { EmotionalTimeline } from "@/components/journal/EmotionalTimeline";
 import { useSessionId } from "@/hooks/useSessionId";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +31,8 @@ export default function Journal() {
   const [aiReflection, setAiReflection] = useState("");
   const [isReflecting, setIsReflecting] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
+  const [timelineSummary, setTimelineSummary] = useState<string | null>(null);
+  const [isLoadingTimeline, setIsLoadingTimeline] = useState(false);
   const sessionId = useSessionId();
   const { toast } = useToast();
   const { t, language } = useTranslation();
@@ -214,6 +217,49 @@ export default function Journal() {
     }
   };
 
+  const handleGetEmotionalTimeline = async () => {
+    if (entries.length < 5) {
+      toast({
+        title: t("timeline.notEnoughData"),
+        description: t("timeline.writeMore"),
+      });
+      return;
+    }
+
+    setIsLoadingTimeline(true);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'emotional-timeline',
+            entries: entries.slice(0, 15).map(e => ({
+              date: e.created_at,
+              content: e.content,
+              mood: e.mood,
+            })),
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      setTimelineSummary(data.reflection);
+    } catch (error) {
+      console.error('Error getting emotional timeline:', error);
+      toast({
+        title: t("common.error"),
+        description: t("journal.reflectionError"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingTimeline(false);
+    }
+  };
+
   const filteredEntries = entries.filter(entry =>
     entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (entry.title?.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -277,6 +323,19 @@ export default function Journal() {
             </div>
           )}
         </AnimatePresence>
+
+        {/* Emotional Timeline - only show when enough data */}
+        {entries.length >= 5 && (
+          <div className="mb-6">
+            <EmotionalTimeline
+              onGenerate={handleGetEmotionalTimeline}
+              summary={timelineSummary}
+              isLoading={isLoadingTimeline}
+              onClose={() => setTimelineSummary(null)}
+              hasEnoughData={entries.length >= 5}
+            />
+          </div>
+        )}
 
         {/* Loading state */}
         {isLoading ? (
