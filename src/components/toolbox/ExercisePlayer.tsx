@@ -89,7 +89,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-background z-50 flex flex-col"
+      className="fixed inset-0 bg-background z-50 flex flex-col overflow-hidden"
     >
       {/* Header - Fixed at top */}
       <div className="flex-shrink-0 flex items-center justify-between p-3 border-b border-border">
@@ -113,7 +113,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       </div>
 
       {/* Main Content - Scrollable middle section */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
         <AnimatePresence mode="wait">
           {isComplete ? (
             <motion.div
@@ -208,7 +208,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
       {/* Controls - FIXED at bottom, always visible */}
       {!isComplete && (
-        <div className="flex-shrink-0 border-t border-border bg-background p-4 safe-bottom">
+        <div className="flex-shrink-0 border-t border-border bg-background p-4 pb-8 relative z-10">
           {/* Primary action hint */}
           <p className="text-xs text-muted-foreground text-center mb-3">
             {isPlaying 
@@ -241,7 +241,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
             <Button
               size="lg"
               variant="secondary"
-              onClick={nextStep}
+              onClick={() => nextStep()}
               className="flex-1 max-w-36"
             >
               <SkipForward className="w-5 h-5 mr-2" />
