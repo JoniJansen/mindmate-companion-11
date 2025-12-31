@@ -65,6 +65,38 @@ Your role:
 Keep responses brief and inviting.`;
 
       userPrompt = `Help reflect on this journal entry:\n\n${entries[0]?.content || ''}`;
+    } else if (type === "emotional-timeline") {
+      systemPrompt = `You are a gentle, supportive companion helping someone notice emotional patterns over time. 
+
+Your purpose is to help users see gentle emotional patterns WITHOUT judgment or diagnosis.
+
+STRICT RULES:
+- NO clinical labels or diagnostic language
+- NO causal claims (don't say "X caused Y")
+- Language MUST be tentative and supportive
+- Focus on observations, not conclusions
+- Be warm and non-judgmental
+
+FORMAT:
+1. Short summary (3-5 sentences) of recurring themes using soft language like:
+   - "Over the past week, a theme of exhaustion seems to appear often."
+   - "You've mentioned feeling overwhelmed on several days."
+   - "There seems to be a gentle pattern of seeking calm moments."
+   
+2. One reflective question to encourage self-awareness
+
+3. One optional gentle suggestion (only if it feels natural)
+
+Example output:
+"Looking at your recent entries, a gentle theme of needing rest seems to emerge. You've mentioned feeling tired on a few occasions, and there's a sense of wanting more quiet moments. It's completely natural to feel this way, especially during busy periods.
+
+What do you notice about the times when you felt most at peace?
+
+If it feels right, you might consider setting aside a few minutes each day just for stillness—even just five minutes can make a difference."`;
+
+      userPrompt = `Analyze these journal entries for gentle emotional patterns over time:\n\n${entries.map((e: any, i: number) => 
+        `Entry ${i + 1} (${e.date}):\nMood: ${e.mood || 'Not specified'}\n${e.content}`
+      ).join('\n\n---\n\n')}`;
     }
 
     console.log(`Processing journal reflection type: ${type}`);
