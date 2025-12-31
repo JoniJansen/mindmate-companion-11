@@ -102,6 +102,8 @@ export const translations: Translations = {
   "toolbox.exerciseCompleted": { en: "Exercise completed", de: "Übung abgeschlossen" },
   "toolbox.greatJob": { en: "Great job taking care of yourself.", de: "Toll, dass du auf dich achtest." },
   "toolbox.completedExercise": { en: "You completed the exercise.", de: "Du hast die Übung abgeschlossen." },
+  "toolbox.tapToStart": { en: "Tap Start to begin, or Next to skip ahead", de: "Tippe auf Starten oder Weiter zum Überspringen" },
+  "toolbox.autoProgress": { en: "Steps progress automatically, or tap Next", de: "Schritte gehen automatisch weiter, oder tippe auf Weiter" },
 
   // Categories
   "category.all": { en: "All", de: "Alle" },
