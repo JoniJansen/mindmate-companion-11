@@ -4,6 +4,7 @@ import { X, Save, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface JournalEditorProps {
   initialContent?: string;
@@ -30,12 +31,13 @@ export function JournalEditor({
   const [mood, setMood] = useState(initialMood);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleSave = async () => {
     if (!content.trim()) {
       toast({
-        title: "Empty entry",
-        description: "Please write something before saving.",
+        title: t("journal.emptyEntry"),
+        description: t("journal.pleaseWriteSomething"),
         variant: "destructive",
       });
       return;
@@ -45,14 +47,14 @@ export function JournalEditor({
     try {
       await onSave({ title, content, mood });
       toast({
-        title: "Saved",
-        description: "Your journal entry has been saved.",
+        title: t("journal.saved"),
+        description: t("journal.entrySaved"),
       });
       onClose();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save entry. Please try again.",
+        title: t("common.error"),
+        description: t("journal.saveFailed"),
         variant: "destructive",
       });
     } finally {
@@ -80,7 +82,7 @@ export function JournalEditor({
               className="gap-2"
             >
               <Sparkles className="w-4 h-4" />
-              Reflect
+              {t("journal.reflect")}
             </Button>
           )}
           <Button 
@@ -91,7 +93,7 @@ export function JournalEditor({
             className="gap-2"
           >
             <Save className="w-4 h-4" />
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? t("journal.saving") : t("common.save")}
           </Button>
         </div>
       </div>
@@ -99,7 +101,7 @@ export function JournalEditor({
       <div className="flex-1 overflow-auto p-4 max-w-lg mx-auto w-full">
         {/* Mood selector */}
         <div className="mb-4">
-          <p className="text-sm text-muted-foreground mb-2">How are you feeling?</p>
+          <p className="text-sm text-muted-foreground mb-2">{t("journal.howAreYouFeeling")}</p>
           <div className="flex gap-2 flex-wrap">
             {moods.map((m) => (
               <button
@@ -122,7 +124,7 @@ export function JournalEditor({
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Give your entry a title (optional)"
+          placeholder={t("journal.titlePlaceholder")}
           className="w-full bg-transparent text-lg font-medium placeholder:text-muted-foreground focus:outline-none mb-4"
         />
 
@@ -130,7 +132,7 @@ export function JournalEditor({
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Start writing... This is your private space to express yourself freely."
+          placeholder={t("journal.contentPlaceholder")}
           className="w-full h-[50vh] bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none resize-none leading-relaxed"
           autoFocus
         />
