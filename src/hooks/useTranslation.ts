@@ -252,7 +252,7 @@ export const exerciseTranslations: Record<string, {
       description: "Schnelle Ruhe, wenn du sie am meisten brauchst", 
       longDescription: "Eine schnelle Entspannungstechnik mit tiefer Zwerchfellatmung. Perfekt für Momente akuten Stresses oder vor wichtigen Situationen.",
       steps: [
-        "Finde eine bequeme Position und schließe deine Augen",
+        "Mach es dir bequem. Wenn du möchtest, kannst du die Augen schließen. Die Stimme führt dich durch die Übung.",
         "Atme langsam durch die Nase ein... 1... 2... 3... 4...",
         "Halte sanft... 1... 2...",
         "Atme langsam durch den Mund aus... 1... 2... 3... 4... 5... 6...",
@@ -265,7 +265,7 @@ export const exerciseTranslations: Record<string, {
         "Noch ein Atemzug... tief und langsam...",
         "Halte...",
         "Und loslassen... vollständig entspannen...",
-        "Öffne sanft deine Augen. Bemerke, wie du dich fühlst."
+        "Die Übung ist beendet. Öffne sanft deine Augen und nimm wahr, wie du dich jetzt fühlst."
       ]
     }
   },

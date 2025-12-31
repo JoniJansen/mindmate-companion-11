@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { X, Play, Pause, RotateCcw, Check, ChevronRight } from "lucide-react";
+import { X, Play, Pause, RotateCcw, Check, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import { Exercise } from "@/data/exercises";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 
 interface ExercisePlayerProps {
   exercise: Exercise;
@@ -14,7 +15,15 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [isPlaying, setIsPlaying] = useState(false);
   const [stepProgress, setStepProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const { t, getExerciseTranslation } = useTranslation();
+  
+  const { speak, stop, isSpeaking, isSupported } = useSpeechSynthesis({
+    rate: 0.85,
+    onEnd: () => {
+      // Voice finished, continue with timer if playing
+    }
+  });
 
   const translation = getExerciseTranslation(exercise.id);
   const exerciseTitle = translation?.title || exercise.title;
@@ -39,9 +48,17 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const totalSteps = exercise.steps.length;
   const overallProgress = ((currentStep + stepProgress / 100) / totalSteps) * 100;
 
+  // Speak current step when it changes or when playing starts
+  useEffect(() => {
+    if (voiceEnabled && isSupported) {
+      const instruction = getStepInstruction(currentStep);
+      speak(instruction);
+    }
+  }, [currentStep, voiceEnabled]);
+
   // Handle next step
   const handleNextStep = () => {
-    console.log("Next step clicked, current:", currentStep, "total:", totalSteps);
+    stop(); // Stop current speech
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
       setStepProgress(0);
@@ -78,8 +95,24 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   };
 
   const handleFinish = () => {
+    stop();
     onComplete();
     onClose();
+  };
+
+  const handleClose = () => {
+    stop();
+    onClose();
+  };
+
+  const toggleVoice = () => {
+    if (voiceEnabled) {
+      stop();
+    } else {
+      const instruction = getStepInstruction(currentStep);
+      speak(instruction);
+    }
+    setVoiceEnabled(!voiceEnabled);
   };
 
   // Completion screen
@@ -87,7 +120,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     return (
       <div className="fixed inset-0 bg-background z-[100] flex flex-col">
         <div className="flex items-center justify-between p-3 border-b border-border">
-          <button type="button" onClick={onClose} className="p-2 hover:bg-muted rounded-lg">
+          <button type="button" onClick={handleClose} className="p-2 hover:bg-muted rounded-lg">
             <X className="w-5 h-5" />
           </button>
           <span className="text-sm text-muted-foreground">{exerciseTitle}</span>
@@ -131,11 +164,21 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     <div className="fixed inset-0 bg-background z-[100] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-border">
-        <button type="button" onClick={onClose} className="p-2 hover:bg-muted rounded-lg">
+        <button type="button" onClick={handleClose} className="p-2 hover:bg-muted rounded-lg">
           <X className="w-5 h-5" />
         </button>
         <span className="text-sm text-muted-foreground">{exerciseTitle}</span>
-        <div className="w-10" />
+        {/* Voice toggle */}
+        {isSupported && (
+          <button 
+            type="button" 
+            onClick={toggleVoice} 
+            className={`p-2 rounded-lg ${voiceEnabled ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
+          >
+            {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+          </button>
+        )}
+        {!isSupported && <div className="w-10" />}
       </div>
 
       {/* Progress bar */}
@@ -149,6 +192,14 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-md mx-auto text-center">
+          {/* Speaking indicator */}
+          {isSpeaking && voiceEnabled && (
+            <div className="flex items-center justify-center gap-2 mb-4 text-primary">
+              <Volume2 className="w-4 h-4 animate-pulse" />
+              <span className="text-sm">Spricht...</span>
+            </div>
+          )}
+
           {/* Breathing circle */}
           {exercise.category === 'breathing' && (
             <div className={`w-24 h-24 rounded-full bg-calm/20 mx-auto mb-6 flex items-center justify-center transition-transform duration-1000 ${isPlaying ? 'scale-110' : 'scale-100'}`}>
@@ -193,7 +244,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       {/* FIXED BOTTOM CONTROLS */}
       <div className="border-t border-border bg-background p-4 pb-6">
         <p className="text-xs text-muted-foreground text-center mb-3">
-          {isPlaying ? t("toolbox.autoProgress") : t("toolbox.tapToStart")}
+          {voiceEnabled ? "Die Anweisungen werden vorgelesen" : t("toolbox.tapToStart")}
         </p>
         
         <div className="flex justify-center gap-4">
