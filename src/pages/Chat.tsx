@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, Phone, Sparkles, FileText, ListChecks, BookOpen, Dumbbell, AlertTriangle } from "lucide-react";
+import { Send, Mic, MicOff, Phone, Sparkles, FileText, ListChecks, BookOpen, Dumbbell, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 
 interface Message {
   id: string;
@@ -43,8 +44,25 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const preferences = useRef<Preferences>(getPreferences());
+  
+  // Speech recognition
+  const speechLang = language === "de" ? "de-DE" : "en-US";
+  const { 
+    isListening, 
+    transcript, 
+    isSupported: isSpeechSupported, 
+    toggleListening,
+    resetTranscript 
+  } = useSpeechRecognition(speechLang);
+
+  // Update input when speech transcript changes
+  useEffect(() => {
+    if (transcript) {
+      setInputValue(transcript);
+    }
+  }, [transcript]);
 
   const quickReplies = [
     t("chat.quickReply1"),
@@ -425,9 +443,42 @@ export default function Chat() {
             />
           </div>
 
-          <Button variant="ghost" size="icon" className="text-muted-foreground shrink-0">
-            <Mic className="w-5 h-5" />
-          </Button>
+          {isSpeechSupported ? (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className={`shrink-0 transition-colors ${isListening ? "text-destructive bg-destructive/10" : "text-muted-foreground"}`}
+              onClick={() => {
+                toggleListening();
+                if (!isListening) {
+                  toast({
+                    title: language === "de" ? "Sprachaufnahme aktiv" : "Voice recording active",
+                    description: language === "de" ? "Sprich jetzt..." : "Speak now...",
+                  });
+                }
+              }}
+              disabled={isLoading}
+            >
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            </Button>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="shrink-0 text-muted-foreground/50 cursor-not-allowed"
+              onClick={() => {
+                toast({
+                  title: language === "de" ? "Nicht unterstützt" : "Not supported",
+                  description: language === "de" 
+                    ? "Spracherkennung wird von diesem Browser nicht unterstützt." 
+                    : "Speech recognition is not supported in this browser.",
+                  variant: "destructive",
+                });
+              }}
+            >
+              <Mic className="w-5 h-5" />
+            </Button>
+          )}
 
           <Button
             size="icon"
