@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Pause, RotateCcw, Check } from "lucide-react";
+import { X, Play, Pause, RotateCcw, Check, SkipForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Exercise } from "@/data/exercises";
@@ -175,12 +175,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
       {/* Controls */}
       {!isComplete && (
-        <div className="p-6 flex justify-center">
+        <div className="p-6 flex justify-center gap-3">
           <Button
             size="lg"
             variant={isPlaying ? "outline" : "calm"}
             onClick={() => setIsPlaying(!isPlaying)}
-            className="w-40"
+            className="w-32"
           >
             {isPlaying ? (
               <>
@@ -193,6 +193,17 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
                 {currentStep === 0 && stepProgress === 0 ? t("common.start") : t("common.resume")}
               </>
             )}
+          </Button>
+          
+          {/* Skip/Next button - always visible so user can proceed manually */}
+          <Button
+            size="lg"
+            variant="ghost"
+            onClick={nextStep}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <SkipForward className="w-5 h-5 mr-2" />
+            {t("common.next")}
           </Button>
         </div>
       )}
