@@ -173,38 +173,48 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
         </AnimatePresence>
       </div>
 
-      {/* Controls */}
+      {/* Controls - Always visible and prominent */}
       {!isComplete && (
-        <div className="p-6 flex justify-center gap-3">
-          <Button
-            size="lg"
-            variant={isPlaying ? "outline" : "calm"}
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="w-32"
-          >
-            {isPlaying ? (
-              <>
-                <Pause className="w-5 h-5 mr-2" />
-                {t("common.pause")}
-              </>
-            ) : (
-              <>
-                <Play className="w-5 h-5 mr-2" />
-                {currentStep === 0 && stepProgress === 0 ? t("common.start") : t("common.resume")}
-              </>
-            )}
-          </Button>
+        <div className="p-6 flex flex-col items-center gap-4">
+          {/* Primary action hint */}
+          <p className="text-sm text-muted-foreground text-center">
+            {isPlaying 
+              ? t("toolbox.autoProgress") 
+              : t("toolbox.tapToStart")}
+          </p>
           
-          {/* Skip/Next button - always visible so user can proceed manually */}
-          <Button
-            size="lg"
-            variant="ghost"
-            onClick={nextStep}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <SkipForward className="w-5 h-5 mr-2" />
-            {t("common.next")}
-          </Button>
+          <div className="flex justify-center gap-3">
+            {/* Play/Pause button */}
+            <Button
+              size="lg"
+              variant={isPlaying ? "outline" : "calm"}
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="min-w-32"
+            >
+              {isPlaying ? (
+                <>
+                  <Pause className="w-5 h-5 mr-2" />
+                  {t("common.pause")}
+                </>
+              ) : (
+                <>
+                  <Play className="w-5 h-5 mr-2" />
+                  {currentStep === 0 && stepProgress === 0 ? t("common.start") : t("common.resume")}
+                </>
+              )}
+            </Button>
+            
+            {/* Next button - ALWAYS visible and prominent */}
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={nextStep}
+              className="min-w-32"
+            >
+              <SkipForward className="w-5 h-5 mr-2" />
+              {t("common.next")}
+            </Button>
+          </div>
         </div>
       )}
 
