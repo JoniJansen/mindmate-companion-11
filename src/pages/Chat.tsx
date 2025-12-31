@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, MicOff, Phone, Sparkles, FileText, ListChecks, BookOpen, Dumbbell, AlertTriangle } from "lucide-react";
+import { Send, Mic, MicOff, Phone, Sparkles, FileText, ListChecks, BookOpen, Dumbbell, AlertTriangle, Volume2, VolumeX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
+import { VoiceAvatar } from "@/components/chat/VoiceAvatar";
 
 interface Message {
   id: string;
@@ -41,6 +43,7 @@ export default function Chat() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -56,6 +59,18 @@ export default function Chat() {
     toggleListening,
     resetTranscript 
   } = useSpeechRecognition(speechLang);
+
+  // Speech synthesis for voice mode
+  const { 
+    speak, 
+    stop: stopSpeaking, 
+    isSpeaking, 
+    isSupported: isTTSSupported 
+  } = useSpeechSynthesis({
+    lang: speechLang,
+    voiceType: "female",
+    rate: 0.95,
+  });
 
   // Update input when speech transcript changes
   useEffect(() => {
@@ -258,10 +273,20 @@ export default function Chat() {
       ? [...chatMessages, { role: "user" as const, content: content.trim() }]
       : chatMessages;
 
+    let fullResponse = "";
     await streamChat({
       messages: messagesForAI,
-      onDelta: (chunk) => upsertAssistant(chunk),
-      onDone: () => setIsLoading(false),
+      onDelta: (chunk) => {
+        upsertAssistant(chunk);
+        fullResponse += chunk;
+      },
+      onDone: () => {
+        setIsLoading(false);
+        // If voice mode is enabled, speak the response
+        if (voiceModeEnabled && fullResponse) {
+          speak(fullResponse);
+        }
+      },
       onError: handleError,
     });
   };
@@ -298,16 +323,56 @@ export default function Chat() {
         title={t("chat.title")}
         subtitle={t("chat.subtitle")}
         rightElement={
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/safety")}
-            className="text-destructive"
-          >
-            <Phone className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            {/* Voice Mode Toggle */}
+            {isTTSSupported && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  if (isSpeaking) {
+                    stopSpeaking();
+                  }
+                  setVoiceModeEnabled(!voiceModeEnabled);
+                  toast({
+                    title: voiceModeEnabled 
+                      ? (language === "de" ? "Sprachmodus deaktiviert" : "Voice mode disabled")
+                      : (language === "de" ? "Sprachmodus aktiviert" : "Voice mode enabled"),
+                    description: voiceModeEnabled
+                      ? (language === "de" ? "Antworten werden nur als Text angezeigt" : "Responses will be text only")
+                      : (language === "de" ? "Antworten werden vorgelesen" : "Responses will be spoken"),
+                  });
+                }}
+                className={voiceModeEnabled ? "text-primary" : "text-muted-foreground"}
+              >
+                {voiceModeEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/safety")}
+              className="text-destructive"
+            >
+              <Phone className="w-5 h-5" />
+            </Button>
+          </div>
         }
       />
+
+      {/* Voice Avatar - shown when voice mode is enabled */}
+      <AnimatePresence>
+        {voiceModeEnabled && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="flex justify-center py-6 border-b border-border/30"
+          >
+            <VoiceAvatar isSpeaking={isSpeaking} size="lg" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
