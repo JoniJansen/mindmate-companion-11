@@ -1,8 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Pause, RotateCcw, Check, SkipForward } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { CalmCard } from "@/components/shared/CalmCard";
+import { useState, useEffect } from "react";
+import { X, Play, Pause, RotateCcw, Check, ChevronRight } from "lucide-react";
 import { Exercise } from "@/data/exercises";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -22,7 +19,6 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const translation = getExerciseTranslation(exercise.id);
   const exerciseTitle = translation?.title || exercise.title;
   
-  // Get translated steps if available
   const translatedSteps = translation?.steps;
   const getStepInstruction = (index: number) => {
     if (translatedSteps && translatedSteps[index]) {
@@ -31,7 +27,6 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     return exercise.steps[index]?.instruction || "";
   };
   
-  // Get translated prompts if available
   const translatedPrompts = translation?.prompts;
   const getPrompt = (index: number) => {
     if (translatedPrompts && translatedPrompts[index % translatedPrompts.length]) {
@@ -44,25 +39,28 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const totalSteps = exercise.steps.length;
   const overallProgress = ((currentStep + stepProgress / 100) / totalSteps) * 100;
 
-  const nextStep = useCallback(() => {
+  // Handle next step
+  const handleNextStep = () => {
+    console.log("Next step clicked, current:", currentStep, "total:", totalSteps);
     if (currentStep < totalSteps - 1) {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep(currentStep + 1);
       setStepProgress(0);
     } else {
       setIsComplete(true);
       setIsPlaying(false);
     }
-  }, [currentStep, totalSteps]);
+  };
 
+  // Auto-progress when playing
   useEffect(() => {
-    if (!isPlaying || isComplete) return;
+    if (!isPlaying || isComplete || !step) return;
 
     const stepDuration = step.duration || 10;
     const interval = setInterval(() => {
       setStepProgress(prev => {
-        const increment = 100 / (stepDuration * 10); // Update every 100ms
+        const increment = 100 / (stepDuration * 10);
         if (prev + increment >= 100) {
-          nextStep();
+          handleNextStep();
           return 0;
         }
         return prev + increment;
@@ -70,7 +68,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isPlaying, step, isComplete, nextStep]);
+  }, [isPlaying, step, isComplete, currentStep]);
 
   const handleRestart = () => {
     setCurrentStep(0);
@@ -79,183 +77,156 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     setIsPlaying(true);
   };
 
-  const handleComplete = () => {
+  const handleFinish = () => {
     onComplete();
     onClose();
   };
 
+  // Completion screen
+  if (isComplete) {
+    return (
+      <div className="fixed inset-0 bg-background z-[100] flex flex-col">
+        <div className="flex items-center justify-between p-3 border-b border-border">
+          <button type="button" onClick={onClose} className="p-2 hover:bg-muted rounded-lg">
+            <X className="w-5 h-5" />
+          </button>
+          <span className="text-sm text-muted-foreground">{exerciseTitle}</span>
+          <div className="w-10" />
+        </div>
+
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
+          <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+            <Check className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-xl font-semibold text-foreground mb-2">
+            {t("common.wellDone")}
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            {t("toolbox.completedExercise")}
+          </p>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleRestart}
+              className="px-6 py-3 rounded-xl border border-border hover:bg-muted flex items-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+              {t("common.again")}
+            </button>
+            <button
+              type="button"
+              onClick={handleFinish}
+              className="px-6 py-3 rounded-xl bg-calm text-calm-foreground hover:bg-calm/90"
+            >
+              {t("common.finish")}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Exercise screen
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-background z-50 flex flex-col overflow-hidden"
-    >
-      {/* Header - Fixed at top */}
-      <div className="flex-shrink-0 flex items-center justify-between p-3 border-b border-border">
-        <Button variant="ghost" size="icon" onClick={onClose}>
+    <div className="fixed inset-0 bg-background z-[100] flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 border-b border-border">
+        <button type="button" onClick={onClose} className="p-2 hover:bg-muted rounded-lg">
           <X className="w-5 h-5" />
-        </Button>
-        <span className="text-sm text-muted-foreground">
-          {exerciseTitle}
-        </span>
+        </button>
+        <span className="text-sm text-muted-foreground">{exerciseTitle}</span>
         <div className="w-10" />
       </div>
 
       {/* Progress bar */}
-      <div className="flex-shrink-0 h-1 bg-muted">
-        <motion.div
-          className="h-full bg-primary"
-          initial={{ width: 0 }}
-          animate={{ width: `${overallProgress}%` }}
-          transition={{ duration: 0.2 }}
+      <div className="h-1 bg-muted">
+        <div 
+          className="h-full bg-primary transition-all duration-200"
+          style={{ width: `${overallProgress}%` }}
         />
       </div>
 
-      {/* Main Content - Scrollable middle section */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
-        <AnimatePresence mode="wait">
-          {isComplete ? (
-            <motion.div
-              key="complete"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="text-center flex flex-col items-center justify-center min-h-full"
-            >
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                <Check className="w-8 h-8 text-primary" />
-              </div>
-              <h2 className="text-xl font-semibold text-foreground mb-2">
-                {t("common.wellDone")}
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                {t("toolbox.completedExercise")}
-              </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <Button variant="outline" onClick={handleRestart}>
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  {t("common.again")}
-                </Button>
-                <Button variant="calm" onClick={handleComplete}>
-                  {t("common.finish")}
-                </Button>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="text-center max-w-md mx-auto"
-            >
-              {/* Breathing animation for breathing exercises */}
-              {exercise.category === 'breathing' && (
-                <motion.div
-                  className="w-20 h-20 rounded-full bg-calm/20 mx-auto mb-4 flex items-center justify-center"
-                  animate={isPlaying ? {
-                    scale: getStepInstruction(currentStep).toLowerCase().includes('atme') && getStepInstruction(currentStep).toLowerCase().includes('ein') ? [1, 1.3] :
-                           getStepInstruction(currentStep).toLowerCase().includes('breathe in') ? [1, 1.3] :
-                           getStepInstruction(currentStep).toLowerCase().includes('aus') ? [1.3, 1] :
-                           getStepInstruction(currentStep).toLowerCase().includes('exhale') ? [1.3, 1] :
-                           getStepInstruction(currentStep).toLowerCase().includes('halt') ? 1.3 :
-                           getStepInstruction(currentStep).toLowerCase().includes('hold') ? 1.3 : 1,
-                  } : {}}
-                  transition={{ duration: step.duration || 5, ease: "easeInOut" }}
-                >
-                  <div className="w-10 h-10 rounded-full bg-calm/40" />
-                </motion.div>
-              )}
-
-              {/* Step counter */}
-              <span className="text-sm text-muted-foreground mb-2 block">
-                {t("common.step")} {currentStep + 1} {t("common.of")} {totalSteps}
-              </span>
-
-              {/* Instruction */}
-              <h2 className="text-base sm:text-lg font-medium text-foreground leading-relaxed mb-4">
-                {getStepInstruction(currentStep)}
-              </h2>
-
-              {/* Step progress bar */}
-              {isPlaying && (
-                <div className="w-full max-w-xs mx-auto">
-                  <div className="h-1 bg-muted rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-primary/50 rounded-full"
-                      style={{ width: `${stepProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Prompts for relevant exercises - inside content area */}
-              {exercise.prompts && exercise.prompts.length > 0 && (
-                <div className="mt-4">
-                  <CalmCard variant="gentle" className="text-left">
-                    <p className="text-xs text-muted-foreground mb-1">{t("common.helpfulPrompts")}:</p>
-                    <p className="text-sm text-foreground italic">
-                      {getPrompt(currentStep)}
-                    </p>
-                  </CalmCard>
-                </div>
-              )}
-            </motion.div>
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-md mx-auto text-center">
+          {/* Breathing circle */}
+          {exercise.category === 'breathing' && (
+            <div className={`w-24 h-24 rounded-full bg-calm/20 mx-auto mb-6 flex items-center justify-center transition-transform duration-1000 ${isPlaying ? 'scale-110' : 'scale-100'}`}>
+              <div className="w-12 h-12 rounded-full bg-calm/40" />
+            </div>
           )}
-        </AnimatePresence>
+
+          {/* Step counter */}
+          <p className="text-sm text-muted-foreground mb-2">
+            {t("common.step")} {currentStep + 1} {t("common.of")} {totalSteps}
+          </p>
+
+          {/* Instruction */}
+          <h2 className="text-lg font-medium text-foreground leading-relaxed mb-4">
+            {getStepInstruction(currentStep)}
+          </h2>
+
+          {/* Step progress */}
+          {isPlaying && (
+            <div className="w-48 mx-auto mb-4">
+              <div className="h-1 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary/50 rounded-full transition-all"
+                  style={{ width: `${stepProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Prompts */}
+          {exercise.prompts && exercise.prompts.length > 0 && (
+            <div className="mt-6 p-4 bg-gentle/10 rounded-xl text-left">
+              <p className="text-xs text-muted-foreground mb-1">{t("common.helpfulPrompts")}:</p>
+              <p className="text-sm text-foreground italic">
+                {getPrompt(currentStep)}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Controls - FIXED at bottom, always visible */}
-      {!isComplete && (
-        <div className="flex-shrink-0 border-t border-border bg-background p-4 pb-8 relative z-20">
-          {/* Primary action hint */}
-          <p className="text-xs text-muted-foreground text-center mb-3">
-            {isPlaying 
-              ? t("toolbox.autoProgress") 
-              : t("toolbox.tapToStart")}
-          </p>
+      {/* FIXED BOTTOM CONTROLS */}
+      <div className="border-t border-border bg-background p-4 pb-6">
+        <p className="text-xs text-muted-foreground text-center mb-3">
+          {isPlaying ? t("toolbox.autoProgress") : t("toolbox.tapToStart")}
+        </p>
+        
+        <div className="flex justify-center gap-4">
+          {/* Start/Pause */}
+          <button
+            type="button"
+            onClick={() => setIsPlaying(!isPlaying)}
+            className="flex-1 max-w-40 h-14 rounded-xl bg-calm text-calm-foreground hover:bg-calm/90 flex items-center justify-center gap-2 font-medium text-base"
+          >
+            {isPlaying ? (
+              <>
+                <Pause className="w-5 h-5" />
+                {t("common.pause")}
+              </>
+            ) : (
+              <>
+                <Play className="w-5 h-5" />
+                {currentStep === 0 ? t("common.start") : t("common.resume")}
+              </>
+            )}
+          </button>
           
-          <div className="flex justify-center gap-3">
-            {/* Play/Pause button */}
-            <button
-              type="button"
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="flex-1 max-w-36 h-12 rounded-xl px-8 text-base inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] bg-calm text-calm-foreground hover:bg-calm/90 shadow-soft"
-            >
-              {isPlaying ? (
-                <>
-                  <Pause className="w-5 h-5 mr-2" />
-                  {t("common.pause")}
-                </>
-              ) : (
-                <>
-                  <Play className="w-5 h-5 mr-2" />
-                  {currentStep === 0 && stepProgress === 0 ? t("common.start") : t("common.resume")}
-                </>
-              )}
-            </button>
-            
-            {/* Next button - ALWAYS visible and prominent */}
-            <button
-              type="button"
-              onClick={() => {
-                if (currentStep < totalSteps - 1) {
-                  setCurrentStep(currentStep + 1);
-                  setStepProgress(0);
-                } else {
-                  setIsComplete(true);
-                  setIsPlaying(false);
-                }
-              }}
-              className="flex-1 max-w-36 h-12 rounded-xl px-8 text-base inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            >
-              <SkipForward className="w-5 h-5 mr-2" />
-              {t("common.next")}
-            </button>
-          </div>
+          {/* NEXT BUTTON - Big and obvious */}
+          <button
+            type="button"
+            onClick={handleNextStep}
+            className="flex-1 max-w-40 h-14 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2 font-medium text-base"
+          >
+            {t("common.next")}
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
-      )}
-    </motion.div>
+      </div>
+    </div>
   );
 }
