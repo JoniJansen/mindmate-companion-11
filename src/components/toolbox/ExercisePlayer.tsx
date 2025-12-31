@@ -208,7 +208,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
       {/* Controls - FIXED at bottom, always visible */}
       {!isComplete && (
-        <div className="flex-shrink-0 border-t border-border bg-background p-4 pb-8 relative z-10">
+        <div className="flex-shrink-0 border-t border-border bg-background p-4 pb-8 relative z-20">
           {/* Primary action hint */}
           <p className="text-xs text-muted-foreground text-center mb-3">
             {isPlaying 
@@ -218,11 +218,10 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
           
           <div className="flex justify-center gap-3">
             {/* Play/Pause button */}
-            <Button
-              size="lg"
-              variant={isPlaying ? "outline" : "calm"}
+            <button
+              type="button"
               onClick={() => setIsPlaying(!isPlaying)}
-              className="flex-1 max-w-36"
+              className="flex-1 max-w-36 h-12 rounded-xl px-8 text-base inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] bg-calm text-calm-foreground hover:bg-calm/90 shadow-soft"
             >
               {isPlaying ? (
                 <>
@@ -235,18 +234,25 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
                   {currentStep === 0 && stepProgress === 0 ? t("common.start") : t("common.resume")}
                 </>
               )}
-            </Button>
+            </button>
             
             {/* Next button - ALWAYS visible and prominent */}
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={() => nextStep()}
-              className="flex-1 max-w-36"
+            <button
+              type="button"
+              onClick={() => {
+                if (currentStep < totalSteps - 1) {
+                  setCurrentStep(currentStep + 1);
+                  setStepProgress(0);
+                } else {
+                  setIsComplete(true);
+                  setIsPlaying(false);
+                }
+              }}
+              className="flex-1 max-w-36 h-12 rounded-xl px-8 text-base inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] bg-secondary text-secondary-foreground hover:bg-secondary/80"
             >
               <SkipForward className="w-5 h-5 mr-2" />
               {t("common.next")}
-            </Button>
+            </button>
           </div>
         </div>
       )}
