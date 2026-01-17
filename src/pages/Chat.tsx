@@ -50,17 +50,11 @@ export default function Chat() {
   const { t, language } = useTranslation();
   const preferences = useRef<Preferences>(getPreferences());
   
-  // Speech recognition
+  // Speech recognition and synthesis setup
   const speechLang = language === "de" ? "de-DE" : "en-US";
-  const { 
-    isListening, 
-    transcript, 
-    isSupported: isSpeechSupported, 
-    toggleListening,
-    resetTranscript 
-  } = useSpeechRecognition(speechLang);
-
-  // Speech synthesis for voice mode
+  const [pendingSend, setPendingSend] = useState<string | null>(null);
+  
+  // Speech synthesis for voice mode - defined first since speech recognition uses isSpeaking
   const { 
     speak, 
     stop: stopSpeaking, 
@@ -69,15 +63,72 @@ export default function Chat() {
   } = useSpeechSynthesis({
     lang: speechLang,
     voiceType: "female",
-    rate: 0.95,
+    rate: 0.92,
+    pitch: 1.05,
   });
+
+  // Speech recognition with continuous mode
+  const { 
+    isListening, 
+    fullTranscript, 
+    isSupported: isSpeechSupported, 
+    startListening,
+    stopListening,
+    toggleListening,
+    resetTranscript 
+  } = useSpeechRecognition(speechLang, { 
+    continuous: true,
+    onFinalTranscript: (transcript) => {
+      // Queue the transcript to be sent after a delay
+      setPendingSend(transcript);
+    }
+  });
+
+  // After AI finishes speaking, restart listening in voice mode
+  useEffect(() => {
+    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening) {
+      const timeoutId = setTimeout(() => {
+        resetTranscript();
+        startListening();
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, resetTranscript, startListening]);
+
+  // Handle pending send with delay (allows user to continue speaking)
+  const pendingSendRef = useRef<string | null>(null);
+  pendingSendRef.current = pendingSend;
+  
+  useEffect(() => {
+    if (pendingSend && !isLoading && !isSpeaking) {
+      const timeoutId = setTimeout(() => {
+        const currentInput = inputValue.trim();
+        if (currentInput) {
+          // Trigger send via form submission pattern
+          const sendEvent = new CustomEvent('voice-send', { detail: currentInput });
+          window.dispatchEvent(sendEvent);
+          setInputValue("");
+          resetTranscript();
+        }
+        setPendingSend(null);
+      }, 1500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [pendingSend, isLoading, isSpeaking, inputValue, resetTranscript]);
+
+  // Stop listening when AI starts speaking
+  useEffect(() => {
+    if (isSpeaking && isListening) {
+      stopListening();
+    }
+  }, [isSpeaking, isListening, stopListening]);
 
   // Update input when speech transcript changes
   useEffect(() => {
-    if (transcript) {
-      setInputValue(transcript);
+    if (fullTranscript) {
+      setInputValue(fullTranscript);
     }
-  }, [transcript]);
+  }, [fullTranscript]);
 
   const quickReplies = [
     t("chat.quickReply1"),
@@ -245,7 +296,7 @@ export default function Chat() {
     }
   };
 
-  const handleSend = async (content: string, isSystemAction = false) => {
+  const handleSend = useCallback(async (content: string, isSystemAction = false) => {
     if (!content.trim() || isLoading) return;
 
     const userMessage: Message = {
@@ -289,7 +340,18 @@ export default function Chat() {
       },
       onError: handleError,
     });
-  };
+  }, [isLoading, messages, voiceModeEnabled, speak, upsertAssistant, handleError]);
+
+  // Listen for voice-send events
+  useEffect(() => {
+    const handler = (e: CustomEvent) => {
+      if (e.detail) {
+        handleSend(e.detail);
+      }
+    };
+    window.addEventListener('voice-send', handler as EventListener);
+    return () => window.removeEventListener('voice-send', handler as EventListener);
+  }, [handleSend]);
 
   const handleActionButton = (action: typeof actionButtons[0]) => {
     if ('action' in action && action.action) {
