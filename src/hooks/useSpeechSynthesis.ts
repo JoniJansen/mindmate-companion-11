@@ -74,36 +74,81 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utteranceRef.current = utterance;
+    // Clean text for better speech - remove markdown, URLs, etc.
+    const cleanedText = text
+      .replace(/\*\*([^*]+)\*\*/g, "$1") // Remove bold
+      .replace(/\*([^*]+)\*/g, "$1") // Remove italic
+      .replace(/`([^`]+)`/g, "$1") // Remove code
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Links: keep text
+      .replace(/https?:\/\/[^\s]+/g, "") // Remove URLs
+      .replace(/[#>-]/g, "") // Remove markdown symbols
+      .trim();
 
-    const voice = getPreferredVoice();
-    if (voice) {
-      utterance.voice = voice;
+    if (!cleanedText) return;
+
+    // Split long text into chunks for more natural speech
+    const maxChunkLength = 200;
+    const sentences = cleanedText.match(/[^.!?]+[.!?]+/g) || [cleanedText];
+    const chunks: string[] = [];
+    let currentChunk = "";
+
+    for (const sentence of sentences) {
+      if ((currentChunk + sentence).length > maxChunkLength && currentChunk) {
+        chunks.push(currentChunk.trim());
+        currentChunk = sentence;
+      } else {
+        currentChunk += sentence;
+      }
+    }
+    if (currentChunk.trim()) {
+      chunks.push(currentChunk.trim());
     }
 
-    utterance.lang = lang;
-    utterance.pitch = pitch;
-    utterance.rate = rate;
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-      onStart?.();
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      onEnd?.();
-    };
-
-    utterance.onerror = (event) => {
-      setIsSpeaking(false);
-      if (event.error !== "canceled") {
-        onError?.(event.error);
+    // Speak each chunk sequentially
+    let chunkIndex = 0;
+    
+    const speakNextChunk = () => {
+      if (chunkIndex >= chunks.length) {
+        setIsSpeaking(false);
+        onEnd?.();
+        return;
       }
+
+      const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+      utteranceRef.current = utterance;
+
+      const voice = getPreferredVoice();
+      if (voice) {
+        utterance.voice = voice;
+      }
+
+      utterance.lang = lang;
+      utterance.pitch = pitch;
+      utterance.rate = rate;
+
+      utterance.onstart = () => {
+        if (chunkIndex === 0) {
+          setIsSpeaking(true);
+          onStart?.();
+        }
+      };
+
+      utterance.onend = () => {
+        chunkIndex++;
+        speakNextChunk();
+      };
+
+      utterance.onerror = (event) => {
+        if (event.error !== "canceled") {
+          setIsSpeaking(false);
+          onError?.(event.error);
+        }
+      };
+
+      window.speechSynthesis.speak(utterance);
     };
 
-    window.speechSynthesis.speak(utterance);
+    speakNextChunk();
   }, [isSupported, lang, pitch, rate, getPreferredVoice, onStart, onEnd, onError]);
 
   const stop = useCallback(() => {
