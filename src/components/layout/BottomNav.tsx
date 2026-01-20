@@ -1,42 +1,48 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  MessageCircle, 
-  BookOpen, 
-  Smile, 
-  ListTodo, 
-  Sparkles 
-} from "lucide-react";
+import { MessageCircle, Calendar, Home } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 export function BottomNav() {
   const location = useLocation();
-  const { t } = useTranslation();
+  const { language } = useTranslation();
 
   const navItems = [
-    { to: "/journal", icon: BookOpen, labelKey: "nav.journal" },
-    { to: "/mood", icon: Smile, labelKey: "nav.mood" },
-    { to: "/chat", icon: MessageCircle, labelKey: "nav.chat" },
-    { to: "/topics", icon: ListTodo, labelKey: "nav.topics" },
-    { to: "/toolbox", icon: Sparkles, labelKey: "nav.toolbox" },
+    { 
+      to: "/", 
+      icon: Home, 
+      label: language === "de" ? "Space" : "Space",
+    },
+    { 
+      to: "/chat", 
+      icon: MessageCircle, 
+      label: language === "de" ? "Chat" : "Chat",
+      isCenter: true,
+    },
+    { 
+      to: "/timeline", 
+      icon: Calendar, 
+      label: language === "de" ? "Timeline" : "Timeline",
+    },
   ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border/50 safe-bottom">
-      <div className="flex items-center justify-around px-2 py-2 max-w-lg mx-auto">
+      <div className="flex items-center justify-around px-4 py-2 max-w-lg mx-auto">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.to;
+          const isActive = item.to === "/" 
+            ? location.pathname === "/" 
+            : location.pathname.startsWith(item.to);
           const Icon = item.icon;
-          const isCenterItem = item.to === "/chat";
 
           return (
             <NavLink
               key={item.to}
               to={item.to}
-              className="relative flex flex-col items-center justify-center min-w-[60px] py-1"
+              className="relative flex flex-col items-center justify-center min-w-[70px] py-1"
             >
               <div className="relative">
-                {isCenterItem ? (
+                {item.isCenter ? (
                   <motion.div
                     className={`flex items-center justify-center w-14 h-14 rounded-2xl -mt-6 shadow-card ${
                       isActive 
@@ -61,7 +67,7 @@ export function BottomNav() {
                     <Icon className="w-5 h-5" />
                   </motion.div>
                 )}
-                {isActive && !isCenterItem && (
+                {isActive && !item.isCenter && (
                   <motion.div
                     layoutId="nav-indicator"
                     className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
@@ -70,11 +76,11 @@ export function BottomNav() {
                 )}
               </div>
               <span className={`text-[10px] mt-1 font-medium transition-colors duration-200 ${
-                isCenterItem ? "mt-2" : ""
+                item.isCenter ? "mt-2" : ""
               } ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}>
-                {t(item.labelKey)}
+                {item.label}
               </span>
             </NavLink>
           );

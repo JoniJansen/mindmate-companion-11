@@ -131,18 +131,15 @@ export default function Chat() {
     }
   }, [fullTranscript]);
 
+  // Simplified - only 2 quick replies, less overwhelming
   const quickReplies = [
-    t("chat.quickReply1"),
-    t("chat.quickReply2"),
-    t("chat.quickReply3"),
-    t("chat.quickReply4"),
+    t("chat.quickReply3"), // "I need someone to talk to"
+    t("chat.quickReply4"), // "Help me relax"
   ];
 
+  // Reduced action buttons - only essential ones
   const actionButtons = [
     { id: "endsession", label: t("chat.endSummarize"), icon: FileText, action: "summary" as const },
-    { id: "nextsteps", label: t("chat.nextSteps"), icon: ListChecks, prompt: "Based on our conversation, what are 2-3 gentle, actionable next steps I could consider? Keep them small and achievable." },
-    { id: "journal", label: t("chat.saveToJournal"), icon: BookOpen, action: "journal" as const },
-    { id: "exercises", label: t("chat.exercises"), icon: Dumbbell, action: "toolbox" as const },
     { id: "crisis", label: t("chat.crisisHelp"), icon: AlertTriangle, action: "safety" as const },
   ];
 
@@ -154,18 +151,31 @@ export default function Chat() {
     scrollToBottom();
   }, [messages]);
 
-  // Send initial greeting
+  // Check for initial message from Home screen or send greeting
   useEffect(() => {
-    const sendGreeting = async () => {
-      setIsLoading(true);
-      await streamChat({
-        messages: [{ role: "user" as const, content: "Hello, I just opened the app. Please greet me warmly." }],
-        onDelta: (chunk) => upsertAssistant(chunk),
-        onDone: () => setIsLoading(false),
-        onError: handleError,
-      });
+    const initialMessage = localStorage.getItem('mindmate-initial-message');
+    
+    const sendInitialMessage = async () => {
+      if (initialMessage) {
+        localStorage.removeItem('mindmate-initial-message');
+        // User came with a thought from Home - process it
+        handleSend(initialMessage);
+      } else {
+        // No initial message - send simple greeting
+        setIsLoading(true);
+        const greetingPrompt = language === "de" 
+          ? "Der Nutzer hat gerade den Chat geöffnet. Begrüße ihn kurz und warm in 1-2 Sätzen. Frage sanft, wie es ihm geht."
+          : "The user just opened the chat. Greet them briefly and warmly in 1-2 sentences. Gently ask how they're doing.";
+        
+        await streamChat({
+          messages: [{ role: "user" as const, content: greetingPrompt }],
+          onDelta: (chunk) => upsertAssistant(chunk),
+          onDone: () => setIsLoading(false),
+          onError: handleError,
+        });
+      }
     };
-    sendGreeting();
+    sendInitialMessage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -354,17 +364,9 @@ export default function Chat() {
     return () => window.removeEventListener('voice-send', handler as EventListener);
   }, [handleSend]);
 
-  const handleActionButton = (action: typeof actionButtons[0]) => {
-    if ('action' in action && action.action) {
-      // Navigate to the specified page
-      if (action.action === "journal") {
-        // Save conversation summary to localStorage for the journal page
-        const conversationSummary = messages
-          .map((m) => `${m.role === "user" ? "Me" : "MindMate"}: ${m.content}`)
-          .join("\n\n");
-        localStorage.setItem("mindmate-journal-draft", conversationSummary);
-        navigate("/journal");
-      } else if (action.action === "summary") {
+  const handleActionButton = (action: { id: string; label: string; icon: React.ComponentType; action?: string; prompt?: string }) => {
+    if (action.action) {
+      if (action.action === "summary") {
         // Save messages and navigate to summary
         localStorage.setItem("mindmate-chat-messages", JSON.stringify(
           messages.map(m => ({ role: m.role, content: m.content }))
@@ -373,8 +375,7 @@ export default function Chat() {
       } else {
         navigate(`/${action.action}`);
       }
-    } else if ('prompt' in action && action.prompt) {
-      // Send the prompt to the AI
+    } else if (action.prompt) {
       handleSend(action.prompt, true);
     }
     setShowActions(false);

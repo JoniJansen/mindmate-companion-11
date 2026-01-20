@@ -125,7 +125,7 @@ export default function Settings() {
         title={t("settings.title")} 
         subtitle={t("settings.subtitle")}
         showBack 
-        backTo="/chat"
+        backTo="/"
       />
 
       <div className="px-4 py-4 max-w-lg mx-auto space-y-6">

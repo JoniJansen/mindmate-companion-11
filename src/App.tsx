@@ -1,24 +1,26 @@
-import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+
+// Layout
 import { AppLayout } from "@/components/layout/AppLayout";
-import Onboarding from "./pages/Onboarding";
-import Chat from "./pages/Chat";
-import Journal from "./pages/Journal";
-import Mood from "./pages/Mood";
-import Topics from "./pages/Topics";
-import Toolbox from "./pages/Toolbox";
-import Summary from "./pages/Summary";
-import Safety from "./pages/Safety";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
+
+// Pages
+import Home from "@/pages/Home";
+import Chat from "@/pages/Chat";
+import Timeline from "@/pages/Timeline";
+import Onboarding from "@/pages/Onboarding";
+import Settings from "@/pages/Settings";
+import Safety from "@/pages/Safety";
+import Summary from "@/pages/Summary";
+import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Initialize theme on app load
+// Initialize theme from localStorage
 function ThemeInitializer() {
   useEffect(() => {
     try {
@@ -56,18 +58,16 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           {/* Onboarding */}
-          <Route path="/" element={<Onboarding />} />
+          <Route path="/welcome" element={<Onboarding />} />
           
           {/* Main app with bottom navigation */}
           <Route element={<AppLayout />}>
+            <Route path="/" element={<Home />} />
             <Route path="/chat" element={<Chat />} />
-            <Route path="/journal" element={<Journal />} />
-            <Route path="/mood" element={<Mood />} />
-            <Route path="/topics" element={<Topics />} />
-            <Route path="/toolbox" element={<Toolbox />} />
+            <Route path="/timeline" element={<Timeline />} />
           </Route>
           
-          {/* Standalone pages */}
+          {/* Standalone pages (no bottom nav) */}
           <Route path="/summary" element={<Summary />} />
           <Route path="/safety" element={<Safety />} />
           <Route path="/settings" element={<Settings />} />

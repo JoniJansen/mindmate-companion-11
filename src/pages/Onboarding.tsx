@@ -106,7 +106,7 @@ export default function Onboarding() {
     } else {
       // Save preferences to localStorage
       localStorage.setItem("mindmate-preferences", JSON.stringify(state));
-      navigate("/chat");
+      navigate("/");
     }
   };
 
