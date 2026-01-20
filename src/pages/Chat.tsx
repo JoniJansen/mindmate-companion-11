@@ -9,6 +9,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { VoiceAvatar } from "@/components/chat/VoiceAvatar";
+import { AudioWaveform } from "@/components/chat/AudioWaveform";
 
 interface Message {
   id: string;
@@ -544,6 +545,24 @@ export default function Chat() {
           </div>
         </div>
       )}
+
+      {/* Audio Waveform Indicator - shows when listening */}
+      <AnimatePresence>
+        {isListening && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="px-4 pb-3"
+          >
+            <div className="max-w-lg mx-auto flex justify-center">
+              <div className="bg-card/90 backdrop-blur border border-primary/20 rounded-2xl px-5 py-3 shadow-lg">
+                <AudioWaveform isListening={isListening} barCount={7} size="md" />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Input area */}
       <div className="border-t border-border/50 bg-card/80 backdrop-blur-lg p-4 mb-20">
