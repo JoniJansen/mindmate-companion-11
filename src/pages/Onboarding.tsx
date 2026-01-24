@@ -22,66 +22,78 @@ type Step = typeof steps[number];
 const translations = {
   en: {
     continue: "Continue",
-    getStarted: "Get Started",
+    getStarted: "Begin",
     welcome: {
-      title: "Welcome to MindMate",
-      subtitle: "Your calm companion for everyday mental wellness. I'm here to listen, support your reflection, and help you build healthy habits—anytime you need.",
+      title: "A quiet space for your mind",
+      subtitle: "MindMate is here to listen. No goals, no pressure—just a calm companion when you need one.",
     },
     disclaimer: {
-      title: "Before we begin",
-      text: "MindMate is a supportive AI companion designed to help you reflect on your thoughts and feelings. However, it is",
-      notReplacement: "not a replacement",
-      textEnd: "for professional psychotherapy, counseling, or medical treatment.",
-      crisis: "If you're experiencing a mental health crisis, please reach out to a qualified professional or emergency services.",
-      checkbox: "I understand that this app does not replace psychotherapy or medical treatment, and I agree to the terms of use.",
+      title: "A few words before we start",
+      text: "MindMate is an AI companion—thoughtful, but not a therapist. It can listen and help you reflect, but it",
+      notReplacement: "cannot replace professional support",
+      textEnd: "for mental health concerns.",
+      crisis: "If you're going through something serious, please reach out to a real person. We'll always show you how.",
+      checkbox: "I understand MindMate is not therapy or medical advice",
     },
     preferences: {
-      title: "Personalize your experience",
-      subtitle: "You can change these anytime in settings",
+      title: "Make it yours",
+      subtitle: "You can change these anytime",
       language: "Language",
-      tone: "Conversation tone",
+      tone: "How should I speak?",
       tones: {
         gentle: "Gentle",
-        neutral: "Neutral",
-        structured: "Structured",
+        neutral: "Balanced",
+        structured: "Clear",
       },
-      addressForm: "Form of address",
+      addressForm: "How should I address you?",
       addressForms: {
         du: "Informal",
         sie: "Formal",
       },
     },
+    firstQuestion: {
+      title: "One more thing",
+      subtitle: "What brings you here today?",
+      placeholder: "I've been feeling... / I want to... / Just exploring...",
+      skip: "Skip for now",
+    },
   },
   de: {
     continue: "Weiter",
-    getStarted: "Los geht's",
+    getStarted: "Beginnen",
     welcome: {
-      title: "Willkommen bei MindMate",
-      subtitle: "Dein ruhiger Begleiter für dein tägliches mentales Wohlbefinden. Ich bin hier, um zuzuhören, deine Reflexion zu unterstützen und dir zu helfen, gesunde Gewohnheiten aufzubauen—wann immer du mich brauchst.",
+      title: "Ein ruhiger Raum für deinen Geist",
+      subtitle: "MindMate ist hier, um zuzuhören. Keine Ziele, kein Druck—einfach ein ruhiger Begleiter, wenn du einen brauchst.",
     },
     disclaimer: {
-      title: "Bevor wir beginnen",
-      text: "MindMate ist ein unterstützender KI-Begleiter, der dir helfen soll, über deine Gedanken und Gefühle zu reflektieren. Er ist jedoch",
-      notReplacement: "kein Ersatz",
-      textEnd: "für professionelle Psychotherapie, Beratung oder medizinische Behandlung.",
-      crisis: "Wenn du dich in einer psychischen Krise befindest, wende dich bitte an einen qualifizierten Fachmann oder die Notdienste.",
-      checkbox: "Ich verstehe, dass diese App keine Psychotherapie oder medizinische Behandlung ersetzt, und ich stimme den Nutzungsbedingungen zu.",
+      title: "Ein paar Worte bevor wir starten",
+      text: "MindMate ist ein KI-Begleiter—durchdacht, aber kein Therapeut. Es kann zuhören und dir helfen zu reflektieren, aber es",
+      notReplacement: "kann professionelle Unterstützung nicht ersetzen",
+      textEnd: "bei psychischen Anliegen.",
+      crisis: "Wenn du etwas Ernstes durchmachst, wende dich bitte an einen echten Menschen. Wir zeigen dir immer, wie.",
+      checkbox: "Ich verstehe, dass MindMate keine Therapie oder medizinischer Rat ist",
     },
     preferences: {
-      title: "Personalisiere dein Erlebnis",
-      subtitle: "Du kannst diese Einstellungen jederzeit ändern",
+      title: "Mach es zu deinem",
+      subtitle: "Du kannst das jederzeit ändern",
       language: "Sprache",
-      tone: "Gesprächston",
+      tone: "Wie soll ich sprechen?",
       tones: {
         gentle: "Sanft",
-        neutral: "Neutral",
-        structured: "Strukturiert",
+        neutral: "Ausgewogen",
+        structured: "Klar",
       },
-      addressForm: "Anrede",
+      addressForm: "Wie soll ich dich ansprechen?",
       addressForms: {
         du: "Du (informell)",
         sie: "Sie (formell)",
       },
+    },
+    firstQuestion: {
+      title: "Noch eine Sache",
+      subtitle: "Was führt dich heute hierher?",
+      placeholder: "Ich fühle mich... / Ich möchte... / Ich schaue mich nur um...",
+      skip: "Erstmal überspringen",
     },
   },
 };
@@ -192,22 +204,32 @@ function WelcomeStep({ t }: WelcomeStepProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="flex-1 flex flex-col items-center justify-center text-center"
+      transition={{ duration: 0.4 }}
+      className="flex-1 flex flex-col items-center justify-center text-center px-4"
     >
+      {/* Gentle breathing animation */}
       <motion.div
-        className="w-24 h-24 rounded-3xl bg-primary-soft flex items-center justify-center mb-8"
-        animate={{ scale: [1, 1.02, 1] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className="w-28 h-28 rounded-full bg-gradient-to-br from-primary-soft to-calm-soft flex items-center justify-center mb-10"
+        animate={{ 
+          scale: [1, 1.08, 1],
+          opacity: [0.9, 1, 0.9]
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Heart className="w-12 h-12 text-primary" />
+        <motion.div
+          className="w-20 h-20 rounded-full bg-card flex items-center justify-center shadow-soft"
+          animate={{ scale: [1, 0.95, 1] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Heart className="w-10 h-10 text-primary" />
+        </motion.div>
       </motion.div>
 
-      <h1 className="text-2xl font-bold text-foreground mb-4">
+      <h1 className="text-2xl font-semibold text-foreground mb-4 text-balance">
         {t.title}
       </h1>
 
-      <p className="text-muted-foreground text-base leading-relaxed max-w-sm">
+      <p className="text-muted-foreground text-base leading-relaxed max-w-xs">
         {t.subtitle}
       </p>
     </motion.div>
@@ -226,29 +248,28 @@ function DisclaimerStep({ t, accepted, onAcceptChange }: DisclaimerStepProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="flex-1 flex flex-col justify-center"
+      transition={{ duration: 0.4 }}
+      className="flex-1 flex flex-col justify-center px-2"
     >
       <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
         {t.title}
       </h2>
 
-      <div className="bg-gentle-soft rounded-2xl p-5 mb-8">
+      <div className="bg-card rounded-2xl p-5 mb-6 shadow-soft border border-border/30">
         <p className="text-foreground text-sm leading-relaxed">
           {t.text}{" "}
-          <span className="font-medium">{t.notReplacement}</span>{" "}
+          <span className="font-medium text-primary">{t.notReplacement}</span>{" "}
           {t.textEnd}
         </p>
-        <p className="text-muted-foreground text-sm leading-relaxed mt-3">
+        <p className="text-muted-foreground text-sm leading-relaxed mt-4 pt-4 border-t border-border/30">
           {t.crisis}
         </p>
       </div>
 
-      <label className="flex items-start gap-3 cursor-pointer group">
+      <label className="flex items-center gap-3 cursor-pointer group bg-muted/30 rounded-xl p-4">
         <Checkbox
           checked={accepted}
           onCheckedChange={(checked) => onAcceptChange(checked === true)}
-          className="mt-0.5"
         />
         <span className="text-sm text-foreground leading-relaxed">
           {t.checkbox}
