@@ -34,12 +34,16 @@ interface Resource {
 const Safety = forwardRef<HTMLDivElement>((_, ref) => {
   const { t, language } = useTranslation();
 
-  // Jutta Jansen - Psychologin (available Mon-Fri 9-15)
+  // Jutta Jansen - Psychologin M.Sc., Heilpraktikerin für Psychotherapie
   const professionalContact = {
     name: "Jutta Jansen",
-    role: language === "de" ? "Psychologin" : "Psychologist",
+    role: language === "de" ? "Psychologin M.Sc., Heilpraktikerin für Psychotherapie" : "Psychologist M.Sc., Psychotherapist",
+    description: language === "de" 
+      ? "Über 24 Jahre Erfahrung in Psychiatrie und Psychosomatik. Spezialisiert auf Trauma, Angst, Burnout und Beziehungsberatung."
+      : "Over 24 years experience in psychiatry and psychosomatic medicine. Specialized in trauma, anxiety, burnout and relationship counseling.",
     number: "+49 177 6536493",
     tel: "tel:+491776536493",
+    website: "https://www.juttajansen.com",
     available: language === "de" ? "Mo–Fr 9:00–15:00 Uhr" : "Mon–Fri 9am–3pm",
   };
 
@@ -190,22 +194,34 @@ const Safety = forwardRef<HTMLDivElement>((_, ref) => {
           </h2>
           
           <CalmCard variant="gentle">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 flex-1">
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <User className="w-6 h-6 text-primary" />
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-foreground">{professionalContact.name}</h3>
-                  <p className="text-sm text-primary font-medium">{professionalContact.role}</p>
-                  <p className="text-lg font-bold text-foreground mt-1">{professionalContact.number}</p>
-                  <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                    <Clock className="w-3 h-3" />
-                    {professionalContact.available}
+                  <p className="text-xs text-primary font-medium leading-tight">{professionalContact.role}</p>
+                  <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{professionalContact.description}</p>
+                  <p className="text-lg font-bold text-foreground mt-2">{professionalContact.number}</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="w-3 h-3" />
+                      {professionalContact.available}
+                    </div>
+                    <a 
+                      href={professionalContact.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-primary hover:underline"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      Website
+                    </a>
                   </div>
                 </div>
               </div>
-              <Button variant="calm" size="icon" asChild>
+              <Button variant="calm" size="icon" asChild className="shrink-0">
                 <a href={professionalContact.tel}>
                   <Phone className="w-4 h-4" />
                 </a>
