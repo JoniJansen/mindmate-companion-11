@@ -19,6 +19,7 @@ import { AudioWaveform } from "@/components/chat/AudioWaveform";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
 import { MessagePlayButton } from "@/components/chat/MessagePlayButton";
 import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
+import { SwipeHint } from "@/components/chat/SwipeHint";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 
@@ -482,6 +483,9 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-background fixed inset-0 overflow-hidden">
+      {/* Swipe hint for first-time users */}
+      <SwipeHint />
+      
       <PageHeader
         title={t("chat.title")}
         subtitle={t("chat.subtitle")}
