@@ -32,7 +32,7 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
         ref={ref}
         className={`sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/20 safe-top ${className}`}
       >
-        <div className="flex items-center justify-between px-4 py-3.5 max-w-lg mx-auto">
+        <div className="flex items-center justify-between px-4 md:px-6 lg:px-8 py-3.5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
           <div className="flex items-center gap-3 flex-1">
             {showBack && (
               <Button 

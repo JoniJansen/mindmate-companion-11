@@ -103,7 +103,7 @@ export default function Topics() {
 
     return (
       <div className="min-h-screen bg-background pb-24">
-        <div className="px-4 py-6 max-w-lg mx-auto">
+        <div className="px-4 md:px-6 lg:px-8 py-6 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -235,7 +235,7 @@ export default function Topics() {
         }
       />
 
-      <div className="px-4 py-4 max-w-lg mx-auto space-y-4">
+      <div className="px-4 md:px-6 lg:px-8 py-4 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -248,8 +248,8 @@ export default function Topics() {
           />
         </div>
 
-        {/* Topics grid */}
-        <div className="space-y-3">
+        {/* Topics grid - responsive grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {filteredTopics.map((topic, index) => {
             const topicProgress = getTopicProgress(topic.id, topic.steps.length);
             const hasProgress = topicProgress > 0;

@@ -48,7 +48,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-t border-border/30 safe-bottom">
-      <div className="flex items-center justify-around px-2 py-2.5 max-w-lg mx-auto">
+      <div className="flex items-center justify-around px-2 md:px-4 py-2.5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to || 
             (item.to !== "/" && location.pathname.startsWith(item.to));
@@ -59,7 +59,7 @@ export function BottomNav() {
               key={item.to}
               to={item.to}
               data-tour={item.tourId}
-              className="relative flex flex-col items-center justify-center min-w-[56px] py-1"
+              className="relative flex flex-col items-center justify-center min-w-[56px] md:min-w-[72px] lg:min-w-[80px] py-1"
             >
               <motion.div
                 className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 ${
