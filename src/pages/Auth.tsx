@@ -128,16 +128,24 @@ export default function Auth() {
           className="w-full max-w-sm space-y-8"
         >
           {/* Logo & Title */}
-          <div className="text-center space-y-2">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <img src="/logo.png" alt="MindMate" className="w-10 h-10" />
+          <div className="text-center space-y-3">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto shadow-lg shadow-primary/10">
+              <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/logo.png" 
+                  alt="MindMate" 
+                  className="w-10 h-10 object-contain brightness-0 invert" 
+                />
+              </div>
             </div>
-            <h1 className="text-2xl font-semibold text-foreground">
-              {language === "de" ? t.title.de : t.title.en}
-            </h1>
-            <p className="text-muted-foreground">
-              {language === "de" ? t.subtitle.de : t.subtitle.en}
-            </p>
+            <div className="space-y-1">
+              <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+                {language === "de" ? t.title.de : t.title.en}
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                {language === "de" ? t.subtitle.de : t.subtitle.en}
+              </p>
+            </div>
           </div>
 
           {/* Form */}
