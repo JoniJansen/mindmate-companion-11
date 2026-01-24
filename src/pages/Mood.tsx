@@ -8,7 +8,7 @@ import { MoodSelector, getMoodEmoji, getMoodLabel } from "@/components/mood/Mood
 import { FeelingTags } from "@/components/mood/FeelingTags";
 import { MoodChart } from "@/components/mood/MoodChart";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useSessionId } from "@/hooks/useSessionId";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -34,15 +34,16 @@ export default function Mood() {
   const [isLoading, setIsLoading] = useState(true);
 
   const { language } = useTranslation();
-  const sessionId = useSessionId();
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (sessionId) loadCheckins();
-  }, [sessionId, timeFilter]);
+    if (user) loadCheckins();
+  }, [user, timeFilter]);
 
   const loadCheckins = async () => {
+    if (!user) return;
     setIsLoading(true);
     try {
       const daysAgo = timeFilter === "7d" ? 7 : timeFilter === "30d" ? 30 : 90;
@@ -52,7 +53,7 @@ export default function Mood() {
       const { data, error } = await supabase
         .from("mood_checkins")
         .select("*")
-        .eq("user_session_id", sessionId)
+        .eq("user_id", user.id)
         .gte("created_at", startDate.toISOString())
         .order("created_at", { ascending: false });
 
@@ -97,7 +98,7 @@ export default function Mood() {
   };
 
   const handleSave = async () => {
-    if (selectedMood === null || !sessionId) return;
+    if (selectedMood === null || !user) return;
     setIsSaving(true);
 
     try {
@@ -108,7 +109,7 @@ export default function Mood() {
       const { data: existing } = await supabase
         .from("mood_checkins")
         .select("id")
-        .eq("user_session_id", sessionId)
+        .eq("user_id", user.id)
         .gte("created_at", today.toISOString())
         .maybeSingle();
 
@@ -118,22 +119,24 @@ export default function Mood() {
 
       // Insert new checkin
       const { error } = await supabase.from("mood_checkins").insert({
-        user_session_id: sessionId,
+        user_id: user.id,
+        user_session_id: user.id, // Legacy field for compatibility
         mood_value: selectedMood,
         feelings: selectedFeelings,
         note: note.trim() || null,
-      });
+      } as any);
 
       if (error) throw error;
 
       // Also save to journal if there's a note
       if (note.trim()) {
         await supabase.from("journal_entries").insert({
-          user_session_id: sessionId,
+          user_id: user.id,
+          user_session_id: user.id, // Legacy field for compatibility
           content: note,
           mood: getMoodEmoji(selectedMood),
           source: "mood-checkin",
-        });
+        } as any);
       }
 
       // Sync to localStorage as backup

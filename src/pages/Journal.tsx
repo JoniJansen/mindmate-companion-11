@@ -8,7 +8,7 @@ import { JournalEditor } from "@/components/journal/JournalEditor";
 import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
 import { JournalPrompts } from "@/components/journal/JournalPrompts";
 import { AIReflectionPanel } from "@/components/journal/AIReflectionPanel";
-import { useSessionId } from "@/hooks/useSessionId";
+import { useAuth } from "@/hooks/useAuth";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -52,7 +52,7 @@ export default function Journal() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { language } = useTranslation();
-  const sessionId = useSessionId();
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -68,8 +68,8 @@ export default function Journal() {
     : ["Work", "Relationships", "Family", "Health", "Self-worth", "Future"];
 
   useEffect(() => {
-    if (sessionId) loadEntries();
-  }, [sessionId]);
+    if (user) loadEntries();
+  }, [user]);
 
   useEffect(() => {
     if (fullTranscript && viewMode === "write") {
@@ -97,11 +97,12 @@ export default function Journal() {
   }, []);
 
   const loadEntries = async () => {
+    if (!user) return;
     try {
       const { data, error } = await supabase
         .from("journal_entries")
         .select("*")
-        .eq("user_session_id", sessionId)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -114,7 +115,7 @@ export default function Journal() {
   };
 
   const handleSaveEntry = async (entry: { title: string; content: string; mood: string }) => {
-    if (!sessionId) return;
+    if (!user) return;
 
     try {
       const payload = {
@@ -129,10 +130,11 @@ export default function Journal() {
         await supabase.from("journal_entries").update(payload).eq("id", selectedEntry.id);
       } else {
         await supabase.from("journal_entries").insert({
-          user_session_id: sessionId,
+          user_id: user.id,
+          user_session_id: user.id, // Legacy compatibility
           source: selectedPrompt ? "guided" : "free",
           ...payload,
-        });
+        } as any);
       }
 
       toast({
@@ -216,14 +218,17 @@ export default function Journal() {
       localStorage.setItem("mindmate-weekly-recap", JSON.stringify(recap));
 
       // Save to Supabase
-      await supabase.from("weekly_recaps").insert({
-        user_session_id: sessionId,
-        time_range: "7d",
-        patterns: data.patterns,
-        potential_needs: data.potential_needs,
-        suggested_next_step: data.suggested_next_step,
-        summary_bullets: data.summary_bullets,
-      });
+      if (user) {
+        await supabase.from("weekly_recaps").insert({
+          user_id: user.id,
+          user_session_id: user.id, // Legacy compatibility
+          time_range: "7d",
+          patterns: data.patterns,
+          potential_needs: data.potential_needs,
+          suggested_next_step: data.suggested_next_step,
+          summary_bullets: data.summary_bullets,
+        } as any);
+      }
 
     } catch (error) {
       console.error("Error:", error);
