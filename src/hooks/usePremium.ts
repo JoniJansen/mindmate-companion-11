@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useSessionId } from "./useSessionId";
+import { useAuth } from "./useAuth";
 
 export interface PremiumState {
   isPremium: boolean;
@@ -36,7 +36,7 @@ const getDefaultState = (): StoredState => ({
 });
 
 export function usePremium() {
-  const sessionId = useSessionId();
+  const { user } = useAuth();
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
@@ -70,12 +70,12 @@ export function usePremium() {
 
   // Check subscription status from backend
   const checkSubscriptionStatus = useCallback(async () => {
-    if (!sessionId || isCheckingSubscription) return;
+    if (!user || isCheckingSubscription) return;
     
     setIsCheckingSubscription(true);
     try {
       const { data, error } = await supabase.functions.invoke("manage-subscription", {
-        body: { sessionId, action: "status" },
+        body: { userId: user.id, action: "status" },
       });
 
       if (error) {
@@ -99,14 +99,14 @@ export function usePremium() {
     } finally {
       setIsCheckingSubscription(false);
     }
-  }, [sessionId, isCheckingSubscription, state]);
+  }, [user, isCheckingSubscription, state]);
 
-  // Check subscription on mount and when session ID changes
+  // Check subscription on mount and when user changes
   useEffect(() => {
-    if (sessionId && isLoaded) {
+    if (user && isLoaded) {
       checkSubscriptionStatus();
     }
-  }, [sessionId, isLoaded]);
+  }, [user, isLoaded]);
 
   // Save state to localStorage
   const saveState = useCallback((newState: StoredState) => {
@@ -139,13 +139,13 @@ export function usePremium() {
 
   // Create checkout session for upgrade
   const createCheckoutSession = useCallback(async (planType: "monthly" | "yearly") => {
-    if (!sessionId) {
-      throw new Error("No session ID");
+    if (!user) {
+      throw new Error("Not authenticated");
     }
 
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
-        sessionId,
+        userId: user.id,
         planType,
         successUrl: `${window.location.origin}/settings?success=true`,
         cancelUrl: `${window.location.origin}/settings?canceled=true`,
@@ -159,16 +159,16 @@ export function usePremium() {
     if (data?.url) {
       window.location.href = data.url;
     }
-  }, [sessionId]);
+  }, [user]);
 
   // Cancel subscription
   const cancelSubscription = useCallback(async () => {
-    if (!sessionId) {
-      throw new Error("No session ID");
+    if (!user) {
+      throw new Error("Not authenticated");
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { sessionId, action: "cancel" },
+      body: { userId: user.id, action: "cancel" },
     });
 
     if (error) {
@@ -177,16 +177,16 @@ export function usePremium() {
 
     await checkSubscriptionStatus();
     return data;
-  }, [sessionId, checkSubscriptionStatus]);
+  }, [user, checkSubscriptionStatus]);
 
   // Reactivate subscription
   const reactivateSubscription = useCallback(async () => {
-    if (!sessionId) {
-      throw new Error("No session ID");
+    if (!user) {
+      throw new Error("Not authenticated");
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { sessionId, action: "reactivate" },
+      body: { userId: user.id, action: "reactivate" },
     });
 
     if (error) {
@@ -195,16 +195,16 @@ export function usePremium() {
 
     await checkSubscriptionStatus();
     return data;
-  }, [sessionId, checkSubscriptionStatus]);
+  }, [user, checkSubscriptionStatus]);
 
   // Open billing portal
   const openBillingPortal = useCallback(async () => {
-    if (!sessionId) {
-      throw new Error("No session ID");
+    if (!user) {
+      throw new Error("Not authenticated");
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { sessionId, action: "portal" },
+      body: { userId: user.id, action: "portal" },
     });
 
     if (error) {
@@ -214,7 +214,7 @@ export function usePremium() {
     if (data?.url) {
       window.location.href = data.url;
     }
-  }, [sessionId]);
+  }, [user]);
 
   // Legacy upgrade method (now uses checkout)
   const upgradeToPremium = useCallback(() => {

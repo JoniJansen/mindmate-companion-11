@@ -13,10 +13,13 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { sessionId, planType, successUrl, cancelUrl } = await req.json();
+    const { userId, sessionId, planType, successUrl, cancelUrl } = await req.json();
 
-    if (!sessionId) {
-      throw new Error("Session ID is required");
+    // Support both userId (new) and sessionId (legacy)
+    const userIdentifier = userId || sessionId;
+    
+    if (!userIdentifier) {
+      throw new Error("User ID is required");
     }
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -32,27 +35,36 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check if customer already exists
-    const { data: existingSub } = await supabase
+    // Check if customer already exists (try user_id first, then user_session_id)
+    let existingSub = await supabase
       .from("subscriptions")
       .select("stripe_customer_id")
-      .eq("user_session_id", sessionId)
-      .single();
+      .eq("user_id", userIdentifier)
+      .maybeSingle();
 
-    let customerId = existingSub?.stripe_customer_id;
+    if (!existingSub.data) {
+      existingSub = await supabase
+        .from("subscriptions")
+        .select("stripe_customer_id")
+        .eq("user_session_id", userIdentifier)
+        .maybeSingle();
+    }
+
+    let customerId = existingSub.data?.stripe_customer_id;
 
     // Create new customer if needed
     if (!customerId) {
       const customer = await stripe.customers.create({
         metadata: {
-          session_id: sessionId,
+          user_id: userIdentifier,
         },
       });
       customerId = customer.id;
 
       // Create subscription record
       await supabase.from("subscriptions").upsert({
-        user_session_id: sessionId,
+        user_id: userIdentifier,
+        user_session_id: userIdentifier,
         stripe_customer_id: customerId,
         status: "inactive",
       });
@@ -90,7 +102,7 @@ Deno.serve(async (req) => {
       success_url: successUrl || `${req.headers.get("origin")}/settings?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/settings?canceled=true`,
       metadata: {
-        session_id: sessionId,
+        user_id: userIdentifier,
         plan_type: planType,
       },
     });

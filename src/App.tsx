@@ -7,6 +7,7 @@ import { useEffect } from "react";
 
 // Layout
 import { AppLayout } from "@/components/layout/AppLayout";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 // Pages
 import Chat from "@/pages/Chat";
@@ -20,6 +21,7 @@ import Safety from "@/pages/Safety";
 import Summary from "@/pages/Summary";
 import Install from "@/pages/Install";
 import Upgrade from "@/pages/Upgrade";
+import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,11 +63,14 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Auth */}
+          <Route path="/auth" element={<Auth />} />
+          
           {/* Onboarding */}
           <Route path="/welcome" element={<Onboarding />} />
           
-          {/* Main app with bottom navigation */}
-          <Route element={<AppLayout />}>
+          {/* Main app with bottom navigation - Protected */}
+          <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route path="/" element={<Navigate to="/chat" replace />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/journal" element={<Journal />} />
@@ -74,12 +79,12 @@ const App = () => (
             <Route path="/toolbox" element={<Toolbox />} />
           </Route>
           
-          {/* Standalone pages (no bottom nav) */}
-          <Route path="/summary" element={<Summary />} />
+          {/* Standalone protected pages */}
+          <Route path="/summary" element={<ProtectedRoute><Summary /></ProtectedRoute>} />
           <Route path="/safety" element={<Safety />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/install" element={<Install />} />
-          <Route path="/upgrade" element={<Upgrade />} />
+          <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
           
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
