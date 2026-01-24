@@ -7,7 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { supabase } from "@/integrations/supabase/client";
 
 interface WeeklyRecapProps {
-  sessionId: string;
+  userId: string;
 }
 
 interface RecapData {
@@ -16,7 +16,7 @@ interface RecapData {
   insight: string;
 }
 
-export function WeeklyRecap({ sessionId }: WeeklyRecapProps) {
+export function WeeklyRecap({ userId }: WeeklyRecapProps) {
   const [recap, setRecap] = useState<RecapData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasEnoughData, setHasEnoughData] = useState(false);
@@ -24,7 +24,7 @@ export function WeeklyRecap({ sessionId }: WeeklyRecapProps) {
 
   useEffect(() => {
     checkDataAvailability();
-  }, [sessionId]);
+  }, [userId]);
 
   const checkDataAvailability = async () => {
     const weekAgo = new Date();
@@ -33,7 +33,7 @@ export function WeeklyRecap({ sessionId }: WeeklyRecapProps) {
     const { count } = await supabase
       .from("journal_entries")
       .select("*", { count: "exact", head: true })
-      .eq("user_session_id", sessionId)
+      .eq("user_id", userId)
       .gte("created_at", weekAgo.toISOString());
 
     setHasEnoughData((count || 0) >= 3);
@@ -48,7 +48,7 @@ export function WeeklyRecap({ sessionId }: WeeklyRecapProps) {
       const { data: entries } = await supabase
         .from("journal_entries")
         .select("content, mood, created_at")
-        .eq("user_session_id", sessionId)
+        .eq("user_id", userId)
         .gte("created_at", weekAgo.toISOString())
         .order("created_at", { ascending: false });
 

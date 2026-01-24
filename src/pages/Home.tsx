@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { supabase } from "@/integrations/supabase/client";
-import { useSessionId } from "@/hooks/useSessionId";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 interface RecentThought {
@@ -26,7 +26,7 @@ export default function Home() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
   const { t, language } = useTranslation();
-  const sessionId = useSessionId();
+  const { user } = useAuth();
   const { toast } = useToast();
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
@@ -42,14 +42,14 @@ export default function Home() {
 
   // Load recent thoughts
   useEffect(() => {
-    if (!sessionId) return;
+    if (!user) return;
     
     const loadRecentThoughts = async () => {
       try {
         const { data } = await supabase
           .from('journal_entries')
           .select('id, content, mood, created_at, source')
-          .eq('user_session_id', sessionId)
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(3);
         
@@ -62,7 +62,7 @@ export default function Home() {
     };
     
     loadRecentThoughts();
-  }, [sessionId]);
+  }, [user]);
 
   // Update input from speech
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function Home() {
   };
 
   const handleSaveThought = async () => {
-    if (!inputValue.trim() || !sessionId) return;
+    if (!inputValue.trim() || !user) return;
     
     setIsSaving(true);
     
@@ -99,7 +99,8 @@ export default function Home() {
       const { error } = await supabase
         .from('journal_entries')
         .insert({
-          user_session_id: sessionId,
+          user_id: user.id,
+          user_session_id: user.id, // Legacy field for compatibility
           content: inputValue.trim(),
           source: 'voice-dump',
         });
@@ -118,7 +119,7 @@ export default function Home() {
       const { data } = await supabase
         .from('journal_entries')
         .select('id, content, mood, created_at, source')
-        .eq('user_session_id', sessionId)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(3);
       

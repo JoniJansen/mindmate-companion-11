@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { supabase } from "@/integrations/supabase/client";
-import { useSessionId } from "@/hooks/useSessionId";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 interface TimelineEntry {
@@ -56,19 +56,19 @@ export default function Timeline() {
   
   const navigate = useNavigate();
   const { language } = useTranslation();
-  const sessionId = useSessionId();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   // Load entries
   useEffect(() => {
-    if (!sessionId) return;
+    if (!user) return;
     
     const loadEntries = async () => {
       try {
         const { data } = await supabase
           .from('journal_entries')
           .select('*')
-          .eq('user_session_id', sessionId)
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
         
         setEntries(data || []);
@@ -80,7 +80,7 @@ export default function Timeline() {
     };
     
     loadEntries();
-  }, [sessionId]);
+  }, [user]);
 
   // Process week data
   useEffect(() => {

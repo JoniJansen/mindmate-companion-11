@@ -45,17 +45,18 @@ Deno.serve(async (req) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        const sessionId = session.metadata?.session_id;
+        const userId = session.metadata?.user_id;
         const planType = session.metadata?.plan_type;
 
-        if (sessionId) {
+        if (userId) {
           await supabase.from("subscriptions").upsert({
-            user_session_id: sessionId,
+            user_id: userId,
+            user_session_id: userId, // Legacy field for compatibility
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: session.subscription as string,
             status: "active",
             plan_type: planType || "monthly",
-          });
+          }, { onConflict: "user_id" });
         }
         break;
       }
@@ -64,20 +65,20 @@ Deno.serve(async (req) => {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
 
-        // Find subscription by customer ID
-        const { data: sub } = await supabase
+        // Find subscription by customer ID (try user_id first)
+        let sub = await supabase
           .from("subscriptions")
-          .select("user_session_id")
+          .select("user_id")
           .eq("stripe_customer_id", customerId)
-          .single();
+          .maybeSingle();
 
-        if (sub) {
+        if (sub.data?.user_id) {
           await supabase.from("subscriptions").update({
             status: subscription.status === "active" ? "active" : "inactive",
             cancel_at_period_end: subscription.cancel_at_period_end,
             current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
             current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-          }).eq("user_session_id", sub.user_session_id);
+          }).eq("user_id", sub.data.user_id);
         }
         break;
       }
