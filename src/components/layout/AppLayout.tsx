@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
+import { AppFooter } from "./AppFooter";
 import { useBackupReminder } from "@/hooks/useBackupReminder";
 
 export function AppLayout() {
@@ -14,11 +15,16 @@ export function AppLayout() {
   const shouldHideNav = hideNavRoutes.some(route => location.pathname.startsWith(route));
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className={shouldHideNav ? "" : "pb-24"}>
+    <div className="min-h-screen bg-background flex flex-col">
+      <main className={`flex-1 ${shouldHideNav ? "" : "pb-24"}`}>
         <Outlet />
       </main>
-      {!shouldHideNav && <BottomNav />}
+      {!shouldHideNav && (
+        <>
+          <AppFooter />
+          <BottomNav />
+        </>
+      )}
     </div>
   );
 }

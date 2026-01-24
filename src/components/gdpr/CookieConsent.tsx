@@ -13,11 +13,19 @@ type ConsentSettings = {
 };
 
 const defaultSettings: ConsentSettings = {
-  essential: true, // Always required
+  essential: true,
   analytics: false,
   marketing: false,
   timestamp: "",
 };
+
+// Global event for opening cookie settings
+export const COOKIE_SETTINGS_EVENT = "open_cookie_settings";
+
+// Function to trigger opening cookie settings from anywhere
+export function openCookieSettings() {
+  window.dispatchEvent(new CustomEvent(COOKIE_SETTINGS_EVENT));
+}
 
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
@@ -29,10 +37,8 @@ export function CookieConsent() {
     const stored = localStorage.getItem("mindmate_language") || "en";
     setLanguage(stored as "en" | "de");
 
-    // Check if consent was already given
     const consent = localStorage.getItem("cookie_consent");
     if (!consent) {
-      // Show banner after a short delay
       const timer = setTimeout(() => setShowBanner(true), 1000);
       return () => clearTimeout(timer);
     } else {
@@ -43,6 +49,15 @@ export function CookieConsent() {
         setShowBanner(true);
       }
     }
+  }, []);
+
+  // Listen for external open event
+  useEffect(() => {
+    const handleOpenSettings = () => {
+      setShowSettings(true);
+    };
+    window.addEventListener(COOKIE_SETTINGS_EVENT, handleOpenSettings);
+    return () => window.removeEventListener(COOKIE_SETTINGS_EVENT, handleOpenSettings);
   }, []);
 
   const texts = {
@@ -83,15 +98,13 @@ export function CookieConsent() {
   const saveConsent = (newSettings: ConsentSettings) => {
     const finalSettings = {
       ...newSettings,
-      essential: true, // Always true
+      essential: true,
       timestamp: new Date().toISOString(),
     };
     localStorage.setItem("cookie_consent", JSON.stringify(finalSettings));
     setSettings(finalSettings);
     setShowBanner(false);
     setShowSettings(false);
-
-    // Dispatch event for analytics to listen to
     window.dispatchEvent(new CustomEvent("cookie_consent_updated", { detail: finalSettings }));
   };
 
@@ -106,8 +119,6 @@ export function CookieConsent() {
   const handleSaveSettings = () => {
     saveConsent(settings);
   };
-
-  if (!showBanner) return null;
 
   return (
     <>
@@ -165,7 +176,6 @@ export function CookieConsent() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
-            {/* Essential Cookies */}
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <h4 className="font-medium text-foreground">{t.essential}</h4>
@@ -174,7 +184,6 @@ export function CookieConsent() {
               <Switch checked disabled className="opacity-50" />
             </div>
 
-            {/* Analytics Cookies */}
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <h4 className="font-medium text-foreground">{t.analytics}</h4>
@@ -186,7 +195,6 @@ export function CookieConsent() {
               />
             </div>
 
-            {/* Marketing Cookies */}
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <h4 className="font-medium text-foreground">{t.marketing}</h4>
@@ -210,7 +218,6 @@ export function CookieConsent() {
   );
 }
 
-// Helper to check if analytics is allowed
 export function isAnalyticsAllowed(): boolean {
   try {
     const consent = localStorage.getItem("cookie_consent");
@@ -222,7 +229,6 @@ export function isAnalyticsAllowed(): boolean {
   }
 }
 
-// Helper to check if marketing is allowed
 export function isMarketingAllowed(): boolean {
   try {
     const consent = localStorage.getItem("cookie_consent");

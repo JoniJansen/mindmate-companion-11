@@ -18,27 +18,21 @@ export default function Impressum() {
       title: "Impressum",
       subtitle: "Angaben gemäß § 5 TMG",
       provider: "Anbieter",
-      companyName: "MindMate UG (haftungsbeschränkt)",
-      address: "Musterstraße 123",
-      city: "10115 Berlin",
+      companyName: "MindMade",
+      businessType: "Kleingewerbe",
+      address: "Petersbergstraße 11",
+      city: "53604 Bad Honnef",
       country: "Deutschland",
       contact: "Kontakt",
-      email: "kontakt@mindmate.app",
-      phone: "+49 (0) 30 12345678",
+      email: "joni.jansen00@gmail.com",
+      phone: "+49 176 44680467",
       website: "www.mindmate.app",
-      representative: "Vertretungsberechtigter",
-      representativeDesc: "Geschäftsführer: Max Mustermann",
-      registration: "Registereintrag",
-      registrationDesc: "Eingetragen im Handelsregister",
-      court: "Registergericht: Amtsgericht Berlin-Charlottenburg",
-      registerNumber: "Registernummer: HRB 123456 B",
-      vatId: "Umsatzsteuer-ID",
-      vatIdDesc: "Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG:",
-      vatNumber: "DE123456789",
+      representative: "Inhaber",
+      representativeDesc: "Jonathan Jansen",
       responsibility: "Verantwortlich für den Inhalt",
       responsibilityDesc: "Verantwortlich gemäß § 55 Abs. 2 RStV:",
-      responsiblePerson: "Max Mustermann",
-      responsibleAddress: "Musterstraße 123, 10115 Berlin",
+      responsiblePerson: "Jonathan Jansen",
+      responsibleAddress: "Petersbergstraße 11, 53604 Bad Honnef",
       disputeResolution: "Streitschlichtung",
       disputeResolutionDesc: "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:",
       disputeLink: "https://ec.europa.eu/consumers/odr/",
@@ -57,27 +51,21 @@ export default function Impressum() {
       title: "Legal Notice",
       subtitle: "Information according to § 5 TMG (German Telemedia Act)",
       provider: "Provider",
-      companyName: "MindMate UG (limited liability)",
-      address: "Musterstraße 123",
-      city: "10115 Berlin",
+      companyName: "MindMade",
+      businessType: "Small Business",
+      address: "Petersbergstraße 11",
+      city: "53604 Bad Honnef",
       country: "Germany",
       contact: "Contact",
-      email: "contact@mindmate.app",
-      phone: "+49 (0) 30 12345678",
+      email: "joni.jansen00@gmail.com",
+      phone: "+49 176 44680467",
       website: "www.mindmate.app",
-      representative: "Authorized Representative",
-      representativeDesc: "Managing Director: Max Mustermann",
-      registration: "Registration",
-      registrationDesc: "Registered in the Commercial Register",
-      court: "Registry Court: Local Court Berlin-Charlottenburg",
-      registerNumber: "Registration Number: HRB 123456 B",
-      vatId: "VAT ID",
-      vatIdDesc: "VAT identification number according to § 27a UStG:",
-      vatNumber: "DE123456789",
+      representative: "Owner",
+      representativeDesc: "Jonathan Jansen",
       responsibility: "Responsible for Content",
       responsibilityDesc: "Responsible according to § 55 para. 2 RStV:",
-      responsiblePerson: "Max Mustermann",
-      responsibleAddress: "Musterstraße 123, 10115 Berlin",
+      responsiblePerson: "Jonathan Jansen",
+      responsibleAddress: "Petersbergstraße 11, 53604 Bad Honnef",
       disputeResolution: "Dispute Resolution",
       disputeResolutionDesc: "The European Commission provides a platform for online dispute resolution (ODR):",
       disputeLink: "https://ec.europa.eu/consumers/odr/",
@@ -162,23 +150,6 @@ export default function Impressum() {
           <section className="space-y-3">
             <h2 className="text-lg font-semibold">{t.representative}</h2>
             <p className="text-foreground">{t.representativeDesc}</p>
-          </section>
-
-          {/* Registration */}
-          <section className="space-y-3">
-            <h2 className="text-lg font-semibold">{t.registration}</h2>
-            <div className="space-y-1 text-foreground">
-              <p>{t.registrationDesc}</p>
-              <p>{t.court}</p>
-              <p>{t.registerNumber}</p>
-            </div>
-          </section>
-
-          {/* VAT ID */}
-          <section className="space-y-3">
-            <h2 className="text-lg font-semibold">{t.vatId}</h2>
-            <p className="text-foreground">{t.vatIdDesc}</p>
-            <p className="font-mono text-foreground">{t.vatNumber}</p>
           </section>
 
           {/* Responsible for Content */}

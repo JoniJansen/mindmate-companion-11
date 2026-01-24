@@ -16,7 +16,8 @@ import {
   Monitor,
   Volume2,
   Download,
-  LogOut
+  LogOut,
+  Cookie
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -29,6 +30,7 @@ import { useVoiceSettings, VoiceType, VoiceSpeed, VoiceLanguage } from "@/hooks/
 import { SubscriptionSection } from "@/components/premium/SubscriptionSection";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
+import { openCookieSettings } from "@/components/gdpr/CookieConsent";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -835,6 +837,36 @@ export default function Settings() {
               </AlertDialogContent>
             </AlertDialog>
           </div>
+        </motion.div>
+
+        {/* Legal & Cookie Settings */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="space-y-3"
+        >
+          <CalmCard 
+            className="p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+            onClick={openCookieSettings}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Cookie className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">
+                    {language === "de" ? "Cookie-Einstellungen" : "Cookie Settings"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {language === "de" ? "Tracking-Präferenzen anpassen" : "Manage tracking preferences"}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </div>
+          </CalmCard>
         </motion.div>
 
         {/* App Info */}
