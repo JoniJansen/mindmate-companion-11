@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, Play, CheckCircle2, Info, X } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
 import { ExercisePlayer } from "@/components/toolbox/ExercisePlayer";
-import { exercises, Exercise } from "@/data/exercises";
+import { exercises, Exercise, getExerciseById } from "@/data/exercises";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
 
@@ -18,6 +19,7 @@ const categories = [
 ];
 
 export default function Toolbox() {
+  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [infoExercise, setInfoExercise] = useState<Exercise | null>(null);
@@ -28,6 +30,19 @@ export default function Toolbox() {
 
   const { language, getExerciseTranslation } = useTranslation();
   const { toast } = useToast();
+
+  // Handle auto-start from navigation (e.g., Calm mode exercises)
+  useEffect(() => {
+    const startExerciseId = location.state?.startExercise;
+    if (startExerciseId) {
+      const exercise = getExerciseById(startExerciseId);
+      if (exercise) {
+        setSelectedExercise(exercise);
+      }
+      // Clear the state so it doesn't re-trigger on navigation
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleComplete = (exerciseId: string) => {
     const newCompleted = new Set(completedExercises);
