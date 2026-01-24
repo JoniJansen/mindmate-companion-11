@@ -17,7 +17,7 @@ import {
   Volume2,
   Download
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Switch } from "@/components/ui/switch";
@@ -25,6 +25,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme, accentColorOptions, themeModeOptions, ThemeMode, AccentColor } from "@/hooks/useTheme";
 import { useVoiceSettings, VoiceType, VoiceSpeed, VoiceLanguage } from "@/hooks/useVoiceSettings";
+import { SubscriptionSection } from "@/components/premium/SubscriptionSection";
+import { usePremium } from "@/hooks/usePremium";
 
 interface Preferences {
   language: "en" | "de";
@@ -44,12 +46,34 @@ const defaultPreferences: Preferences = {
 
 export default function Settings() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [preferences, setPreferences] = useState<Preferences>(defaultPreferences);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const { toast } = useToast();
   const { t, language } = useTranslation();
   const { mode, accentColor, setMode, setAccentColor, isDark } = useTheme();
   const { settings: voiceSettings, updateSetting: updateVoiceSetting } = useVoiceSettings();
+  const { checkSubscriptionStatus } = usePremium();
+
+  // Handle Stripe redirect
+  useEffect(() => {
+    if (searchParams.get("success") === "true") {
+      toast({
+        title: language === "de" ? "Willkommen bei MindMate Plus!" : "Welcome to MindMate Plus!",
+        description: language === "de" 
+          ? "Dein Upgrade war erfolgreich." 
+          : "Your upgrade was successful.",
+      });
+      checkSubscriptionStatus();
+    } else if (searchParams.get("canceled") === "true") {
+      toast({
+        title: language === "de" ? "Checkout abgebrochen" : "Checkout canceled",
+        description: language === "de" 
+          ? "Du kannst jederzeit upgraden." 
+          : "You can upgrade anytime.",
+      });
+    }
+  }, [searchParams, toast, language, checkSubscriptionStatus]);
 
   const voiceTypeOptions: { value: VoiceType; label: string }[] = [
     { value: "female", label: t("voice.female") },
@@ -153,6 +177,9 @@ export default function Settings() {
       />
 
       <div className="px-4 py-4 max-w-lg mx-auto space-y-6">
+        {/* Subscription */}
+        <SubscriptionSection onUpgradeClick={() => navigate("/upgrade")} />
+
         {/* Language */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}

@@ -2,10 +2,11 @@ import { motion } from "framer-motion";
 import { Sparkles, Volume2, Brain, Heart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useNavigate } from "react-router-dom";
 
 interface UpgradePromptProps {
   reason?: "messages" | "voice" | "features" | "general";
-  onUpgrade: () => void;
+  onUpgrade?: () => void;
   onDismiss?: () => void;
   variant?: "inline" | "modal" | "banner";
 }
@@ -16,7 +17,16 @@ export function UpgradePrompt({
   onDismiss,
   variant = "inline" 
 }: UpgradePromptProps) {
+  const navigate = useNavigate();
   const { language } = useTranslation();
+
+  const handleUpgrade = () => {
+    if (onUpgrade) {
+      onUpgrade();
+    } else {
+      navigate("/upgrade");
+    }
+  };
 
   const content = {
     messages: {
@@ -103,7 +113,7 @@ export function UpgradePrompt({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" className="text-primary text-xs" onClick={onUpgrade}>
+            <Button size="sm" variant="ghost" className="text-primary text-xs" onClick={handleUpgrade}>
               {t.cta}
             </Button>
             {onDismiss && (
@@ -142,7 +152,7 @@ export function UpgradePrompt({
           </div>
 
           <div className="mt-6 space-y-2">
-            <Button onClick={onUpgrade} className="w-full">
+            <Button onClick={handleUpgrade} className="w-full">
               {t.cta}
             </Button>
             {onDismiss && (
@@ -177,7 +187,7 @@ export function UpgradePrompt({
           <p className="font-medium text-foreground text-sm">{t.title}</p>
           <p className="text-xs text-muted-foreground">{t.description}</p>
         </div>
-        <Button size="sm" variant="outline" className="shrink-0" onClick={onUpgrade}>
+        <Button size="sm" variant="outline" className="shrink-0" onClick={handleUpgrade}>
           {t.cta}
         </Button>
       </div>

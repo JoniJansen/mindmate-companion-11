@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSessionId } from "./useSessionId";
 
 export interface PremiumState {
   isPremium: boolean;
@@ -6,6 +8,10 @@ export interface PremiumState {
   dailyMessageLimit: number;
   messagesRemaining: number;
   lastResetDate: string;
+  planType?: string;
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodEnd?: string;
+  subscriptionStatus?: string;
 }
 
 const DAILY_MESSAGE_LIMIT = 15;
@@ -15,6 +21,10 @@ interface StoredState {
   isPremium: boolean;
   dailyMessagesUsed: number;
   lastResetDate: string;
+  planType?: string;
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodEnd?: string;
+  subscriptionStatus?: string;
 }
 
 const getToday = () => new Date().toISOString().split("T")[0];
@@ -26,8 +36,10 @@ const getDefaultState = (): StoredState => ({
 });
 
 export function usePremium() {
+  const sessionId = useSessionId();
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
 
   // Load state from localStorage and check for daily reset
   useEffect(() => {
@@ -55,6 +67,46 @@ export function usePremium() {
     }
     setIsLoaded(true);
   }, []);
+
+  // Check subscription status from backend
+  const checkSubscriptionStatus = useCallback(async () => {
+    if (!sessionId || isCheckingSubscription) return;
+    
+    setIsCheckingSubscription(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("manage-subscription", {
+        body: { sessionId, action: "status" },
+      });
+
+      if (error) {
+        console.warn("Failed to check subscription:", error);
+        return;
+      }
+
+      if (data) {
+        const newState: StoredState = {
+          ...state,
+          isPremium: data.isPremium || false,
+          planType: data.planType,
+          cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+          currentPeriodEnd: data.currentPeriodEnd,
+          subscriptionStatus: data.status,
+        };
+        saveState(newState);
+      }
+    } catch (e) {
+      console.warn("Failed to check subscription status:", e);
+    } finally {
+      setIsCheckingSubscription(false);
+    }
+  }, [sessionId, isCheckingSubscription, state]);
+
+  // Check subscription on mount and when session ID changes
+  useEffect(() => {
+    if (sessionId && isLoaded) {
+      checkSubscriptionStatus();
+    }
+  }, [sessionId, isLoaded]);
 
   // Save state to localStorage
   const saveState = useCallback((newState: StoredState) => {
@@ -85,14 +137,89 @@ export function usePremium() {
     return state.dailyMessagesUsed < DAILY_MESSAGE_LIMIT;
   }, [state]);
 
-  // Upgrade to premium (will be connected to payment later)
+  // Create checkout session for upgrade
+  const createCheckoutSession = useCallback(async (planType: "monthly" | "yearly") => {
+    if (!sessionId) {
+      throw new Error("No session ID");
+    }
+
+    const { data, error } = await supabase.functions.invoke("create-checkout", {
+      body: {
+        sessionId,
+        planType,
+        successUrl: `${window.location.origin}/settings?success=true`,
+        cancelUrl: `${window.location.origin}/settings?canceled=true`,
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (data?.url) {
+      window.location.href = data.url;
+    }
+  }, [sessionId]);
+
+  // Cancel subscription
+  const cancelSubscription = useCallback(async () => {
+    if (!sessionId) {
+      throw new Error("No session ID");
+    }
+
+    const { data, error } = await supabase.functions.invoke("manage-subscription", {
+      body: { sessionId, action: "cancel" },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    await checkSubscriptionStatus();
+    return data;
+  }, [sessionId, checkSubscriptionStatus]);
+
+  // Reactivate subscription
+  const reactivateSubscription = useCallback(async () => {
+    if (!sessionId) {
+      throw new Error("No session ID");
+    }
+
+    const { data, error } = await supabase.functions.invoke("manage-subscription", {
+      body: { sessionId, action: "reactivate" },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    await checkSubscriptionStatus();
+    return data;
+  }, [sessionId, checkSubscriptionStatus]);
+
+  // Open billing portal
+  const openBillingPortal = useCallback(async () => {
+    if (!sessionId) {
+      throw new Error("No session ID");
+    }
+
+    const { data, error } = await supabase.functions.invoke("manage-subscription", {
+      body: { sessionId, action: "portal" },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (data?.url) {
+      window.location.href = data.url;
+    }
+  }, [sessionId]);
+
+  // Legacy upgrade method (now uses checkout)
   const upgradeToPremium = useCallback(() => {
-    const newState: StoredState = {
-      ...state,
-      isPremium: true,
-    };
-    saveState(newState);
-  }, [state, saveState]);
+    createCheckoutSession("monthly");
+  }, [createCheckoutSession]);
 
   // Downgrade from premium (for testing or cancellation)
   const downgradeFromPremium = useCallback(() => {
@@ -123,6 +250,10 @@ export function usePremium() {
     dailyMessagesUsed: state.dailyMessagesUsed,
     dailyMessageLimit: DAILY_MESSAGE_LIMIT,
     messagesRemaining,
+    planType: state.planType,
+    cancelAtPeriodEnd: state.cancelAtPeriodEnd,
+    currentPeriodEnd: state.currentPeriodEnd,
+    subscriptionStatus: state.subscriptionStatus,
     
     // Feature flags
     canUseVoice,
@@ -138,5 +269,10 @@ export function usePremium() {
     canSendMessage,
     upgradeToPremium,
     downgradeFromPremium,
+    checkSubscriptionStatus,
+    createCheckoutSession,
+    cancelSubscription,
+    reactivateSubscription,
+    openBillingPortal,
   };
 }
