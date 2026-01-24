@@ -18,26 +18,31 @@ export function BottomNav() {
       to: "/chat", 
       icon: MessageCircle, 
       label: language === "de" ? "Chat" : "Chat",
+      tourId: "chat",
     },
     { 
       to: "/journal", 
       icon: BookOpen, 
       label: language === "de" ? "Journal" : "Journal",
+      tourId: "journal",
     },
     { 
       to: "/topics", 
       icon: Compass, 
       label: language === "de" ? "Themen" : "Topics",
+      tourId: "topics",
     },
     { 
       to: "/mood", 
       icon: BarChart3, 
       label: language === "de" ? "Stimmung" : "Mood",
+      tourId: "mood",
     },
     { 
       to: "/toolbox", 
       icon: Sparkles, 
       label: language === "de" ? "Übungen" : "Toolbox",
+      tourId: "toolbox",
     },
   ];
 
@@ -53,6 +58,7 @@ export function BottomNav() {
             <NavLink
               key={item.to}
               to={item.to}
+              data-tour={item.tourId}
               className="relative flex flex-col items-center justify-center min-w-[56px] py-1"
             >
               <motion.div

@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { CookieConsent } from "@/components/gdpr/CookieConsent";
+import { TourProvider } from "@/components/tour/TourProvider";
 
 // Pages
 import Landing from "@/pages/Landing";
@@ -71,44 +72,46 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <CookieConsent />
-        <Routes>
-          {/* Landing Page */}
-          <Route path="/landing" element={<Landing />} />
-          
-          {/* Auth */}
-          <Route path="/auth" element={<Auth />} />
-          
-          {/* Onboarding */}
-          <Route path="/welcome" element={<Onboarding />} />
-          
-          {/* Main app with bottom navigation - Protected */}
-          <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-            <Route path="/" element={<Navigate to="/chat" replace />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/journal" element={<Journal />} />
-            <Route path="/topics" element={<Topics />} />
-            <Route path="/mood" element={<Mood />} />
-            <Route path="/toolbox" element={<Toolbox />} />
-          </Route>
-          
-          {/* Standalone protected pages */}
-          <Route path="/summary" element={<ProtectedRoute><Summary /></ProtectedRoute>} />
-          <Route path="/safety" element={<Safety />} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/install" element={<Install />} />
-          <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/impressum" element={<Impressum />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/cancellation" element={<Cancellation />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-          
-          {/* Catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <TourProvider>
+          <CookieConsent />
+          <Routes>
+            {/* Landing Page */}
+            <Route path="/landing" element={<Landing />} />
+            
+            {/* Auth */}
+            <Route path="/auth" element={<Auth />} />
+            
+            {/* Onboarding */}
+            <Route path="/welcome" element={<Onboarding />} />
+            
+            {/* Main app with bottom navigation - Protected */}
+            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route path="/" element={<Navigate to="/chat" replace />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/journal" element={<Journal />} />
+              <Route path="/topics" element={<Topics />} />
+              <Route path="/mood" element={<Mood />} />
+              <Route path="/toolbox" element={<Toolbox />} />
+            </Route>
+            
+            {/* Standalone protected pages */}
+            <Route path="/summary" element={<ProtectedRoute><Summary /></ProtectedRoute>} />
+            <Route path="/safety" element={<Safety />} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/install" element={<Install />} />
+            <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/impressum" element={<Impressum />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/cancellation" element={<Cancellation />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            
+            {/* Catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TourProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

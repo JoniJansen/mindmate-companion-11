@@ -9,6 +9,7 @@ import {
   Bell, 
   Shield, 
   HelpCircle,
+  RotateCcw,
   ChevronRight,
   Check,
   Sparkles,
@@ -43,6 +44,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { AccountSettings } from "@/components/settings/AccountSettings";
+import { NotificationSettings } from "@/components/settings/NotificationSettings";
 
 interface Preferences {
   language: "en" | "de";
@@ -72,6 +74,17 @@ export default function Settings() {
   const { settings: voiceSettings, updateSetting: updateVoiceSetting } = useVoiceSettings();
   const { checkSubscriptionStatus } = usePremium();
   const { user, profile, signOut } = useAuth();
+
+  const handleRestartTour = () => {
+    localStorage.removeItem("mindmate_tour_completed");
+    toast({
+      title: language === "de" ? "Tour zurückgesetzt" : "Tour reset",
+      description: language === "de" 
+        ? "Gehe zum Chat, um die Tour zu starten." 
+        : "Go to Chat to start the tour.",
+    });
+    navigate("/chat");
+  };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -492,21 +505,31 @@ export default function Settings() {
 
             {/* Notifications */}
             <CalmCard variant="elevated">
-              <div className="flex items-center justify-between">
+              <button
+                onClick={() => toggleSection("notifications")}
+                className="w-full flex items-center justify-between"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                     <Bell className="w-5 h-5 text-foreground" />
                   </div>
-                  <div>
+                  <div className="text-left">
                     <p className="font-medium text-foreground">{t("settings.reminders")}</p>
                     <p className="text-sm text-muted-foreground">{t("settings.dailyCheckin")}</p>
                   </div>
                 </div>
-                <Switch
-                  checked={preferences.notifications}
-                  onCheckedChange={(checked) => updatePreference("notifications", checked)}
-                />
-              </div>
+                <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSection === "notifications" ? "rotate-90" : ""}`} />
+              </button>
+              
+              {expandedSection === "notifications" && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  className="mt-4 pt-4 border-t border-border/50"
+                >
+                  <NotificationSettings />
+                </motion.div>
+              )}
             </CalmCard>
 
             <CalmCard variant="elevated">
@@ -762,6 +785,29 @@ export default function Settings() {
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {language === "de" ? "Zum Startbildschirm hinzufügen" : "Add to home screen"}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </div>
+            </CalmCard>
+
+            <CalmCard 
+              variant="default" 
+              className="cursor-pointer hover:shadow-card transition-shadow"
+              onClick={handleRestartTour}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                    <RotateCcw className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {language === "de" ? "Tour neu starten" : "Restart Tour"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {language === "de" ? "App-Einführung wiederholen" : "Repeat app introduction"}
                     </p>
                   </div>
                 </div>
