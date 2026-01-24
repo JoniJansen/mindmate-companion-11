@@ -23,6 +23,8 @@ import Summary from "@/pages/Summary";
 import Install from "@/pages/Install";
 import Upgrade from "@/pages/Upgrade";
 import Auth from "@/pages/Auth";
+import Privacy from "@/pages/Privacy";
+import Terms from "@/pages/Terms";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -89,6 +91,8 @@ const App = () => (
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/install" element={<Install />} />
           <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
