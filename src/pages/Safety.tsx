@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { 
   Phone, 
@@ -7,7 +8,7 @@ import {
   AlertTriangle,
   Clock,
   MapPin,
-  ChevronRight
+  User
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
@@ -30,8 +31,17 @@ interface Resource {
   icon: typeof MapPin;
 }
 
-export default function Safety() {
+const Safety = forwardRef<HTMLDivElement>((_, ref) => {
   const { t, language } = useTranslation();
+
+  // Jutta Jansen - Psychologin (available Mon-Fri 9-15)
+  const professionalContact = {
+    name: "Jutta Jansen",
+    role: language === "de" ? "Psychologin" : "Psychologist",
+    number: "+49 177 6536493",
+    tel: "tel:+491776536493",
+    available: language === "de" ? "Mo–Fr 9:00–15:00 Uhr" : "Mon–Fri 9am–3pm",
+  };
 
   // German crisis lines
   const germanCrisisLines: CrisisLine[] = [
@@ -130,7 +140,7 @@ export default function Safety() {
   const emergencyNumber = language === "de" ? "112" : "911";
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div ref={ref} className="min-h-screen bg-background pb-24">
       <PageHeader 
         title={t("safety.title")} 
         subtitle={t("safety.subtitle")}
@@ -166,6 +176,42 @@ export default function Safety() {
               </div>
             </div>
           </div>
+        </motion.div>
+
+        {/* Professional Contact - Jutta Jansen */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="mb-6"
+        >
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            {language === "de" ? "Persönliche Beratung" : "Professional Support"}
+          </h2>
+          
+          <CalmCard variant="gentle">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <User className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{professionalContact.name}</h3>
+                  <p className="text-sm text-primary font-medium">{professionalContact.role}</p>
+                  <p className="text-lg font-bold text-foreground mt-1">{professionalContact.number}</p>
+                  <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                    <Clock className="w-3 h-3" />
+                    {professionalContact.available}
+                  </div>
+                </div>
+              </div>
+              <Button variant="calm" size="icon" asChild>
+                <a href={professionalContact.tel}>
+                  <Phone className="w-4 h-4" />
+                </a>
+              </Button>
+            </div>
+          </CalmCard>
         </motion.div>
 
         {/* Crisis lines */}
@@ -273,4 +319,8 @@ export default function Safety() {
       </div>
     </div>
   );
-}
+});
+
+Safety.displayName = "Safety";
+
+export default Safety;
