@@ -63,7 +63,8 @@ export default function Chat() {
   const { 
     settings: voiceSettings, 
     getVoiceId, 
-    getEffectiveLanguage 
+    getEffectiveLanguage,
+    updateSetting 
   } = useVoiceSettings();
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
@@ -570,6 +571,20 @@ export default function Chat() {
       {/* Input Area */}
       <div className="p-4 border-t border-border/50 bg-card/50 backdrop-blur-sm">
         <div className="max-w-lg mx-auto flex items-end gap-2">
+          {/* Auto-speak toggle */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className={`shrink-0 rounded-full ${voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+            onClick={() => updateSetting("autoPlayReplies", !voiceSettings.autoPlayReplies)}
+            title={voiceSettings.autoPlayReplies 
+              ? (language === "de" ? "KI spricht automatisch" : "AI speaks automatically") 
+              : (language === "de" ? "Nur Text anzeigen" : "Text only")}
+          >
+            {voiceSettings.autoPlayReplies ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+          </Button>
+          
+          {/* Mic button */}
           {isSpeechSupported && (
             <Button 
               variant={isListening ? "destructive" : "outline"} 
