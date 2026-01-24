@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voice = "female" } = await req.json();
+    const { text, voiceId, language, speed = 1.0 } = await req.json();
 
     if (!text || text.trim().length === 0) {
       return new Response(
@@ -22,33 +21,99 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
+    const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+    if (!ELEVENLABS_API_KEY) {
+      console.error("ELEVENLABS_API_KEY is not configured");
       return new Response(
         JSON.stringify({ error: "TTS service not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Use Lovable AI with image generation model to generate speech
-    // Since Lovable AI doesn't have native TTS, we'll use a workaround:
-    // Generate a spoken response using the chat model and return it as text
-    // The client will use browser's SpeechSynthesis API for actual audio
+    // Default voice ID if not provided (Sarah - female, multilingual)
+    const selectedVoiceId = voiceId || "EXAVITQu4vr4xnSDxMaL";
 
-    // For now, we'll return the text formatted for speech synthesis
-    // This approach uses the browser's built-in TTS which is free and works offline
+    // Clean text for better speech - remove markdown, URLs, etc.
+    const cleanedText = text
+      .replace(/\*\*([^*]+)\*\*/g, "$1") // Remove bold
+      .replace(/\*([^*]+)\*/g, "$1") // Remove italic
+      .replace(/`([^`]+)`/g, "$1") // Remove code
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Links: keep text
+      .replace(/https?:\/\/[^\s]+/g, "") // Remove URLs
+      .replace(/[#>]/g, "") // Remove markdown symbols
+      .replace(/[-]{2,}/g, "") // Remove multiple dashes
+      .trim();
 
-    console.log(`TTS request for text: ${text.substring(0, 50)}...`);
+    if (!cleanedText) {
+      return new Response(
+        JSON.stringify({ error: "No speakable content" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    return new Response(
-      JSON.stringify({ 
-        text: text,
-        voice: voice,
-        method: "browser-synthesis"
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    // Truncate very long text to avoid excessive API usage
+    const maxLength = 2000;
+    const truncatedText = cleanedText.length > maxLength 
+      ? cleanedText.substring(0, maxLength) + "..." 
+      : cleanedText;
+
+    console.log(`TTS request: voice=${selectedVoiceId}, lang=${language}, speed=${speed}, chars=${truncatedText.length}`);
+
+    // Call ElevenLabs TTS API
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}?output_format=mp3_44100_128`,
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": ELEVENLABS_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: truncatedText,
+          model_id: "eleven_multilingual_v2",
+          voice_settings: {
+            stability: 0.6,
+            similarity_boost: 0.75,
+            style: 0.3,
+            use_speaker_boost: true,
+            speed: speed,
+          },
+        }),
+      }
     );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("ElevenLabs API error:", response.status, errorText);
+      
+      if (response.status === 401) {
+        return new Response(
+          JSON.stringify({ error: "TTS authentication failed" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "TTS rate limit exceeded. Please try again later." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ error: "TTS generation failed" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const audioBuffer = await response.arrayBuffer();
+    
+    return new Response(audioBuffer, {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "audio/mpeg",
+      },
+    });
 
   } catch (error) {
     console.error("TTS error:", error);
