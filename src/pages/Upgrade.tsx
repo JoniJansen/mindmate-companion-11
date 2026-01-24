@@ -9,14 +9,16 @@ import {
   Heart, 
   Calendar,
   MessageSquare,
-  Loader2
+  Loader2,
+  ExternalLink
 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import { usePremium } from "@/hooks/usePremium";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Upgrade() {
   const navigate = useNavigate();
@@ -26,6 +28,8 @@ export default function Upgrade() {
   const { isPremium, createCheckoutSession, checkSubscriptionStatus } = usePremium();
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
   const [isLoading, setIsLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedWithdrawal, setAcceptedWithdrawal] = useState(false);
 
   // Handle success/cancel from Stripe
   useEffect(() => {
@@ -56,6 +60,17 @@ export default function Upgrade() {
   }, [isPremium, navigate]);
 
   const handleUpgrade = async () => {
+    if (!acceptedTerms || !acceptedWithdrawal) {
+      toast({
+        title: language === "de" ? "Zustimmung erforderlich" : "Consent required",
+        description: language === "de" 
+          ? "Bitte akzeptiere die AGB und die Widerrufsbelehrung." 
+          : "Please accept the terms and the withdrawal policy.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     try {
       await createCheckoutSession(selectedPlan);
@@ -217,16 +232,75 @@ export default function Upgrade() {
           ))}
         </motion.div>
 
-        {/* CTA */}
+        {/* Legal Consent */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
+          className="space-y-4 bg-muted/30 rounded-2xl p-4"
+        >
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="terms"
+              checked={acceptedTerms}
+              onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+              className="mt-0.5"
+            />
+            <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+              {language === "de" ? (
+                <>
+                  Ich akzeptiere die{" "}
+                  <Link to="/terms" className="text-primary hover:underline">AGB</Link>
+                  {" "}und die{" "}
+                  <Link to="/privacy" className="text-primary hover:underline">Datenschutzerklärung</Link>.
+                </>
+              ) : (
+                <>
+                  I accept the{" "}
+                  <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>
+                  {" "}and the{" "}
+                  <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+                </>
+              )}
+            </label>
+          </div>
+          
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="withdrawal"
+              checked={acceptedWithdrawal}
+              onCheckedChange={(checked) => setAcceptedWithdrawal(checked === true)}
+              className="mt-0.5"
+            />
+            <label htmlFor="withdrawal" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+              {language === "de" ? (
+                <>
+                  Ich stimme ausdrücklich zu, dass die Dienstleistung sofort beginnt, und nehme zur Kenntnis, 
+                  dass ich mein{" "}
+                  <Link to="/cancellation" className="text-primary hover:underline">Widerrufsrecht</Link>
+                  {" "}verliere, sobald der digitale Inhalt vollständig bereitgestellt wurde.
+                </>
+              ) : (
+                <>
+                  I expressly agree that the service begins immediately and acknowledge that I lose my{" "}
+                  <Link to="/cancellation" className="text-primary hover:underline">right of withdrawal</Link>
+                  {" "}once the digital content has been fully provided.
+                </>
+              )}
+            </label>
+          </div>
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
           className="space-y-4"
         >
           <Button
             onClick={handleUpgrade}
-            disabled={isLoading}
+            disabled={isLoading || !acceptedTerms || !acceptedWithdrawal}
             className="w-full h-12 text-base"
           >
             {isLoading ? (
