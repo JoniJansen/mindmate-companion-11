@@ -52,8 +52,8 @@ export default function Auth() {
         toast({
           title: language === "de" ? "Konto erstellt!" : "Account created!",
           description: language === "de" 
-            ? "Willkommen bei MindMate Assistant!" 
-            : "Welcome to MindMate Assistant!",
+            ? "Willkommen bei MindMate!" 
+            : "Welcome to MindMate!",
         });
       } else if (authMode === "forgot-password") {
         await resetPassword(email);

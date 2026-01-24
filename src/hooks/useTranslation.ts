@@ -44,7 +44,7 @@ export const translations: Translations = {
   "common.helpfulPrompts": { en: "Helpful prompts", de: "Hilfreiche Impulse" },
 
   // Chat page
-  "chat.title": { en: "MindMate Assistant", de: "MindMate Assistant" },
+  "chat.title": { en: "MindMate", de: "MindMate" },
   "chat.subtitle": { en: "Always here for you", de: "Immer für dich da" },
   "chat.inputPlaceholder": { en: "Type something...", de: "Schreibe etwas..." },
   "chat.endSummarize": { en: "Wrap up", de: "Zusammenfassen" },

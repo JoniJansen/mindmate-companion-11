@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
           price_data: {
             currency: "eur",
             product_data: {
-              name: "MindMate Assistant Plus",
+              name: "MindMate Plus",
               description: planType === "yearly" 
                 ? "Jährliches Abo - Spare 2 Monate!" 
                 : "Monatliches Abo",

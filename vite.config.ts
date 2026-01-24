@@ -17,9 +17,9 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "logo.png"],
       manifest: {
-        name: "MindMate Assistant – Dein emotionaler Begleiter",
-        short_name: "MindMate Assistant",
-        description: "KI-gestützter emotionaler Begleiter für mentale Gesundheit",
+        name: "MindMate – Dein psychologischer Begleiter",
+        short_name: "MindMate",
+        description: "KI-gestützter psychologischer Begleiter für mentale Gesundheit",
         theme_color: "#4db6ac",
         background_color: "#0f172a",
         display: "standalone",
