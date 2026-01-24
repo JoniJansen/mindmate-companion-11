@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Mic } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface AudioWaveformProps {
   isListening: boolean;
@@ -8,6 +9,8 @@ interface AudioWaveformProps {
 }
 
 export function AudioWaveform({ isListening, barCount = 5, size = "md" }: AudioWaveformProps) {
+  const { t } = useTranslation();
+  
   const sizeConfig = {
     sm: { height: 24, barWidth: 3, gap: 2, iconSize: 12 },
     md: { height: 32, barWidth: 4, gap: 3, iconSize: 16 },
@@ -113,7 +116,7 @@ export function AudioWaveform({ isListening, barCount = 5, size = "md" }: AudioW
           color: isListening ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
         }}
       >
-        {isListening ? "Aufnahme..." : "Bereit"}
+        {isListening ? t("voice.listening") : t("voice.tapToSpeak")}
       </motion.span>
     </div>
   );

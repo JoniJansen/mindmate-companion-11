@@ -267,6 +267,8 @@ export const translations: Translations = {
   "voice.play": { en: "Play", de: "Abspielen" },
   "voice.stop": { en: "Stop", de: "Stoppen" },
   "voice.generating": { en: "Generating...", de: "Wird generiert..." },
+  "voice.notSupported": { en: "Voice input not supported in this browser", de: "Spracheingabe wird in diesem Browser nicht unterstützt" },
+  "voice.tryChrome": { en: "Try using Chrome or Edge for voice features", de: "Verwende Chrome oder Edge für Sprachfunktionen" },
 };
 
 // Exercise translations

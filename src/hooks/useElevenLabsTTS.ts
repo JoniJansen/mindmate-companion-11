@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { VoiceSpeed } from "./useVoiceSettings";
 
 interface UseElevenLabsTTSOptions {
@@ -17,8 +17,19 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
   
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessageId, setLoadingMessageId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentMessageIdRef = useRef<string | null>(null);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const stop = useCallback(() => {
     if (audioRef.current) {
@@ -26,6 +37,7 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
       audioRef.current.currentTime = 0;
     }
     setIsSpeaking(false);
+    setLoadingMessageId(null);
     currentMessageIdRef.current = null;
   }, []);
 
@@ -47,6 +59,7 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
 
     if (!audioUrl) {
       setIsLoading(true);
+      setLoadingMessageId(messageId || null);
       
       try {
         const response = await fetch(TTS_URL, {
@@ -84,11 +97,13 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
       } catch (error) {
         console.error("TTS error:", error);
         setIsLoading(false);
+        setLoadingMessageId(null);
         onError?.(error instanceof Error ? error.message : "TTS failed");
         return;
       }
       
       setIsLoading(false);
+      setLoadingMessageId(null);
     }
 
     // Play the audio
@@ -110,6 +125,7 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
     audio.onerror = () => {
       setIsSpeaking(false);
       currentMessageIdRef.current = null;
+      setLoadingMessageId(null);
       onError?.("Audio playback failed");
     };
 
@@ -118,6 +134,7 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
     } catch (error) {
       console.error("Audio play error:", error);
       setIsSpeaking(false);
+      setLoadingMessageId(null);
       onError?.("Could not play audio");
     }
   }, [stop, onStart, onEnd, onError]);
@@ -138,6 +155,10 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
     return isSpeaking && currentMessageIdRef.current === messageId;
   }, [isSpeaking]);
 
+  const isLoadingMessage = useCallback((messageId: string) => {
+    return isLoading && loadingMessageId === messageId;
+  }, [isLoading, loadingMessageId]);
+
   return {
     speak,
     stop,
@@ -146,5 +167,6 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
     isSpeaking,
     isLoading,
     isPlayingMessage,
+    isLoadingMessage,
   };
 }
