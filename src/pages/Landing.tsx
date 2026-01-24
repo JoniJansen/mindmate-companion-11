@@ -405,11 +405,13 @@ export default function Landing() {
             </div>
             <span className="text-sm text-muted-foreground">{t.footer.tagline}</span>
           </div>
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 md:gap-6 text-sm text-muted-foreground">
             <button onClick={() => navigate("/privacy")} className="hover:text-foreground transition-colors">{t.footer.privacy}</button>
             <button onClick={() => navigate("/terms")} className="hover:text-foreground transition-colors">{t.footer.terms}</button>
             <button onClick={() => navigate("/impressum")} className="hover:text-foreground transition-colors">{t.footer.impressum}</button>
-            <a href="mailto:support@mindmate.app" className="hover:text-foreground transition-colors">{t.footer.contact}</a>
+            <button onClick={() => navigate("/faq")} className="hover:text-foreground transition-colors">FAQ</button>
+            <button onClick={() => navigate("/about")} className="hover:text-foreground transition-colors">{language === "de" ? "Über uns" : "About"}</button>
+            <button onClick={() => navigate("/contact")} className="hover:text-foreground transition-colors">{t.footer.contact}</button>
           </div>
         </div>
       </footer>

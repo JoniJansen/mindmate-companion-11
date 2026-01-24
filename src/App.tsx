@@ -29,6 +29,8 @@ import Terms from "@/pages/Terms";
 import Impressum from "@/pages/Impressum";
 import FAQ from "@/pages/FAQ";
 import Cancellation from "@/pages/Cancellation";
+import Contact from "@/pages/Contact";
+import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -101,6 +103,8 @@ const App = () => (
           <Route path="/impressum" element={<Impressum />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/cancellation" element={<Cancellation />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
           
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />

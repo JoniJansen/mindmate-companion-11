@@ -19,6 +19,8 @@ export function AppFooter() {
       impressum: "Legal Notice",
       faq: "FAQ",
       cancellation: "Withdrawal",
+      about: "About",
+      contact: "Contact",
       cookies: "Cookie Settings",
     },
     de: {
@@ -27,6 +29,8 @@ export function AppFooter() {
       impressum: "Impressum",
       faq: "FAQ",
       cancellation: "Widerruf",
+      about: "Über uns",
+      contact: "Kontakt",
       cookies: "Cookie-Einstellungen",
     },
   };
@@ -70,6 +74,20 @@ export function AppFooter() {
             className="hover:text-foreground transition-colors"
           >
             {t.cancellation}
+          </button>
+          <span className="text-border">•</span>
+          <button 
+            onClick={() => navigate("/about")} 
+            className="hover:text-foreground transition-colors"
+          >
+            {t.about}
+          </button>
+          <span className="text-border">•</span>
+          <button 
+            onClick={() => navigate("/contact")} 
+            className="hover:text-foreground transition-colors"
+          >
+            {t.contact}
           </button>
           <span className="text-border">•</span>
           <button 
