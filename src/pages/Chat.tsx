@@ -12,6 +12,7 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useVoiceSettings } from "@/hooks/useVoiceSettings";
 import { usePremium } from "@/hooks/usePremium";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { VoiceAvatar } from "@/components/chat/VoiceAvatar";
 import { AudioWaveform } from "@/components/chat/AudioWaveform";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
