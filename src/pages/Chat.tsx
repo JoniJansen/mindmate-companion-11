@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Mic, MicOff, Phone, FileText, AlertTriangle, Volume2, VolumeX, Wind, Anchor } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { useToast } from "@/hooks/use-toast";
@@ -572,17 +573,25 @@ export default function Chat() {
       <div className="p-4 border-t border-border/50 bg-card/50 backdrop-blur-sm">
         <div className="max-w-lg mx-auto flex items-end gap-2">
           {/* Auto-speak toggle */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className={`shrink-0 rounded-full ${voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
-            onClick={() => updateSetting("autoPlayReplies", !voiceSettings.autoPlayReplies)}
-            title={voiceSettings.autoPlayReplies 
-              ? (language === "de" ? "KI spricht automatisch" : "AI speaks automatically") 
-              : (language === "de" ? "Nur Text anzeigen" : "Text only")}
-          >
-            {voiceSettings.autoPlayReplies ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-          </Button>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`shrink-0 rounded-full ${voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                  onClick={() => updateSetting("autoPlayReplies", !voiceSettings.autoPlayReplies)}
+                >
+                  {voiceSettings.autoPlayReplies ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-xs">
+                {voiceSettings.autoPlayReplies 
+                  ? (language === "de" ? "KI spricht automatisch – tippen zum Deaktivieren" : "AI speaks automatically – tap to disable") 
+                  : (language === "de" ? "Nur Text – tippen für Sprachausgabe" : "Text only – tap for voice")}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           
           {/* Mic button */}
           {isSpeechSupported && (
