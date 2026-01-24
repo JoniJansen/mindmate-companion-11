@@ -88,9 +88,9 @@ export default function Toolbox() {
         }
       />
 
-      <div className="px-4 py-4 max-w-lg mx-auto space-y-4">
+      <div className="px-4 md:px-6 lg:px-8 py-4 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
         {/* Category filters */}
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+        <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((cat) => (
             <Button
               key={cat.id}
@@ -114,8 +114,8 @@ export default function Toolbox() {
           </p>
         </CalmCard>
 
-        {/* Exercise list */}
-        <div className="space-y-3">
+        {/* Exercise list - grid on larger screens */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {filteredExercises.map((exercise, index) => {
             const isCompleted = completedExercises.has(exercise.id);
             const Icon = exercise.icon;

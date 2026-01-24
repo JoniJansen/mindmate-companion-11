@@ -257,7 +257,7 @@ export default function Journal() {
   // Write mode
   if (viewMode === "write") {
     return (
-      <div className="min-h-screen bg-background pb-24 px-4 py-6 max-w-lg mx-auto">
+      <div className="min-h-screen bg-background pb-24 px-4 md:px-6 lg:px-8 py-6 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
         <div className="flex justify-between mb-6">
           <Button variant="ghost" size="sm" onClick={() => { setViewMode("list"); setDraftContent(""); setSelectedPrompt(null); setSelectedTags([]); }}>
             <X className="w-4 h-4 mr-1" />{language === "de" ? "Abbrechen" : "Cancel"}
@@ -317,7 +317,7 @@ export default function Journal() {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title="Journal" subtitle={language === "de" ? "Deine Gedanken, dein Raum" : "Your thoughts, your space"} />
 
-      <div className="px-4 py-4 max-w-lg mx-auto space-y-6">
+      <div className="px-4 md:px-6 lg:px-8 py-4 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-6">
         {/* Weekly Recap Card */}
         {entries.length >= 3 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -393,9 +393,9 @@ export default function Journal() {
           </Button>
         )}
 
-        {/* Entries */}
-        <div className="space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground">{language === "de" ? "Deine Einträge" : "Your entries"}</h2>
+        {/* Entries - grid on larger screens */}
+        <div className="space-y-3 md:space-y-0">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">{language === "de" ? "Deine Einträge" : "Your entries"}</h2>
 
           {isLoading ? (
             <CalmCard variant="gentle" className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></CalmCard>
@@ -405,19 +405,21 @@ export default function Journal() {
               <p className="text-muted-foreground">{searchQuery ? (language === "de" ? "Keine Einträge gefunden" : "No entries found") : (language === "de" ? "Beginne mit deinem ersten Eintrag" : "Start with your first entry")}</p>
             </CalmCard>
           ) : (
-            filteredEntries.map((entry, index) => (
-              <JournalEntryCard
-                key={entry.id}
-                id={entry.id}
-                title={entry.title}
-                content={entry.content}
-                mood={entry.mood}
-                source={entry.source}
-                createdAt={entry.created_at}
-                index={index}
-                onClick={() => { setSelectedEntry(entry); setDraftContent(entry.content); setSelectedTags(entry.tags || []); setIsEditorOpen(true); }}
-              />
-            ))
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              {filteredEntries.map((entry, index) => (
+                <JournalEntryCard
+                  key={entry.id}
+                  id={entry.id}
+                  title={entry.title}
+                  content={entry.content}
+                  mood={entry.mood}
+                  source={entry.source}
+                  createdAt={entry.created_at}
+                  index={index}
+                  onClick={() => { setSelectedEntry(entry); setDraftContent(entry.content); setSelectedTags(entry.tags || []); setIsEditorOpen(true); }}
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>

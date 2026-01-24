@@ -527,7 +527,7 @@ export default function Chat() {
       />
 
       {/* Mode Selector - with premium gating for clarify/patterns */}
-      <div className="px-4 py-2 border-b border-border/30">
+      <div className="px-4 md:px-6 lg:px-8 py-2 border-b border-border/30">
         <ChatModeSelector 
           activeMode={chatMode} 
           onModeChange={handleModeChange}
@@ -584,8 +584,8 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 overscroll-contain">
-        <div className="max-w-lg mx-auto space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-4 overscroll-contain">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
               <motion.div 
@@ -594,12 +594,12 @@ export default function Chat() {
                 animate={{ opacity: 1, y: 0 }} 
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                <div className={`relative max-w-[80%] px-4 py-3 rounded-2xl ${
+                <div className={`relative max-w-[85%] md:max-w-[70%] lg:max-w-[60%] px-4 py-3 rounded-2xl ${
                   message.role === "user" 
                     ? "bg-primary text-primary-foreground rounded-br-md" 
                     : "bg-card border border-border/50 text-foreground rounded-bl-md shadow-soft"
                 }`}>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   
                   {/* Play button for assistant messages */}
                   {message.role === "assistant" && (
@@ -633,8 +633,8 @@ export default function Chat() {
 
       {/* Calm Mode Quick Exercises */}
       {chatMode === "calm" && messages.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="px-4 pb-2">
-          <div className="max-w-lg mx-auto flex gap-2">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="px-4 md:px-6 lg:px-8 pb-2">
+          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex gap-2">
             {calmExercises.map((ex) => (
               <Button key={ex.id} variant="outline" size="sm" className="flex-1 gap-2" onClick={() => handleCalmExercise(ex.id)}>
                 <ex.icon className="w-4 h-4" />
@@ -647,8 +647,8 @@ export default function Chat() {
 
       {/* Quick Replies */}
       {messages.length <= 2 && !isLoading && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="px-4 pb-2">
-          <div className="max-w-lg mx-auto flex flex-wrap gap-2">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="px-4 md:px-6 lg:px-8 pb-2">
+          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex flex-wrap gap-2">
             {getQuickReplies().map((reply) => (
               <Button key={reply} variant="outline" size="sm" onClick={() => handleSend(reply)} className="text-xs">
                 {reply}
@@ -697,8 +697,8 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Input Area - Fixed at bottom with safe area */}
-      <div className="shrink-0 p-4 border-t border-border/50 bg-card/80 backdrop-blur-md" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-        <div className="max-w-lg mx-auto flex items-end gap-2">
+      <div className="shrink-0 p-4 md:px-6 lg:px-8 border-t border-border/50 bg-card/80 backdrop-blur-md" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex items-end gap-2 md:gap-3">
           {/* Auto-speak toggle (premium only) */}
           <TooltipProvider delayDuration={300}>
             <Tooltip>
