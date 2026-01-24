@@ -1,6 +1,5 @@
-import { useState, useRef } from "react";
-import { motion } from "framer-motion";
-import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 
 interface AccountSettingsProps {
   language: "en" | "de";
@@ -61,6 +61,18 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   // Account deletion
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  
+  // Data export
+  const [isExporting, setIsExporting] = useState(false);
+  
+  // 2FA
+  const [is2FADialogOpen, setIs2FADialogOpen] = useState(false);
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [isEnabling2FA, setIsEnabling2FA] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [factorId, setFactorId] = useState<string | null>(null);
+  const [verifyCode, setVerifyCode] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const texts = {
     de: {
@@ -94,6 +106,24 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       deleting: "Wird gelöscht...",
       delete: "Endgültig löschen",
       accountDeleted: "Dein Konto wurde gelöscht",
+      exportData: "Daten exportieren",
+      exportDataDesc: "Journal & Stimmungsdaten herunterladen",
+      exporting: "Wird exportiert...",
+      exportSuccess: "Daten erfolgreich exportiert",
+      twoFactor: "Zwei-Faktor-Authentifizierung",
+      twoFactorDesc: "Zusätzliche Sicherheit für dein Konto",
+      twoFactorEnabled: "2FA ist aktiviert",
+      twoFactorDisabled: "2FA ist deaktiviert",
+      setup2FA: "2FA einrichten",
+      scan2FACode: "Scanne diesen QR-Code mit deiner Authenticator-App",
+      enterCode: "Bestätigungscode eingeben",
+      verify: "Bestätigen",
+      verifying: "Wird überprüft...",
+      twoFactorSuccess: "2FA erfolgreich aktiviert",
+      disable2FA: "2FA deaktivieren",
+      disable2FAConfirm: "2FA wirklich deaktivieren?",
+      disable2FAWarning: "Dein Konto wird weniger sicher sein ohne 2FA.",
+      twoFactorDisabledSuccess: "2FA wurde deaktiviert",
     },
     en: {
       displayName: "Display Name",
@@ -126,10 +156,47 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       deleting: "Deleting...",
       delete: "Delete permanently",
       accountDeleted: "Your account has been deleted",
+      exportData: "Export Data",
+      exportDataDesc: "Download journal & mood data",
+      exporting: "Exporting...",
+      exportSuccess: "Data exported successfully",
+      twoFactor: "Two-Factor Authentication",
+      twoFactorDesc: "Extra security for your account",
+      twoFactorEnabled: "2FA is enabled",
+      twoFactorDisabled: "2FA is disabled",
+      setup2FA: "Set up 2FA",
+      scan2FACode: "Scan this QR code with your authenticator app",
+      enterCode: "Enter verification code",
+      verify: "Verify",
+      verifying: "Verifying...",
+      twoFactorSuccess: "2FA enabled successfully",
+      disable2FA: "Disable 2FA",
+      disable2FAConfirm: "Really disable 2FA?",
+      disable2FAWarning: "Your account will be less secure without 2FA.",
+      twoFactorDisabledSuccess: "2FA has been disabled",
     },
   };
 
   const t = texts[language];
+
+  // Check 2FA status on mount
+  useEffect(() => {
+    const check2FAStatus = async () => {
+      try {
+        const { data, error } = await supabase.auth.mfa.listFactors();
+        if (!error && data) {
+          const verifiedFactors = data.totp.filter(f => f.status === "verified");
+          setIs2FAEnabled(verifiedFactors.length > 0);
+          if (verifiedFactors.length > 0) {
+            setFactorId(verifiedFactors[0].id);
+          }
+        }
+      } catch (e) {
+        console.warn("Could not check 2FA status:", e);
+      }
+    };
+    check2FAStatus();
+  }, []);
 
   const handleSaveDisplayName = async () => {
     if (!displayName.trim()) return;
@@ -137,9 +204,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     setIsSavingName(true);
     try {
       await updateProfile({ display_name: displayName.trim() });
-      toast({
-        title: t.nameUpdated,
-      });
+      toast({ title: t.nameUpdated });
       setIsEditingName(false);
       refreshProfile();
     } catch (error: any) {
@@ -155,27 +220,19 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
-      toast({
-        title: t.passwordTooShort,
-        variant: "destructive",
-      });
+      toast({ title: t.passwordTooShort, variant: "destructive" });
       return;
     }
     
     if (newPassword !== confirmPassword) {
-      toast({
-        title: t.passwordsNoMatch,
-        variant: "destructive",
-      });
+      toast({ title: t.passwordsNoMatch, variant: "destructive" });
       return;
     }
 
     setIsChangingPassword(true);
     try {
       await updatePassword(newPassword);
-      toast({
-        title: t.passwordChanged,
-      });
+      toast({ title: t.passwordChanged });
       setIsPasswordDialogOpen(false);
       setNewPassword("");
       setConfirmPassword("");
@@ -196,10 +253,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     setIsSendingReset(true);
     try {
       await resetPassword(user.email);
-      toast({
-        title: t.resetEmailSent,
-        description: t.resetEmailDesc,
-      });
+      toast({ title: t.resetEmailSent, description: t.resetEmailDesc });
     } catch (error: any) {
       toast({
         title: language === "de" ? "Fehler" : "Error",
@@ -215,7 +269,6 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       toast({
         title: language === "de" ? "Ungültiger Dateityp" : "Invalid file type",
@@ -225,7 +278,6 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: language === "de" ? "Datei zu groß" : "File too large",
@@ -241,28 +293,20 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       const fileName = `avatar.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
 
-      // Upload file
       const { error: uploadError } = await supabase.storage
         .from("avatars")
         .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from("avatars")
         .getPublicUrl(filePath);
 
-      // Add cache-busting parameter
       const avatarUrl = `${publicUrl}?t=${Date.now()}`;
-
-      // Update profile
       await updateProfile({ avatar_url: avatarUrl });
       refreshProfile();
-
-      toast({
-        title: t.avatarUpdated,
-      });
+      toast({ title: t.avatarUpdated });
     } catch (error: any) {
       toast({
         title: language === "de" ? "Fehler beim Hochladen" : "Upload failed",
@@ -274,6 +318,131 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     }
   };
 
+  const handleExportData = async () => {
+    if (!user) return;
+
+    setIsExporting(true);
+    try {
+      // Fetch all user data
+      const [journalResult, moodResult, recapResult] = await Promise.all([
+        supabase.from("journal_entries").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("mood_checkins").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("weekly_recaps").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      ]);
+
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        user: {
+          email: user.email,
+          displayName: profile?.display_name,
+        },
+        journalEntries: journalResult.data || [],
+        moodCheckins: moodResult.data || [],
+        weeklyRecaps: recapResult.data || [],
+      };
+
+      // Create and download JSON file
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `mindmate-export-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({ title: t.exportSuccess });
+    } catch (error: any) {
+      toast({
+        title: language === "de" ? "Export fehlgeschlagen" : "Export failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleSetup2FA = async () => {
+    setIsEnabling2FA(true);
+    try {
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: "MindMate Authenticator",
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        setQrCode(data.totp.qr_code);
+        setFactorId(data.id);
+      }
+    } catch (error: any) {
+      toast({
+        title: language === "de" ? "Fehler beim Einrichten" : "Setup failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsEnabling2FA(false);
+    }
+  };
+
+  const handleVerify2FA = async () => {
+    if (!factorId || verifyCode.length !== 6) return;
+
+    setIsVerifying(true);
+    try {
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId,
+      });
+
+      if (challengeError) throw challengeError;
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challengeData.id,
+        code: verifyCode,
+      });
+
+      if (verifyError) throw verifyError;
+
+      setIs2FAEnabled(true);
+      setQrCode(null);
+      setVerifyCode("");
+      setIs2FADialogOpen(false);
+      toast({ title: t.twoFactorSuccess });
+    } catch (error: any) {
+      toast({
+        title: language === "de" ? "Verifizierung fehlgeschlagen" : "Verification failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!factorId) return;
+
+    try {
+      const { error } = await supabase.auth.mfa.unenroll({ factorId });
+      if (error) throw error;
+
+      setIs2FAEnabled(false);
+      setFactorId(null);
+      toast({ title: t.twoFactorDisabledSuccess });
+    } catch (error: any) {
+      toast({
+        title: language === "de" ? "Fehler" : "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== "DELETE") return;
 
@@ -282,18 +451,12 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       const { data: { session } } = await supabase.auth.getSession();
       
       const response = await supabase.functions.invoke("delete-account", {
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
       if (response.error) throw response.error;
 
-      toast({
-        title: t.accountDeleted,
-      });
-
-      // Sign out and redirect
+      toast({ title: t.accountDeleted });
       await signOut();
       navigate("/auth", { replace: true });
     } catch (error: any) {
@@ -432,6 +595,103 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         </div>
       </CalmCard>
 
+      {/* Two-Factor Authentication */}
+      <Dialog open={is2FADialogOpen} onOpenChange={setIs2FADialogOpen}>
+        <DialogTrigger asChild>
+          <CalmCard 
+            variant="default" 
+            className="cursor-pointer hover:shadow-card transition-shadow"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-foreground">{t.twoFactor}</p>
+                <p className="text-sm text-muted-foreground">
+                  {is2FAEnabled ? t.twoFactorEnabled : t.twoFactorDisabled}
+                </p>
+              </div>
+              <div className={`w-2 h-2 rounded-full ${is2FAEnabled ? "bg-green-500" : "bg-muted-foreground/30"}`} />
+            </div>
+          </CalmCard>
+        </DialogTrigger>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t.twoFactor}</DialogTitle>
+            <DialogDescription>{t.twoFactorDesc}</DialogDescription>
+          </DialogHeader>
+          
+          {is2FAEnabled ? (
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                <Shield className="w-5 h-5 text-green-600" />
+                <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                  {t.twoFactorEnabled}
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="w-full">
+                    {t.disable2FA}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t.disable2FAConfirm}</AlertDialogTitle>
+                    <AlertDialogDescription>{t.disable2FAWarning}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDisable2FA}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {t.disable2FA}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          ) : qrCode ? (
+            <div className="space-y-4 py-4">
+              <div className="flex justify-center">
+                <img src={qrCode} alt="2FA QR Code" className="w-48 h-48 rounded-lg" />
+              </div>
+              <p className="text-sm text-center text-muted-foreground">{t.scan2FACode}</p>
+              <div className="space-y-2">
+                <Label htmlFor="verify-code">{t.enterCode}</Label>
+                <Input
+                  id="verify-code"
+                  value={verifyCode}
+                  onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="000000"
+                  className="text-center text-2xl tracking-widest"
+                  maxLength={6}
+                />
+              </div>
+              <Button
+                onClick={handleVerify2FA}
+                disabled={verifyCode.length !== 6 || isVerifying}
+                className="w-full"
+              >
+                {isVerifying ? t.verifying : t.verify}
+              </Button>
+            </div>
+          ) : (
+            <div className="py-4">
+              <Button
+                onClick={handleSetup2FA}
+                disabled={isEnabling2FA}
+                className="w-full"
+              >
+                {isEnabling2FA ? (language === "de" ? "Wird eingerichtet..." : "Setting up...") : t.setup2FA}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Change Password */}
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
         <DialogTrigger asChild>
@@ -519,6 +779,26 @@ export function AccountSettings({ language }: AccountSettingsProps) {
             <p className="text-sm text-muted-foreground">{t.resetPasswordDesc}</p>
           </div>
           {isSendingReset && (
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          )}
+        </div>
+      </CalmCard>
+
+      {/* Export Data */}
+      <CalmCard 
+        variant="default" 
+        className="cursor-pointer hover:shadow-card transition-shadow"
+        onClick={handleExportData}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-calm/10 flex items-center justify-center">
+            <Download className="w-5 h-5 text-calm" />
+          </div>
+          <div className="flex-1">
+            <p className="font-medium text-foreground">{t.exportData}</p>
+            <p className="text-sm text-muted-foreground">{t.exportDataDesc}</p>
+          </div>
+          {isExporting && (
             <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           )}
         </div>
