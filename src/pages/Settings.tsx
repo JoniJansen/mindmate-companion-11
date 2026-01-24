@@ -40,6 +40,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AccountSettings } from "@/components/settings/AccountSettings";
 
 interface Preferences {
   language: "en" | "de";
@@ -777,25 +778,12 @@ export default function Settings() {
           <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
             {language === "de" ? "Konto" : "Account"}
           </h2>
-          <div className="space-y-3">
-            {/* User Info */}
-            <CalmCard variant="elevated">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <User className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground truncate">
-                    {profile?.display_name || (language === "de" ? "MindMate Nutzer" : "MindMate User")}
-                  </p>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {user?.email}
-                  </p>
-                </div>
-              </div>
-            </CalmCard>
-
-            {/* Logout */}
+          
+          {/* Account Settings Component */}
+          <AccountSettings language={preferences.language} />
+          
+          {/* Logout - separate for visual distinction */}
+          <div className="mt-3">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <CalmCard 
