@@ -14,8 +14,10 @@ import {
   Sparkles,
   Palette,
   Monitor,
-  Volume2
+  Volume2,
+  Download
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Switch } from "@/components/ui/switch";
@@ -41,6 +43,7 @@ const defaultPreferences: Preferences = {
 };
 
 export default function Settings() {
+  const navigate = useNavigate();
   const [preferences, setPreferences] = useState<Preferences>(defaultPreferences);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const { toast } = useToast();
@@ -673,6 +676,29 @@ export default function Settings() {
                   <div>
                     <p className="font-medium text-foreground">{t("settings.helpSupport")}</p>
                     <p className="text-sm text-muted-foreground">{t("settings.faqContact")}</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </div>
+            </CalmCard>
+
+            <CalmCard 
+              variant="default" 
+              className="cursor-pointer hover:shadow-card transition-shadow"
+              onClick={() => navigate("/install")}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Download className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {language === "de" ? "App installieren" : "Install App"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {language === "de" ? "Zum Startbildschirm hinzufügen" : "Add to home screen"}
+                    </p>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />

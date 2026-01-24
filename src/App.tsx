@@ -18,6 +18,7 @@ import Onboarding from "@/pages/Onboarding";
 import Settings from "@/pages/Settings";
 import Safety from "@/pages/Safety";
 import Summary from "@/pages/Summary";
+import Install from "@/pages/Install";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/summary" element={<Summary />} />
           <Route path="/safety" element={<Safety />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/install" element={<Install />} />
           
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
