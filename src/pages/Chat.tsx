@@ -698,10 +698,9 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Input Area - Fixed at bottom with safe area */}
-      <div className="shrink-0 border-t border-border/50 bg-card/80 backdrop-blur-md">
-        {/* Inner container with equal padding */}
-        <div className="px-4 md:px-6 lg:px-8 py-4">
-          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-center gap-2 md:gap-3 h-10">
+      <div className="shrink-0 border-t border-border/50 bg-card/80 backdrop-blur-md pt-3 pb-3" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
+        <div className="px-4 md:px-6 lg:px-8">
+          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-center gap-2 md:gap-3">
             {/* Auto-speak toggle (premium only) */}
             <TooltipProvider delayDuration={300}>
               <Tooltip>
@@ -767,7 +766,7 @@ export default function Chat() {
             )}
 
             {/* Text input with send button */}
-            <div className="flex-1 relative flex items-center h-10">
+            <div className="flex-1 relative flex items-center">
               <input
                 type="text"
                 value={inputValue}
@@ -793,8 +792,6 @@ export default function Chat() {
             </div>
           </div>
         </div>
-        {/* Safe area spacer for mobile home indicator */}
-        <div className="safe-bottom" />
       </div>
     </div>
   );
