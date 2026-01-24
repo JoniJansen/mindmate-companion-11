@@ -47,7 +47,7 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
             {showLogo && (
               <img 
                 src={logoImage} 
-                alt="MindMate" 
+                alt="MindMate Assistant" 
                 className="w-8 h-8 object-contain rounded-lg"
               />
             )}

@@ -125,7 +125,7 @@ export default function Install() {
             className="text-center"
           >
             <div className="w-24 h-24 mx-auto mb-4 rounded-2xl overflow-hidden shadow-lg">
-              <img src={logoImage} alt="MindMate" className="w-full h-full object-cover" />
+              <img src={logoImage} alt="MindMate Assistant" className="w-full h-full object-cover" />
             </div>
             <p className="text-muted-foreground">{t.subtitle}</p>
           </motion.div>
