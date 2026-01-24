@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, MicOff, Phone, FileText, AlertTriangle, Volume2, VolumeX, Wind, Anchor } from "lucide-react";
+import { Send, Mic, MicOff, Phone, FileText, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -11,11 +11,14 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useVoiceSettings } from "@/hooks/useVoiceSettings";
+import { usePremium } from "@/hooks/usePremium";
 import { VoiceAvatar } from "@/components/chat/VoiceAvatar";
 import { AudioWaveform } from "@/components/chat/AudioWaveform";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
 import { MessagePlayButton } from "@/components/chat/MessagePlayButton";
 import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
+import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
+import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 
 interface Message {
   id: string;
@@ -50,6 +53,8 @@ export default function Chat() {
   const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
   const [showTranscriptConfirm, setShowTranscriptConfirm] = useState(false);
   const [pendingTranscript, setPendingTranscript] = useState("");
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<"messages" | "voice" | "features">("features");
   const [chatMode, setChatMode] = useState<ChatMode>(() => {
     const stored = localStorage.getItem("mindmate-chat-mode");
     return (stored as ChatMode) || "talk";
@@ -59,6 +64,19 @@ export default function Chat() {
   const { toast } = useToast();
   const { t, language } = useTranslation();
   const preferences = useRef<Preferences>(getPreferences());
+
+  // Premium state
+  const { 
+    isPremium, 
+    canUseVoice, 
+    canSendMessage, 
+    incrementMessageCount,
+    messagesRemaining,
+    dailyMessageLimit,
+    canUseClarifyMode,
+    canUsePatternMode,
+    canUseSessionSummary,
+  } = usePremium();
 
   // Voice settings
   const { 
@@ -70,7 +88,7 @@ export default function Chat() {
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
 
-  // ElevenLabs TTS
+  // ElevenLabs TTS - only initialize if premium
   const { 
     speak: speakTTS, 
     stop: stopTTS, 
@@ -87,7 +105,7 @@ export default function Chat() {
     },
   });
 
-  // Speech recognition (STT)
+  // Speech recognition (STT) - only enable for premium
   const { 
     isListening, 
     fullTranscript, 
@@ -99,7 +117,7 @@ export default function Chat() {
   } = useSpeechRecognition(speechLang, {
     continuous: true,
     onFinalTranscript: (transcript) => {
-      if (transcript.trim()) {
+      if (transcript.trim() && canUseVoice) {
         setPendingTranscript(prev => (prev + " " + transcript).trim());
       }
     },
@@ -121,9 +139,9 @@ export default function Chat() {
     localStorage.setItem("mindmate-chat-mode", chatMode);
   }, [chatMode]);
 
-  // Auto-restart listening after AI finishes speaking in voice mode
+  // Auto-restart listening after AI finishes speaking in voice mode (premium only)
   useEffect(() => {
-    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm) {
+    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice) {
       const timeoutId = setTimeout(() => {
         resetTranscript();
         setPendingTranscript("");
@@ -131,7 +149,7 @@ export default function Chat() {
       }, 800);
       return () => clearTimeout(timeoutId);
     }
-  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening]);
+  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice]);
 
   // Stop listening when AI speaks
   useEffect(() => {
@@ -157,6 +175,16 @@ export default function Chat() {
       setInputValue((pendingTranscript + " " + fullTranscript).trim());
     }
   }, [fullTranscript, isListening, pendingTranscript]);
+
+  // Handle mode changes - gate premium modes
+  const handleModeChange = (mode: ChatMode) => {
+    if ((mode === "clarify" && !canUseClarifyMode) || (mode === "patterns" && !canUsePatternMode)) {
+      setUpgradeReason("features");
+      setShowUpgradePrompt(true);
+      return;
+    }
+    setChatMode(mode);
+  };
 
   // Mode-specific quick replies
   const getQuickReplies = (): string[] => {
@@ -208,8 +236,8 @@ export default function Chat() {
           onDelta: (chunk) => upsertAssistant(chunk),
           onDone: (fullResponse) => {
             setIsLoading(false);
-            // Auto-play greeting if enabled (but not if user is recording)
-            if (voiceSettings.autoPlayReplies && fullResponse && !isListening) {
+            // Auto-play greeting if enabled AND premium (but not if user is recording)
+            if (canUseVoice && voiceSettings.autoPlayReplies && fullResponse && !isListening) {
               const voiceId = getVoiceId(language as "en" | "de");
               const effectiveLang = getEffectiveLanguage(language as "en" | "de");
               speakTTS(fullResponse, voiceId, effectiveLang, voiceSettings.speed, "greeting");
@@ -308,8 +336,18 @@ export default function Chat() {
   const handleSend = useCallback(async (content: string, isSystemAction = false) => {
     if (!content.trim() || isLoading) return;
 
+    // Check message limit for free users
+    if (!isSystemAction && !canSendMessage()) {
+      setUpgradeReason("messages");
+      setShowUpgradePrompt(true);
+      return;
+    }
+
     const userMessage: Message = { id: Date.now().toString(), content: content.trim(), role: "user", timestamp: new Date() };
-    if (!isSystemAction) setMessages((prev) => [...prev, userMessage]);
+    if (!isSystemAction) {
+      setMessages((prev) => [...prev, userMessage]);
+      incrementMessageCount(); // Increment message count for free users
+    }
     setInputValue("");
     setPendingTranscript("");
     setShowTranscriptConfirm(false);
@@ -326,8 +364,8 @@ export default function Chat() {
       onDelta: (chunk) => { upsertAssistant(chunk); },
       onDone: (fullResponse) => {
         setIsLoading(false);
-        // Auto-play or play in voice mode (but not if user is recording)
-        if ((voiceModeEnabled || voiceSettings.autoPlayReplies) && fullResponse && !isListening) {
+        // Auto-play or play in voice mode (premium only, not if user is recording)
+        if (canUseVoice && (voiceModeEnabled || voiceSettings.autoPlayReplies) && fullResponse && !isListening) {
           const voiceId = getVoiceId(language as "en" | "de");
           const effectiveLang = getEffectiveLanguage(language as "en" | "de");
           speakTTS(fullResponse, voiceId, effectiveLang, voiceSettings.speed, newMessageId);
@@ -335,7 +373,7 @@ export default function Chat() {
       },
       onError: handleError,
     });
-  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, upsertAssistant]);
+  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, upsertAssistant, canSendMessage, incrementMessageCount, canUseVoice]);
 
   // Handle voice transcript confirmation
   const handleTranscriptSend = () => {
@@ -356,15 +394,25 @@ export default function Chat() {
     resetTranscript();
   };
 
-  // Play message audio
+  // Play message audio (premium only)
   const playMessage = (message: Message) => {
+    if (!canUseVoice) {
+      setUpgradeReason("voice");
+      setShowUpgradePrompt(true);
+      return;
+    }
     const voiceId = getVoiceId(language as "en" | "de");
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
     speakTTS(message.content, voiceId, effectiveLang, voiceSettings.speed, message.id);
   };
 
-  // Toggle voice mode
+  // Toggle voice mode (premium only)
   const toggleVoiceMode = () => {
+    if (!canUseVoice) {
+      setUpgradeReason("voice");
+      setShowUpgradePrompt(true);
+      return;
+    }
     if (!isSpeechSupported) {
       toast({
         title: t("voice.notSupported"),
@@ -381,8 +429,13 @@ export default function Chat() {
     setInputValue("");
   };
 
-  // Toggle recording
+  // Toggle recording (premium only)
   const toggleRecording = () => {
+    if (!canUseVoice) {
+      setUpgradeReason("voice");
+      setShowUpgradePrompt(true);
+      return;
+    }
     if (isListening) {
       stopListening();
     } else {
@@ -404,12 +457,22 @@ export default function Chat() {
   }, [handleSend]);
 
   const handleSummary = () => {
+    if (!canUseSessionSummary) {
+      setUpgradeReason("features");
+      setShowUpgradePrompt(true);
+      return;
+    }
     localStorage.setItem("mindmate-chat-messages", JSON.stringify(messages.map(m => ({ role: m.role, content: m.content }))));
     navigate("/summary", { state: { messages: messages.map(m => ({ role: m.role, content: m.content })) } });
   };
 
   const handleCalmExercise = (exerciseId: string) => {
     navigate("/toolbox", { state: { startExercise: exerciseId } });
+  };
+
+  const handleUpgrade = () => {
+    setShowUpgradePrompt(false);
+    navigate("/settings", { state: { scrollTo: "premium" } });
   };
 
   return (
@@ -420,14 +483,34 @@ export default function Chat() {
         showLogo
         rightElement={
           <div className="flex items-center gap-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleVoiceMode} 
-              className={voiceModeEnabled ? "text-primary" : "text-muted-foreground"}
-            >
-              {voiceModeEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-            </Button>
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={toggleVoiceMode} 
+                    className={`relative ${voiceModeEnabled && canUseVoice ? "text-primary" : "text-muted-foreground"}`}
+                  >
+                    {canUseVoice ? (
+                      voiceModeEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />
+                    ) : (
+                      <>
+                        <VolumeX className="w-5 h-5" />
+                        <Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-muted-foreground" />
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">
+                  {canUseVoice 
+                    ? (voiceModeEnabled 
+                        ? (language === "de" ? "Sprachmodus aktiv" : "Voice mode active") 
+                        : (language === "de" ? "Sprachmodus starten" : "Start voice mode"))
+                    : (language === "de" ? "Sprachgespräche – Plus" : "Voice conversations – Plus")}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Button variant="ghost" size="icon" onClick={() => navigate("/safety")} className="text-destructive">
               <Phone className="w-5 h-5" />
             </Button>
@@ -435,14 +518,25 @@ export default function Chat() {
         }
       />
 
-      {/* Mode Selector */}
+      {/* Mode Selector - with premium gating for clarify/patterns */}
       <div className="px-4 py-2 border-b border-border/30">
-        <ChatModeSelector activeMode={chatMode} onModeChange={setChatMode} />
+        <ChatModeSelector 
+          activeMode={chatMode} 
+          onModeChange={handleModeChange}
+          lockedModes={isPremium ? [] : ["clarify", "patterns"]}
+        />
       </div>
 
-      {/* Voice Avatar */}
+      {/* Message Limit Indicator */}
+      <MessageLimitIndicator 
+        messagesRemaining={messagesRemaining}
+        dailyLimit={dailyMessageLimit}
+        isPremium={isPremium}
+      />
+
+      {/* Voice Avatar (premium only) */}
       <AnimatePresence>
-        {voiceModeEnabled && (
+        {voiceModeEnabled && canUseVoice && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }} 
             animate={{ opacity: 1, height: "auto" }} 
@@ -454,6 +548,28 @@ export default function Chat() {
               {isListening && (
                 <AudioWaveform isListening={isListening} size="sm" />
               )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Upgrade Prompt Modal */}
+      <AnimatePresence>
+        {showUpgradePrompt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+            onClick={() => setShowUpgradePrompt(false)}
+          >
+            <div onClick={(e) => e.stopPropagation()}>
+              <UpgradePrompt
+                reason={upgradeReason}
+                variant="modal"
+                onUpgrade={handleUpgrade}
+                onDismiss={() => setShowUpgradePrompt(false)}
+              />
             </div>
           </motion.div>
         )}
@@ -484,6 +600,7 @@ export default function Chat() {
                       isLoading={isLoadingMessage(message.id)}
                       onPlay={() => playMessage(message)}
                       onStop={stopTTS}
+                      isPremium={canUseVoice}
                     />
                   )}
                 </div>
@@ -540,6 +657,7 @@ export default function Chat() {
             <Button variant="outline" size="sm" className="gap-2" onClick={handleSummary}>
               <FileText className="w-4 h-4" />
               {language === "de" ? "Zusammenfassung" : "Summary"}
+              {!canUseSessionSummary && <Lock className="w-3 h-3 ml-1" />}
             </Button>
             <Button variant="ghost" size="sm" className="gap-2 text-destructive" onClick={() => navigate("/safety")}>
               <AlertTriangle className="w-4 h-4" />
@@ -549,9 +667,9 @@ export default function Chat() {
         </motion.div>
       )}
 
-      {/* Voice Transcript Confirmation */}
+      {/* Voice Transcript Confirmation (premium only) */}
       <AnimatePresence>
-        {showTranscriptConfirm && pendingTranscript && (
+        {showTranscriptConfirm && pendingTranscript && canUseVoice && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }} 
             animate={{ opacity: 1, y: 0 }} 
@@ -573,45 +691,70 @@ export default function Chat() {
       {/* Input Area */}
       <div className="p-4 border-t border-border/50 bg-card/50 backdrop-blur-sm">
         <div className="max-w-lg mx-auto flex items-end gap-2">
-          {/* Auto-speak toggle */}
+          {/* Auto-speak toggle (premium only) */}
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className={`shrink-0 rounded-full ${voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
-                  onClick={() => updateSetting("autoPlayReplies", !voiceSettings.autoPlayReplies)}
+                  className={`shrink-0 rounded-full relative ${canUseVoice && voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                  onClick={() => {
+                    if (!canUseVoice) {
+                      setUpgradeReason("voice");
+                      setShowUpgradePrompt(true);
+                      return;
+                    }
+                    updateSetting("autoPlayReplies", !voiceSettings.autoPlayReplies);
+                  }}
                 >
-                  {voiceSettings.autoPlayReplies ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                  {canUseVoice && voiceSettings.autoPlayReplies ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                  {!canUseVoice && <Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5" />}
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top" className="text-xs">
-                {voiceSettings.autoPlayReplies 
-                  ? (language === "de" ? "KI spricht automatisch – tippen zum Deaktivieren" : "AI speaks automatically – tap to disable") 
-                  : (language === "de" ? "Nur Text – tippen für Sprachausgabe" : "Text only – tap for voice")}
+                {canUseVoice 
+                  ? (voiceSettings.autoPlayReplies 
+                      ? (language === "de" ? "KI spricht automatisch – tippen zum Deaktivieren" : "AI speaks automatically – tap to disable") 
+                      : (language === "de" ? "Nur Text – tippen für Sprachausgabe" : "Text only – tap for voice"))
+                  : (language === "de" ? "Sprachausgabe – Plus" : "Voice output – Plus")}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
           
-          {/* Mic button */}
+          {/* Mic button (premium only) */}
           {isSpeechSupported && (
-            <Button 
-              variant={isListening ? "destructive" : "outline"} 
-              size="icon" 
-              className="shrink-0 rounded-full relative" 
-              onClick={toggleRecording}
-            >
-              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              {isListening && (
-                <motion.span 
-                  className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                />
-              )}
-            </Button>
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant={isListening && canUseVoice ? "destructive" : "outline"} 
+                    size="icon" 
+                    className="shrink-0 rounded-full relative" 
+                    onClick={toggleRecording}
+                  >
+                    {isListening && canUseVoice ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                    {isListening && canUseVoice && (
+                      <motion.span 
+                        className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      />
+                    )}
+                    {!canUseVoice && <Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-muted-foreground" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs">
+                  {canUseVoice 
+                    ? (isListening 
+                        ? (language === "de" ? "Aufnahme stoppen" : "Stop recording") 
+                        : (language === "de" ? "Spracheingabe starten" : "Start voice input"))
+                    : (language === "de" ? "Spracheingabe – Plus" : "Voice input – Plus")}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
+
           <div className="flex-1 relative">
             <textarea
               value={inputValue}
@@ -622,16 +765,16 @@ export default function Chat() {
                   handleSend(inputValue); 
                 } 
               }}
-              placeholder={isListening ? t("voice.listening") : (language === "de" ? "Schreib etwas..." : "Type something...")}
+              placeholder={isListening && canUseVoice ? t("voice.listening") : (language === "de" ? "Schreib etwas..." : "Type something...")}
               className="w-full bg-background border border-border/50 rounded-2xl px-4 py-3 pr-12 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 max-h-32"
               rows={1}
-              disabled={isLoading}
+              disabled={isLoading || (!canSendMessage() && !isPremium)}
             />
             <Button 
               size="icon" 
               className="absolute right-1 bottom-1 rounded-full w-9 h-9" 
               onClick={() => handleSend(inputValue)} 
-              disabled={!inputValue.trim() || isLoading}
+              disabled={!inputValue.trim() || isLoading || !canSendMessage()}
             >
               <Send className="w-4 h-4" />
             </Button>
