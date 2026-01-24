@@ -48,7 +48,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-t border-border/30 safe-bottom">
-      <div className="flex items-center justify-around px-2 md:px-4 py-2.5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+      <div className="flex items-center justify-around px-2 md:px-4 py-2.5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to || 
             (item.to !== "/" && location.pathname.startsWith(item.to));
