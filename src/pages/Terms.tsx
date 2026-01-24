@@ -51,7 +51,7 @@ If you are experiencing a mental health crisis, please contact emergency service
 **Refunds**: 
 • We offer a 7-day money-back guarantee for new subscribers
 • Refund requests after 7 days are handled on a case-by-case basis
-• Contact support@mindmate.app for refund inquiries`
+• Contact joni.jansen00@gmail.com for refund inquiries`
         },
         {
           icon: Scale,
@@ -89,7 +89,7 @@ If you are experiencing a mental health crisis, please contact emergency service
       contact: {
         title: "Questions?",
         content: "If you have questions about these terms, please contact us at:",
-        email: "legal@mindmate.app"
+        email: "joni.jansen00@gmail.com"
       },
       agreement: "By using MindMate, you acknowledge that you have read, understood, and agree to these Terms of Service."
     },
@@ -135,7 +135,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
 **Erstattungen**: 
 • Wir bieten eine 7-tägige Geld-zurück-Garantie für neue Abonnenten
 • Erstattungsanfragen nach 7 Tagen werden im Einzelfall behandelt
-• Kontaktiere support@mindmate.app für Erstattungsanfragen`
+• Kontaktiere joni.jansen00@gmail.com für Erstattungsanfragen`
         },
         {
           icon: Scale,
@@ -173,7 +173,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
       contact: {
         title: "Fragen?",
         content: "Wenn du Fragen zu diesen Bedingungen hast, kontaktiere uns bitte unter:",
-        email: "legal@mindmate.app"
+        email: "joni.jansen00@gmail.com"
       },
       agreement: "Durch die Nutzung von MindMate bestätigst du, dass du diese Nutzungsbedingungen gelesen und verstanden hast und ihnen zustimmst."
     }
