@@ -404,9 +404,9 @@ export default function Landing() {
             <span className="text-sm text-muted-foreground">{t.footer.tagline}</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <button className="hover:text-foreground transition-colors">{t.footer.privacy}</button>
-            <button className="hover:text-foreground transition-colors">{t.footer.terms}</button>
-            <button className="hover:text-foreground transition-colors">{t.footer.contact}</button>
+            <button onClick={() => navigate("/privacy")} className="hover:text-foreground transition-colors">{t.footer.privacy}</button>
+            <button onClick={() => navigate("/terms")} className="hover:text-foreground transition-colors">{t.footer.terms}</button>
+            <a href="mailto:support@mindmate.app" className="hover:text-foreground transition-colors">{t.footer.contact}</a>
           </div>
         </div>
       </footer>
