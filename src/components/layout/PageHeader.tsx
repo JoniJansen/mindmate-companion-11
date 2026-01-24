@@ -2,6 +2,7 @@ import * as React from "react";
 import { ChevronLeft, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import logoImage from "@/assets/logo.png";
 
 interface PageHeaderProps {
   title: string;
@@ -10,11 +11,12 @@ interface PageHeaderProps {
   backTo?: string;
   rightElement?: React.ReactNode;
   showSettings?: boolean;
+  showLogo?: boolean;
   className?: string;
 }
 
 export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
-  ({ title, subtitle, showBack = false, backTo, rightElement, showSettings = true, className = "" }, ref) => {
+  ({ title, subtitle, showBack = false, backTo, rightElement, showSettings = true, showLogo = false, className = "" }, ref) => {
     const navigate = useNavigate();
 
     const handleBack = () => {
@@ -41,6 +43,13 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
               >
                 <ChevronLeft className="w-5 h-5 stroke-[1.8]" />
               </Button>
+            )}
+            {showLogo && (
+              <img 
+                src={logoImage} 
+                alt="MindMate" 
+                className="w-8 h-8 object-contain rounded-lg"
+              />
             )}
             <div className="flex-1 min-w-0">
               <h1 className="text-lg font-semibold text-foreground/90 tracking-tight truncate">{title}</h1>
