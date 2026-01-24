@@ -1,4 +1,3 @@
-import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { 
   Phone, 
@@ -31,7 +30,7 @@ interface Resource {
   icon: typeof MapPin;
 }
 
-const Safety = forwardRef<HTMLDivElement>((_, ref) => {
+export default function Safety() {
   const { t, language } = useTranslation();
 
   // Jutta Jansen - Psychologin M.Sc., Heilpraktikerin für Psychotherapie
@@ -144,7 +143,7 @@ const Safety = forwardRef<HTMLDivElement>((_, ref) => {
   const emergencyNumber = language === "de" ? "112" : "911";
 
   return (
-    <div ref={ref} className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader 
         title={t("safety.title")} 
         subtitle={t("safety.subtitle")}
@@ -335,8 +334,4 @@ const Safety = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-});
-
-Safety.displayName = "Safety";
-
-export default Safety;
+}
