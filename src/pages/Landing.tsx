@@ -71,14 +71,15 @@ export default function Landing() {
         free: {
           name: "Free",
           price: "€0",
-          features: ["5 messages per day", "Basic journaling", "Mood tracking", "Community exercises"],
+          features: ["15 messages per day", "Basic journaling", "Mood tracking", "Community exercises"],
         },
         plus: {
           name: "Plus",
           price: "€9.99",
           period: "/month",
+          trial: "7-day free trial",
           features: ["Unlimited messages", "Voice conversations", "Weekly insights", "Premium exercises", "Priority support"],
-          cta: "Upgrade to Plus",
+          cta: "Start Free Trial",
         },
       },
       testimonials: {
@@ -144,14 +145,15 @@ export default function Landing() {
         free: {
           name: "Kostenlos",
           price: "€0",
-          features: ["5 Nachrichten pro Tag", "Basis-Tagebuch", "Stimmungstracking", "Community-Übungen"],
+          features: ["15 Nachrichten pro Tag", "Basis-Tagebuch", "Stimmungstracking", "Community-Übungen"],
         },
         plus: {
           name: "Plus",
           price: "€9,99",
           period: "/Monat",
+          trial: "7 Tage kostenlos testen",
           features: ["Unbegrenzte Nachrichten", "Sprachgespräche", "Wöchentliche Einblicke", "Premium-Übungen", "Prioritäts-Support"],
-          cta: "Zu Plus wechseln",
+          cta: "Kostenlos testen",
         },
       },
       testimonials: {
@@ -323,8 +325,8 @@ export default function Landing() {
             {/* Plus Plan */}
             <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 border border-primary/20 shadow-card relative overflow-hidden">
               <div className="absolute top-4 right-4">
-                <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-medium">
-                  {language === "de" ? "Beliebt" : "Popular"}
+                <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+                  {t.pricing.plus.trial}
                 </span>
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">{t.pricing.plus.name}</h3>

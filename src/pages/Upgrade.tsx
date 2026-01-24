@@ -90,7 +90,7 @@ export default function Upgrade() {
       name: language === "de" ? "Monatlich" : "Monthly",
       price: "€9,99",
       interval: language === "de" ? "/Monat" : "/month",
-      savings: null,
+      trial: language === "de" ? "7 Tage kostenlos testen" : "7-day free trial",
     },
     {
       id: "yearly" as const,
@@ -185,6 +185,11 @@ export default function Upgrade() {
               {plan.savings && (
                 <span className="absolute -top-2 left-3 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
                   {plan.savings}
+                </span>
+              )}
+              {plan.trial && (
+                <span className="absolute -top-2 left-3 bg-emerald-500 dark:bg-emerald-600 text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                  {plan.trial}
                 </span>
               )}
               <p className="font-medium text-foreground">{plan.name}</p>

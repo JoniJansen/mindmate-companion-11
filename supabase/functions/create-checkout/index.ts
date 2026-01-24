@@ -71,16 +71,18 @@ Deno.serve(async (req) => {
     }
 
     // Define price based on plan type
-    // These will be created in Stripe Dashboard or via API
+    // Monthly: €9.99/month with 7-day free trial
+    // Yearly: €79/year (no trial - already discounted)
     const priceConfig = planType === "yearly" 
-      ? { unit_amount: 7900, interval: "year" as const }
-      : { unit_amount: 999, interval: "month" as const };
+      ? { unit_amount: 7900, interval: "year" as const, trial_days: 0 }
+      : { unit_amount: 999, interval: "month" as const, trial_days: 7 };
 
-    // Create checkout session
+    // Create checkout session with trial for monthly plan
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
-      payment_method_types: ["card"],
+      payment_method_types: ["card", "sepa_debit", "paypal"],
+      allow_promotion_codes: true,
       line_items: [
         {
           price_data: {
@@ -89,7 +91,7 @@ Deno.serve(async (req) => {
               name: "MindMate Plus",
               description: planType === "yearly" 
                 ? "Jährliches Abo - Spare 2 Monate!" 
-                : "Monatliches Abo",
+                : "Monatliches Abo – 7 Tage kostenlos testen",
             },
             unit_amount: priceConfig.unit_amount,
             recurring: {
@@ -99,6 +101,9 @@ Deno.serve(async (req) => {
           quantity: 1,
         },
       ],
+      subscription_data: priceConfig.trial_days > 0 
+        ? { trial_period_days: priceConfig.trial_days }
+        : undefined,
       success_url: successUrl || `${req.headers.get("origin")}/settings?success=true`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/settings?canceled=true`,
       metadata: {
