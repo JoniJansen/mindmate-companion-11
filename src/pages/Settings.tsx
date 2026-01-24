@@ -15,7 +15,8 @@ import {
   Palette,
   Monitor,
   Volume2,
-  Download
+  Download,
+  LogOut
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -27,6 +28,18 @@ import { useTheme, accentColorOptions, themeModeOptions, ThemeMode, AccentColor 
 import { useVoiceSettings, VoiceType, VoiceSpeed, VoiceLanguage } from "@/hooks/useVoiceSettings";
 import { SubscriptionSection } from "@/components/premium/SubscriptionSection";
 import { usePremium } from "@/hooks/usePremium";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Preferences {
   language: "en" | "de";
@@ -49,11 +62,32 @@ export default function Settings() {
   const [searchParams] = useSearchParams();
   const [preferences, setPreferences] = useState<Preferences>(defaultPreferences);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { toast } = useToast();
   const { t, language } = useTranslation();
   const { mode, accentColor, setMode, setAccentColor, isDark } = useTheme();
   const { settings: voiceSettings, updateSetting: updateVoiceSetting } = useVoiceSettings();
   const { checkSubscriptionStatus } = usePremium();
+  const { user, profile, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await signOut();
+      toast({
+        title: language === "de" ? "Erfolgreich abgemeldet" : "Logged out successfully",
+      });
+      navigate("/auth", { replace: true });
+    } catch (error: any) {
+      toast({
+        title: language === "de" ? "Fehler beim Abmelden" : "Error logging out",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   // Handle Stripe redirect
   useEffect(() => {
@@ -734,11 +768,92 @@ export default function Settings() {
           </div>
         </motion.div>
 
+        {/* Account Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
+            {language === "de" ? "Konto" : "Account"}
+          </h2>
+          <div className="space-y-3">
+            {/* User Info */}
+            <CalmCard variant="elevated">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <User className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground truncate">
+                    {profile?.display_name || (language === "de" ? "MindMate Nutzer" : "MindMate User")}
+                  </p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
+                </div>
+              </div>
+            </CalmCard>
+
+            {/* Logout */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <CalmCard 
+                  variant="default" 
+                  className="cursor-pointer hover:shadow-card transition-shadow border-destructive/20"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+                        <LogOut className="w-5 h-5 text-destructive" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-destructive">
+                          {language === "de" ? "Abmelden" : "Log out"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {language === "de" ? "Sitzung beenden" : "End your session"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CalmCard>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {language === "de" ? "Abmelden?" : "Log out?"}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {language === "de" 
+                      ? "Du kannst dich jederzeit wieder anmelden. Deine Daten bleiben sicher gespeichert." 
+                      : "You can log back in anytime. Your data will remain safely stored."}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    {language === "de" ? "Abbrechen" : "Cancel"}
+                  </AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {isLoggingOut 
+                      ? (language === "de" ? "Wird abgemeldet..." : "Logging out...") 
+                      : (language === "de" ? "Abmelden" : "Log out")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </motion.div>
+
         {/* App Info */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.3 }}
           className="text-center pt-4"
         >
           <p className="text-xs text-muted-foreground">MindMate v1.0.0</p>
