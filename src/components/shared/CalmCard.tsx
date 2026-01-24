@@ -12,14 +12,14 @@ interface CalmCardProps extends Omit<HTMLMotionProps<"div">, "ref"> {
 
 export const CalmCard = React.forwardRef<HTMLDivElement, CalmCardProps>(
   ({ children, className, variant = "default", onClick, animate = true, ...props }, ref) => {
-    const baseStyles = "rounded-2xl p-4 transition-all duration-200";
+    const baseStyles = "rounded-2xl p-4 transition-all duration-300";
     
     const variantStyles = {
-      default: "bg-card border border-border/50 shadow-soft",
-      elevated: "bg-card border border-border/30 shadow-card",
-      accent: "bg-accent-soft border border-accent/20",
-      gentle: "bg-gentle-soft border border-gentle/20",
-      calm: "bg-calm-soft border border-calm/20",
+      default: "bg-card border border-border/40 shadow-soft",
+      elevated: "bg-card border border-border/25 shadow-card",
+      accent: "bg-accent-soft/60 border border-accent/15",
+      gentle: "bg-gentle-soft/60 border border-gentle/15",
+      calm: "bg-calm-soft/60 border border-calm/15",
     };
 
     if (!animate) {
