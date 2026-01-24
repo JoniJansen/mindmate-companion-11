@@ -550,13 +550,15 @@ export default function Chat() {
             initial={{ opacity: 0, height: 0 }} 
             animate={{ opacity: 1, height: "auto" }} 
             exit={{ opacity: 0, height: 0 }} 
-            className="border-b border-border/30 overflow-hidden"
+            className="border-b border-border/30 overflow-hidden bg-gradient-to-b from-background to-muted/20"
           >
-            <div className="flex flex-col items-center py-6 gap-4">
-              <VoiceAvatar isSpeaking={isSpeaking} size="lg" />
-              {isListening && (
-                <AudioWaveform isListening={isListening} size="sm" />
-              )}
+            <div className="flex flex-col items-center py-8">
+              <VoiceAvatar 
+                isSpeaking={isSpeaking} 
+                isListening={isListening}
+                avatarStyle={voiceSettings.avatarStyle || "orb"}
+                size="lg" 
+              />
             </div>
           </motion.div>
         )}
