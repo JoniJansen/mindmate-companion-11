@@ -10,6 +10,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 // Pages
+import Landing from "@/pages/Landing";
 import Chat from "@/pages/Chat";
 import Journal from "@/pages/Journal";
 import Topics from "@/pages/Topics";
@@ -63,6 +64,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Landing Page */}
+          <Route path="/landing" element={<Landing />} />
+          
           {/* Auth */}
           <Route path="/auth" element={<Auth />} />
           
