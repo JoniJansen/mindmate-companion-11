@@ -85,6 +85,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   const [backupReminderDays, setBackupReminderDays] = useState<number>(30);
   const [lastExportDate, setLastExportDate] = useState<Date | null>(null);
   const [showBackupReminder, setShowBackupReminder] = useState(false);
+  const [exportStats, setExportStats] = useState({ journal: 0, mood: 0, recaps: 0 });
   
   // 2FA
   const [is2FADialogOpen, setIs2FADialogOpen] = useState(false);
@@ -131,6 +132,11 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       exportDataDesc: "Journal & Stimmungsdaten herunterladen",
       exporting: "Wird exportiert...",
       exportSuccess: "Daten erfolgreich exportiert",
+      exportStats: "Zu exportieren",
+      journalEntries: "Journaleinträge",
+      moodCheckins: "Stimmungsaufzeichnungen",
+      weeklyRecaps: "Wochen-Zusammenfassungen",
+      noDataToExport: "Keine Daten zum Exportieren",
       exportFormat: "Export-Format",
       exportAsJson: "Als JSON exportieren",
       exportAsCsv: "Als CSV exportieren",
@@ -202,6 +208,11 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       exportDataDesc: "Download journal & mood data",
       exporting: "Exporting...",
       exportSuccess: "Data exported successfully",
+      exportStats: "To export",
+      journalEntries: "Journal entries",
+      moodCheckins: "Mood check-ins",
+      weeklyRecaps: "Weekly recaps",
+      noDataToExport: "No data to export",
       exportFormat: "Export Format",
       exportAsJson: "Export as JSON",
       exportAsCsv: "Export as CSV",
@@ -278,7 +289,27 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       // Never exported, show reminder after 7 days of account creation
       setShowBackupReminder(true);
     }
-  }, []);
+    
+    // Fetch export stats
+    const fetchExportStats = async () => {
+      if (!user) return;
+      try {
+        const [journalCount, moodCount, recapCount] = await Promise.all([
+          supabase.from("journal_entries").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+          supabase.from("mood_checkins").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+          supabase.from("weekly_recaps").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        ]);
+        setExportStats({
+          journal: journalCount.count || 0,
+          mood: moodCount.count || 0,
+          recaps: recapCount.count || 0,
+        });
+      } catch (e) {
+        console.warn("Could not fetch export stats:", e);
+      }
+    };
+    fetchExportStats();
+  }, [user]);
 
   const updateBackupReminderInterval = (days: number) => {
     setBackupReminderDays(days);
@@ -1022,6 +1053,29 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           </DialogHeader>
           
           <div className="space-y-4 py-4">
+            {/* Export Statistics Preview */}
+            <div className="p-4 rounded-xl bg-muted/50 space-y-2">
+              <p className="text-sm font-medium text-foreground">{t.exportStats}</p>
+              {(exportStats.journal + exportStats.mood + exportStats.recaps) > 0 ? (
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="p-2 rounded-lg bg-background">
+                    <p className="text-xl font-semibold text-primary">{exportStats.journal}</p>
+                    <p className="text-xs text-muted-foreground">{t.journalEntries}</p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-background">
+                    <p className="text-xl font-semibold text-calm">{exportStats.mood}</p>
+                    <p className="text-xs text-muted-foreground">{t.moodCheckins}</p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-background">
+                    <p className="text-xl font-semibold text-gentle">{exportStats.recaps}</p>
+                    <p className="text-xs text-muted-foreground">{t.weeklyRecaps}</p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">{t.noDataToExport}</p>
+              )}
+            </div>
+            
             {/* Export Format Selection */}
             <div className="space-y-3">
               <Label>{t.exportFormat}</Label>
