@@ -477,7 +477,7 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-[100dvh] bg-background fixed inset-0 overflow-hidden">
       <PageHeader
         title={t("chat.title")}
         subtitle={t("chat.subtitle")}
@@ -577,7 +577,7 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4 overscroll-contain">
         <div className="max-w-lg mx-auto space-y-4">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
@@ -689,8 +689,8 @@ export default function Chat() {
         )}
       </AnimatePresence>
 
-      {/* Input Area */}
-      <div className="p-4 border-t border-border/50 bg-card/50 backdrop-blur-sm">
+      {/* Input Area - Fixed at bottom with safe area */}
+      <div className="shrink-0 p-4 border-t border-border/50 bg-card/80 backdrop-blur-md" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
         <div className="max-w-lg mx-auto flex items-end gap-2">
           {/* Auto-speak toggle (premium only) */}
           <TooltipProvider delayDuration={300}>
