@@ -31,6 +31,7 @@ import { useVoiceSettings, VoiceType, VoiceSpeed, VoiceLanguage } from "@/hooks/
 import { SubscriptionSection } from "@/components/premium/SubscriptionSection";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 import { openCookieSettings } from "@/components/gdpr/CookieConsent";
 import {
   AlertDialog,
@@ -74,6 +75,14 @@ export default function Settings() {
   const { settings: voiceSettings, updateSetting: updateVoiceSetting } = useVoiceSettings();
   const { checkSubscriptionStatus } = usePremium();
   const { user, profile, signOut } = useAuth();
+  const { isAdmin, checkAdminStatus } = useAdmin();
+
+  // Check admin status on mount
+  useEffect(() => {
+    if (user) {
+      checkAdminStatus();
+    }
+  }, [user, checkAdminStatus]);
 
   const handleRestartTour = () => {
     localStorage.removeItem("mindmate_tour_completed");
@@ -814,6 +823,32 @@ export default function Settings() {
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </div>
             </CalmCard>
+
+            {/* Admin Panel - Only visible to admins */}
+            {isAdmin && (
+              <CalmCard 
+                variant="default" 
+                className="cursor-pointer hover:shadow-card transition-shadow border-primary/30"
+                onClick={() => navigate("/admin")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Shield className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {language === "de" ? "Admin-Bereich" : "Admin Panel"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {language === "de" ? "Nutzer & Abos verwalten" : "Manage users & subscriptions"}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </div>
+              </CalmCard>
+            )}
           </div>
         </motion.div>
 
