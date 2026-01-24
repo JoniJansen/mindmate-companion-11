@@ -198,16 +198,17 @@ export const translations: Translations = {
   "summary.couldntGenerate": { en: "Couldn't generate summary", de: "Zusammenfassung konnte nicht erstellt werden" },
   "summary.tryAgain": { en: "Please try again.", de: "Bitte versuche es erneut." },
 
-  // Safety page
-  "safety.title": { en: "Safety & Support", de: "Sicherheit & Unterstützung" },
-  "safety.subtitle": { en: "You're not alone", de: "Du bist nicht allein" },
-  "safety.immediateDANGER": { en: "If you're in immediate danger", de: "Wenn du in unmittelbarer Gefahr bist" },
-  "safety.callEmergency": { en: "Please call emergency services (112) or go to your nearest emergency room.", de: "Bitte rufe den Notruf (112) an oder gehe zur nächsten Notaufnahme." },
-  "safety.call112": { en: "Call 112", de: "112 anrufen" },
-  "safety.crisisLines": { en: "Crisis Support Lines", de: "Krisentelefone" },
-  "safety.okToAskForHelp": { en: "It's okay to ask for help", de: "Es ist okay, um Hilfe zu bitten" },
-  "safety.reachingOut": { en: "Reaching out takes courage. Whatever you're going through, trained professionals are ready to listen and support you without judgment.", de: "Es braucht Mut, sich Hilfe zu holen. Was auch immer du durchmachst, geschulte Fachleute sind bereit, dir zuzuhören und dich ohne Vorurteile zu unterstützen." },
-  "safety.additionalResources": { en: "Additional Resources", de: "Weitere Ressourcen" },
+  // Safety page - refined calm tone
+  "safety.title": { en: "Support & Resources", de: "Unterstützung & Ressourcen" },
+  "safety.subtitle": { en: "You're not alone in this", de: "Du bist damit nicht allein" },
+  "safety.intro": { en: "These resources are here whenever you need them. Reaching out takes courage—and it's always okay to ask for help.", de: "Diese Ressourcen sind hier, wann immer du sie brauchst. Es braucht Mut, sich Hilfe zu holen—und es ist immer okay, um Hilfe zu bitten." },
+  "safety.immediateDANGER": { en: "If you need immediate help", de: "Wenn du sofortige Hilfe brauchst" },
+  "safety.callEmergency": { en: "Emergency services are available around the clock.", de: "Notdienste sind rund um die Uhr erreichbar." },
+  "safety.call112": { en: "Call emergency services", de: "Notruf anrufen" },
+  "safety.crisisLines": { en: "Someone to talk to", de: "Jemand zum Reden" },
+  "safety.okToAskForHelp": { en: "Reaching out is strength", de: "Sich Hilfe zu holen ist Stärke" },
+  "safety.reachingOut": { en: "Whatever you're going through, trained professionals are ready to listen. No judgment, just support.", de: "Was auch immer du durchmachst, geschulte Fachleute sind bereit zuzuhören. Ohne Urteil, nur Unterstützung." },
+  "safety.additionalResources": { en: "More ways to find support", de: "Weitere Wege zur Unterstützung" },
   "safety.24_7": { en: "24/7", de: "24 Stunden" },
   "safety.variesByLocation": { en: "Varies by location", de: "Abhängig vom Standort" },
 
