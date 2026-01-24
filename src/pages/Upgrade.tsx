@@ -10,7 +10,9 @@ import {
   Calendar,
   MessageSquare,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  Apple,
+  RotateCcw
 } from "lucide-react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { usePremium } from "@/hooks/usePremium";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAppleIAP, APPLE_PRODUCTS } from "@/hooks/useAppleIAP";
 
 export default function Upgrade() {
   const navigate = useNavigate();
@@ -26,6 +29,7 @@ export default function Upgrade() {
   const { language } = useTranslation();
   const { toast } = useToast();
   const { isPremium, createCheckoutSession, checkSubscriptionStatus } = usePremium();
+  const { isAvailable: isAppleIAPAvailable, isLoading: isAppleLoading, purchaseProduct, restorePurchases } = useAppleIAP();
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -73,13 +77,45 @@ export default function Upgrade() {
     
     setIsLoading(true);
     try {
-      await createCheckoutSession(selectedPlan);
+      // Use Apple IAP on iOS, Stripe otherwise
+      if (isAppleIAPAvailable) {
+        const productId = selectedPlan === "yearly" 
+          ? APPLE_PRODUCTS.YEARLY 
+          : APPLE_PRODUCTS.MONTHLY;
+        const success = await purchaseProduct(productId);
+        if (success) {
+          await checkSubscriptionStatus();
+          navigate("/settings", { replace: true });
+        }
+      } else {
+        await createCheckoutSession(selectedPlan);
+      }
     } catch (error) {
       toast({
         title: language === "de" ? "Fehler" : "Error",
         description: (error as Error).message,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRestorePurchases = async () => {
+    setIsLoading(true);
+    try {
+      const success = await restorePurchases();
+      if (success) {
+        await checkSubscriptionStatus();
+        navigate("/settings", { replace: true });
+      }
+    } catch (error) {
+      toast({
+        title: language === "de" ? "Fehler" : "Error",
+        description: (error as Error).message,
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -323,11 +359,25 @@ export default function Upgrade() {
             )}
           </Button>
 
+          {/* iOS Restore Purchases */}
+          {isAppleIAPAvailable && (
+            <Button
+              onClick={handleRestorePurchases}
+              disabled={isLoading || isAppleLoading}
+              variant="outline"
+              className="w-full h-10"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              {language === "de" ? "Käufe wiederherstellen" : "Restore purchases"}
+            </Button>
+          )}
+
           <div className="text-center space-y-2">
             <p className="text-xs text-muted-foreground">
-              {language === "de" 
-                ? "Sichere Zahlung über Stripe" 
-                : "Secure payment via Stripe"}
+              {isAppleIAPAvailable 
+                ? (language === "de" ? "Sicherer Kauf über Apple" : "Secure purchase via Apple")
+                : (language === "de" ? "Sichere Zahlung über Stripe" : "Secure payment via Stripe")
+              }
             </p>
             <p className="text-xs text-muted-foreground">
               {language === "de" 
