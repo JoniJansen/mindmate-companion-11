@@ -13,6 +13,7 @@ import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useVoiceSettings } from "@/hooks/useVoiceSettings";
 import { usePremium } from "@/hooks/usePremium";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { VoiceAvatar } from "@/components/chat/VoiceAvatar";
 import { AudioWaveform } from "@/components/chat/AudioWaveform";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
@@ -86,6 +87,9 @@ export default function Chat() {
     getEffectiveLanguage,
     updateSetting 
   } = useVoiceSettings();
+
+  // Swipe-back navigation for mobile
+  useSwipeBack({ enabled: true, backTo: "/" });
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
 
@@ -482,6 +486,8 @@ export default function Chat() {
         title={t("chat.title")}
         subtitle={t("chat.subtitle")}
         showLogo
+        showBack
+        backTo="/"
         rightElement={
           <div className="flex items-center gap-1">
             <TooltipProvider delayDuration={300}>
