@@ -93,6 +93,7 @@ export default function Landing() {
         tagline: "Made with care for your wellbeing",
         privacy: "Privacy",
         terms: "Terms",
+        impressum: "Legal Notice",
         contact: "Contact",
       },
     },
@@ -165,6 +166,7 @@ export default function Landing() {
         tagline: "Mit Sorgfalt für dein Wohlbefinden erstellt",
         privacy: "Datenschutz",
         terms: "AGB",
+        impressum: "Impressum",
         contact: "Kontakt",
       },
     },
@@ -406,6 +408,7 @@ export default function Landing() {
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <button onClick={() => navigate("/privacy")} className="hover:text-foreground transition-colors">{t.footer.privacy}</button>
             <button onClick={() => navigate("/terms")} className="hover:text-foreground transition-colors">{t.footer.terms}</button>
+            <button onClick={() => navigate("/impressum")} className="hover:text-foreground transition-colors">{t.footer.impressum}</button>
             <a href="mailto:support@mindmate.app" className="hover:text-foreground transition-colors">{t.footer.contact}</a>
           </div>
         </div>

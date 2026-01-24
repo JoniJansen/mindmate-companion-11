@@ -8,6 +8,7 @@ import { useEffect } from "react";
 // Layout
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { CookieConsent } from "@/components/gdpr/CookieConsent";
 
 // Pages
 import Landing from "@/pages/Landing";
@@ -25,6 +26,7 @@ import Upgrade from "@/pages/Upgrade";
 import Auth from "@/pages/Auth";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
+import Impressum from "@/pages/Impressum";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +67,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <CookieConsent />
         <Routes>
           {/* Landing Page */}
           <Route path="/landing" element={<Landing />} />
@@ -93,6 +96,7 @@ const App = () => (
           <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/impressum" element={<Impressum />} />
           
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />

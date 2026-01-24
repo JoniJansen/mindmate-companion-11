@@ -2,6 +2,18 @@ import { useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
+// Check if analytics is allowed by cookie consent
+function isAnalyticsAllowed(): boolean {
+  try {
+    const consent = localStorage.getItem("cookie_consent");
+    if (!consent) return false;
+    const parsed = JSON.parse(consent);
+    return parsed.analytics === true;
+  } catch {
+    return false;
+  }
+}
+
 // Event types for tracking
 export type AnalyticsEvent =
   | "page_view"
@@ -43,6 +55,15 @@ class Analytics {
   }
 
   track(event: AnalyticsEvent, properties: EventProperties = {}) {
+    // Check if analytics is allowed by GDPR consent
+    if (!isAnalyticsAllowed() && event !== "page_view") {
+      // Always allow page views for essential functionality, but skip other tracking
+      if (import.meta.env.DEV) {
+        console.log("📊 Analytics blocked (no consent):", event);
+      }
+      return;
+    }
+
     const eventData = {
       event,
       properties: {
@@ -51,6 +72,7 @@ class Analytics {
         timestamp: new Date().toISOString(),
         url: window.location.pathname,
         referrer: document.referrer || undefined,
+        consent_given: isAnalyticsAllowed(),
       },
       timestamp: new Date(),
     };
