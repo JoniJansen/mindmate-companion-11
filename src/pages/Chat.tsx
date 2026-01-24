@@ -698,98 +698,103 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Input Area - Fixed at bottom with safe area */}
-      <div className="shrink-0 py-3 px-4 md:px-6 lg:px-8 border-t border-border/50 bg-card/80 backdrop-blur-md" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-center justify-center gap-2 md:gap-3">
-          {/* Auto-speak toggle (premium only) */}
-          <TooltipProvider delayDuration={300}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className={`shrink-0 h-10 w-10 rounded-full flex items-center justify-center relative ${canUseVoice && voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
-                  onClick={() => {
-                    if (!canUseVoice) {
-                      setUpgradeReason("voice");
-                      setShowUpgradePrompt(true);
-                      return;
-                    }
-                    updateSetting("autoPlayReplies", !voiceSettings.autoPlayReplies);
-                  }}
-                >
-                  {canUseVoice && voiceSettings.autoPlayReplies ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-                  {!canUseVoice && <Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="text-xs">
-                {canUseVoice 
-                  ? (voiceSettings.autoPlayReplies 
-                      ? (language === "de" ? "KI spricht automatisch – tippen zum Deaktivieren" : "AI speaks automatically – tap to disable") 
-                      : (language === "de" ? "Nur Text – tippen für Sprachausgabe" : "Text only – tap for voice"))
-                  : (language === "de" ? "Sprachausgabe – Plus" : "Voice output – Plus")}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          {/* Mic button (premium only) */}
-          {isSpeechSupported && (
+      <div className="shrink-0 border-t border-border/50 bg-card/80 backdrop-blur-md">
+        {/* Inner container with equal padding */}
+        <div className="px-4 md:px-6 lg:px-8 py-4">
+          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-center gap-2 md:gap-3 h-10">
+            {/* Auto-speak toggle (premium only) */}
             <TooltipProvider delayDuration={300}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
-                    variant={isListening && canUseVoice ? "destructive" : "outline"} 
+                    variant="ghost" 
                     size="icon" 
-                    className="shrink-0 h-10 w-10 rounded-full flex items-center justify-center relative" 
-                    onClick={toggleRecording}
+                    className={`shrink-0 h-10 w-10 rounded-full flex items-center justify-center relative ${canUseVoice && voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                    onClick={() => {
+                      if (!canUseVoice) {
+                        setUpgradeReason("voice");
+                        setShowUpgradePrompt(true);
+                        return;
+                      }
+                      updateSetting("autoPlayReplies", !voiceSettings.autoPlayReplies);
+                    }}
                   >
-                    {isListening && canUseVoice ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-                    {isListening && canUseVoice && (
-                      <motion.span 
-                        className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                      />
-                    )}
-                    {!canUseVoice && <Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-muted-foreground" />}
+                    {canUseVoice && voiceSettings.autoPlayReplies ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                    {!canUseVoice && <Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5" />}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="text-xs">
                   {canUseVoice 
-                    ? (isListening 
-                        ? (language === "de" ? "Aufnahme stoppen" : "Stop recording") 
-                        : (language === "de" ? "Spracheingabe starten" : "Start voice input"))
-                    : (language === "de" ? "Spracheingabe – Plus" : "Voice input – Plus")}
+                    ? (voiceSettings.autoPlayReplies 
+                        ? (language === "de" ? "KI spricht automatisch – tippen zum Deaktivieren" : "AI speaks automatically – tap to disable") 
+                        : (language === "de" ? "Nur Text – tippen für Sprachausgabe" : "Text only – tap for voice"))
+                    : (language === "de" ? "Sprachausgabe – Plus" : "Voice output – Plus")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          )}
+            
+            {/* Mic button (premium only) */}
+            {isSpeechSupported && (
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant={isListening && canUseVoice ? "destructive" : "outline"} 
+                      size="icon" 
+                      className="shrink-0 h-10 w-10 rounded-full flex items-center justify-center relative" 
+                      onClick={toggleRecording}
+                    >
+                      {isListening && canUseVoice ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                      {isListening && canUseVoice && (
+                        <motion.span 
+                          className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        />
+                      )}
+                      {!canUseVoice && <Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-muted-foreground" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    {canUseVoice 
+                      ? (isListening 
+                          ? (language === "de" ? "Aufnahme stoppen" : "Stop recording") 
+                          : (language === "de" ? "Spracheingabe starten" : "Start voice input"))
+                      : (language === "de" ? "Spracheingabe – Plus" : "Voice input – Plus")}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
 
-          {/* Text input with send button */}
-          <div className="flex-1 relative flex items-center">
-            <textarea
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => { 
-                if (e.key === "Enter" && !e.shiftKey) { 
-                  e.preventDefault(); 
-                  handleSend(inputValue); 
-                } 
-              }}
-              placeholder={isListening && canUseVoice ? t("voice.listening") : (language === "de" ? "Schreib etwas..." : "Type something...")}
-              className="w-full bg-background border border-border/50 rounded-2xl px-4 py-2.5 pr-12 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 max-h-32 min-h-[40px] leading-normal"
-              rows={1}
-              disabled={isLoading || (!canSendMessage() && !isPremium)}
-            />
-            <Button 
-              size="icon" 
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 flex items-center justify-center" 
-              onClick={() => handleSend(inputValue)} 
-              disabled={!inputValue.trim() || isLoading || !canSendMessage()}
-            >
-              <Send className="w-4 h-4" />
-            </Button>
+            {/* Text input with send button */}
+            <div className="flex-1 relative flex items-center h-10">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => { 
+                  if (e.key === "Enter" && !e.shiftKey) { 
+                    e.preventDefault(); 
+                    handleSend(inputValue); 
+                  } 
+                }}
+                placeholder={isListening && canUseVoice ? t("voice.listening") : (language === "de" ? "Schreib etwas..." : "Type something...")}
+                className="w-full h-10 bg-background border border-border/50 rounded-full px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                disabled={isLoading || (!canSendMessage() && !isPremium)}
+              />
+              <Button 
+                size="icon" 
+                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 flex items-center justify-center" 
+                onClick={() => handleSend(inputValue)} 
+                disabled={!inputValue.trim() || isLoading || !canSendMessage()}
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
+        {/* Safe area spacer for mobile home indicator */}
+        <div className="safe-bottom" />
       </div>
     </div>
   );
