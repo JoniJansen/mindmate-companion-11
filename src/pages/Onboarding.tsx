@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Check, Globe, MessageCircle, User } from "lucide-react";
+import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
 
 type Language = "en" | "de";
@@ -108,6 +109,7 @@ export default function Onboarding() {
     disclaimerAccepted: false,
   });
   const navigate = useNavigate();
+  const { isDark, setMode: setThemeMode } = useTheme();
 
   const currentStepIndex = steps.indexOf(currentStep);
   const t = translations[state.language];
@@ -132,20 +134,41 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Progress indicator */}
-      <div className="flex justify-center gap-2 pt-8 pb-4 safe-top">
-        {steps.map((step, index) => (
+      {/* Header with Dark Mode Toggle */}
+      <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top">
+        <div className="w-10" /> {/* Spacer */}
+        
+        {/* Progress indicator */}
+        <div className="flex justify-center gap-2">
+          {steps.map((step, index) => (
+            <motion.div
+              key={step}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                index === currentStepIndex
+                  ? "w-8 bg-primary"
+                  : index < currentStepIndex
+                  ? "w-3 bg-primary/40"
+                  : "w-3 bg-muted"
+              }`}
+            />
+          ))}
+        </div>
+        
+        {/* Dark Mode Toggle */}
+        <button
+          onClick={() => setThemeMode(isDark ? "light" : "dark")}
+          className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
           <motion.div
-            key={step}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              index === currentStepIndex
-                ? "w-8 bg-primary"
-                : index < currentStepIndex
-                ? "w-3 bg-primary/40"
-                : "w-3 bg-muted"
-            }`}
-          />
-        ))}
+            key={isDark ? "moon" : "sun"}
+            initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </motion.div>
+        </button>
       </div>
 
       {/* Content */}
