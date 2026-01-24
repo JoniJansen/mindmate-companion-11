@@ -270,7 +270,7 @@ function WelcomeStep({ t }: WelcomeStepProps) {
           <div className="w-24 h-24 rounded-full overflow-hidden">
             <img 
               src={logoImage} 
-              alt="MindMate Assistant Logo" 
+              alt="MindMate Logo" 
               className="w-24 h-24 object-cover rounded-full"
             />
           </div>

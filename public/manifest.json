@@ -1,6 +1,6 @@
 {
-  "name": "MindMate Assistant – Dein mentaler Begleiter",
-  "short_name": "MindMate Assistant",
+  "name": "MindMate – Dein psychologischer Begleiter",
+  "short_name": "MindMate",
   "description": "Ein ruhiger, moderner KI-Begleiter für mentales Wohlbefinden.",
   "start_url": "/",
   "display": "standalone",
@@ -10,13 +10,16 @@
   "categories": ["health", "lifestyle", "medical"],
   "icons": [
     {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
       "src": "/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "screenshots": [],
-  "lang": "de",
-  "dir": "ltr"
+  ]
 }
