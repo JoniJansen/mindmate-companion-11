@@ -697,9 +697,9 @@ export default function Chat() {
         )}
       </AnimatePresence>
 
-      {/* Input Area - Fixed at bottom with safe area */}
-      <div className="shrink-0 border-t border-border/50 bg-card/80 backdrop-blur-md pt-3 pb-3" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
-        <div className="px-4 md:px-6 lg:px-8">
+      {/* Input Area - Fixed at bottom */}
+      <div className="shrink-0 border-t border-border/50 bg-card/80 backdrop-blur-md">
+        <div className="px-4 md:px-6 lg:px-8 py-5">
           <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-center gap-2 md:gap-3">
             {/* Auto-speak toggle (premium only) */}
             <TooltipProvider delayDuration={300}>
@@ -792,6 +792,8 @@ export default function Chat() {
             </div>
           </div>
         </div>
+        {/* Safe area spacer - only adds space on devices with home indicator */}
+        <div style={{ height: 'env(safe-area-inset-bottom, 0px)' }} />
       </div>
     </div>
   );
