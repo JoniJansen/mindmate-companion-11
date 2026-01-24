@@ -3,12 +3,14 @@ import { useState, useEffect, useCallback } from "react";
 export type VoiceType = "female" | "male" | "neutral";
 export type VoiceSpeed = 0.9 | 1.0 | 1.1;
 export type VoiceLanguage = "auto" | "de" | "en";
+export type AvatarStyle = "orb" | "wave" | "face";
 
 export interface VoiceSettings {
   voiceType: VoiceType;
   speed: VoiceSpeed;
   language: VoiceLanguage;
   autoPlayReplies: boolean;
+  avatarStyle: AvatarStyle;
 }
 
 const defaultSettings: VoiceSettings = {
@@ -16,6 +18,7 @@ const defaultSettings: VoiceSettings = {
   speed: 1.0,
   language: "auto",
   autoPlayReplies: false,
+  avatarStyle: "orb",
 };
 
 const STORAGE_KEY = "mindmate-voice-settings";

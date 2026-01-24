@@ -1,148 +1,319 @@
 import { motion } from "framer-motion";
-import { Volume2, VolumeX } from "lucide-react";
+import { Volume2, Headphones, Mic } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
+
+export type AvatarStyle = "orb" | "wave" | "face";
 
 interface VoiceAvatarProps {
   isSpeaking: boolean;
-  avatarType?: "female" | "male";
+  isListening?: boolean;
+  avatarStyle?: AvatarStyle;
   size?: "sm" | "md" | "lg";
 }
 
-export function VoiceAvatar({ isSpeaking, avatarType = "female", size = "md" }: VoiceAvatarProps) {
-  const sizeClasses = {
-    sm: "w-16 h-16",
-    md: "w-24 h-24",
-    lg: "w-32 h-32",
+export function VoiceAvatar({ 
+  isSpeaking, 
+  isListening = false,
+  avatarStyle = "orb", 
+  size = "md" 
+}: VoiceAvatarProps) {
+  const { language } = useTranslation();
+  
+  const sizeConfig = {
+    sm: { container: "w-20 h-20", ring: "w-24 h-24", icon: "w-8 h-8", bars: 3 },
+    md: { container: "w-28 h-28", ring: "w-36 h-36", icon: "w-10 h-10", bars: 5 },
+    lg: { container: "w-36 h-36", ring: "w-44 h-44", icon: "w-12 h-12", bars: 7 },
   };
 
-  const ringSize = {
-    sm: "w-20 h-20",
-    md: "w-28 h-28",
-    lg: "w-36 h-36",
+  const config = sizeConfig[size];
+  const isActive = isSpeaking || isListening;
+
+  // Status text
+  const getStatusText = () => {
+    if (isSpeaking) return language === "de" ? "MindMate spricht..." : "MindMate speaking...";
+    if (isListening) return language === "de" ? "Ich höre zu..." : "Listening...";
+    return language === "de" ? "Tippe zum Sprechen" : "Tap to speak";
   };
 
-  return (
+  // Orb style - Modern glowing orb like Siri
+  const OrbAvatar = () => (
     <div className="relative flex items-center justify-center">
-      {/* Pulsing ring when speaking */}
-      {isSpeaking && (
+      {/* Outer glow rings */}
+      {isActive && (
         <>
           <motion.div
-            className={`absolute ${ringSize[size]} rounded-full bg-primary/20`}
+            className={`absolute ${config.ring} rounded-full`}
+            style={{
+              background: "radial-gradient(circle, hsl(var(--primary) / 0.3) 0%, transparent 70%)",
+            }}
             animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.5, 0.2, 0.5],
+              scale: [1, 1.3, 1],
+              opacity: [0.6, 0.2, 0.6],
             }}
             transition={{
-              duration: 1.5,
+              duration: 2,
               repeat: Infinity,
               ease: "easeInOut",
             }}
           />
           <motion.div
-            className={`absolute ${ringSize[size]} rounded-full bg-primary/10`}
+            className={`absolute ${config.ring} rounded-full`}
+            style={{
+              background: "radial-gradient(circle, hsl(var(--primary) / 0.2) 0%, transparent 70%)",
+            }}
             animate={{
-              scale: [1, 1.4, 1],
-              opacity: [0.3, 0.1, 0.3],
+              scale: [1, 1.5, 1],
+              opacity: [0.4, 0.1, 0.4],
             }}
             transition={{
-              duration: 1.5,
+              duration: 2,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: 0.2,
+              delay: 0.3,
             }}
           />
         </>
       )}
 
-      {/* Avatar container */}
+      {/* Main orb */}
       <motion.div
-        className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center shadow-lg relative overflow-hidden`}
-        animate={isSpeaking ? {
-          scale: [1, 1.02, 1],
+        className={`${config.container} rounded-full relative overflow-hidden shadow-2xl`}
+        style={{
+          background: `
+            radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.9) 0%, hsl(var(--primary)) 50%, hsl(var(--primary) / 0.8) 100%)
+          `,
+          boxShadow: isActive 
+            ? "0 0 60px hsl(var(--primary) / 0.5), 0 0 100px hsl(var(--primary) / 0.3), inset 0 0 30px hsl(var(--primary-foreground) / 0.1)"
+            : "0 0 30px hsl(var(--primary) / 0.3), inset 0 0 20px hsl(var(--primary-foreground) / 0.05)",
+        }}
+        animate={isActive ? {
+          scale: [1, 1.05, 1],
         } : {}}
         transition={{
-          duration: 0.8,
+          duration: 1.5,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       >
-        {/* Face representation */}
-        <div className="relative w-full h-full flex items-center justify-center">
-          {/* Eyes */}
-          <div className="absolute top-[35%] left-0 right-0 flex justify-center gap-3">
-            <motion.div
-              className="w-2 h-2 bg-primary-foreground rounded-full"
-              animate={isSpeaking ? {
-                scaleY: [1, 0.6, 1],
-              } : {}}
-              transition={{
-                duration: 0.3,
-                repeat: Infinity,
-                repeatDelay: 2,
-              }}
-            />
-            <motion.div
-              className="w-2 h-2 bg-primary-foreground rounded-full"
-              animate={isSpeaking ? {
-                scaleY: [1, 0.6, 1],
-              } : {}}
-              transition={{
-                duration: 0.3,
-                repeat: Infinity,
-                repeatDelay: 2,
-                delay: 0.1,
-              }}
-            />
+        {/* Inner highlight */}
+        <div 
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: "radial-gradient(circle at 35% 25%, hsl(var(--primary-foreground) / 0.25) 0%, transparent 50%)",
+          }}
+        />
+        
+        {/* Sound waves inside orb when speaking */}
+        {isSpeaking && (
+          <div className="absolute inset-0 flex items-center justify-center gap-1">
+            {[...Array(config.bars)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="w-1 bg-primary-foreground/60 rounded-full"
+                animate={{
+                  height: ["12%", `${30 + Math.random() * 40}%`, "12%"],
+                }}
+                transition={{
+                  duration: 0.4 + Math.random() * 0.3,
+                  repeat: Infinity,
+                  delay: i * 0.1,
+                  ease: "easeInOut",
+                }}
+              />
+            ))}
           </div>
+        )}
 
-          {/* Mouth - animates when speaking */}
-          <motion.div
-            className="absolute top-[55%] w-4 h-1.5 bg-primary-foreground rounded-full"
-            animate={isSpeaking ? {
-              scaleY: [1, 2, 1, 1.5, 1],
-              scaleX: [1, 0.8, 1, 0.9, 1],
-            } : {
-              scaleY: 1,
-              scaleX: 1,
-            }}
-            transition={{
-              duration: 0.3,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
+        {/* Listening indicator */}
+        {isListening && !isSpeaking && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Mic className={`${config.icon} text-primary-foreground/80`} />
+          </div>
+        )}
 
-          {/* Subtle glow overlay when speaking */}
-          {isSpeaking && (
+        {/* Idle state icon */}
+        {!isActive && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Headphones className={`${config.icon} text-primary-foreground/60`} />
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+
+  // Wave style - Audio waveform visualization
+  const WaveAvatar = () => (
+    <div className="relative flex items-center justify-center">
+      {/* Background circle */}
+      <motion.div
+        className={`${config.container} rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/30 flex items-center justify-center`}
+        animate={isActive ? {
+          borderColor: ["hsl(var(--primary) / 0.3)", "hsl(var(--primary) / 0.6)", "hsl(var(--primary) / 0.3)"],
+        } : {}}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+        }}
+      >
+        {/* Wave bars */}
+        <div className="flex items-center justify-center gap-1 h-1/2">
+          {[...Array(config.bars)].map((_, i) => (
             <motion.div
-              className="absolute inset-0 bg-primary-foreground/10 rounded-full"
-              animate={{
-                opacity: [0, 0.2, 0],
+              key={i}
+              className="w-1.5 bg-primary rounded-full"
+              animate={isActive ? {
+                height: ["20%", `${50 + Math.random() * 50}%`, "20%"],
+              } : {
+                height: "20%",
               }}
               transition={{
-                duration: 1,
+                duration: 0.3 + Math.random() * 0.4,
                 repeat: Infinity,
+                delay: i * 0.08,
+                ease: "easeInOut",
               }}
             />
-          )}
-        </div>
-
-        {/* Sound indicator */}
-        <div className="absolute bottom-1 right-1">
-          {isSpeaking ? (
-            <Volume2 className="w-3 h-3 text-primary-foreground/70" />
-          ) : (
-            <VolumeX className="w-3 h-3 text-primary-foreground/50" />
-          )}
+          ))}
         </div>
       </motion.div>
 
-      {/* Status text */}
+      {/* Outer pulse */}
+      {isActive && (
+        <motion.div
+          className={`absolute ${config.ring} rounded-full border-2 border-primary/40`}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.5, 0, 0.5],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+          }}
+        />
+      )}
+    </div>
+  );
+
+  // Face style - Friendly animated face (improved)
+  const FaceAvatar = () => (
+    <div className="relative flex items-center justify-center">
+      {/* Glow effect */}
+      {isActive && (
+        <motion.div
+          className={`absolute ${config.ring} rounded-full bg-primary/20 blur-xl`}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+          }}
+        />
+      )}
+
+      {/* Face container */}
       <motion.div
-        className="absolute -bottom-6 text-xs text-muted-foreground"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        className={`${config.container} rounded-full relative overflow-hidden`}
+        style={{
+          background: "linear-gradient(145deg, #FFE5B4 0%, #FFDAB3 50%, #F5C6A5 100%)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.15), inset 0 -4px 12px rgba(0,0,0,0.1)",
+        }}
+        animate={isSpeaking ? { scale: [1, 1.02, 1] } : {}}
+        transition={{ duration: 0.8, repeat: Infinity }}
       >
-        {isSpeaking ? "Spricht..." : "Bereit"}
+        {/* Blush */}
+        <div className="absolute top-[45%] left-[15%] w-[18%] h-[12%] rounded-full bg-pink-300/40" />
+        <div className="absolute top-[45%] right-[15%] w-[18%] h-[12%] rounded-full bg-pink-300/40" />
+
+        {/* Eyes */}
+        <div className="absolute top-[32%] left-0 right-0 flex justify-center gap-[22%]">
+          <motion.div
+            className="w-[10%] h-[10%] bg-[#3D2314] rounded-full relative"
+            animate={isSpeaking ? { scaleY: [1, 0.3, 1] } : {}}
+            transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 2.5 }}
+          >
+            {/* Eye highlight */}
+            <div className="absolute top-[15%] left-[20%] w-[35%] h-[35%] bg-white rounded-full" />
+          </motion.div>
+          <motion.div
+            className="w-[10%] h-[10%] bg-[#3D2314] rounded-full relative"
+            animate={isSpeaking ? { scaleY: [1, 0.3, 1] } : {}}
+            transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 2.5, delay: 0.05 }}
+          >
+            <div className="absolute top-[15%] left-[20%] w-[35%] h-[35%] bg-white rounded-full" />
+          </motion.div>
+        </div>
+
+        {/* Eyebrows */}
+        <div className="absolute top-[24%] left-0 right-0 flex justify-center gap-[20%]">
+          <div className="w-[12%] h-[3%] bg-[#5D4037] rounded-full transform -rotate-6" />
+          <div className="w-[12%] h-[3%] bg-[#5D4037] rounded-full transform rotate-6" />
+        </div>
+
+        {/* Nose */}
+        <div className="absolute top-[48%] left-1/2 -translate-x-1/2 w-[6%] h-[8%] bg-[#E8B89D] rounded-full" />
+
+        {/* Mouth */}
+        <motion.div
+          className="absolute top-[62%] left-1/2 -translate-x-1/2 bg-[#C0392B] rounded-full overflow-hidden"
+          style={{
+            width: isSpeaking ? "18%" : "22%",
+            height: isSpeaking ? "12%" : "6%",
+          }}
+          animate={isSpeaking ? {
+            height: ["10%", "16%", "8%", "14%", "10%"],
+            width: ["16%", "14%", "18%", "15%", "16%"],
+          } : {}}
+          transition={{ duration: 0.3, repeat: Infinity }}
+        >
+          {/* Teeth */}
+          {isSpeaking && (
+            <div className="absolute top-0 left-0 right-0 h-[30%] bg-white" />
+          )}
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+
+  const renderAvatar = () => {
+    switch (avatarStyle) {
+      case "wave": return <WaveAvatar />;
+      case "face": return <FaceAvatar />;
+      case "orb":
+      default: return <OrbAvatar />;
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      {renderAvatar()}
+      
+      {/* Status indicator */}
+      <motion.div
+        className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 backdrop-blur-sm"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        {isSpeaking && (
+          <motion.div
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 0.6, repeat: Infinity }}
+          >
+            <Volume2 className="w-4 h-4 text-primary" />
+          </motion.div>
+        )}
+        {isListening && !isSpeaking && (
+          <motion.div
+            animate={{ opacity: [1, 0.5, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+          >
+            <Mic className="w-4 h-4 text-primary" />
+          </motion.div>
+        )}
+        <span className="text-sm text-muted-foreground font-medium">
+          {getStatusText()}
+        </span>
       </motion.div>
     </div>
   );
