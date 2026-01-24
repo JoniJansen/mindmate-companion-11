@@ -52,8 +52,8 @@ export default function Auth() {
         toast({
           title: language === "de" ? "Konto erstellt!" : "Account created!",
           description: language === "de" 
-            ? "Willkommen bei MindMate!" 
-            : "Welcome to MindMate!",
+            ? "Willkommen bei MindMate Assistant!" 
+            : "Welcome to MindMate Assistant!",
         });
       } else if (authMode === "forgot-password") {
         await resetPassword(email);
@@ -164,7 +164,7 @@ export default function Auth() {
                 <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center">
                   <img 
                     src={logoImage} 
-                    alt="MindMate" 
+                    alt="MindMate Assistant" 
                     className="w-16 h-16 object-cover rounded-full"
                   />
                 </div>

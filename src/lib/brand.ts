@@ -1,14 +1,14 @@
-// MindMate Brand Positioning
-// Defines what MindMate is and isn't - the soul of the product
+// MindMate Assistant Brand Positioning
+// Defines what MindMate Assistant is and isn't - the soul of the product
 
 export const positioning = {
   en: {
     // Core statement
     statement:
-      "MindMate is a quiet space for your inner world. Not therapy, not coaching—just a calm companion for reflection.",
+      "MindMate Assistant is a quiet space for your inner world. Not therapy, not coaching—just a calm companion for reflection.",
 
     // App Store / Homepage description (under 120 words)
-    appDescription: `MindMate is a private space for your thoughts. Talk through what's on your mind, journal without judgment, and notice emotional patterns over time.
+    appDescription: `MindMate Assistant is a private space for your thoughts. Talk through what's on your mind, journal without judgment, and notice emotional patterns over time.
 
 No diagnoses. No productivity tracking. No pressure.
 
@@ -30,9 +30,9 @@ For self-aware adults who want support without the weight of therapy or the hype
 
     // Differentiators
     vsTherapy:
-      "MindMate doesn't diagnose or treat. It's a companion for daily reflection—between or instead of therapy sessions.",
+      "MindMate Assistant doesn't diagnose or treat. It's a companion for daily reflection—between or instead of therapy sessions.",
     vsCoaching:
-      "No goals, no accountability, no pressure. MindMate meets you where you are, without pushing you somewhere.",
+      "No goals, no accountability, no pressure. MindMate Assistant meets you where you are, without pushing you somewhere.",
     vsProductivity:
       "No streaks, no scores, no gamification. Just a calm space you return to when you need it.",
 
@@ -50,9 +50,9 @@ For self-aware adults who want support without the weight of therapy or the hype
   },
   de: {
     statement:
-      "MindMate ist ein ruhiger Raum für deine innere Welt. Keine Therapie, kein Coaching—einfach ein ruhiger Begleiter für Reflexion.",
+      "MindMate Assistant ist ein ruhiger Raum für deine innere Welt. Keine Therapie, kein Coaching—einfach ein ruhiger Begleiter für Reflexion.",
 
-    appDescription: `MindMate ist ein privater Raum für deine Gedanken. Rede über das, was dich beschäftigt, schreibe ohne Urteil, und erkenne emotionale Muster über Zeit.
+    appDescription: `MindMate Assistant ist ein privater Raum für deine Gedanken. Rede über das, was dich beschäftigt, schreibe ohne Urteil, und erkenne emotionale Muster über Zeit.
 
 Keine Diagnosen. Kein Produktivitäts-Tracking. Kein Druck.
 
@@ -72,9 +72,9 @@ Für selbstreflektierte Erwachsene, die Unterstützung ohne das Gewicht von Ther
     ],
 
     vsTherapy:
-      "MindMate diagnostiziert oder behandelt nicht. Es ist ein Begleiter für tägliche Reflexion—zwischen oder statt Therapiesitzungen.",
+      "MindMate Assistant diagnostiziert oder behandelt nicht. Es ist ein Begleiter für tägliche Reflexion—zwischen oder statt Therapiesitzungen.",
     vsCoaching:
-      "Keine Ziele, keine Verantwortlichkeit, kein Druck. MindMate holt dich dort ab, wo du bist, ohne dich irgendwohin zu drängen.",
+      "Keine Ziele, keine Verantwortlichkeit, kein Druck. MindMate Assistant holt dich dort ab, wo du bist, ohne dich irgendwohin zu drängen.",
     vsProductivity:
       "Keine Streaks, keine Punkte, keine Gamification. Einfach ein ruhiger Raum, zu dem du zurückkehrst, wenn du ihn brauchst.",
 
@@ -94,15 +94,15 @@ Für selbstreflektierte Erwachsene, die Unterstützung ohne das Gewicht von Ther
 export const trustBoundaries = {
   en: {
     title: "Trust & Boundaries",
-    content: `MindMate is an AI companion—thoughtful, but not human. It can listen, reflect, and help you notice patterns, but it cannot diagnose, treat, or replace professional support.
+    content: `MindMate Assistant is an AI companion—thoughtful, but not human. It can listen, reflect, and help you notice patterns, but it cannot diagnose, treat, or replace professional support.
 
-What MindMate does well:
+What MindMate Assistant does well:
 • Listen without judgment
 • Offer gentle reflection questions
 • Notice emotional themes over time
 • Suggest grounding exercises when you're stressed
 
-What MindMate cannot do:
+What MindMate Assistant cannot do:
 • Provide therapy or medical advice
 • Diagnose mental health conditions
 • Handle crisis situations (we'll guide you to real support)
@@ -112,15 +112,15 @@ If you're struggling with something serious, please reach out to a professional.
   },
   de: {
     title: "Vertrauen & Grenzen",
-    content: `MindMate ist ein KI-Begleiter—durchdacht, aber nicht menschlich. Es kann zuhören, reflektieren und dir helfen, Muster zu erkennen, aber es kann nicht diagnostizieren, behandeln oder professionelle Unterstützung ersetzen.
+    content: `MindMate Assistant ist ein KI-Begleiter—durchdacht, aber nicht menschlich. Es kann zuhören, reflektieren und dir helfen, Muster zu erkennen, aber es kann nicht diagnostizieren, behandeln oder professionelle Unterstützung ersetzen.
 
-Was MindMate gut kann:
+Was MindMate Assistant gut kann:
 • Zuhören ohne Urteil
 • Sanfte Reflexionsfragen anbieten
 • Emotionale Themen über Zeit bemerken
 • Erdungsübungen vorschlagen, wenn du gestresst bist
 
-Was MindMate nicht kann:
+Was MindMate Assistant nicht kann:
 • Therapie oder medizinischen Rat bieten
 • Psychische Erkrankungen diagnostizieren
 • Krisensituationen bewältigen (wir leiten dich zu echter Hilfe)

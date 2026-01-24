@@ -27,7 +27,7 @@ export default function Landing() {
     en: {
       hero: {
         title: "Your calm companion for the mind",
-        subtitle: "MindMate helps you reflect, breathe, and find clarity—whenever you need it.",
+        subtitle: "MindMate Assistant helps you reflect, breathe, and find clarity—whenever you need it.",
         cta: "Start Your Journey",
         secondary: "Learn More",
       },
@@ -84,7 +84,7 @@ export default function Landing() {
       testimonials: {
         title: "What our users say",
         items: [
-          { text: "MindMate helped me understand my anxiety better. It's like having a patient friend available 24/7.", author: "Sarah K." },
+          { text: "MindMate Assistant helped me understand my anxiety better. It's like having a patient friend available 24/7.", author: "Sarah K." },
           { text: "The breathing exercises actually work. I use them before every important meeting now.", author: "Michael T." },
           { text: "Finally an app that doesn't feel clinical. It's warm, human, and genuinely helpful.", author: "Emma L." },
         ],
@@ -100,7 +100,7 @@ export default function Landing() {
     de: {
       hero: {
         title: "Dein ruhiger Begleiter für den Geist",
-        subtitle: "MindMate hilft dir zu reflektieren, zu atmen und Klarheit zu finden—wann immer du es brauchst.",
+        subtitle: "MindMate Assistant hilft dir zu reflektieren, zu atmen und Klarheit zu finden—wann immer du es brauchst.",
         cta: "Starte deine Reise",
         secondary: "Mehr erfahren",
       },
@@ -157,7 +157,7 @@ export default function Landing() {
       testimonials: {
         title: "Was unsere Nutzer sagen",
         items: [
-          { text: "MindMate hat mir geholfen, meine Angst besser zu verstehen. Es ist wie ein geduldiger Freund, der immer da ist.", author: "Sarah K." },
+          { text: "MindMate Assistant hat mir geholfen, meine Angst besser zu verstehen. Es ist wie ein geduldiger Freund, der immer da ist.", author: "Sarah K." },
           { text: "Die Atemübungen funktionieren wirklich. Ich nutze sie jetzt vor jedem wichtigen Meeting.", author: "Michael T." },
           { text: "Endlich eine App, die sich nicht klinisch anfühlt. Sie ist warm, menschlich und wirklich hilfreich.", author: "Emma L." },
         ],
@@ -182,9 +182,9 @@ export default function Landing() {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg shadow-primary/20">
-              <img src={logoImage} alt="MindMate" className="w-full h-full object-cover" />
+              <img src={logoImage} alt="MindMate Assistant" className="w-full h-full object-cover" />
             </div>
-            <span className="font-semibold text-lg text-foreground">MindMate</span>
+            <span className="font-semibold text-lg text-foreground">MindMate Assistant</span>
           </div>
 
           {/* Controls */}
@@ -228,7 +228,7 @@ export default function Landing() {
           >
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-2xl scale-150" />
             <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10">
-              <img src={logoImage} alt="MindMate" className="w-20 h-20 rounded-full object-cover" />
+              <img src={logoImage} alt="MindMate Assistant" className="w-20 h-20 rounded-full object-cover" />
             </div>
           </motion.div>
 
@@ -401,7 +401,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full overflow-hidden">
-              <img src={logoImage} alt="MindMate" className="w-full h-full object-cover" />
+              <img src={logoImage} alt="MindMate Assistant" className="w-full h-full object-cover" />
             </div>
             <span className="text-sm text-muted-foreground">{t.footer.tagline}</span>
           </div>
