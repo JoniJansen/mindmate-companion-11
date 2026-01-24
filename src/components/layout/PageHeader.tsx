@@ -28,24 +28,24 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
     return (
       <header 
         ref={ref}
-        className={`sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/30 safe-top ${className}`}
+        className={`sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/20 safe-top ${className}`}
       >
-        <div className="flex items-center justify-between px-4 py-3 max-w-lg mx-auto">
+        <div className="flex items-center justify-between px-4 py-3.5 max-w-lg mx-auto">
           <div className="flex items-center gap-3 flex-1">
             {showBack && (
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={handleBack}
-                className="text-muted-foreground hover:text-foreground -ml-2"
+                className="text-muted-foreground hover:text-foreground/80 -ml-2"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-5 h-5 stroke-[1.8]" />
               </Button>
             )}
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-semibold text-foreground truncate">{title}</h1>
+              <h1 className="text-lg font-semibold text-foreground/90 tracking-tight truncate">{title}</h1>
               {subtitle && (
-                <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
+                <p className="text-xs text-muted-foreground/80 truncate">{subtitle}</p>
               )}
             </div>
           </div>
@@ -53,10 +53,10 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground/70 hover:text-foreground/70 hover:bg-muted/40"
               onClick={() => navigate("/settings")}
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-[18px] h-[18px] stroke-[1.8]" />
             </Button>
           ))}
         </div>

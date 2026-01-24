@@ -14,11 +14,11 @@ interface MoodSelectorProps {
 }
 
 const moodOptions: MoodOption[] = [
-  { emoji: "😢", label: "Struggling", value: 1, color: "bg-gentle/20" },
-  { emoji: "😔", label: "Low", value: 2, color: "bg-gentle/30" },
-  { emoji: "😐", label: "Okay", value: 3, color: "bg-muted" },
-  { emoji: "🙂", label: "Good", value: 4, color: "bg-calm/30" },
-  { emoji: "😊", label: "Great", value: 5, color: "bg-calm/20" },
+  { emoji: "😢", label: "Struggling", value: 1, color: "bg-gentle/15" },
+  { emoji: "😔", label: "Low", value: 2, color: "bg-gentle/20" },
+  { emoji: "😐", label: "Okay", value: 3, color: "bg-muted/60" },
+  { emoji: "🙂", label: "Good", value: 4, color: "bg-calm/20" },
+  { emoji: "😊", label: "Great", value: 5, color: "bg-calm/15" },
 ];
 
 export function MoodSelector({ selected, onSelect, size = "md" }: MoodSelectorProps) {
@@ -37,13 +37,14 @@ export function MoodSelector({ selected, onSelect, size = "md" }: MoodSelectorPr
           <motion.button
             key={mood.value}
             onClick={() => onSelect(mood.value)}
-            className={`${sizeClasses[size].button} rounded-2xl flex items-center justify-center transition-all duration-200 ${
+            className={`${sizeClasses[size].button} rounded-2xl flex items-center justify-center transition-all duration-300 ${
               isSelected
-                ? `${mood.color} ring-2 ring-primary ring-offset-2 ring-offset-background`
-                : "bg-muted/50 hover:bg-muted"
+                ? `${mood.color} ring-2 ring-primary/60 ring-offset-2 ring-offset-background`
+                : "bg-muted/40 hover:bg-muted/60"
             }`}
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.92 }}
+            whileHover={{ scale: 1.04 }}
+            transition={{ type: "spring", stiffness: 350, damping: 20 }}
           >
             <span className={sizeClasses[size].emoji}>{mood.emoji}</span>
           </motion.button>
