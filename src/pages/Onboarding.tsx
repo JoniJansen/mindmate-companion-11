@@ -152,29 +152,51 @@ export default function Onboarding() {
       <div className="flex-1 flex flex-col px-6 pb-6">
         <AnimatePresence mode="wait">
           {currentStep === "welcome" && (
-            <WelcomeStep key="welcome" t={t.welcome} />
+            <motion.div
+              key="welcome"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <WelcomeStep t={t.welcome} />
+            </motion.div>
           )}
           {currentStep === "disclaimer" && (
-            <DisclaimerStep
+            <motion.div
               key="disclaimer"
-              t={t.disclaimer}
-              accepted={state.disclaimerAccepted}
-              onAcceptChange={(accepted) =>
-                setState((s) => ({ ...s, disclaimerAccepted: accepted }))
-              }
-            />
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <DisclaimerStep
+                t={t.disclaimer}
+                accepted={state.disclaimerAccepted}
+                onAcceptChange={(accepted) =>
+                  setState((s) => ({ ...s, disclaimerAccepted: accepted }))
+                }
+              />
+            </motion.div>
           )}
           {currentStep === "preferences" && (
-            <PreferencesStep
+            <motion.div
               key="preferences"
-              t={t.preferences}
-              language={state.language}
-              tone={state.tone}
-              addressForm={state.addressForm}
-              onLanguageChange={(language) => setState((s) => ({ ...s, language }))}
-              onToneChange={(tone) => setState((s) => ({ ...s, tone }))}
-              onAddressFormChange={(addressForm) => setState((s) => ({ ...s, addressForm }))}
-            />
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <PreferencesStep
+                t={t.preferences}
+                language={state.language}
+                tone={state.tone}
+                addressForm={state.addressForm}
+                onLanguageChange={(language) => setState((s) => ({ ...s, language }))}
+                onToneChange={(tone) => setState((s) => ({ ...s, tone }))}
+                onAddressFormChange={(addressForm) => setState((s) => ({ ...s, addressForm }))}
+              />
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -201,13 +223,7 @@ interface WelcomeStepProps {
 
 function WelcomeStep({ t }: WelcomeStepProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4 }}
-      className="flex-1 flex flex-col items-center justify-center text-center px-4"
-    >
+    <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
       {/* Modern circular logo with breathing animation and glow */}
       <div className="relative mb-12">
         {/* Outer glow effect */}
@@ -222,7 +238,7 @@ function WelcomeStep({ t }: WelcomeStepProps) {
         
         {/* Main logo container */}
         <motion.div
-          className="relative w-32 h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10"
+          className="relative w-32 h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10 dark:from-primary/25 dark:to-primary/10 dark:shadow-primary/30"
           animate={{ 
             scale: [1, 1.02, 1],
           }}
@@ -245,7 +261,7 @@ function WelcomeStep({ t }: WelcomeStepProps) {
       <p className="text-muted-foreground text-base leading-relaxed max-w-xs">
         {t.subtitle}
       </p>
-    </motion.div>
+    </div>
   );
 }
 
@@ -257,29 +273,23 @@ interface DisclaimerStepProps {
 
 function DisclaimerStep({ t, accepted, onAcceptChange }: DisclaimerStepProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4 }}
-      className="flex-1 flex flex-col justify-center px-2"
-    >
+    <div className="flex-1 flex flex-col justify-center px-2">
       <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
         {t.title}
       </h2>
 
-      <div className="bg-card rounded-2xl p-5 mb-6 shadow-soft border border-border/30">
+      <div className="bg-card rounded-2xl p-5 mb-6 shadow-soft border border-border/40 dark:border-border/60 dark:bg-card/80">
         <p className="text-foreground text-sm leading-relaxed">
           {t.text}{" "}
           <span className="font-medium text-primary">{t.notReplacement}</span>{" "}
           {t.textEnd}
         </p>
-        <p className="text-muted-foreground text-sm leading-relaxed mt-4 pt-4 border-t border-border/30">
+        <p className="text-muted-foreground text-sm leading-relaxed mt-4 pt-4 border-t border-border/40 dark:border-border/60">
           {t.crisis}
         </p>
       </div>
 
-      <label className="flex items-center gap-3 cursor-pointer group bg-muted/30 rounded-xl p-4">
+      <label className="flex items-center gap-3 cursor-pointer group bg-muted/40 dark:bg-muted/60 rounded-xl p-4 transition-colors hover:bg-muted/60 dark:hover:bg-muted/80">
         <Checkbox
           checked={accepted}
           onCheckedChange={(checked) => onAcceptChange(checked === true)}
@@ -288,7 +298,7 @@ function DisclaimerStep({ t, accepted, onAcceptChange }: DisclaimerStepProps) {
           {t.checkbox}
         </span>
       </label>
-    </motion.div>
+    </div>
   );
 }
 
@@ -312,13 +322,7 @@ function PreferencesStep({
   onAddressFormChange,
 }: PreferencesStepProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="flex-1 flex flex-col pt-4"
-    >
+    <div className="flex-1 flex flex-col pt-4">
       <h2 className="text-xl font-semibold text-foreground mb-2 text-center">
         {t.title}
       </h2>
@@ -389,7 +393,7 @@ function PreferencesStep({
           </PreferenceSection>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -425,8 +429,8 @@ function OptionButton({ selected, onClick, children }: OptionButtonProps) {
       className={`
         px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
         ${selected
-          ? "bg-primary text-primary-foreground shadow-sm"
-          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+          ? "bg-primary text-primary-foreground shadow-md dark:shadow-primary/20"
+          : "bg-muted/50 text-muted-foreground hover:bg-muted dark:bg-muted/70 dark:text-foreground/70 dark:hover:bg-muted dark:hover:text-foreground"
         }
       `}
     >
