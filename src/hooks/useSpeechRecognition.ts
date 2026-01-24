@@ -98,6 +98,7 @@ export function useSpeechRecognition(
         console.error("Speech recognition error:", event.error);
         setError(event.error);
         setIsListening(false);
+        shouldRestartRef.current = false;
       };
 
       recognitionRef.current.onend = () => {
@@ -123,7 +124,11 @@ export function useSpeechRecognition(
     return () => {
       shouldRestartRef.current = false;
       if (recognitionRef.current) {
-        recognitionRef.current.abort();
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {
+          // Ignore abort errors on cleanup
+        }
       }
     };
   }, [language, continuous]);
@@ -153,10 +158,16 @@ export function useSpeechRecognition(
 
   const stopListening = useCallback(() => {
     shouldRestartRef.current = false;
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        // Ignore stop errors
+      }
     }
-  }, [isListening]);
+    // Ensure UI state is reset even if recognition fails
+    setIsListening(false);
+  }, []);
 
   const toggleListening = useCallback(() => {
     if (isListening) {

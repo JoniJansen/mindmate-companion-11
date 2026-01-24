@@ -73,8 +73,8 @@ export default function Chat() {
     speak: speakTTS, 
     stop: stopTTS, 
     isSpeaking, 
-    isLoading: isTTSLoading,
-    isPlayingMessage 
+    isPlayingMessage,
+    isLoadingMessage 
   } = useElevenLabsTTS({
     onError: (error) => {
       toast({ 
@@ -206,8 +206,8 @@ export default function Chat() {
           onDelta: (chunk) => upsertAssistant(chunk),
           onDone: (fullResponse) => {
             setIsLoading(false);
-            // Auto-play greeting if enabled
-            if (voiceSettings.autoPlayReplies && fullResponse) {
+            // Auto-play greeting if enabled (but not if user is recording)
+            if (voiceSettings.autoPlayReplies && fullResponse && !isListening) {
               const voiceId = getVoiceId(language as "en" | "de");
               const effectiveLang = getEffectiveLanguage(language as "en" | "de");
               speakTTS(fullResponse, voiceId, effectiveLang, voiceSettings.speed, "greeting");
@@ -324,8 +324,8 @@ export default function Chat() {
       onDelta: (chunk) => { upsertAssistant(chunk); },
       onDone: (fullResponse) => {
         setIsLoading(false);
-        // Auto-play or play in voice mode
-        if ((voiceModeEnabled || voiceSettings.autoPlayReplies) && fullResponse) {
+        // Auto-play or play in voice mode (but not if user is recording)
+        if ((voiceModeEnabled || voiceSettings.autoPlayReplies) && fullResponse && !isListening) {
           const voiceId = getVoiceId(language as "en" | "de");
           const effectiveLang = getEffectiveLanguage(language as "en" | "de");
           speakTTS(fullResponse, voiceId, effectiveLang, voiceSettings.speed, newMessageId);
@@ -363,11 +363,20 @@ export default function Chat() {
 
   // Toggle voice mode
   const toggleVoiceMode = () => {
+    if (!isSpeechSupported) {
+      toast({
+        title: t("voice.notSupported"),
+        description: t("voice.tryChrome"),
+        variant: "destructive",
+      });
+      return;
+    }
     if (isSpeaking) stopTTS();
     if (isListening) stopListening();
     setVoiceModeEnabled(!voiceModeEnabled);
     setShowTranscriptConfirm(false);
     setPendingTranscript("");
+    setInputValue("");
   };
 
   // Toggle recording
@@ -375,6 +384,8 @@ export default function Chat() {
     if (isListening) {
       stopListening();
     } else {
+      // Stop TTS if playing to avoid overlap
+      if (isSpeaking) stopTTS();
       resetTranscript();
       setPendingTranscript("");
       setInputValue("");
@@ -467,7 +478,7 @@ export default function Chat() {
                   {message.role === "assistant" && (
                     <MessagePlayButton
                       isPlaying={isPlayingMessage(message.id)}
-                      isLoading={isTTSLoading && !isSpeaking}
+                      isLoading={isLoadingMessage(message.id)}
                       onPlay={() => playMessage(message)}
                       onStop={stopTTS}
                     />
