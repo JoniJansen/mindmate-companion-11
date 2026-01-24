@@ -35,7 +35,7 @@ We do NOT collect:
           content: `Your mental health data deserves the highest protection:
 
 • **Encryption**: All data is encrypted in transit (TLS 1.3) and at rest (AES-256).
-• **Secure Infrastructure**: We use Supabase, a trusted enterprise-grade database provider.
+• **Secure Infrastructure**: We use enterprise-grade cloud infrastructure with industry-standard security certifications.
 • **Access Controls**: Only you can access your personal data. Our team cannot read your journal entries or chat conversations.
 • **No Third-Party Sharing**: We never sell or share your personal data with advertisers or data brokers.`
         },
@@ -65,7 +65,7 @@ We will NEVER use your data for:
 • **Portability**: Download your data in a standard format (JSON).
 • **Objection**: Opt out of analytics and non-essential data processing.
 
-To exercise these rights, go to Settings > Account or contact us at privacy@mindmate.app`
+To exercise these rights, go to Settings > Account or contact us at joni.jansen00@gmail.com`
         },
         {
           icon: Trash2,
@@ -89,7 +89,7 @@ Continued use of MindMate after changes constitutes acceptance of the updated po
       contact: {
         title: "Contact Us",
         content: "For privacy-related questions or concerns, please contact us at:",
-        email: "privacy@mindmate.app"
+        email: "joni.jansen00@gmail.com"
       }
     },
     de: {
@@ -118,7 +118,7 @@ Wir erheben NICHT:
           content: `Deine mentalen Gesundheitsdaten verdienen höchsten Schutz:
 
 • **Verschlüsselung**: Alle Daten werden bei der Übertragung (TLS 1.3) und im Ruhezustand (AES-256) verschlüsselt.
-• **Sichere Infrastruktur**: Wir nutzen Supabase, einen vertrauenswürdigen Enterprise-Datenbankanbieter.
+• **Sichere Infrastruktur**: Wir nutzen eine Enterprise-Cloud-Infrastruktur mit branchenüblichen Sicherheitszertifizierungen.
 • **Zugriffskontrollen**: Nur du kannst auf deine persönlichen Daten zugreifen. Unser Team kann deine Tagebucheinträge oder Chat-Gespräche nicht lesen.
 • **Keine Weitergabe an Dritte**: Wir verkaufen oder teilen deine persönlichen Daten niemals mit Werbetreibenden oder Datenhändlern.`
         },
@@ -148,7 +148,7 @@ Wir werden deine Daten NIEMALS verwenden für:
 • **Übertragbarkeit**: Lade deine Daten in einem Standardformat (JSON) herunter.
 • **Widerspruch**: Widerspreche Analytics und nicht-essentieller Datenverarbeitung.
 
-Um diese Rechte auszuüben, gehe zu Einstellungen > Konto oder kontaktiere uns unter privacy@mindmate.app`
+Um diese Rechte auszuüben, gehe zu Einstellungen > Konto oder kontaktiere uns unter joni.jansen00@gmail.com`
         },
         {
           icon: Trash2,
@@ -172,7 +172,7 @@ Die weitere Nutzung von MindMate nach Änderungen gilt als Akzeptanz der aktuali
       contact: {
         title: "Kontakt",
         content: "Für datenschutzbezogene Fragen oder Bedenken kontaktiere uns bitte unter:",
-        email: "privacy@mindmate.app"
+        email: "joni.jansen00@gmail.com"
       }
     }
   };
