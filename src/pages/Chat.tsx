@@ -417,6 +417,7 @@ export default function Chat() {
       <PageHeader
         title={t("chat.title")}
         subtitle={t("chat.subtitle")}
+        showLogo
         rightElement={
           <div className="flex items-center gap-1">
             <Button 

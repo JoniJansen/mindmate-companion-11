@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Heart, ArrowRight, Check, Globe, MessageCircle, User } from "lucide-react";
+import { ArrowRight, Check, Globe, MessageCircle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import logoImage from "@/assets/logo.png";
 
 type Language = "en" | "de";
 type Tone = "gentle" | "neutral" | "structured";
@@ -207,22 +208,20 @@ function WelcomeStep({ t }: WelcomeStepProps) {
       transition={{ duration: 0.4 }}
       className="flex-1 flex flex-col items-center justify-center text-center px-4"
     >
-      {/* Gentle breathing animation */}
+      {/* Logo with gentle breathing animation */}
       <motion.div
-        className="w-28 h-28 rounded-full bg-gradient-to-br from-primary-soft to-calm-soft flex items-center justify-center mb-10"
+        className="w-36 h-36 rounded-3xl bg-gradient-to-br from-primary-soft/30 to-calm-soft/30 flex items-center justify-center mb-10 overflow-hidden"
         animate={{ 
-          scale: [1, 1.08, 1],
-          opacity: [0.9, 1, 0.9]
+          scale: [1, 1.03, 1],
+          opacity: [0.95, 1, 0.95]
         }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       >
-        <motion.div
-          className="w-20 h-20 rounded-full bg-card flex items-center justify-center shadow-soft"
-          animate={{ scale: [1, 0.95, 1] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Heart className="w-10 h-10 text-primary" />
-        </motion.div>
+        <img 
+          src={logoImage} 
+          alt="MindMate Logo" 
+          className="w-32 h-32 object-contain"
+        />
       </motion.div>
 
       <h1 className="text-2xl font-semibold text-foreground mb-4 text-balance">
