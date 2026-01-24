@@ -1,68 +1,56 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Wind, 
-  Brain, 
-  Sparkles,
-  Play,
-} from "lucide-react";
+import { Clock, Play, CheckCircle2, Info, X } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
-import { ExerciseCard } from "@/components/toolbox/ExerciseCard";
 import { ExercisePlayer } from "@/components/toolbox/ExercisePlayer";
 import { exercises, Exercise } from "@/data/exercises";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useToast } from "@/hooks/use-toast";
+
+const categories = [
+  { id: "all", labelEn: "All", labelDe: "Alle" },
+  { id: "breathing", labelEn: "Breathing", labelDe: "Atmung" },
+  { id: "grounding", labelEn: "Grounding", labelDe: "Erdung" },
+  { id: "cognitive", labelEn: "Cognitive", labelDe: "Kognitiv" },
+  { id: "journaling", labelEn: "Journaling", labelDe: "Schreiben" },
+];
 
 export default function Toolbox() {
+  const [activeCategory, setActiveCategory] = useState("all");
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
-  const [suggestedExercises, setSuggestedExercises] = useState<Exercise[]>([]);
+  const [infoExercise, setInfoExercise] = useState<Exercise | null>(null);
+  const [completedExercises, setCompletedExercises] = useState<Set<string>>(() => {
+    const stored = localStorage.getItem("mindmate-completed-exercises");
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  });
+
+  const { language, getExerciseTranslation } = useTranslation();
   const { toast } = useToast();
-  const { t, getExerciseTranslation } = useTranslation();
 
-  const categories = [
-    { id: 'all', label: t("category.all") },
-    { id: 'breathing', label: t("category.breathing") },
-    { id: 'cognitive', label: t("category.cognitive") },
-    { id: 'grounding', label: t("category.grounding") },
-    { id: 'journaling', label: t("category.journaling") },
-    { id: 'values', label: t("category.values") },
-    { id: 'boundaries', label: t("category.boundaries") },
-  ];
-
-  // Load completed exercises from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('completed_exercises');
-    if (saved) {
-      setCompletedExercises(new Set(JSON.parse(saved)));
-    }
-  }, []);
-
-  // Generate suggestions (max 2)
-  useEffect(() => {
-    const uncompleted = exercises.filter(e => !completedExercises.has(e.id));
-    const shuffled = [...uncompleted].sort(() => Math.random() - 0.5);
-    setSuggestedExercises(shuffled.slice(0, 2));
-  }, [completedExercises]);
-
-  const handleExerciseComplete = (exerciseId: string) => {
+  const handleComplete = (exerciseId: string) => {
     const newCompleted = new Set(completedExercises);
     newCompleted.add(exerciseId);
     setCompletedExercises(newCompleted);
-    localStorage.setItem('completed_exercises', JSON.stringify([...newCompleted]));
-    
+    localStorage.setItem(
+      "mindmate-completed-exercises",
+      JSON.stringify([...newCompleted])
+    );
+
     toast({
-      title: t("toolbox.exerciseCompleted"),
-      description: t("toolbox.greatJob"),
+      title: language === "de" ? "Übung abgeschlossen" : "Exercise completed",
+      description:
+        language === "de"
+          ? "Gut gemacht! Nimm dir einen Moment."
+          : "Well done! Take a moment.",
     });
   };
 
-  const filteredExercises = activeCategory === 'all' 
-    ? exercises 
-    : exercises.filter(e => e.category === activeCategory);
+  const filteredExercises =
+    activeCategory === "all"
+      ? exercises
+      : exercises.filter((e) => e.category === activeCategory);
 
   const getExerciseTitle = (exercise: Exercise) => {
     const translation = getExerciseTranslation(exercise.id);
@@ -76,137 +64,182 @@ export default function Toolbox() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={t("toolbox.title")} subtitle={t("toolbox.subtitle")} />
+      <PageHeader
+        title={language === "de" ? "Übungen" : "Toolbox"}
+        subtitle={
+          language === "de"
+            ? "Evidenzbasierte Techniken"
+            : "Evidence-based techniques"
+        }
+      />
 
-      <div className="px-4 py-4 max-w-lg mx-auto">
-        {/* AI Suggestions */}
-        {suggestedExercises.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-foreground">{t("toolbox.suggestedForYou")}</span>
-            </div>
-            
-            <div className="grid gap-3">
-              {suggestedExercises.map((exercise, index) => (
-                <motion.div
-                  key={exercise.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <CalmCard 
-                    variant={index === 0 ? "calm" : "gentle"} 
-                    className="cursor-pointer relative overflow-hidden"
-                    onClick={() => setSelectedExercise(exercise)}
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-current opacity-5 rounded-full -mr-8 -mt-8" />
-                    <div className="relative flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl ${index === 0 ? 'bg-calm/20' : 'bg-gentle/20'} flex items-center justify-center`}>
-                        <exercise.icon className={`w-6 h-6 ${index === 0 ? 'text-calm' : 'text-gentle'}`} />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium text-foreground">{getExerciseTitle(exercise)}</h3>
-                        <p className="text-sm text-muted-foreground">{exercise.duration}</p>
-                      </div>
-                      <Button size="sm" variant={index === 0 ? "calm" : "soft"}>
-                        <Play className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CalmCard>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
+      <div className="px-4 py-4 max-w-lg mx-auto space-y-4">
         {/* Category filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6"
-        >
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {categories.map((cat) => (
-              <Button
-                key={cat.id}
-                variant={activeCategory === cat.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveCategory(cat.id)}
-                className="shrink-0"
-              >
-                {cat.label}
-              </Button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Exercise list */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            {activeCategory === 'all' ? t("toolbox.allExercises") : categories.find(c => c.id === activeCategory)?.label}
-          </h2>
-          
-          <div className="space-y-3">
-            {filteredExercises.map((exercise, index) => (
-              <ExerciseCard
-                key={exercise.id}
-                exercise={exercise}
-                onClick={() => setSelectedExercise(exercise)}
-                index={index}
-                isCompleted={completedExercises.has(exercise.id)}
-                translatedTitle={getExerciseTitle(exercise)}
-                translatedDescription={getExerciseDescription(exercise)}
-              />
-            ))}
-          </div>
-
-          {filteredExercises.length === 0 && (
-            <CalmCard variant="gentle" className="text-center py-8">
-              <p className="text-muted-foreground">{t("toolbox.noExercises")}</p>
-            </CalmCard>
-          )}
-        </motion.div>
+        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+          {categories.map((cat) => (
+            <Button
+              key={cat.id}
+              variant={activeCategory === cat.id ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveCategory(cat.id)}
+              className="shrink-0"
+            >
+              {language === "de" ? cat.labelDe : cat.labelEn}
+            </Button>
+          ))}
+        </div>
 
         {/* Quick tip */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8"
-        >
-          <CalmCard variant="gentle">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <Brain className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <h4 className="font-medium text-foreground mb-1">{t("toolbox.tip")}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {t("toolbox.tipText")}
-                </p>
-              </div>
-            </div>
+        <CalmCard variant="calm" className="!py-3">
+          <p className="text-sm text-muted-foreground">
+            💡{" "}
+            {language === "de"
+              ? "Regelmäßige kurze Übungen sind wirksamer als seltene lange Sessions."
+              : "Regular short practices are more effective than occasional long sessions."}
+          </p>
+        </CalmCard>
+
+        {/* Exercise list */}
+        <div className="space-y-3">
+          {filteredExercises.map((exercise, index) => {
+            const isCompleted = completedExercises.has(exercise.id);
+            const Icon = exercise.icon;
+
+            return (
+              <motion.div
+                key={exercise.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <CalmCard variant="gentle">
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                        isCompleted ? "bg-primary/20" : "bg-calm/20"
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <CheckCircle2 className="w-6 h-6 text-primary" />
+                      ) : (
+                        <Icon className="w-6 h-6 text-calm" />
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-foreground">
+                        {getExerciseTitle(exercise)}
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {getExerciseDescription(exercise)}
+                      </p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {exercise.duration}
+                        </span>
+                        <button
+                          onClick={() => setInfoExercise(exercise)}
+                          className="text-xs text-primary hover:underline flex items-center gap-1"
+                        >
+                          <Info className="w-3 h-3" />
+                          {language === "de" ? "Warum hilft das?" : "Why it helps"}
+                        </button>
+                      </div>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      variant="calm"
+                      onClick={() => setSelectedExercise(exercise)}
+                    >
+                      <Play className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CalmCard>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {filteredExercises.length === 0 && (
+          <CalmCard variant="gentle" className="text-center py-8">
+            <p className="text-muted-foreground">
+              {language === "de"
+                ? "Keine Übungen in dieser Kategorie"
+                : "No exercises in this category"}
+            </p>
           </CalmCard>
-        </motion.div>
+        )}
       </div>
 
-      {/* Exercise Player Modal */}
+      {/* Info modal */}
+      <AnimatePresence>
+        {infoExercise && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-end justify-center p-4"
+            onClick={() => setInfoExercise(null)}
+          >
+            <motion.div
+              initial={{ y: 100 }}
+              animate={{ y: 0 }}
+              exit={{ y: 100 }}
+              className="w-full max-w-lg bg-card rounded-2xl p-6 shadow-elevated"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="font-semibold text-foreground">
+                  {getExerciseTitle(infoExercise)}
+                </h3>
+                <button
+                  onClick={() => setInfoExercise(null)}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                {infoExercise.longDescription}
+              </p>
+              <div className="space-y-2 text-sm">
+                <p>
+                  <strong>{language === "de" ? "Dauer:" : "Duration:"}</strong>{" "}
+                  {infoExercise.duration}
+                </p>
+                <p>
+                  <strong>
+                    {language === "de" ? "Am besten geeignet:" : "Best for:"}
+                  </strong>{" "}
+                  {language === "de"
+                    ? "Wenn du dich gestresst oder überfordert fühlst"
+                    : "When you feel stressed or overwhelmed"}
+                </p>
+              </div>
+              <Button
+                className="w-full mt-4"
+                onClick={() => {
+                  setInfoExercise(null);
+                  setSelectedExercise(infoExercise);
+                }}
+              >
+                <Play className="w-4 h-4 mr-2" />
+                {language === "de" ? "Jetzt starten" : "Start now"}
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Exercise player */}
       <AnimatePresence>
         {selectedExercise && (
           <ExercisePlayer
             exercise={selectedExercise}
             onClose={() => setSelectedExercise(null)}
-            onComplete={() => handleExerciseComplete(selectedExercise.id)}
+            onComplete={() => handleComplete(selectedExercise.id)}
           />
         )}
       </AnimatePresence>
