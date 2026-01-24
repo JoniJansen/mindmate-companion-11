@@ -19,7 +19,7 @@ import { AudioWaveform } from "@/components/chat/AudioWaveform";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
 import { MessagePlayButton } from "@/components/chat/MessagePlayButton";
 import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
-import { SwipeHint } from "@/components/chat/SwipeHint";
+
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 
@@ -89,8 +89,8 @@ export default function Chat() {
     updateSetting 
   } = useVoiceSettings();
 
-  // Swipe-back navigation for mobile
-  useSwipeBack({ enabled: true, backTo: "/" });
+  // Swipe-back navigation disabled on Chat (main page)
+  useSwipeBack({ enabled: false });
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
 
@@ -482,16 +482,13 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-background fixed inset-0 overflow-hidden">
-      {/* Swipe hint for first-time users */}
-      <SwipeHint />
+    <div className="flex flex-col h-[calc(100dvh-5rem)] bg-background overflow-hidden">
       
       <PageHeader
         title={t("chat.title")}
         subtitle={t("chat.subtitle")}
         showLogo
-        showBack
-        backTo="/"
+        showBack={false}
         rightElement={
           <div className="flex items-center gap-1">
             <TooltipProvider delayDuration={300}>
