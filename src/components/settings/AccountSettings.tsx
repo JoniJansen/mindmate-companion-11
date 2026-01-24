@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield } from "lucide-react";
+import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield, FileJson, FileSpreadsheet, Clock } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,10 +30,20 @@ import {
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AccountSettingsProps {
   language: "en" | "de";
 }
+
+const BACKUP_REMINDER_KEY = "mindmate-last-export";
+const BACKUP_REMINDER_INTERVAL_KEY = "mindmate-backup-interval";
 
 export function AccountSettings({ language }: AccountSettingsProps) {
   const { user, profile, resetPassword, updatePassword, updateProfile, refreshProfile, signOut } = useAuth();
@@ -64,6 +74,11 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   
   // Data export
   const [isExporting, setIsExporting] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<"json" | "csv">("json");
+  const [backupReminderDays, setBackupReminderDays] = useState<number>(30);
+  const [lastExportDate, setLastExportDate] = useState<Date | null>(null);
+  const [showBackupReminder, setShowBackupReminder] = useState(false);
   
   // 2FA
   const [is2FADialogOpen, setIs2FADialogOpen] = useState(false);
@@ -110,6 +125,21 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       exportDataDesc: "Journal & Stimmungsdaten herunterladen",
       exporting: "Wird exportiert...",
       exportSuccess: "Daten erfolgreich exportiert",
+      exportFormat: "Export-Format",
+      exportAsJson: "Als JSON exportieren",
+      exportAsCsv: "Als CSV exportieren",
+      backupReminder: "Backup-Erinnerung",
+      backupReminderDesc: "Werde erinnert, regelmäßig zu exportieren",
+      lastBackup: "Letztes Backup",
+      never: "Noch nie",
+      daysAgo: "vor {days} Tagen",
+      reminderInterval: "Erinnerungsintervall",
+      days7: "Alle 7 Tage",
+      days14: "Alle 14 Tage",
+      days30: "Alle 30 Tage",
+      days90: "Alle 90 Tage",
+      backupOverdue: "Backup überfällig!",
+      backupOverdueDesc: "Dein letztes Backup ist mehr als {days} Tage her.",
       twoFactor: "Zwei-Faktor-Authentifizierung",
       twoFactorDesc: "Zusätzliche Sicherheit für dein Konto",
       twoFactorEnabled: "2FA ist aktiviert",
@@ -160,6 +190,21 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       exportDataDesc: "Download journal & mood data",
       exporting: "Exporting...",
       exportSuccess: "Data exported successfully",
+      exportFormat: "Export Format",
+      exportAsJson: "Export as JSON",
+      exportAsCsv: "Export as CSV",
+      backupReminder: "Backup Reminder",
+      backupReminderDesc: "Get reminded to export regularly",
+      lastBackup: "Last backup",
+      never: "Never",
+      daysAgo: "{days} days ago",
+      reminderInterval: "Reminder interval",
+      days7: "Every 7 days",
+      days14: "Every 14 days",
+      days30: "Every 30 days",
+      days90: "Every 90 days",
+      backupOverdue: "Backup overdue!",
+      backupOverdueDesc: "Your last backup was more than {days} days ago.",
       twoFactor: "Two-Factor Authentication",
       twoFactorDesc: "Extra security for your account",
       twoFactorEnabled: "2FA is enabled",
@@ -179,7 +224,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
   const t = texts[language];
 
-  // Check 2FA status on mount
+  // Check 2FA status and backup reminder on mount
   useEffect(() => {
     const check2FAStatus = async () => {
       try {
@@ -196,7 +241,74 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       }
     };
     check2FAStatus();
+    
+    // Check backup reminder
+    const lastExport = localStorage.getItem(BACKUP_REMINDER_KEY);
+    const interval = localStorage.getItem(BACKUP_REMINDER_INTERVAL_KEY);
+    
+    if (interval) {
+      setBackupReminderDays(parseInt(interval, 10));
+    }
+    
+    if (lastExport) {
+      const date = new Date(lastExport);
+      setLastExportDate(date);
+      const daysSinceExport = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+      const reminderDays = interval ? parseInt(interval, 10) : 30;
+      setShowBackupReminder(daysSinceExport >= reminderDays);
+    } else {
+      // Never exported, show reminder after 7 days of account creation
+      setShowBackupReminder(true);
+    }
   }, []);
+
+  const updateBackupReminderInterval = (days: number) => {
+    setBackupReminderDays(days);
+    localStorage.setItem(BACKUP_REMINDER_INTERVAL_KEY, days.toString());
+    
+    // Re-check if reminder should show
+    const lastExport = localStorage.getItem(BACKUP_REMINDER_KEY);
+    if (lastExport) {
+      const date = new Date(lastExport);
+      const daysSinceExport = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+      setShowBackupReminder(daysSinceExport >= days);
+    }
+    
+    toast({
+      title: language === "de" ? "Erinnerung aktualisiert" : "Reminder updated",
+    });
+  };
+
+  const getDaysSinceLastExport = (): number | null => {
+    if (!lastExportDate) return null;
+    return Math.floor((Date.now() - lastExportDate.getTime()) / (1000 * 60 * 60 * 24));
+  };
+
+  const formatLastBackupText = (): string => {
+    const days = getDaysSinceLastExport();
+    if (days === null) return t.never;
+    if (days === 0) return language === "de" ? "Heute" : "Today";
+    if (days === 1) return language === "de" ? "Gestern" : "Yesterday";
+    return t.daysAgo.replace("{days}", days.toString());
+  };
+
+  // Convert data to CSV format
+  const convertToCSV = (data: any[], headers: string[]): string => {
+    const escapeCSV = (value: any): string => {
+      if (value === null || value === undefined) return "";
+      const str = String(value);
+      if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+    
+    const headerRow = headers.join(",");
+    const rows = data.map(item => 
+      headers.map(header => escapeCSV(item[header])).join(",")
+    );
+    return [headerRow, ...rows].join("\n");
+  };
 
   const handleSaveDisplayName = async () => {
     if (!displayName.trim()) return;
@@ -318,7 +430,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     }
   };
 
-  const handleExportData = async () => {
+  const handleExportData = async (format: "json" | "csv" = "json") => {
     if (!user) return;
 
     setIsExporting(true);
@@ -330,27 +442,85 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         supabase.from("weekly_recaps").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
 
-      const exportData = {
-        exportedAt: new Date().toISOString(),
-        user: {
-          email: user.email,
-          displayName: profile?.display_name,
-        },
-        journalEntries: journalResult.data || [],
-        moodCheckins: moodResult.data || [],
-        weeklyRecaps: recapResult.data || [],
-      };
+      const dateStr = new Date().toISOString().split("T")[0];
+      
+      if (format === "json") {
+        const exportData = {
+          exportedAt: new Date().toISOString(),
+          user: {
+            email: user.email,
+            displayName: profile?.display_name,
+          },
+          journalEntries: journalResult.data || [],
+          moodCheckins: moodResult.data || [],
+          weeklyRecaps: recapResult.data || [],
+        };
 
-      // Create and download JSON file
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `mindmate-export-${new Date().toISOString().split("T")[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `mindmate-export-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        // CSV Export - create separate files for each data type
+        const zip: { name: string; content: string }[] = [];
+        
+        // Journal entries CSV
+        if (journalResult.data && journalResult.data.length > 0) {
+          const journalHeaders = ["id", "created_at", "updated_at", "title", "content", "mood", "source", "tags", "prompt_id"];
+          const journalCSV = convertToCSV(journalResult.data.map(entry => ({
+            ...entry,
+            tags: Array.isArray(entry.tags) ? entry.tags.join("; ") : entry.tags
+          })), journalHeaders);
+          zip.push({ name: `journal-entries-${dateStr}.csv`, content: journalCSV });
+        }
+        
+        // Mood checkins CSV
+        if (moodResult.data && moodResult.data.length > 0) {
+          const moodHeaders = ["id", "created_at", "mood_value", "feelings", "note"];
+          const moodCSV = convertToCSV(moodResult.data.map(entry => ({
+            ...entry,
+            feelings: Array.isArray(entry.feelings) ? entry.feelings.join("; ") : entry.feelings
+          })), moodHeaders);
+          zip.push({ name: `mood-checkins-${dateStr}.csv`, content: moodCSV });
+        }
+        
+        // Weekly recaps CSV
+        if (recapResult.data && recapResult.data.length > 0) {
+          const recapHeaders = ["id", "created_at", "time_range", "summary_bullets", "patterns", "potential_needs", "suggested_next_step"];
+          const recapCSV = convertToCSV(recapResult.data.map(entry => ({
+            ...entry,
+            summary_bullets: Array.isArray(entry.summary_bullets) ? entry.summary_bullets.join("; ") : entry.summary_bullets,
+            patterns: Array.isArray(entry.patterns) ? entry.patterns.join("; ") : entry.patterns,
+            potential_needs: Array.isArray(entry.potential_needs) ? entry.potential_needs.join("; ") : entry.potential_needs
+          })), recapHeaders);
+          zip.push({ name: `weekly-recaps-${dateStr}.csv`, content: recapCSV });
+        }
+        
+        // Download each CSV file
+        for (const file of zip) {
+          const blob = new Blob([file.content], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = file.name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      }
+
+      // Save export date for reminder
+      const now = new Date();
+      localStorage.setItem(BACKUP_REMINDER_KEY, now.toISOString());
+      setLastExportDate(now);
+      setShowBackupReminder(false);
+      setIsExportDialogOpen(false);
 
       toast({ title: t.exportSuccess });
     } catch (error: any) {
@@ -784,25 +954,115 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         </div>
       </CalmCard>
 
-      {/* Export Data */}
-      <CalmCard 
-        variant="default" 
-        className="cursor-pointer hover:shadow-card transition-shadow"
-        onClick={handleExportData}
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-calm/10 flex items-center justify-center">
-            <Download className="w-5 h-5 text-calm" />
+      {/* Backup Reminder Alert */}
+      {showBackupReminder && (
+        <CalmCard 
+          variant="default" 
+          className="border-amber-500/30 bg-amber-500/5"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-amber-700 dark:text-amber-300">{t.backupOverdue}</p>
+              <p className="text-sm text-muted-foreground">
+                {t.backupOverdueDesc.replace("{days}", backupReminderDays.toString())}
+              </p>
+            </div>
           </div>
-          <div className="flex-1">
-            <p className="font-medium text-foreground">{t.exportData}</p>
-            <p className="text-sm text-muted-foreground">{t.exportDataDesc}</p>
+        </CalmCard>
+      )}
+
+      {/* Export Data Dialog */}
+      <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
+        <DialogTrigger asChild>
+          <CalmCard 
+            variant="default" 
+            className="cursor-pointer hover:shadow-card transition-shadow"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-calm/10 flex items-center justify-center">
+                <Download className="w-5 h-5 text-calm" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-foreground">{t.exportData}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t.lastBackup}: {formatLastBackupText()}
+                </p>
+              </div>
+              {showBackupReminder && (
+                <div className="w-2 h-2 rounded-full bg-amber-500" />
+              )}
+            </div>
+          </CalmCard>
+        </DialogTrigger>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t.exportData}</DialogTitle>
+            <DialogDescription>{t.exportDataDesc}</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Export Format Selection */}
+            <div className="space-y-3">
+              <Label>{t.exportFormat}</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant={exportFormat === "json" ? "default" : "outline"}
+                  className="h-auto py-3 flex flex-col items-center gap-2"
+                  onClick={() => setExportFormat("json")}
+                >
+                  <FileJson className="w-6 h-6" />
+                  <span className="text-sm">JSON</span>
+                </Button>
+                <Button
+                  variant={exportFormat === "csv" ? "default" : "outline"}
+                  className="h-auto py-3 flex flex-col items-center gap-2"
+                  onClick={() => setExportFormat("csv")}
+                >
+                  <FileSpreadsheet className="w-6 h-6" />
+                  <span className="text-sm">CSV</span>
+                </Button>
+              </div>
+            </div>
+            
+            {/* Backup Reminder Settings */}
+            <div className="space-y-3 pt-2 border-t border-border">
+              <Label>{t.reminderInterval}</Label>
+              <Select
+                value={backupReminderDays.toString()}
+                onValueChange={(value) => updateBackupReminderInterval(parseInt(value, 10))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7">{t.days7}</SelectItem>
+                  <SelectItem value="14">{t.days14}</SelectItem>
+                  <SelectItem value="30">{t.days30}</SelectItem>
+                  <SelectItem value="90">{t.days90}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          {isExporting && (
-            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          )}
-        </div>
-      </CalmCard>
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsExportDialogOpen(false)}
+            >
+              {t.cancel}
+            </Button>
+            <Button
+              onClick={() => handleExportData(exportFormat)}
+              disabled={isExporting}
+            >
+              {isExporting ? t.exporting : (exportFormat === "json" ? t.exportAsJson : t.exportAsCsv)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Account */}
       <AlertDialog>
