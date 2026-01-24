@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield, FileJson, FileSpreadsheet, Clock } from "lucide-react";
+import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useBackupReminder } from "@/hooks/useBackupReminder";
 
 interface AccountSettingsProps {
   language: "en" | "de";
@@ -50,6 +51,11 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { 
+    notificationPermission, 
+    notificationsSupported, 
+    requestNotificationPermission 
+  } = useBackupReminder();
   
   // Display name editing
   const [isEditingName, setIsEditingName] = useState(false);
@@ -140,6 +146,12 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       days90: "Alle 90 Tage",
       backupOverdue: "Backup überfällig!",
       backupOverdueDesc: "Dein letztes Backup ist mehr als {days} Tage her.",
+      pushNotifications: "Push-Benachrichtigungen",
+      pushNotificationsDesc: "Backup-Erinnerungen als Benachrichtigung",
+      enableNotifications: "Benachrichtigungen aktivieren",
+      notificationsEnabled: "Aktiviert",
+      notificationsDisabled: "Deaktiviert",
+      notificationsBlocked: "Blockiert",
       twoFactor: "Zwei-Faktor-Authentifizierung",
       twoFactorDesc: "Zusätzliche Sicherheit für dein Konto",
       twoFactorEnabled: "2FA ist aktiviert",
@@ -205,6 +217,12 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       days90: "Every 90 days",
       backupOverdue: "Backup overdue!",
       backupOverdueDesc: "Your last backup was more than {days} days ago.",
+      pushNotifications: "Push Notifications",
+      pushNotificationsDesc: "Backup reminders as notifications",
+      enableNotifications: "Enable notifications",
+      notificationsEnabled: "Enabled",
+      notificationsDisabled: "Disabled",
+      notificationsBlocked: "Blocked",
       twoFactor: "Two-Factor Authentication",
       twoFactorDesc: "Extra security for your account",
       twoFactorEnabled: "2FA is enabled",
@@ -1045,6 +1063,43 @@ export function AccountSettings({ language }: AccountSettingsProps) {
                 </SelectContent>
               </Select>
             </div>
+            
+            {/* Push Notifications */}
+            {notificationsSupported && (
+              <div className="space-y-3 pt-2 border-t border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-muted-foreground" />
+                    <Label>{t.pushNotifications}</Label>
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    notificationPermission === "granted" 
+                      ? "bg-primary/10 text-primary" 
+                      : notificationPermission === "denied"
+                        ? "bg-destructive/10 text-destructive"
+                        : "bg-muted text-muted-foreground"
+                  }`}>
+                    {notificationPermission === "granted" 
+                      ? t.notificationsEnabled 
+                      : notificationPermission === "denied"
+                        ? t.notificationsBlocked
+                        : t.notificationsDisabled}
+                  </span>
+                </div>
+                {notificationPermission !== "granted" && notificationPermission !== "denied" && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={requestNotificationPermission}
+                  >
+                    <Bell className="w-4 h-4 mr-2" />
+                    {t.enableNotifications}
+                  </Button>
+                )}
+                <p className="text-xs text-muted-foreground">{t.pushNotificationsDesc}</p>
+              </div>
+            )}
           </div>
           
           <DialogFooter>

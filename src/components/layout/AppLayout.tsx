@@ -1,8 +1,13 @@
+import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
+import { useBackupReminder } from "@/hooks/useBackupReminder";
 
 export function AppLayout() {
   const location = useLocation();
+  
+  // Initialize backup reminder - this will show notification if overdue
+  useBackupReminder();
   
   // Pages that should NOT show the bottom nav
   const hideNavRoutes = ["/settings", "/safety", "/summary"];
