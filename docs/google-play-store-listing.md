@@ -1,5 +1,37 @@
 # MindMate – Google Play Store Listing
 
+## 📁 Store Assets
+
+Die folgenden Grafiken wurden generiert und befinden sich in `/public/store/`:
+
+| Datei | Größe | Verwendung |
+|-------|-------|------------|
+| `feature-graphic.png` | 1024×512 | Feature Graphic (Banner oben im Store) |
+| `app-icon-512.png` | 512×512 | App-Icon für Play Store |
+| `screenshot-1-chat-de.png` | 1080×1920 | Screenshot 1: Chat-Funktion |
+| `screenshot-2-journal-de.png` | 1080×1920 | Screenshot 2: Tagebuch |
+| `screenshot-3-mood-de.png` | 1080×1920 | Screenshot 3: Mood-Tracking |
+| `screenshot-4-toolbox-de.png` | 1080×1920 | Screenshot 4: Toolbox |
+
+### ⚠️ Hinweis zu Screenshots
+
+Die KI-generierten Screenshots enthalten unleserlichen Platzhalter-Text. Für die finale Einreichung empfehle ich:
+
+1. **Echte Screenshots** direkt von der App auf einem Gerät machen
+2. **Overlay-Texte** mit Canva, Figma oder einem Screenshot-Generator hinzufügen:
+   - Screenshot 1: "Dein einfühlsamer Begleiter"
+   - Screenshot 2: "Gedanken festhalten"
+   - Screenshot 3: "Verstehe deine Gefühle"
+   - Screenshot 4: "Ruhe finden"
+   - Screenshot 5 (optional): "Privat & sicher"
+
+### 📱 Empfohlene Screenshot-Tools
+- [Screenshot Generator](https://screenshots.pro)
+- [App Mockup](https://app-mockup.com)
+- [Previewed](https://previewed.app)
+
+---
+
 ## 🇩🇪 Deutsch
 
 ### App-Name (max. 30 Zeichen)
