@@ -699,7 +699,7 @@ export default function Chat() {
 
       {/* Input Area - Fixed at bottom with safe area */}
       <div className="shrink-0 p-4 md:px-6 lg:px-8 border-t border-border/50 bg-card/80 backdrop-blur-md" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-end gap-2 md:gap-3">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-center gap-2 md:gap-3">
           {/* Auto-speak toggle (premium only) */}
           <TooltipProvider delayDuration={300}>
             <Tooltip>
@@ -707,7 +707,7 @@ export default function Chat() {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className={`shrink-0 rounded-full relative ${canUseVoice && voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                  className={`shrink-0 h-10 w-10 rounded-full relative ${canUseVoice && voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
                   onClick={() => {
                     if (!canUseVoice) {
                       setUpgradeReason("voice");
@@ -739,7 +739,7 @@ export default function Chat() {
                   <Button 
                     variant={isListening && canUseVoice ? "destructive" : "outline"} 
                     size="icon" 
-                    className="shrink-0 rounded-full relative" 
+                    className="shrink-0 h-10 w-10 rounded-full relative" 
                     onClick={toggleRecording}
                   >
                     {isListening && canUseVoice ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
@@ -764,7 +764,8 @@ export default function Chat() {
             </TooltipProvider>
           )}
 
-          <div className="flex-1 relative">
+          {/* Text input with send button */}
+          <div className="flex-1 relative flex items-center">
             <textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -775,13 +776,13 @@ export default function Chat() {
                 } 
               }}
               placeholder={isListening && canUseVoice ? t("voice.listening") : (language === "de" ? "Schreib etwas..." : "Type something...")}
-              className="w-full bg-background border border-border/50 rounded-2xl px-4 py-3 pr-12 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 max-h-32"
+              className="w-full bg-background border border-border/50 rounded-2xl px-4 py-2.5 pr-12 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 max-h-32 min-h-[40px]"
               rows={1}
               disabled={isLoading || (!canSendMessage() && !isPremium)}
             />
             <Button 
               size="icon" 
-              className="absolute right-1 bottom-1 rounded-full w-9 h-9" 
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full h-8 w-8" 
               onClick={() => handleSend(inputValue)} 
               disabled={!inputValue.trim() || isLoading || !canSendMessage()}
             >
