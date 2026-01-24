@@ -481,8 +481,9 @@ export default function Chat() {
     navigate("/settings", { state: { scrollTo: "premium" } });
   };
 
+  // BottomNav is ~72px (py-2.5 + icon + label + safe-area)
   return (
-    <div className="flex flex-col h-[calc(100dvh-5rem)] bg-background overflow-hidden">
+    <div className="fixed inset-0 top-0 bottom-[72px] flex flex-col bg-background overflow-hidden z-10">
       
       <PageHeader
         title={t("chat.title")}
@@ -585,7 +586,7 @@ export default function Chat() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-4 overscroll-contain">
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto space-y-4">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
               <motion.div 
@@ -634,7 +635,7 @@ export default function Chat() {
       {/* Calm Mode Quick Exercises */}
       {chatMode === "calm" && messages.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="px-4 md:px-6 lg:px-8 pb-2">
-          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex gap-2">
+          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex gap-2 md:gap-3">
             {calmExercises.map((ex) => (
               <Button key={ex.id} variant="outline" size="sm" className="flex-1 gap-2" onClick={() => handleCalmExercise(ex.id)}>
                 <ex.icon className="w-4 h-4" />
@@ -648,7 +649,7 @@ export default function Chat() {
       {/* Quick Replies */}
       {messages.length <= 2 && !isLoading && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="px-4 md:px-6 lg:px-8 pb-2">
-          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex flex-wrap gap-2">
+          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex flex-wrap gap-2 md:gap-3">
             {getQuickReplies().map((reply) => (
               <Button key={reply} variant="outline" size="sm" onClick={() => handleSend(reply)} className="text-xs">
                 {reply}
@@ -698,7 +699,7 @@ export default function Chat() {
 
       {/* Input Area - Fixed at bottom with safe area */}
       <div className="shrink-0 p-4 md:px-6 lg:px-8 border-t border-border/50 bg-card/80 backdrop-blur-md" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex items-end gap-2 md:gap-3">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-end gap-2 md:gap-3">
           {/* Auto-speak toggle (premium only) */}
           <TooltipProvider delayDuration={300}>
             <Tooltip>

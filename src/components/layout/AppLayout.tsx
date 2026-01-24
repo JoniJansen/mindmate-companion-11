@@ -13,9 +13,13 @@ export function AppLayout() {
   // Pages that should NOT show the bottom nav and footer (Chat keeps nav visible)
   const hideNavRoutes = ["/settings", "/safety", "/summary"];
   const shouldHideNav = hideNavRoutes.some(route => location.pathname.startsWith(route));
+  
+  // Chat page manages its own height/padding
+  const isChat = location.pathname === "/chat" || location.pathname.startsWith("/chat");
+  
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <main className={`flex-1 ${shouldHideNav ? "" : "pb-24"}`}>
+      <main className={`flex-1 ${shouldHideNav || isChat ? "" : "pb-24"}`}>
         <Outlet />
       </main>
       {!shouldHideNav && (

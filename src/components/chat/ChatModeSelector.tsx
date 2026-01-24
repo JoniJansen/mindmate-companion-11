@@ -49,7 +49,7 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
   const { language } = useTranslation();
 
   return (
-    <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
       {modes.map((mode) => {
         const isActive = activeMode === mode.id;
         const isLocked = lockedModes.includes(mode.id);
