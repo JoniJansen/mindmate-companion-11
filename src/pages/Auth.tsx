@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, ArrowLeft, Loader2, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, ArrowLeft, Loader2, Eye, EyeOff, Sun, Moon } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useTheme } from "@/hooks/useTheme";
+import logoImage from "@/assets/logo.png";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
@@ -17,8 +19,9 @@ export default function Auth() {
   const { toast } = useToast();
   const { signIn, signUp, resetPassword, isAuthenticated, isLoading: authLoading } = useAuth();
   const { language } = useTranslation();
+  const { isDark, setMode: setThemeMode } = useTheme();
 
-  const [mode, setMode] = useState<AuthMode>("login");
+  const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -38,13 +41,13 @@ export default function Auth() {
     setIsLoading(true);
 
     try {
-      if (mode === "login") {
+      if (authMode === "login") {
         await signIn(email, password);
         toast({
           title: language === "de" ? "Willkommen zurück!" : "Welcome back!",
           description: language === "de" ? "Du bist jetzt eingeloggt." : "You are now logged in.",
         });
-      } else if (mode === "signup") {
+      } else if (authMode === "signup") {
         await signUp(email, password, displayName);
         toast({
           title: language === "de" ? "Konto erstellt!" : "Account created!",
@@ -52,7 +55,7 @@ export default function Auth() {
             ? "Willkommen bei MindMate!" 
             : "Welcome to MindMate!",
         });
-      } else if (mode === "forgot-password") {
+      } else if (authMode === "forgot-password") {
         await resetPassword(email);
         toast({
           title: language === "de" ? "E-Mail gesendet" : "Email sent",
@@ -60,7 +63,7 @@ export default function Auth() {
             ? "Überprüfe dein Postfach für den Link zum Zurücksetzen." 
             : "Check your inbox for the reset link.",
         });
-        setMode("login");
+        setAuthMode("login");
       }
     } catch (error: any) {
       toast({
@@ -97,7 +100,7 @@ export default function Auth() {
     },
   };
 
-  const t = texts[mode];
+  const t = texts[authMode];
 
   if (authLoading) {
     return (
@@ -110,13 +113,30 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="p-4">
+      <div className="p-4 flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="text-sm">{language === "de" ? "Zurück" : "Back"}</span>
+        </button>
+        
+        {/* Dark Mode Toggle */}
+        <button
+          onClick={() => setThemeMode(isDark ? "light" : "dark")}
+          className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          <motion.div
+            key={isDark ? "moon" : "sun"}
+            initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            exit={{ scale: 0.5, opacity: 0, rotate: 90 }}
+            transition={{ duration: 0.2 }}
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </motion.div>
         </button>
       </div>
 
@@ -128,17 +148,30 @@ export default function Auth() {
           className="w-full max-w-sm space-y-8"
         >
           {/* Logo & Title */}
-          <div className="text-center space-y-3">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto shadow-lg shadow-primary/10">
-              <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center overflow-hidden">
-                <img 
-                  src="/logo.png" 
-                  alt="MindMate" 
-                  className="w-10 h-10 object-contain brightness-0 invert" 
-                />
+          <div className="text-center space-y-4">
+            {/* Modern circular logo with soft glow */}
+            <motion.div 
+              className="relative mx-auto w-24 h-24"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              {/* Outer glow ring */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 via-primary/10 to-transparent blur-xl" />
+              
+              {/* Main logo container */}
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-xl shadow-primary/15 ring-1 ring-primary/10">
+                <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center">
+                  <img 
+                    src={logoImage} 
+                    alt="MindMate" 
+                    className="w-16 h-16 object-cover rounded-full"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="space-y-1">
+            </motion.div>
+            
+            <div className="space-y-1.5">
               <h1 className="text-2xl font-semibold text-foreground tracking-tight">
                 {language === "de" ? t.title.de : t.title.en}
               </h1>
@@ -150,7 +183,7 @@ export default function Auth() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === "signup" && (
+            {authMode === "signup" && (
               <div className="space-y-2">
                 <Label htmlFor="displayName">
                   {language === "de" ? "Name (optional)" : "Name (optional)"}
@@ -185,16 +218,16 @@ export default function Auth() {
               </div>
             </div>
 
-            {mode !== "forgot-password" && (
+            {authMode !== "forgot-password" && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">
                     {language === "de" ? "Passwort" : "Password"}
                   </Label>
-                  {mode === "login" && (
+                  {authMode === "login" && (
                     <button
                       type="button"
-                      onClick={() => setMode("forgot-password")}
+                      onClick={() => setAuthMode("forgot-password")}
                       className="text-xs text-primary hover:underline"
                     >
                       {language === "de" ? "Vergessen?" : "Forgot?"}
@@ -239,7 +272,7 @@ export default function Auth() {
               {language === "de" ? t.switch.de : t.switch.en}{" "}
             </span>
             <button
-              onClick={() => setMode(mode === "login" ? "signup" : "login")}
+              onClick={() => setAuthMode(authMode === "login" ? "signup" : "login")}
               className="text-primary hover:underline font-medium"
             >
               {language === "de" ? t.switchAction.de : t.switchAction.en}
