@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, Key, Lock, Pencil, Check, X, Send } from "lucide-react";
+import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { useTranslation } from "@/hooks/useTranslation";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -16,15 +17,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface AccountSettingsProps {
   language: "en" | "de";
 }
 
 export function AccountSettings({ language }: AccountSettingsProps) {
-  const { user, profile, resetPassword, updatePassword, updateProfile, refreshProfile } = useAuth();
+  const { user, profile, resetPassword, updatePassword, updateProfile, refreshProfile, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Display name editing
   const [isEditingName, setIsEditingName] = useState(false);
@@ -39,6 +54,13 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   
   // Password reset email
   const [isSendingReset, setIsSendingReset] = useState(false);
+  
+  // Avatar upload
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  
+  // Account deletion
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   const texts = {
     de: {
@@ -62,6 +84,16 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       change: "Ändern",
       sendResetLink: "Link senden",
       editName: "Name bearbeiten",
+      changeAvatar: "Profilbild ändern",
+      avatarUpdated: "Profilbild aktualisiert",
+      deleteAccount: "Konto löschen",
+      deleteAccountDesc: "Alle Daten unwiderruflich löschen",
+      deleteAccountTitle: "Konto wirklich löschen?",
+      deleteAccountWarning: "Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten, Journaleinträge, Stimmungsaufzeichnungen und Einstellungen werden dauerhaft gelöscht.",
+      deleteConfirmLabel: "Gib DELETE ein um zu bestätigen",
+      deleting: "Wird gelöscht...",
+      delete: "Endgültig löschen",
+      accountDeleted: "Dein Konto wurde gelöscht",
     },
     en: {
       displayName: "Display Name",
@@ -84,6 +116,16 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       change: "Change",
       sendResetLink: "Send Link",
       editName: "Edit name",
+      changeAvatar: "Change profile picture",
+      avatarUpdated: "Profile picture updated",
+      deleteAccount: "Delete Account",
+      deleteAccountDesc: "Permanently delete all data",
+      deleteAccountTitle: "Really delete account?",
+      deleteAccountWarning: "This action cannot be undone. All your data, journal entries, mood logs and settings will be permanently deleted.",
+      deleteConfirmLabel: "Type DELETE to confirm",
+      deleting: "Deleting...",
+      delete: "Delete permanently",
+      accountDeleted: "Your account has been deleted",
     },
   };
 
@@ -169,8 +211,152 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     }
   };
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: language === "de" ? "Ungültiger Dateityp" : "Invalid file type",
+        description: language === "de" ? "Bitte wähle ein Bild aus" : "Please select an image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: language === "de" ? "Datei zu groß" : "File too large",
+        description: language === "de" ? "Maximale Größe: 5MB" : "Maximum size: 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `avatar.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+
+      // Upload file
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      // Add cache-busting parameter
+      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+
+      // Update profile
+      await updateProfile({ avatar_url: avatarUrl });
+      refreshProfile();
+
+      toast({
+        title: t.avatarUpdated,
+      });
+    } catch (error: any) {
+      toast({
+        title: language === "de" ? "Fehler beim Hochladen" : "Upload failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") return;
+
+    setIsDeletingAccount(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await supabase.functions.invoke("delete-account", {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: t.accountDeleted,
+      });
+
+      // Sign out and redirect
+      await signOut();
+      navigate("/auth", { replace: true });
+    } catch (error: any) {
+      toast({
+        title: language === "de" ? "Fehler beim Löschen" : "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
+  const getInitials = () => {
+    if (profile?.display_name) {
+      return profile.display_name.slice(0, 2).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+    return "MM";
+  };
+
   return (
     <div className="space-y-3">
+      {/* Avatar Upload */}
+      <CalmCard variant="elevated">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Avatar className="w-16 h-16 border-2 border-primary/20">
+              <AvatarImage src={profile?.avatar_url || undefined} alt="Avatar" />
+              <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploadingAvatar}
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {isUploadingAvatar ? (
+                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Camera className="w-3.5 h-3.5" />
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
+          </div>
+          <div className="flex-1">
+            <p className="font-medium text-foreground">{t.changeAvatar}</p>
+            <p className="text-sm text-muted-foreground">
+              {language === "de" ? "JPG, PNG oder GIF. Max 5MB" : "JPG, PNG or GIF. Max 5MB"}
+            </p>
+          </div>
+        </div>
+      </CalmCard>
+
       {/* Display Name - Editable */}
       <CalmCard variant="elevated">
         <div className="flex items-center gap-3">
@@ -337,6 +523,60 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           )}
         </div>
       </CalmCard>
+
+      {/* Delete Account */}
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <CalmCard 
+            variant="default" 
+            className="cursor-pointer hover:shadow-card transition-shadow border-destructive/20"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-destructive" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-destructive">{t.deleteAccount}</p>
+                <p className="text-sm text-muted-foreground">{t.deleteAccountDesc}</p>
+              </div>
+            </div>
+          </CalmCard>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive">
+              {t.deleteAccountTitle}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-4">
+              <p>{t.deleteAccountWarning}</p>
+              <div className="space-y-2">
+                <Label htmlFor="delete-confirm" className="text-sm font-medium">
+                  {t.deleteConfirmLabel}
+                </Label>
+                <Input
+                  id="delete-confirm"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  className="border-destructive/50 focus-visible:ring-destructive"
+                />
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteConfirmText("")}>
+              {t.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={deleteConfirmText !== "DELETE" || isDeletingAccount}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeletingAccount ? t.deleting : t.delete}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

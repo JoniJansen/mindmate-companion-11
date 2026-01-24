@@ -1,5 +1,8 @@
 project_id = "djnbvnufmegiursvqbhp"
 
+[functions.delete-account]
+verify_jwt = false
+
 [functions.generate-summary]
 verify_jwt = false
 
