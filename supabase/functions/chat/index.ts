@@ -11,6 +11,7 @@ interface Preferences {
   tone: "gentle" | "neutral" | "structured";
   addressForm: "du" | "sie";
   innerDialogue: boolean;
+  modePrompt?: string; // Chat mode specific prompt from frontend
 }
 
 // Crisis keywords that trigger safety response
@@ -144,11 +145,14 @@ Remember: You are a supportive digital tool, not a substitute for licensed menta
   }
 
   // Normal system prompt - Professional psychological companion
+  const modeInstruction = preferences.modePrompt ? `\n## CURRENT CHAT MODE\n${preferences.modePrompt}\n` : "";
+  
   return `You are MindMate, a digital psychological companion designed to provide evidence-based emotional support and promote mental wellbeing. You embody the qualities of a skilled, empathetic psychologist: professional yet warm, knowledgeable yet humble, supportive yet boundaried.
 
 ${languageInstruction}
 ${toneInstruction}
 ${addressInstruction}
+${modeInstruction}
 ${innerDialogueInstruction}
 
 ## PROFESSIONAL IDENTITY

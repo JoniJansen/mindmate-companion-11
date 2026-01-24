@@ -20,7 +20,9 @@ export type Database = {
           created_at: string
           id: string
           mood: string | null
+          prompt_id: string | null
           source: string | null
+          tags: string[] | null
           title: string | null
           updated_at: string
           user_session_id: string
@@ -30,7 +32,9 @@ export type Database = {
           created_at?: string
           id?: string
           mood?: string | null
+          prompt_id?: string | null
           source?: string | null
+          tags?: string[] | null
           title?: string | null
           updated_at?: string
           user_session_id: string
@@ -40,9 +44,71 @@ export type Database = {
           created_at?: string
           id?: string
           mood?: string | null
+          prompt_id?: string | null
           source?: string | null
+          tags?: string[] | null
           title?: string | null
           updated_at?: string
+          user_session_id?: string
+        }
+        Relationships: []
+      }
+      mood_checkins: {
+        Row: {
+          created_at: string
+          feelings: string[] | null
+          id: string
+          mood_value: number
+          note: string | null
+          user_session_id: string
+        }
+        Insert: {
+          created_at?: string
+          feelings?: string[] | null
+          id?: string
+          mood_value: number
+          note?: string | null
+          user_session_id: string
+        }
+        Update: {
+          created_at?: string
+          feelings?: string[] | null
+          id?: string
+          mood_value?: number
+          note?: string | null
+          user_session_id?: string
+        }
+        Relationships: []
+      }
+      weekly_recaps: {
+        Row: {
+          created_at: string
+          id: string
+          patterns: string[] | null
+          potential_needs: string[] | null
+          suggested_next_step: string | null
+          summary_bullets: string[] | null
+          time_range: string
+          user_session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          patterns?: string[] | null
+          potential_needs?: string[] | null
+          suggested_next_step?: string | null
+          summary_bullets?: string[] | null
+          time_range?: string
+          user_session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          patterns?: string[] | null
+          potential_needs?: string[] | null
+          suggested_next_step?: string | null
+          summary_bullets?: string[] | null
+          time_range?: string
           user_session_id?: string
         }
         Relationships: []

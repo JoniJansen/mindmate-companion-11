@@ -1,17 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, Sparkles, TrendingUp, Loader2 } from "lucide-react";
+import { Plus, Search, Sparkles, TrendingUp, Loader2, Mic, MicOff, X, Calendar, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { JournalEditor } from "@/components/journal/JournalEditor";
 import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
+import { JournalPrompts } from "@/components/journal/JournalPrompts";
 import { AIReflectionPanel } from "@/components/journal/AIReflectionPanel";
-import { EmotionalTimeline } from "@/components/journal/EmotionalTimeline";
 import { useSessionId } from "@/hooks/useSessionId";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useNavigate } from "react-router-dom";
 
 interface JournalEntry {
   id: string;
@@ -19,75 +21,93 @@ interface JournalEntry {
   content: string;
   mood: string | null;
   source: string | null;
+  tags: string[];
+  prompt_id: string | null;
+  created_at: string;
+}
+
+interface WeeklyRecap {
+  patterns: string[];
+  potential_needs: string[];
+  suggested_next_step: string;
+  summary_bullets: string[];
   created_at: string;
 }
 
 export default function Journal() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showEditor, setShowEditor] = useState(false);
-  const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "write" | "guided">("list");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [draftContent, setDraftContent] = useState("");
+  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [aiReflection, setAiReflection] = useState("");
   const [isReflecting, setIsReflecting] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
-  const [timelineSummary, setTimelineSummary] = useState<string | null>(null);
-  const [isLoadingTimeline, setIsLoadingTimeline] = useState(false);
+  const [weeklyRecap, setWeeklyRecap] = useState<WeeklyRecap | null>(null);
+  const [isLoadingRecap, setIsLoadingRecap] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const { language } = useTranslation();
   const sessionId = useSessionId();
   const { toast } = useToast();
-  const { t, language } = useTranslation();
+  const navigate = useNavigate();
 
-  const prompts = language === "de" ? [
-    t("journal.prompt1"),
-    t("journal.prompt2"),
-    t("journal.prompt3"),
-    t("journal.prompt4"),
-    t("journal.prompt5"),
-  ] : [
-    "What small moment brought you peace today?",
-    "What are you grateful for right now?",
-    "What's been on your mind lately?",
-    "How are you really feeling today?",
-    "What would make tomorrow better?",
-  ];
+  const speechLang = language === "de" ? "de-DE" : "en-US";
+  const { isListening, fullTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition(speechLang, { continuous: true });
 
-  const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+  const emotionTags = language === "de"
+    ? ["Ängstlich", "Traurig", "Wütend", "Gestresst", "Ruhig", "Dankbar", "Hoffnungsvoll", "Überfordert"]
+    : ["Anxious", "Sad", "Angry", "Stressed", "Calm", "Grateful", "Hopeful", "Overwhelmed"];
 
-  // Load entries
+  const topicTags = language === "de"
+    ? ["Arbeit", "Beziehungen", "Familie", "Gesundheit", "Selbstwert", "Zukunft"]
+    : ["Work", "Relationships", "Family", "Health", "Self-worth", "Future"];
+
   useEffect(() => {
-    if (!sessionId) return;
-    loadEntries();
+    if (sessionId) loadEntries();
   }, [sessionId]);
 
-  // Check for saved chat content
   useEffect(() => {
-    const savedContent = localStorage.getItem('journal_from_chat');
-    if (savedContent && sessionId) {
-      localStorage.removeItem('journal_from_chat');
-      setEditingEntry({
-        id: '',
-        title: 'Chat Summary',
-        content: savedContent,
-        mood: null,
-        source: 'chat',
-        created_at: new Date().toISOString(),
-      });
-      setShowEditor(true);
+    if (fullTranscript && viewMode === "write") {
+      setDraftContent((prev) => prev + (prev ? " " : "") + fullTranscript);
     }
-  }, [sessionId]);
+  }, [fullTranscript]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 300)}px`;
+    }
+  }, [draftContent]);
+
+  // Load cached weekly recap
+  useEffect(() => {
+    const cached = localStorage.getItem("mindmate-weekly-recap");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        const cacheAge = Date.now() - new Date(parsed.created_at).getTime();
+        if (cacheAge < 24 * 60 * 60 * 1000) setWeeklyRecap(parsed); // 24h cache
+      } catch {}
+    }
+  }, []);
 
   const loadEntries = async () => {
     try {
       const { data, error } = await supabase
-        .from('journal_entries')
-        .select('*')
-        .eq('user_session_id', sessionId)
-        .order('created_at', { ascending: false });
+        .from("journal_entries")
+        .select("*")
+        .eq("user_session_id", sessionId)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setEntries(data || []);
+      setEntries((data || []).map(e => ({ ...e, tags: e.tags || [], prompt_id: e.prompt_id || null })));
     } catch (error) {
-      console.error('Error loading entries:', error);
+      console.error("Error loading entries:", error);
     } finally {
       setIsLoading(false);
     }
@@ -96,89 +116,46 @@ export default function Journal() {
   const handleSaveEntry = async (entry: { title: string; content: string; mood: string }) => {
     if (!sessionId) return;
 
-    if (editingEntry?.id) {
-      // Update existing
-      const { error } = await supabase
-        .from('journal_entries')
-        .update({
-          title: entry.title || null,
-          content: entry.content,
-          mood: entry.mood || null,
-        })
-        .eq('id', editingEntry.id);
+    try {
+      const payload = {
+        title: entry.title || null,
+        content: entry.content,
+        mood: entry.mood || null,
+        tags: selectedTags,
+        prompt_id: selectedPrompt,
+      };
 
-      if (error) throw error;
-    } else {
-      // Create new
-      const { error } = await supabase
-        .from('journal_entries')
-        .insert({
+      if (selectedEntry?.id) {
+        await supabase.from("journal_entries").update(payload).eq("id", selectedEntry.id);
+      } else {
+        await supabase.from("journal_entries").insert({
           user_session_id: sessionId,
-          title: entry.title || null,
-          content: entry.content,
-          mood: entry.mood || null,
-          source: editingEntry?.source || 'manual',
+          source: selectedPrompt ? "guided" : "free",
+          ...payload,
         });
+      }
 
-      if (error) throw error;
+      toast({
+        title: language === "de" ? "Gespeichert" : "Saved",
+        description: language === "de" ? "Dein Eintrag wurde gespeichert." : "Your entry has been saved.",
+      });
+
+      setViewMode("list");
+      setIsEditorOpen(false);
+      setDraftContent("");
+      setSelectedPrompt(null);
+      setSelectedTags([]);
+      setSelectedEntry(null);
+      loadEntries();
+    } catch (error) {
+      console.error("Error saving entry:", error);
+      toast({ title: language === "de" ? "Fehler" : "Error", variant: "destructive" });
     }
-
-    await loadEntries();
-    setEditingEntry(null);
   };
 
   const handleGetPatterns = async () => {
-    if (entries.length < 2) {
-      toast({
-        title: t("journal.notEnoughEntries"),
-        description: t("journal.writeAtLeast2"),
-      });
-      return;
-    }
-
-    setIsReflecting(true);
-    setShowReflection(true);
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'patterns',
-            entries: entries.slice(0, 10).map(e => ({
-              date: e.created_at,
-              title: e.title,
-              content: e.content,
-              mood: e.mood,
-            })),
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-      setAiReflection(data.reflection);
-    } catch (error) {
-      console.error('Error getting patterns:', error);
-      toast({
-        title: t("common.error"),
-        description: t("journal.reflectionError"),
-        variant: "destructive",
-      });
-      setShowReflection(false);
-    } finally {
-      setIsReflecting(false);
-    }
-  };
-
-  const handleGetThemes = async () => {
     if (entries.length < 3) {
-      toast({
-        title: t("journal.notEnoughEntries"),
-        description: t("journal.writeAtLeast3"),
-      });
+      toast({ title: language === "de" ? "Mehr Einträge nötig" : "Need more entries", description: language === "de" ? "Schreibe mindestens 3 Einträge." : "Write at least 3 entries." });
       return;
     }
 
@@ -186,249 +163,269 @@ export default function Journal() {
     setShowReflection(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'themes',
-            entries: entries.slice(0, 15).map(e => ({
-              title: e.title,
-              content: e.content,
-            })),
-          }),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "patterns",
+          entries: entries.slice(0, 10).map(e => ({ date: e.created_at, title: e.title, content: e.content, mood: e.mood })),
+        }),
+      });
 
       const data = await response.json();
       if (data.error) throw new Error(data.error);
       setAiReflection(data.reflection);
     } catch (error) {
-      console.error('Error getting themes:', error);
-      toast({
-        title: t("common.error"),
-        description: t("journal.themesError"),
-        variant: "destructive",
-      });
+      console.error("Error:", error);
+      toast({ title: language === "de" ? "Fehler" : "Error", variant: "destructive" });
       setShowReflection(false);
     } finally {
       setIsReflecting(false);
     }
   };
 
-  const handleGetEmotionalTimeline = async () => {
-    if (entries.length < 5) {
-      toast({
-        title: t("timeline.notEnoughData"),
-        description: t("timeline.writeMore"),
-      });
+  const handleGenerateWeeklyRecap = async () => {
+    if (entries.length < 3) {
+      toast({ title: language === "de" ? "Mehr Einträge nötig" : "Need more entries" });
       return;
     }
 
-    setIsLoadingTimeline(true);
+    setIsLoadingRecap(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'emotional-timeline',
-            entries: entries.slice(0, 15).map(e => ({
-              date: e.created_at,
-              content: e.content,
-              mood: e.mood,
-            })),
-          }),
-        }
-      );
+      // Get mood checkins from localStorage (will be migrated to Supabase)
+      const moodStored = localStorage.getItem("mindmate-moods");
+      const moodCheckins = moodStored ? JSON.parse(moodStored) : [];
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/weekly-recap`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mood_checkins: moodCheckins.slice(0, 14),
+          journal_entries: entries.slice(0, 10).map(e => ({ content: e.content, mood: e.mood, title: e.title, created_at: e.created_at })),
+          time_range: "7d",
+          language,
+        }),
+      });
 
       const data = await response.json();
       if (data.error) throw new Error(data.error);
-      setTimelineSummary(data.reflection);
-    } catch (error) {
-      console.error('Error getting emotional timeline:', error);
-      toast({
-        title: t("common.error"),
-        description: t("journal.reflectionError"),
-        variant: "destructive",
+
+      const recap = { ...data, created_at: new Date().toISOString() };
+      setWeeklyRecap(recap);
+      localStorage.setItem("mindmate-weekly-recap", JSON.stringify(recap));
+
+      // Save to Supabase
+      await supabase.from("weekly_recaps").insert({
+        user_session_id: sessionId,
+        time_range: "7d",
+        patterns: data.patterns,
+        potential_needs: data.potential_needs,
+        suggested_next_step: data.suggested_next_step,
+        summary_bullets: data.summary_bullets,
       });
+
+    } catch (error) {
+      console.error("Error:", error);
+      toast({ title: language === "de" ? "Fehler" : "Error", variant: "destructive" });
     } finally {
-      setIsLoadingTimeline(false);
+      setIsLoadingRecap(false);
     }
   };
 
-  const filteredEntries = entries.filter(entry =>
-    entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (entry.title?.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const handleSelectPrompt = (prompt: string) => {
+    setSelectedPrompt(prompt);
+    setDraftContent(prompt + "\n\n");
+    setViewMode("write");
+    setTimeout(() => textareaRef.current?.focus(), 100);
+  };
 
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+  };
+
+  const filteredEntries = entries.filter((e) => {
+    const matchesSearch = e.content.toLowerCase().includes(searchQuery.toLowerCase()) || e.title?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
+  });
+
+  // Write mode
+  if (viewMode === "write") {
+    return (
+      <div className="min-h-screen bg-background pb-24 px-4 py-6 max-w-lg mx-auto">
+        <div className="flex justify-between mb-6">
+          <Button variant="ghost" size="sm" onClick={() => { setViewMode("list"); setDraftContent(""); setSelectedPrompt(null); setSelectedTags([]); }}>
+            <X className="w-4 h-4 mr-1" />{language === "de" ? "Abbrechen" : "Cancel"}
+          </Button>
+          <Button size="sm" disabled={!draftContent.trim()} onClick={() => setIsEditorOpen(true)}>
+            {language === "de" ? "Weiter" : "Continue"}
+          </Button>
+        </div>
+
+        {selectedPrompt && (
+          <div className="mb-4 p-3 bg-gentle/10 rounded-xl border border-gentle/20">
+            <p className="text-xs text-muted-foreground mb-1">{language === "de" ? "Deine Frage:" : "Your prompt:"}</p>
+            <p className="text-sm font-medium text-foreground">{selectedPrompt}</p>
+          </div>
+        )}
+
+        <textarea
+          ref={textareaRef}
+          value={draftContent}
+          onChange={(e) => setDraftContent(e.target.value)}
+          placeholder={language === "de" ? "Was beschäftigt dich?" : "What's on your mind?"}
+          className="w-full min-h-[200px] bg-transparent text-lg leading-relaxed focus:outline-none resize-none"
+          autoFocus
+        />
+
+        {/* Tags */}
+        <div className="mt-6 space-y-3">
+          <p className="text-sm text-muted-foreground flex items-center gap-2"><Tag className="w-4 h-4" />{language === "de" ? "Tags (optional)" : "Tags (optional)"}</p>
+          <div className="flex flex-wrap gap-2">
+            {[...emotionTags, ...topicTags].map(tag => (
+              <button key={tag} onClick={() => toggleTag(tag)} className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}>
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {isSupported && (
+          <div className="flex justify-center mt-6">
+            <Button variant={isListening ? "destructive" : "outline"} size="lg" className="rounded-full w-14 h-14" onClick={() => isListening ? stopListening() : (resetTranscript(), startListening())}>
+              {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+            </Button>
+          </div>
+        )}
+
+        <AnimatePresence>
+          {isEditorOpen && (
+            <JournalEditor initialContent={draftContent} onSave={handleSaveEntry} onClose={() => setIsEditorOpen(false)} />
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  // List mode
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={t("journal.title")} subtitle={t("journal.subtitle")} />
+      <PageHeader title="Journal" subtitle={language === "de" ? "Deine Gedanken, dein Raum" : "Your thoughts, your space"} />
 
-      <div className="px-4 py-4 max-w-lg mx-auto">
-        {/* Search bar */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder={t("journal.searchPlaceholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-muted/50 border border-border/50 rounded-xl pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30"
-          />
-        </div>
+      <div className="px-4 py-4 max-w-lg mx-auto space-y-6">
+        {/* Weekly Recap Card */}
+        {entries.length >= 3 && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <CalmCard variant="calm">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Calendar className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  {weeklyRecap ? (
+                    <div className="space-y-3">
+                      <h3 className="font-medium">{language === "de" ? "Dein Wochenrückblick" : "Your Weekly Recap"}</h3>
+                      {weeklyRecap.patterns.length > 0 && (
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">{language === "de" ? "Beobachtete Muster" : "Observed patterns"}</p>
+                          <ul className="text-sm space-y-1">
+                            {weeklyRecap.patterns.slice(0, 3).map((p, i) => <li key={i} className="text-muted-foreground">• {p}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                      {weeklyRecap.suggested_next_step && (
+                        <div className="p-2 bg-muted/50 rounded-lg">
+                          <p className="text-xs text-muted-foreground mb-1">{language === "de" ? "Vorschlag" : "Suggestion"}</p>
+                          <p className="text-sm">{weeklyRecap.suggested_next_step}</p>
+                        </div>
+                      )}
+                      <Button variant="ghost" size="sm" onClick={handleGenerateWeeklyRecap} disabled={isLoadingRecap}>
+                        {isLoadingRecap ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <TrendingUp className="w-4 h-4 mr-2" />}
+                        {language === "de" ? "Aktualisieren" : "Refresh"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div>
+                      <h3 className="font-medium mb-1">{language === "de" ? "Wochenrückblick" : "Weekly Recap"}</h3>
+                      <p className="text-sm text-muted-foreground mb-3">{language === "de" ? "Entdecke Muster in deinen Einträgen." : "Discover patterns in your entries."}</p>
+                      <Button size="sm" onClick={handleGenerateWeeklyRecap} disabled={isLoadingRecap}>
+                        {isLoadingRecap ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                        {language === "de" ? "Erstellen" : "Generate"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CalmCard>
+          </motion.div>
+        )}
 
-        {/* Action buttons */}
-        <div className="flex gap-2 mb-6">
-          <Button 
-            variant="calm" 
-            className="flex-1 justify-start gap-3" 
-            size="lg"
-            onClick={() => {
-              setEditingEntry(null);
-              setShowEditor(true);
-            }}
-          >
-            <Plus className="w-5 h-5" />
-            {t("journal.newEntry")}
+        {/* Quick Actions */}
+        <div className="flex gap-3">
+          <Button onClick={() => { setSelectedEntry(null); setViewMode("write"); }} className="flex-1 gap-2">
+            <Plus className="w-4 h-4" />{language === "de" ? "Freier Eintrag" : "Free Entry"}
           </Button>
-          
-          {entries.length >= 2 && (
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={handleGetPatterns}
-              className="gap-2"
-              disabled={isReflecting}
-            >
-              <Sparkles className="w-4 h-4" />
-              {t("journal.patterns")}
-            </Button>
-          )}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input type="text" placeholder={language === "de" ? "Suchen..." : "Search..."} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-muted/50 border border-border/50 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+          </div>
         </div>
+
+        {/* Guided Prompts */}
+        <JournalPrompts onSelectPrompt={handleSelectPrompt} />
 
         {/* AI Reflection */}
         <AnimatePresence>
           {showReflection && (
-            <div className="mb-6">
-              <AIReflectionPanel
-                reflection={aiReflection}
-                isLoading={isReflecting}
-                onClose={() => setShowReflection(false)}
-              />
-            </div>
+            <AIReflectionPanel reflection={aiReflection} isLoading={isReflecting} onClose={() => setShowReflection(false)} />
           )}
         </AnimatePresence>
 
-        {/* Emotional Timeline - only show when enough data */}
-        {entries.length >= 5 && (
-          <div className="mb-6">
-            <EmotionalTimeline
-              onGenerate={handleGetEmotionalTimeline}
-              summary={timelineSummary}
-              isLoading={isLoadingTimeline}
-              onClose={() => setTimelineSummary(null)}
-              hasEnoughData={entries.length >= 5}
-            />
-          </div>
+        {/* Pattern Discovery Button */}
+        {entries.length >= 3 && !showReflection && (
+          <Button variant="ghost" size="sm" onClick={handleGetPatterns} className="w-full text-muted-foreground" disabled={isReflecting}>
+            <Sparkles className="w-4 h-4 mr-2" />{language === "de" ? "Muster entdecken" : "Discover Patterns"}
+          </Button>
         )}
 
-        {/* Loading state */}
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
-        ) : filteredEntries.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+        {/* Entries */}
+        <div className="space-y-3">
+          <h2 className="text-sm font-medium text-muted-foreground">{language === "de" ? "Deine Einträge" : "Your entries"}</h2>
+
+          {isLoading ? (
+            <CalmCard variant="gentle" className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></CalmCard>
+          ) : filteredEntries.length === 0 ? (
             <CalmCard variant="gentle" className="text-center py-8">
-              <p className="text-muted-foreground mb-2">{t("journal.noEntries")}</p>
-              <p className="text-sm text-muted-foreground">
-                {t("journal.startWriting")}
-              </p>
+              <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">{searchQuery ? (language === "de" ? "Keine Einträge gefunden" : "No entries found") : (language === "de" ? "Beginne mit deinem ersten Eintrag" : "Start with your first entry")}</p>
             </CalmCard>
-          </motion.div>
-        ) : (
-          <>
-            {/* Themes button for more entries */}
-            {entries.length >= 3 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mb-4"
-              >
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleGetThemes}
-                  className="w-full justify-center gap-2 text-muted-foreground"
-                  disabled={isReflecting}
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  {t("journal.discoverThemes")}
-                </Button>
-              </motion.div>
-            )}
-
-            {/* Entries list */}
-            <div className="space-y-3">
-              {filteredEntries.map((entry, index) => (
-                <JournalEntryCard
-                  key={entry.id}
-                  id={entry.id}
-                  title={entry.title}
-                  content={entry.content}
-                  mood={entry.mood}
-                  source={entry.source}
-                  createdAt={entry.created_at}
-                  index={index}
-                  onClick={() => {
-                    setEditingEntry(entry);
-                    setShowEditor(true);
-                  }}
-                />
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* Writing prompt */}
-        {!isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mt-8"
-          >
-            <CalmCard variant="gentle">
-              <h4 className="font-medium text-foreground mb-2">{t("journal.todaysPrompt")}</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed italic">
-                "{randomPrompt}"
-              </p>
-            </CalmCard>
-          </motion.div>
-        )}
+          ) : (
+            filteredEntries.map((entry, index) => (
+              <JournalEntryCard
+                key={entry.id}
+                id={entry.id}
+                title={entry.title}
+                content={entry.content}
+                mood={entry.mood}
+                source={entry.source}
+                createdAt={entry.created_at}
+                index={index}
+                onClick={() => { setSelectedEntry(entry); setDraftContent(entry.content); setSelectedTags(entry.tags || []); setIsEditorOpen(true); }}
+              />
+            ))
+          )}
+        </div>
       </div>
 
-      {/* Editor Modal */}
+      {/* Entry Editor Modal */}
       <AnimatePresence>
-        {showEditor && (
+        {isEditorOpen && selectedEntry && (
           <JournalEditor
-            initialContent={editingEntry?.content}
-            initialTitle={editingEntry?.title || ""}
-            initialMood={editingEntry?.mood || ""}
-            source={editingEntry?.source || undefined}
+            initialTitle={selectedEntry.title || ""}
+            initialContent={selectedEntry.content}
+            initialMood={selectedEntry.mood || ""}
             onSave={handleSaveEntry}
-            onClose={() => {
-              setShowEditor(false);
-              setEditingEntry(null);
-            }}
+            onClose={() => { setIsEditorOpen(false); setSelectedEntry(null); setSelectedTags([]); }}
           />
         )}
       </AnimatePresence>
