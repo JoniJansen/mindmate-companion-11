@@ -78,7 +78,10 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || "TTS request failed");
+          const errorMsg = errorData.error || "TTS request failed";
+          // Don't throw for auth errors - just log and fail gracefully
+          console.warn("TTS unavailable:", errorMsg);
+          throw new Error(errorMsg);
         }
 
         const audioBlob = await response.blob();
