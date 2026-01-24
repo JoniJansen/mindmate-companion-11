@@ -203,18 +203,18 @@ export default function Safety() {
                   <p className="text-xs text-primary font-medium leading-tight">{professionalContact.role}</p>
                   <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{professionalContact.description}</p>
                   <p className="text-lg font-bold text-foreground mt-2">{professionalContact.number}</p>
-                  <div className="flex items-center gap-3 mt-2">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      {professionalContact.available}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                      <Clock className="w-3 h-3 shrink-0" />
+                      <span>{professionalContact.available}</span>
                     </div>
                     <a 
                       href={professionalContact.website} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-xs text-primary hover:underline"
+                      className="flex items-center gap-1 text-xs text-primary hover:underline whitespace-nowrap"
                     >
-                      <ExternalLink className="w-3 h-3" />
+                      <ExternalLink className="w-3 h-3 shrink-0" />
                       Website
                     </a>
                   </div>
