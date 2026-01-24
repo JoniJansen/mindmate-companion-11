@@ -196,7 +196,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
           {isSpeaking && voiceEnabled && (
             <div className="flex items-center justify-center gap-2 mb-4 text-primary">
               <Volume2 className="w-4 h-4 animate-pulse" />
-              <span className="text-sm">Spricht...</span>
+              <span className="text-sm">{t("voice.listening").replace("...", "")}...</span>
             </div>
           )}
 
@@ -244,7 +244,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       {/* FIXED BOTTOM CONTROLS */}
       <div className="border-t border-border bg-background p-4 pb-6">
         <p className="text-xs text-muted-foreground text-center mb-3">
-          {voiceEnabled ? "Die Anweisungen werden vorgelesen" : t("toolbox.tapToStart")}
+          {voiceEnabled ? t("toolbox.autoProgress") : t("toolbox.tapToStart")}
         </p>
         
         <div className="flex justify-center gap-4">
