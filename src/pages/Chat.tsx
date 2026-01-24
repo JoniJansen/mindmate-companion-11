@@ -8,8 +8,12 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
-import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
+import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
+import { useVoiceSettings } from "@/hooks/useVoiceSettings";
 import { VoiceAvatar } from "@/components/chat/VoiceAvatar";
+import { AudioWaveform } from "@/components/chat/AudioWaveform";
+import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
+import { MessagePlayButton } from "@/components/chat/MessagePlayButton";
 import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
 
 interface Message {
@@ -43,6 +47,8 @@ export default function Chat() {
   const [isLoading, setIsLoading] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
+  const [showTranscriptConfirm, setShowTranscriptConfirm] = useState(false);
+  const [pendingTranscript, setPendingTranscript] = useState("");
   const [chatMode, setChatMode] = useState<ChatMode>(() => {
     const stored = localStorage.getItem("mindmate-chat-mode");
     return (stored as ChatMode) || "talk";
@@ -53,20 +59,60 @@ export default function Chat() {
   const { t, language } = useTranslation();
   const preferences = useRef<Preferences>(getPreferences());
 
+  // Voice settings
+  const { 
+    settings: voiceSettings, 
+    getVoiceId, 
+    getEffectiveLanguage 
+  } = useVoiceSettings();
+
   const speechLang = language === "de" ? "de-DE" : "en-US";
-  const [pendingSend, setPendingSend] = useState<string | null>(null);
 
-  const { speak, stop: stopSpeaking, isSpeaking, isSupported: isTTSSupported } = useSpeechSynthesis({
-    lang: speechLang,
-    voiceType: "female",
-    rate: 0.92,
-    pitch: 1.05,
+  // ElevenLabs TTS
+  const { 
+    speak: speakTTS, 
+    stop: stopTTS, 
+    isSpeaking, 
+    isLoading: isTTSLoading,
+    isPlayingMessage 
+  } = useElevenLabsTTS({
+    onError: (error) => {
+      toast({ 
+        title: language === "de" ? "Sprachausgabe fehlgeschlagen" : "Voice playback failed", 
+        description: error, 
+        variant: "destructive" 
+      });
+    },
   });
 
-  const { isListening, fullTranscript, isSupported: isSpeechSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition(speechLang, {
+  // Speech recognition (STT)
+  const { 
+    isListening, 
+    fullTranscript, 
+    isSupported: isSpeechSupported, 
+    startListening, 
+    stopListening, 
+    resetTranscript,
+    error: sttError 
+  } = useSpeechRecognition(speechLang, {
     continuous: true,
-    onFinalTranscript: (transcript) => setPendingSend(transcript),
+    onFinalTranscript: (transcript) => {
+      if (transcript.trim()) {
+        setPendingTranscript(prev => (prev + " " + transcript).trim());
+      }
+    },
   });
+
+  // Handle STT errors
+  useEffect(() => {
+    if (sttError === "not-allowed") {
+      toast({
+        title: t("voice.micPermissionDenied"),
+        description: t("voice.enableMic"),
+        variant: "destructive",
+      });
+    }
+  }, [sttError, t, toast]);
 
   // Persist chat mode
   useEffect(() => {
@@ -75,39 +121,40 @@ export default function Chat() {
 
   // Auto-restart listening after AI finishes speaking in voice mode
   useEffect(() => {
-    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening) {
+    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm) {
       const timeoutId = setTimeout(() => {
         resetTranscript();
+        setPendingTranscript("");
         startListening();
-      }, 500);
+      }, 800);
       return () => clearTimeout(timeoutId);
     }
-  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, resetTranscript, startListening]);
-
-  // Handle pending send with delay
-  useEffect(() => {
-    if (pendingSend && !isLoading && !isSpeaking) {
-      const timeoutId = setTimeout(() => {
-        if (inputValue.trim()) {
-          handleSend(inputValue.trim());
-          setInputValue("");
-          resetTranscript();
-        }
-        setPendingSend(null);
-      }, 1500);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [pendingSend, isLoading, isSpeaking, inputValue, resetTranscript]);
+  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening]);
 
   // Stop listening when AI speaks
   useEffect(() => {
     if (isSpeaking && isListening) stopListening();
   }, [isSpeaking, isListening, stopListening]);
 
-  // Update input from transcript
+  // Show transcript confirmation when user stops speaking
   useEffect(() => {
-    if (fullTranscript) setInputValue(fullTranscript);
-  }, [fullTranscript]);
+    if (pendingTranscript && !isListening && voiceModeEnabled) {
+      const timeoutId = setTimeout(() => {
+        if (pendingTranscript.trim()) {
+          setShowTranscriptConfirm(true);
+          setInputValue(pendingTranscript);
+        }
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [pendingTranscript, isListening, voiceModeEnabled]);
+
+  // Update input from transcript while listening
+  useEffect(() => {
+    if (fullTranscript && isListening) {
+      setInputValue((pendingTranscript + " " + fullTranscript).trim());
+    }
+  }, [fullTranscript, isListening, pendingTranscript]);
 
   // Mode-specific quick replies
   const getQuickReplies = (): string[] => {
@@ -157,7 +204,15 @@ export default function Chat() {
         await streamChat({
           messages: [{ role: "user", content: greetingPrompt }],
           onDelta: (chunk) => upsertAssistant(chunk),
-          onDone: () => setIsLoading(false),
+          onDone: (fullResponse) => {
+            setIsLoading(false);
+            // Auto-play greeting if enabled
+            if (voiceSettings.autoPlayReplies && fullResponse) {
+              const voiceId = getVoiceId(language as "en" | "de");
+              const effectiveLang = getEffectiveLanguage(language as "en" | "de");
+              speakTTS(fullResponse, voiceId, effectiveLang, voiceSettings.speed, "greeting");
+            }
+          },
           onError: handleError,
         });
       }
@@ -183,7 +238,7 @@ export default function Chat() {
   const streamChat = async ({ messages, onDelta, onDone, onError }: {
     messages: { role: "user" | "assistant"; content: string }[];
     onDelta: (chunk: string) => void;
-    onDone: () => void;
+    onDone: (fullResponse: string) => void;
     onError: (error: string) => void;
   }) => {
     try {
@@ -211,6 +266,7 @@ export default function Chat() {
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let textBuffer = "";
+      let fullResponse = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -230,14 +286,17 @@ export default function Chat() {
           try {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
-            if (content) onDelta(content);
+            if (content) {
+              onDelta(content);
+              fullResponse += content;
+            }
           } catch {
             textBuffer = line + "\n" + textBuffer;
             break;
           }
         }
       }
-      onDone();
+      onDone(fullResponse);
     } catch (error) {
       console.error("Stream error:", error);
       onError("Something went wrong.");
@@ -250,23 +309,79 @@ export default function Chat() {
     const userMessage: Message = { id: Date.now().toString(), content: content.trim(), role: "user", timestamp: new Date() };
     if (!isSystemAction) setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
+    setPendingTranscript("");
+    setShowTranscriptConfirm(false);
     setShowActions(false);
     setIsLoading(true);
 
     const chatMessages = [...messages, ...(isSystemAction ? [] : [userMessage])].map((m) => ({ role: m.role, content: m.content }));
     const messagesForAI = isSystemAction ? [...chatMessages, { role: "user" as const, content }] : chatMessages;
 
-    let fullResponse = "";
+    const newMessageId = (Date.now() + 1).toString();
+    
     await streamChat({
       messages: messagesForAI,
-      onDelta: (chunk) => { upsertAssistant(chunk); fullResponse += chunk; },
-      onDone: () => {
+      onDelta: (chunk) => { upsertAssistant(chunk); },
+      onDone: (fullResponse) => {
         setIsLoading(false);
-        if (voiceModeEnabled && fullResponse) speak(fullResponse);
+        // Auto-play or play in voice mode
+        if ((voiceModeEnabled || voiceSettings.autoPlayReplies) && fullResponse) {
+          const voiceId = getVoiceId(language as "en" | "de");
+          const effectiveLang = getEffectiveLanguage(language as "en" | "de");
+          speakTTS(fullResponse, voiceId, effectiveLang, voiceSettings.speed, newMessageId);
+        }
       },
       onError: handleError,
     });
-  }, [isLoading, messages, voiceModeEnabled, speak, upsertAssistant]);
+  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, upsertAssistant]);
+
+  // Handle voice transcript confirmation
+  const handleTranscriptSend = () => {
+    if (inputValue.trim()) {
+      handleSend(inputValue.trim());
+    }
+  };
+
+  const handleTranscriptEdit = () => {
+    setShowTranscriptConfirm(false);
+    // Keep input value for editing
+  };
+
+  const handleTranscriptCancel = () => {
+    setShowTranscriptConfirm(false);
+    setInputValue("");
+    setPendingTranscript("");
+    resetTranscript();
+  };
+
+  // Play message audio
+  const playMessage = (message: Message) => {
+    const voiceId = getVoiceId(language as "en" | "de");
+    const effectiveLang = getEffectiveLanguage(language as "en" | "de");
+    speakTTS(message.content, voiceId, effectiveLang, voiceSettings.speed, message.id);
+  };
+
+  // Toggle voice mode
+  const toggleVoiceMode = () => {
+    if (isSpeaking) stopTTS();
+    if (isListening) stopListening();
+    setVoiceModeEnabled(!voiceModeEnabled);
+    setShowTranscriptConfirm(false);
+    setPendingTranscript("");
+  };
+
+  // Toggle recording
+  const toggleRecording = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      resetTranscript();
+      setPendingTranscript("");
+      setInputValue("");
+      setShowTranscriptConfirm(false);
+      startListening();
+    }
+  };
 
   // Voice-send event listener
   useEffect(() => {
@@ -291,11 +406,14 @@ export default function Chat() {
         subtitle={t("chat.subtitle")}
         rightElement={
           <div className="flex items-center gap-1">
-            {isTTSSupported && (
-              <Button variant="ghost" size="icon" onClick={() => { if (isSpeaking) stopSpeaking(); setVoiceModeEnabled(!voiceModeEnabled); }} className={voiceModeEnabled ? "text-primary" : "text-muted-foreground"}>
-                {voiceModeEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-              </Button>
-            )}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleVoiceMode} 
+              className={voiceModeEnabled ? "text-primary" : "text-muted-foreground"}
+            >
+              {voiceModeEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+            </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate("/safety")} className="text-destructive">
               <Phone className="w-5 h-5" />
             </Button>
@@ -311,8 +429,18 @@ export default function Chat() {
       {/* Voice Avatar */}
       <AnimatePresence>
         {voiceModeEnabled && (
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex justify-center py-6 border-b border-border/30">
-            <VoiceAvatar isSpeaking={isSpeaking} size="lg" />
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ opacity: 1, height: "auto" }} 
+            exit={{ opacity: 0, height: 0 }} 
+            className="border-b border-border/30 overflow-hidden"
+          >
+            <div className="flex flex-col items-center py-6 gap-4">
+              <VoiceAvatar isSpeaking={isSpeaking} size="lg" />
+              {isListening && (
+                <AudioWaveform isListening={isListening} size="sm" />
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -322,9 +450,28 @@ export default function Chat() {
         <div className="max-w-lg mx-auto space-y-4">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
-              <motion.div key={message.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${message.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-card border border-border/50 text-foreground rounded-bl-md shadow-soft"}`}>
+              <motion.div 
+                key={message.id} 
+                initial={{ opacity: 0, y: 10 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div className={`relative max-w-[80%] px-4 py-3 rounded-2xl ${
+                  message.role === "user" 
+                    ? "bg-primary text-primary-foreground rounded-br-md" 
+                    : "bg-card border border-border/50 text-foreground rounded-bl-md shadow-soft"
+                }`}>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  
+                  {/* Play button for assistant messages */}
+                  {message.role === "assistant" && (
+                    <MessagePlayButton
+                      isPlaying={isPlayingMessage(message.id)}
+                      isLoading={isTTSLoading && !isSpeaking}
+                      onPlay={() => playMessage(message)}
+                      onStop={stopTTS}
+                    />
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -388,25 +535,68 @@ export default function Chat() {
         </motion.div>
       )}
 
+      {/* Voice Transcript Confirmation */}
+      <AnimatePresence>
+        {showTranscriptConfirm && pendingTranscript && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: 20 }}
+            className="px-4 pb-2"
+          >
+            <div className="max-w-lg mx-auto">
+              <VoiceTranscriptConfirm
+                transcript={inputValue}
+                onSend={handleTranscriptSend}
+                onEdit={handleTranscriptEdit}
+                onCancel={handleTranscriptCancel}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Input Area */}
       <div className="p-4 border-t border-border/50 bg-card/50 backdrop-blur-sm">
         <div className="max-w-lg mx-auto flex items-end gap-2">
           {isSpeechSupported && (
-            <Button variant={isListening ? "destructive" : "outline"} size="icon" className="shrink-0 rounded-full" onClick={() => isListening ? (stopListening(), resetTranscript()) : (resetTranscript(), startListening())}>
+            <Button 
+              variant={isListening ? "destructive" : "outline"} 
+              size="icon" 
+              className="shrink-0 rounded-full relative" 
+              onClick={toggleRecording}
+            >
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              {isListening && (
+                <motion.span 
+                  className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                />
+              )}
             </Button>
           )}
           <div className="flex-1 relative">
             <textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(inputValue); } }}
-              placeholder={language === "de" ? "Schreib etwas..." : "Type something..."}
+              onKeyDown={(e) => { 
+                if (e.key === "Enter" && !e.shiftKey) { 
+                  e.preventDefault(); 
+                  handleSend(inputValue); 
+                } 
+              }}
+              placeholder={isListening ? t("voice.listening") : (language === "de" ? "Schreib etwas..." : "Type something...")}
               className="w-full bg-background border border-border/50 rounded-2xl px-4 py-3 pr-12 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 max-h-32"
               rows={1}
               disabled={isLoading}
             />
-            <Button size="icon" className="absolute right-1 bottom-1 rounded-full w-9 h-9" onClick={() => handleSend(inputValue)} disabled={!inputValue.trim() || isLoading}>
+            <Button 
+              size="icon" 
+              className="absolute right-1 bottom-1 rounded-full w-9 h-9" 
+              onClick={() => handleSend(inputValue)} 
+              disabled={!inputValue.trim() || isLoading}
+            >
               <Send className="w-4 h-4" />
             </Button>
           </div>
