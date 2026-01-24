@@ -132,10 +132,10 @@ export default function Chat() {
     return replies[chatMode][language as "en" | "de"] || replies[chatMode].en;
   };
 
-  // Calm mode quick exercises
+  // Calm mode quick exercises - IDs must match exercise data
   const calmExercises = [
-    { id: "breathing", label: language === "de" ? "60s Atmung" : "60s Breathing", icon: Wind },
-    { id: "grounding", label: language === "de" ? "5-4-3-2-1 Erdung" : "5-4-3-2-1 Grounding", icon: Anchor },
+    { id: "breathing-60", label: language === "de" ? "60s Atmung" : "60s Breathing", icon: Wind },
+    { id: "grounding-54321", label: language === "de" ? "5-4-3-2-1 Erdung" : "5-4-3-2-1 Grounding", icon: Anchor },
   ];
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
