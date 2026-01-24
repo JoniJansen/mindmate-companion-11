@@ -208,21 +208,35 @@ function WelcomeStep({ t }: WelcomeStepProps) {
       transition={{ duration: 0.4 }}
       className="flex-1 flex flex-col items-center justify-center text-center px-4"
     >
-      {/* Logo with gentle breathing animation */}
-      <motion.div
-        className="w-36 h-36 rounded-3xl bg-gradient-to-br from-primary-soft/30 to-calm-soft/30 flex items-center justify-center mb-10 overflow-hidden"
-        animate={{ 
-          scale: [1, 1.03, 1],
-          opacity: [0.95, 1, 0.95]
-        }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <img 
-          src={logoImage} 
-          alt="MindMate Logo" 
-          className="w-32 h-32 object-contain"
+      {/* Modern circular logo with breathing animation and glow */}
+      <div className="relative mb-12">
+        {/* Outer glow effect */}
+        <motion.div
+          className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-2xl scale-150"
+          animate={{ 
+            opacity: [0.5, 0.8, 0.5],
+            scale: [1.4, 1.6, 1.4]
+          }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         />
-      </motion.div>
+        
+        {/* Main logo container */}
+        <motion.div
+          className="relative w-32 h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10"
+          animate={{ 
+            scale: [1, 1.02, 1],
+          }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <div className="w-24 h-24 rounded-full overflow-hidden">
+            <img 
+              src={logoImage} 
+              alt="MindMate Logo" 
+              className="w-24 h-24 object-cover rounded-full"
+            />
+          </div>
+        </motion.div>
+      </div>
 
       <h1 className="text-2xl font-semibold text-foreground mb-4 text-balance">
         {t.title}
