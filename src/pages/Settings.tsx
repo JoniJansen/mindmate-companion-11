@@ -27,7 +27,8 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme, accentColorOptions, themeModeOptions, ThemeMode, AccentColor } from "@/hooks/useTheme";
-import { useVoiceSettings, VoiceType, VoiceSpeed, VoiceLanguage } from "@/hooks/useVoiceSettings";
+import { useVoiceSettings, VoiceType, VoiceSpeed, VoiceLanguage, AvatarStyle } from "@/hooks/useVoiceSettings";
+import { Circle, AudioLines, Smile } from "lucide-react";
 import { SubscriptionSection } from "@/components/premium/SubscriptionSection";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
@@ -150,6 +151,12 @@ export default function Settings() {
     { value: "auto", label: t("voice.auto") },
     { value: "en", label: "English" },
     { value: "de", label: "Deutsch" },
+  ];
+
+  const avatarStyleOptions: { value: AvatarStyle; label: string; labelDe: string; icon: React.ReactNode }[] = [
+    { value: "orb", label: "Orb", labelDe: "Orb", icon: <Circle className="w-5 h-5" /> },
+    { value: "wave", label: "Waveform", labelDe: "Wellenform", icon: <AudioLines className="w-5 h-5" /> },
+    { value: "face", label: "Character", labelDe: "Charakter", icon: <Smile className="w-5 h-5" /> },
   ];
 
   const languageOptions = [
@@ -736,6 +743,64 @@ export default function Settings() {
                   }}
                 />
               </div>
+            </CalmCard>
+
+            {/* Avatar Style */}
+            <CalmCard variant="elevated">
+              <button
+                onClick={() => toggleSection("avatarStyle")}
+                className="w-full flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+                    <Smile className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-foreground">
+                      {language === "de" ? "Avatar-Stil" : "Avatar Style"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {language === "de" 
+                        ? avatarStyleOptions.find(o => o.value === voiceSettings.avatarStyle)?.labelDe
+                        : avatarStyleOptions.find(o => o.value === voiceSettings.avatarStyle)?.label}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSection === "avatarStyle" ? "rotate-90" : ""}`} />
+              </button>
+              
+              {expandedSection === "avatarStyle" && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  className="mt-4 pt-4 border-t border-border/50 space-y-2"
+                >
+                  {avatarStyleOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        updateVoiceSetting("avatarStyle", option.value);
+                        toast({ title: t("settings.saved"), description: t("settings.preferencesUpdated") });
+                      }}
+                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
+                        voiceSettings.avatarStyle === option.value 
+                          ? "bg-primary-soft" 
+                          : "hover:bg-muted/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="text-primary">{option.icon}</div>
+                        <span className="font-medium text-foreground">
+                          {language === "de" ? option.labelDe : option.label}
+                        </span>
+                      </div>
+                      {voiceSettings.avatarStyle === option.value && (
+                        <Check className="w-5 h-5 text-primary" />
+                      )}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
             </CalmCard>
           </div>
         </motion.div>
