@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lightbulb, RefreshCw, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,11 +38,18 @@ const prompts = {
 
 export function JournalPrompts({ onSelectPrompt }: JournalPromptsProps) {
   const { language } = useTranslation();
-  const promptList = prompts[language as "en" | "de"] || prompts.en;
+  // Ensure language is correctly typed - default to "de" if not "en"
+  const currentLang: "en" | "de" = language === "en" ? "en" : "de";
+  const promptList = prompts[currentLang];
   
   const [displayedPrompts, setDisplayedPrompts] = useState(() => 
     shuffleArray(promptList).slice(0, 3)
   );
+
+  // Re-shuffle prompts when language changes
+  useEffect(() => {
+    setDisplayedPrompts(shuffleArray(prompts[currentLang]).slice(0, 3));
+  }, [currentLang]);
 
   function shuffleArray<T>(array: T[]): T[] {
     const shuffled = [...array];
@@ -54,7 +61,7 @@ export function JournalPrompts({ onSelectPrompt }: JournalPromptsProps) {
   }
 
   const refreshPrompts = () => {
-    setDisplayedPrompts(shuffleArray(promptList).slice(0, 3));
+    setDisplayedPrompts(shuffleArray(prompts[currentLang]).slice(0, 3));
   };
 
   return (
