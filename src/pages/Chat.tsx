@@ -485,12 +485,13 @@ export default function Chat() {
     navigate("/settings", { state: { scrollTo: "premium" } });
   };
 
-  // BottomNav is ~72px + safe-area-inset-bottom
+  // BottomNav is ~72px, safe area is handled separately by the nav itself
   return (
     <div 
       className="fixed inset-0 flex flex-col bg-background overflow-hidden z-10"
       style={{ 
         paddingTop: 'env(safe-area-inset-top, 0px)',
+        // Nav is 72px + safe-area which the nav handles internally
         paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))'
       }}
     >

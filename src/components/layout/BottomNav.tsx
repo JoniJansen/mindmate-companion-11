@@ -48,9 +48,9 @@ export function BottomNav() {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 bg-background backdrop-blur-xl border-t border-border/30"
-      style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}
+      className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border/30"
     >
+      {/* Navigation items */}
       <div className="flex items-center justify-around px-2 md:px-4 py-2 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to || 
@@ -91,6 +91,11 @@ export function BottomNav() {
           );
         })}
       </div>
+      {/* Safe area spacer - this fills the area below the home indicator on iPhone */}
+      <div 
+        className="bg-background w-full"
+        style={{ height: 'env(safe-area-inset-bottom, 0px)' }}
+      />
     </nav>
   );
 }
