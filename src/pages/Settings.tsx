@@ -234,7 +234,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen min-h-[100dvh] bg-background" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
       <PageHeader 
         title={t("settings.title")} 
         subtitle={t("settings.subtitle")}

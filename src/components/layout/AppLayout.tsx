@@ -19,10 +19,13 @@ export function AppLayout() {
   
   return (
     <div 
-      className="min-h-screen bg-background flex flex-col"
-      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      className="min-h-screen min-h-[100dvh] bg-background flex flex-col"
+      style={{ 
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: shouldHideNav ? 'env(safe-area-inset-bottom, 0px)' : '0px'
+      }}
     >
-      <main className={`flex-1 ${shouldHideNav || isChat ? "" : "pb-24"}`} style={!shouldHideNav && !isChat ? { paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' } : {}}>
+      <main className={`flex-1 ${shouldHideNav || isChat ? "" : ""}`} style={!shouldHideNav && !isChat ? { paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' } : {}}>
         <Outlet />
       </main>
       {!shouldHideNav && (

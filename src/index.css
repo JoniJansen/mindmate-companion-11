@@ -142,15 +142,23 @@
     @apply border-border;
   }
 
+  /* Ensure html and body fill entire viewport with correct background */
+  html {
+    @apply bg-background;
+    overscroll-behavior: none;
+    /* Fill the entire device viewport including safe areas */
+    min-height: 100%;
+    min-height: 100dvh;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Plus Jakarta Sans', sans-serif;
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
-  }
-  
-  html {
-    overscroll-behavior: none;
+    /* Ensure body fills entire viewport */
+    min-height: 100%;
+    min-height: 100dvh;
   }
   
   /* Prevent iOS elastic scroll on body */
@@ -161,6 +169,9 @@
   
   #root {
     overflow: auto;
+    @apply bg-background;
+    min-height: 100%;
+    min-height: 100dvh;
   }
 
   h1, h2, h3, h4, h5, h6 {
