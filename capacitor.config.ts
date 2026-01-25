@@ -11,24 +11,25 @@ const config: CapacitorConfig = {
   },
   ios: {
     contentInset: "automatic",
-    backgroundColor: "#0f172a",
+    // Use transparent or match the app background - not dark blue
+    backgroundColor: "#f8f6f4",
     scheme: "MindMate",
     preferredContentMode: "mobile"
   },
   android: {
-    backgroundColor: "#0f172a"
+    backgroundColor: "#f8f6f4"
   },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
       launchAutoHide: true,
-      backgroundColor: "#0f172a",
+      backgroundColor: "#f8f6f4",
       androidSplashResourceName: "splash",
       showSpinner: false,
     },
     StatusBar: {
       style: "dark",
-      backgroundColor: "#0f172a"
+      backgroundColor: "#f8f6f4"
     }
   }
 };

@@ -261,14 +261,14 @@ export const translations: Translations = {
   "voice.listening": { en: "Listening...", de: "Hört zu..." },
   "voice.tapToSpeak": { en: "Tap to speak", de: "Tippen zum Sprechen" },
   "voice.micPermissionDenied": { en: "Microphone access denied", de: "Mikrofonzugriff verweigert" },
-  "voice.enableMic": { en: "Please enable microphone access in your browser settings", de: "Bitte aktiviere den Mikrofonzugriff in deinen Browsereinstellungen" },
+  "voice.enableMic": { en: "Please enable microphone access in Settings → MindMate → Microphone", de: "Bitte aktiviere den Mikrofonzugriff unter Einstellungen → MindMate → Mikrofon" },
   "voice.send": { en: "Send", de: "Senden" },
   "voice.edit": { en: "Edit", de: "Bearbeiten" },
   "voice.play": { en: "Play", de: "Abspielen" },
   "voice.stop": { en: "Stop", de: "Stoppen" },
   "voice.generating": { en: "Generating...", de: "Wird generiert..." },
-  "voice.notSupported": { en: "Voice input not supported in this browser", de: "Spracheingabe wird in diesem Browser nicht unterstützt" },
-  "voice.tryChrome": { en: "Try using Chrome or Edge for voice features", de: "Verwende Chrome oder Edge für Sprachfunktionen" },
+  "voice.notSupported": { en: "Voice input is not available", de: "Spracheingabe ist nicht verfügbar" },
+  "voice.tryChrome": { en: "Voice features require microphone access in your device settings", de: "Sprachfunktionen benötigen Mikrofonzugriff in deinen Geräteeinstellungen" },
 };
 
 // Exercise translations
