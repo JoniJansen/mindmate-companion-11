@@ -9,13 +9,15 @@ interface VoiceAvatarProps {
   isListening?: boolean;
   avatarStyle?: AvatarStyle;
   size?: "sm" | "md" | "lg";
+  onTap?: () => void;
 }
 
 export function VoiceAvatar({ 
   isSpeaking, 
   isListening = false,
   avatarStyle = "orb", 
-  size = "md" 
+  size = "md",
+  onTap
 }: VoiceAvatarProps) {
   const { language } = useTranslation();
   
@@ -287,11 +289,19 @@ export function VoiceAvatar({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {renderAvatar()}
+      {/* Make avatar tappable */}
+      <button 
+        onClick={onTap}
+        className="focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full transition-transform active:scale-95"
+        aria-label={getStatusText()}
+      >
+        {renderAvatar()}
+      </button>
       
-      {/* Status indicator */}
-      <motion.div
-        className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 backdrop-blur-sm"
+      {/* Status indicator - also tappable */}
+      <motion.button
+        onClick={onTap}
+        className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 backdrop-blur-sm cursor-pointer hover:bg-muted/70 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -314,7 +324,7 @@ export function VoiceAvatar({
         <span className="text-sm text-muted-foreground font-medium">
           {getStatusText()}
         </span>
-      </motion.div>
+      </motion.button>
     </div>
   );
 }

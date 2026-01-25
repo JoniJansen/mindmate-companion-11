@@ -143,7 +143,7 @@ export default function Safety() {
   const emergencyNumber = language === "de" ? "112" : "911";
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen min-h-[100dvh] bg-background">
       <PageHeader 
         title={t("safety.title")} 
         subtitle={t("safety.subtitle")}
@@ -151,7 +151,7 @@ export default function Safety() {
         backTo="/chat"
       />
 
-      <div className="px-4 py-4 max-w-lg mx-auto">
+      <div className="px-4 py-4 max-w-lg mx-auto" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         {/* Emergency banner */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}

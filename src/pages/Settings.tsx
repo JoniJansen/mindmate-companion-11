@@ -234,7 +234,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-background" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+    <div className="min-h-screen min-h-[100dvh] bg-background">
       <PageHeader 
         title={t("settings.title")} 
         subtitle={t("settings.subtitle")}
@@ -242,7 +242,7 @@ export default function Settings() {
         backTo="/"
       />
 
-      <div className="px-4 py-4 max-w-lg mx-auto space-y-6">
+      <div className="px-4 py-4 max-w-lg mx-auto space-y-6" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         {/* Subscription */}
         <SubscriptionSection onUpgradeClick={() => navigate("/upgrade")} />
 
