@@ -490,8 +490,7 @@ export default function Chat() {
     <div 
       className="fixed inset-0 flex flex-col bg-background overflow-hidden z-10"
       style={{ 
-        paddingTop: 'env(safe-area-inset-top, 0px)',
-        // Nav is 72px + safe-area which the nav handles internally
+        // Safe area handled by PageHeader for top, and nav for bottom
         paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))'
       }}
     >
@@ -568,7 +567,8 @@ export default function Chat() {
                 isSpeaking={isSpeaking} 
                 isListening={isListening}
                 avatarStyle={voiceSettings.avatarStyle || "orb"}
-                size="lg" 
+                size="lg"
+                onTap={toggleRecording}
               />
             </div>
           </motion.div>
