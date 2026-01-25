@@ -18,8 +18,11 @@ export function AppLayout() {
   const isChat = location.pathname === "/chat" || location.pathname.startsWith("/chat");
   
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <main className={`flex-1 ${shouldHideNav || isChat ? "" : "pb-24"}`}>
+    <div 
+      className="min-h-screen bg-background flex flex-col"
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+    >
+      <main className={`flex-1 ${shouldHideNav || isChat ? "" : "pb-24"}`} style={!shouldHideNav && !isChat ? { paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' } : {}}>
         <Outlet />
       </main>
       {!shouldHideNav && (

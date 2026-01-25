@@ -145,6 +145,22 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  html {
+    overscroll-behavior: none;
+  }
+  
+  /* Prevent iOS elastic scroll on body */
+  html, body, #root {
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  #root {
+    overflow: auto;
   }
 
   h1, h2, h3, h4, h5, h6 {

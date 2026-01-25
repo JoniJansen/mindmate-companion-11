@@ -481,9 +481,15 @@ export default function Chat() {
     navigate("/settings", { state: { scrollTo: "premium" } });
   };
 
-  // BottomNav is ~72px (py-2.5 + icon + label + safe-area)
+  // BottomNav is ~72px + safe-area-inset-bottom
   return (
-    <div className="fixed inset-0 top-0 bottom-[72px] flex flex-col bg-background overflow-hidden z-10">
+    <div 
+      className="fixed inset-0 flex flex-col bg-background overflow-hidden z-10"
+      style={{ 
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))'
+      }}
+    >
       
       <PageHeader
         title={t("chat.title")}
@@ -587,7 +593,7 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-4 overscroll-contain">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-4 overscroll-none touch-pan-y">
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto space-y-4">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
@@ -701,7 +707,7 @@ export default function Chat() {
 
       {/* Input Area - Fixed at bottom */}
       <div className="shrink-0 border-t border-border/50 bg-card/80 backdrop-blur-md">
-        <div className="px-4 md:px-6 lg:px-8 py-5">
+        <div className="px-4 md:px-6 lg:px-8 py-3">
           <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-center gap-2 md:gap-3">
             {/* Auto-speak toggle (premium only) */}
             <TooltipProvider delayDuration={300}>
@@ -794,8 +800,6 @@ export default function Chat() {
             </div>
           </div>
         </div>
-        {/* Safe area spacer - only adds space on devices with home indicator */}
-        <div style={{ height: 'env(safe-area-inset-bottom, 0px)' }} />
       </div>
     </div>
   );
