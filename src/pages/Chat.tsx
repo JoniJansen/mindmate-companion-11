@@ -129,14 +129,18 @@ export default function Chat() {
     },
   });
 
-  // Handle STT errors
+  // Handle STT errors - use ref to prevent repeated toasts
+  const hasShownMicErrorRef = useRef(false);
   useEffect(() => {
-    if (sttError === "not-allowed") {
+    if (sttError === "not-allowed" && !hasShownMicErrorRef.current) {
+      hasShownMicErrorRef.current = true;
       toast({
         title: t("voice.micPermissionDenied"),
         description: t("voice.enableMic"),
         variant: "destructive",
       });
+    } else if (!sttError) {
+      hasShownMicErrorRef.current = false;
     }
   }, [sttError, t, toast]);
 
