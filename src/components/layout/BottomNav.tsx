@@ -23,7 +23,7 @@ export function BottomNav() {
     { 
       to: "/journal", 
       icon: BookOpen, 
-      label: language === "de" ? "Journal" : "Journal",
+      label: language === "de" ? "Tagebuch" : "Journal",
       tourId: "journal",
     },
     { 

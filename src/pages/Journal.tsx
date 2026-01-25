@@ -315,7 +315,7 @@ export default function Journal() {
   // List mode
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="Journal" subtitle={language === "de" ? "Deine Gedanken, dein Raum" : "Your thoughts, your space"} />
+      <PageHeader title={language === "de" ? "Tagebuch" : "Journal"} subtitle={language === "de" ? "Deine Gedanken, dein Raum" : "Your thoughts, your space"} />
 
       <div className="px-4 md:px-6 lg:px-8 py-4 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-6">
         {/* Weekly Recap Card */}

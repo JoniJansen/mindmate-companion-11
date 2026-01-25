@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Calendar, Lock, ChevronRight, MessageSquare } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface JournalEntryCardProps {
   id: string;
@@ -13,15 +14,15 @@ interface JournalEntryCardProps {
   index: number;
 }
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string, language: "en" | "de" = "en") => {
   const date = new Date(dateString);
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  if (date.toDateString() === today.toDateString()) return "Today";
-  if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  if (date.toDateString() === today.toDateString()) return language === "de" ? "Heute" : "Today";
+  if (date.toDateString() === yesterday.toDateString()) return language === "de" ? "Gestern" : "Yesterday";
+  return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: "short", day: "numeric" });
 };
 
 export function JournalEntryCard({ 
@@ -33,6 +34,7 @@ export function JournalEntryCard({
   onClick, 
   index 
 }: JournalEntryCardProps) {
+  const { language } = useTranslation();
   const isFromChat = source === 'chat';
   const preview = content.length > 100 ? content.substring(0, 100) + "..." : content;
 
@@ -61,11 +63,11 @@ export function JournalEntryCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-medium text-foreground truncate">
-                {title || "Untitled Entry"}
+                {title || (language === "de" ? "Ohne Titel" : "Untitled Entry")}
               </h3>
               {isFromChat && (
                 <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                  from chat
+                  {language === "de" ? "aus Chat" : "from chat"}
                 </span>
               )}
             </div>
@@ -74,7 +76,7 @@ export function JournalEntryCard({
             </p>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Calendar className="w-3 h-3" />
-              {formatDate(createdAt)}
+              {formatDate(createdAt, language as "en" | "de")}
             </div>
           </div>
 
