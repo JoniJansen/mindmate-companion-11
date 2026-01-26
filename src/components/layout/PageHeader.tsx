@@ -33,7 +33,8 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
         className={`shrink-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/30 ${className}`}
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
-        <div className="flex items-center justify-between px-4 md:px-6 lg:px-8 py-3.5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full">
+        {/* Reduced py from 3.5 to 2.5 for tighter header, safe-area handled above */}
+        <div className="flex items-center justify-between px-4 md:px-6 lg:px-8 py-2.5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {showBack && (
               <Button 
