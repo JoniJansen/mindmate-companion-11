@@ -12,21 +12,23 @@ interface CalmCardProps extends Omit<HTMLMotionProps<"div">, "ref"> {
 
 export const CalmCard = React.forwardRef<HTMLDivElement, CalmCardProps>(
   ({ children, className, variant = "default", onClick, animate = true, ...props }, ref) => {
-    const baseStyles = "rounded-2xl p-4 transition-all duration-300";
+    const baseStyles = "rounded-2xl p-4 transition-all duration-200";
     
     const variantStyles = {
-      default: "bg-card border border-border/40 shadow-soft",
-      elevated: "bg-card border border-border/25 shadow-card",
-      accent: "bg-accent-soft/60 border border-accent/15",
-      gentle: "bg-gentle-soft/60 border border-gentle/15",
-      calm: "bg-calm-soft/60 border border-calm/15",
+      default: "bg-card border border-border/50 shadow-soft",
+      elevated: "bg-card border border-border/40 shadow-card",
+      accent: "bg-accent-soft/50 border border-accent/12",
+      gentle: "bg-gentle-soft/50 border border-gentle/12",
+      calm: "bg-calm-soft/50 border border-calm/12",
     };
+
+    const hoverStyles = onClick ? "cursor-pointer hover:shadow-card hover:border-border/60 active:scale-[0.99]" : "";
 
     if (!animate) {
       return (
         <div
           ref={ref}
-          className={cn(baseStyles, variantStyles[variant], onClick && "cursor-pointer active:scale-[0.98]", className)}
+          className={cn(baseStyles, variantStyles[variant], hoverStyles, className)}
           onClick={onClick}
         >
           {children}
@@ -37,12 +39,12 @@ export const CalmCard = React.forwardRef<HTMLDivElement, CalmCardProps>(
     return (
       <motion.div
         ref={ref}
-        className={cn(baseStyles, variantStyles[variant], onClick && "cursor-pointer active:scale-[0.98]", className)}
+        className={cn(baseStyles, variantStyles[variant], hoverStyles, className)}
         onClick={onClick}
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        whileTap={onClick ? { scale: 0.98 } : undefined}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        whileTap={onClick ? { scale: 0.99 } : undefined}
         {...props}
       >
         {children}

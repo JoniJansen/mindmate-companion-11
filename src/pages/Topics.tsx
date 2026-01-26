@@ -225,7 +225,7 @@ export default function Topics() {
 
   // Topic list view
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background">
       <PageHeader
         title={language === "de" ? "Themen" : "Topics"}
         subtitle={
@@ -235,7 +235,7 @@ export default function Topics() {
         }
       />
 
-      <div className="px-4 md:px-6 lg:px-8 py-4 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
+      <div className="px-4 md:px-6 lg:px-8 py-5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

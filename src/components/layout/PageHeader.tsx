@@ -30,17 +30,17 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
     return (
       <header 
         ref={ref}
-        className={`shrink-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/20 ${className}`}
+        className={`shrink-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/30 ${className}`}
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
-        <div className="flex items-center justify-between px-4 md:px-6 lg:px-8 py-3 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto w-full">
-          <div className="flex items-center gap-3 flex-1">
+        <div className="flex items-center justify-between px-4 md:px-6 lg:px-8 py-3.5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             {showBack && (
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={handleBack}
-                className="text-muted-foreground hover:text-foreground/80 -ml-2"
+                className="text-muted-foreground hover:text-foreground -ml-2 shrink-0"
               >
                 <ChevronLeft className="w-5 h-5 stroke-[1.8]" />
               </Button>
@@ -49,26 +49,28 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
               <img 
                 src={logoImage} 
                 alt="MindMate" 
-                className="w-8 h-8 object-contain rounded-lg"
+                className="w-9 h-9 object-contain rounded-xl shrink-0"
               />
             )}
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-semibold text-foreground/90 tracking-tight truncate">{title}</h1>
+              <h1 className="text-lg font-semibold text-foreground tracking-tight truncate leading-tight">{title}</h1>
               {subtitle && (
-                <p className="text-xs text-muted-foreground/80 truncate">{subtitle}</p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">{subtitle}</p>
               )}
             </div>
           </div>
-          {rightElement || (showSettings && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-muted-foreground/70 hover:text-foreground/70 hover:bg-muted/40"
-              onClick={() => navigate("/settings")}
-            >
-              <Settings className="w-[18px] h-[18px] stroke-[1.8]" />
-            </Button>
-          ))}
+          <div className="flex items-center gap-1 shrink-0">
+            {rightElement || (showSettings && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                onClick={() => navigate("/settings")}
+              >
+                <Settings className="w-[18px] h-[18px] stroke-[1.8]" />
+              </Button>
+            ))}
+          </div>
         </div>
       </header>
     );

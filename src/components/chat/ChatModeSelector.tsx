@@ -49,7 +49,7 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
   const { language } = useTranslation();
 
   return (
-    <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex gap-2 overflow-x-auto scrollbar-hide">
       {modes.map((mode) => {
         const isActive = activeMode === mode.id;
         const isLocked = lockedModes.includes(mode.id);
@@ -59,18 +59,18 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
           <motion.button
             key={mode.id}
             onClick={() => onModeChange(mode.id)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-200 ${
               isActive
-                ? "bg-primary text-primary-foreground shadow-sm"
+                ? "bg-primary text-primary-foreground shadow-soft"
                 : isLocked
-                  ? "bg-muted/30 text-muted-foreground/60"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-muted/20 text-muted-foreground/50 border border-border/30"
+                  : "bg-muted/40 text-muted-foreground hover:bg-muted/60 hover:text-foreground border border-transparent"
             }`}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.97 }}
           >
             <Icon className="w-4 h-4" />
             <span>{language === "de" ? mode.labelDe : mode.labelEn}</span>
-            {isLocked && <Lock className="w-3 h-3 ml-0.5" />}
+            {isLocked && <Lock className="w-3 h-3 ml-0.5 opacity-60" />}
           </motion.button>
         );
       })}

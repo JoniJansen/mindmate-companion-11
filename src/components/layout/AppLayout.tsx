@@ -7,25 +7,34 @@ import { useBackupReminder } from "@/hooks/useBackupReminder";
 export function AppLayout() {
   const location = useLocation();
   
-  // Initialize backup reminder - this will show notification if overdue
+  // Initialize backup reminder
   useBackupReminder();
   
-  // Pages that should NOT show the bottom nav and footer (Chat keeps nav visible)
+  // Pages that should NOT show the bottom nav and footer
   const hideNavRoutes = ["/settings", "/safety", "/summary"];
   const shouldHideNav = hideNavRoutes.some(route => location.pathname.startsWith(route));
   
   // Chat page manages its own height/padding
   const isChat = location.pathname === "/chat" || location.pathname.startsWith("/chat");
   
+  // Calculate bottom padding for nav
+  const bottomNavHeight = 68; // Slightly smaller, more refined
+  
   return (
     <div 
-      className="min-h-screen min-h-[100dvh] bg-background flex flex-col"
+      className="flex flex-col bg-background"
       style={{ 
+        minHeight: '100dvh',
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: shouldHideNav ? 'env(safe-area-inset-bottom, 0px)' : '0px'
       }}
     >
-      <main className={`flex-1 ${shouldHideNav || isChat ? "" : ""}`} style={!shouldHideNav && !isChat ? { paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' } : {}}>
+      <main 
+        className="flex-1 scroll-stable"
+        style={!shouldHideNav && !isChat ? { 
+          paddingBottom: `calc(${bottomNavHeight}px + env(safe-area-inset-bottom, 0px))` 
+        } : {}}
+      >
         <Outlet />
       </main>
       {!shouldHideNav && (
