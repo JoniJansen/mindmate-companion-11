@@ -78,6 +78,11 @@ export default function Toolbox() {
     return translation?.description || exercise.description;
   };
 
+  const getExerciseLongDescription = (exercise: Exercise) => {
+    const translation = getExerciseTranslation(exercise.id);
+    return translation?.longDescription || exercise.longDescription;
+  };
+
   return (
     <div className="flex flex-col h-full bg-background">
       <PageHeader
@@ -223,7 +228,7 @@ export default function Toolbox() {
                 </button>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                {infoExercise.longDescription}
+                {getExerciseLongDescription(infoExercise)}
               </p>
               <div className="space-y-2 text-sm">
                 <p>

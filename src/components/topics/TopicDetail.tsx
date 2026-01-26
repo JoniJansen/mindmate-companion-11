@@ -24,7 +24,7 @@ const stepTypeIcon = {
 export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDetailProps) {
   const [activeTab, setActiveTab] = useState<'path' | 'exercises'>('path');
   const navigate = useNavigate();
-  const { t, getTopicTranslation } = useTranslation();
+  const { t, getTopicTranslation, getExerciseTranslation } = useTranslation();
 
   const translation = getTopicTranslation(topic.id);
   const topicTitle = translation?.title || topic.title;
@@ -33,6 +33,17 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
   
   const getStepTitle = (index: number) => translatedSteps?.[index]?.title || topic.steps[index]?.title;
   const getStepDescription = (index: number) => translatedSteps?.[index]?.description || topic.steps[index]?.description;
+  
+  // Get translated exercise title and description
+  const getExerciseTitle = (exerciseId: string, fallback: string) => {
+    const exTranslation = getExerciseTranslation(exerciseId);
+    return exTranslation?.title || fallback;
+  };
+  
+  const getExerciseDescription = (exerciseId: string, fallback: string) => {
+    const exTranslation = getExerciseTranslation(exerciseId);
+    return exTranslation?.description || fallback;
+  };
 
   const stepTypeLabel: Record<string, string> = {
     reflection: t("topics.stepType.reflection"),
@@ -209,8 +220,12 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-foreground">{exercise.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-1">{exercise.description}</p>
+                      <h3 className="font-medium text-foreground">
+                        {getExerciseTitle(exercise.id, exercise.title)}
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {getExerciseDescription(exercise.id, exercise.description)}
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
