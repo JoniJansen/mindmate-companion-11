@@ -23,13 +23,13 @@ const moodOptions: MoodOption[] = [
 
 export function MoodSelector({ selected, onSelect, size = "md" }: MoodSelectorProps) {
   const sizeClasses = {
-    sm: { button: "w-10 h-10", emoji: "text-lg" },
+    sm: { button: "w-11 h-11", emoji: "text-lg" },
     md: { button: "w-14 h-14", emoji: "text-2xl" },
     lg: { button: "w-16 h-16", emoji: "text-3xl" },
   };
 
   return (
-    <div className="flex justify-between gap-2">
+    <div className="flex justify-between gap-2.5">
       {moodOptions.map((mood) => {
         const isSelected = selected === mood.value;
 
@@ -37,14 +37,14 @@ export function MoodSelector({ selected, onSelect, size = "md" }: MoodSelectorPr
           <motion.button
             key={mood.value}
             onClick={() => onSelect(mood.value)}
-            className={`${sizeClasses[size].button} rounded-2xl flex items-center justify-center transition-all duration-300 ${
+            className={`${sizeClasses[size].button} rounded-2xl flex items-center justify-center transition-all duration-200 ${
               isSelected
-                ? `${mood.color} ring-2 ring-primary/60 ring-offset-2 ring-offset-background`
-                : "bg-muted/40 hover:bg-muted/60"
+                ? `${mood.color} ring-2 ring-primary/50 ring-offset-2 ring-offset-background shadow-soft`
+                : "bg-muted/30 hover:bg-muted/50 border border-border/40"
             }`}
-            whileTap={{ scale: 0.92 }}
-            whileHover={{ scale: 1.04 }}
-            transition={{ type: "spring", stiffness: 350, damping: 20 }}
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
             <span className={sizeClasses[size].emoji}>{mood.emoji}</span>
           </motion.button>

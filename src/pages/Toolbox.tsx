@@ -78,7 +78,7 @@ export default function Toolbox() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background">
       <PageHeader
         title={language === "de" ? "Übungen" : "Toolbox"}
         subtitle={
@@ -88,7 +88,7 @@ export default function Toolbox() {
         }
       />
 
-      <div className="px-4 md:px-6 lg:px-8 py-4 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
+      <div className="px-4 md:px-6 lg:px-8 py-5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
         {/* Category filters */}
         <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((cat) => (

@@ -49,13 +49,13 @@ export function FeelingTags({ selected, onToggle, language = "en" }: FeelingTags
           <motion.button
             key={feeling}
             onClick={() => onToggle(feeling)}
-            className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+            className={`px-3.5 py-1.5 rounded-xl text-[13px] font-medium transition-all duration-200 ${
               isSelected
-                ? "bg-primary/85 text-primary-foreground"
-                : "bg-muted/50 text-muted-foreground/80 hover:bg-muted/70 hover:text-foreground/80"
+                ? "bg-primary text-primary-foreground shadow-soft"
+                : "bg-muted/40 text-muted-foreground hover:bg-muted/60 hover:text-foreground border border-border/40"
             }`}
-            whileTap={{ scale: 0.96 }}
-            transition={{ type: "spring", stiffness: 350, damping: 20 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
             {feeling}
           </motion.button>

@@ -485,13 +485,15 @@ export default function Chat() {
     navigate("/settings", { state: { scrollTo: "premium" } });
   };
 
-  // BottomNav is ~72px, safe area is handled separately by the nav itself
+  // Refined bottom nav height for chat
+  const bottomNavHeight = 68;
+  
   return (
     <div 
       className="fixed inset-0 flex flex-col bg-background overflow-hidden z-10"
       style={{ 
-        // Safe area handled by PageHeader for top, and nav for bottom
-        paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))'
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: `calc(${bottomNavHeight}px + env(safe-area-inset-bottom, 0px))`
       }}
     >
       
@@ -537,8 +539,8 @@ export default function Chat() {
         }
       />
 
-      {/* Mode Selector - with premium gating for clarify/patterns */}
-      <div className="px-4 md:px-6 lg:px-8 py-2 border-b border-border/30">
+      {/* Mode Selector */}
+      <div className="px-4 md:px-6 lg:px-8 py-2.5 border-b border-border/30 bg-background/50">
         <ChatModeSelector 
           activeMode={chatMode} 
           onModeChange={handleModeChange}
@@ -597,23 +599,24 @@ export default function Chat() {
         )}
       </AnimatePresence>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-4 overscroll-none touch-pan-y">
-        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto space-y-4">
+      {/* Messages - stable scroll container */}
+      <div className="flex-1 overflow-y-auto scroll-stable px-4 md:px-6 lg:px-8 py-4">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-3">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
               <motion.div 
                 key={message.id} 
-                initial={{ opacity: 0, y: 10 }} 
+                initial={{ opacity: 0, y: 8 }} 
                 animate={{ opacity: 1, y: 0 }} 
+                transition={{ duration: 0.2, ease: "easeOut" }}
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                <div className={`relative max-w-[85%] md:max-w-[70%] lg:max-w-[60%] px-4 py-3 rounded-2xl ${
+                <div className={`relative max-w-[85%] md:max-w-[75%] lg:max-w-[65%] px-4 py-3 rounded-2xl ${
                   message.role === "user" 
-                    ? "bg-primary text-primary-foreground rounded-br-md" 
-                    : "bg-card border border-border/50 text-foreground rounded-bl-md shadow-soft"
+                    ? "bg-primary text-primary-foreground rounded-br-lg" 
+                    : "bg-card border border-border/50 text-foreground rounded-bl-lg shadow-soft"
                 }`}>
-                  <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   
                   {/* Play button for assistant messages */}
                   {message.role === "assistant" && (
@@ -711,9 +714,9 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Input Area - Fixed at bottom */}
-      <div className="shrink-0 border-t border-border/50 bg-card/80 backdrop-blur-md">
+      <div className="shrink-0 border-t border-border/40 bg-background/95 backdrop-blur-lg">
         <div className="px-4 md:px-6 lg:px-8 py-3">
-          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mx-auto flex items-center gap-2 md:gap-3">
+          <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex items-center gap-2">
             {/* Auto-speak toggle (premium only) */}
             <TooltipProvider delayDuration={300}>
               <Tooltip>

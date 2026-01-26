@@ -180,13 +180,13 @@ export default function Mood() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background">
       <PageHeader
         title={language === "de" ? "Stimmung" : "Mood"}
         subtitle={language === "de" ? "Wie geht es dir gerade?" : "How are you feeling right now?"}
       />
 
-      <div className="px-4 md:px-6 lg:px-8 py-4 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-6">
+      <div className="px-4 md:px-6 lg:px-8 py-5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-5">
         {/* Today's Check-in */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <CalmCard variant="calm">

@@ -23,38 +23,38 @@ const colorMap: Record<string, string> = {
 export function TopicCard({ topic, progress = 0, onClick, index, translatedTitle, translatedDescription }: TopicCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: index * 0.04, duration: 0.2, ease: "easeOut" }}
     >
       <CalmCard 
         variant="elevated" 
-        className={`border-l-4 ${colorMap[topic.color]} cursor-pointer hover:shadow-elevated transition-shadow`}
+        className={`border-l-4 ${colorMap[topic.color]} cursor-pointer hover:shadow-elevated transition-all duration-200`}
         onClick={onClick}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-2xl shrink-0">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center text-2xl shrink-0 border border-border/30">
             {topic.icon}
           </div>
           
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-foreground">{translatedTitle || topic.title}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-1">{translatedDescription || topic.description}</p>
+            <h3 className="font-medium text-foreground leading-tight">{translatedTitle || topic.title}</h3>
+            <p className="text-sm text-muted-foreground line-clamp-1 leading-relaxed">{translatedDescription || topic.description}</p>
             {progress > 0 && (
-              <div className="mt-2">
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+              <div className="mt-2.5">
+                <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-primary rounded-full"
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
                   />
                 </div>
               </div>
             )}
           </div>
           
-          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
         </div>
       </CalmCard>
     </motion.div>

@@ -38,9 +38,9 @@ export function MoodChart({ data, showLabels = true }: MoodChartProps) {
   const maxValue = 5;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {/* Chart bars */}
-      <div className="flex items-end justify-between gap-1 h-24">
+      <div className="flex items-end justify-between gap-1.5 h-28">
         {chartData.map((day, index) => {
           const height = day.value ? (day.value / maxValue) * 100 : 0;
           const isToday = index === chartData.length - 1;
@@ -48,22 +48,22 @@ export function MoodChart({ data, showLabels = true }: MoodChartProps) {
           return (
             <div
               key={day.label + index}
-              className="flex-1 flex flex-col items-center gap-1"
+              className="flex-1 flex flex-col items-center gap-1.5"
             >
               <motion.div
-                className={`w-full max-w-8 rounded-t-lg transition-colors ${
+                className={`w-full max-w-9 rounded-lg transition-colors ${
                   day.value
                     ? isToday
-                      ? "bg-primary"
-                      : "bg-calm/60"
-                    : "bg-muted/30"
+                      ? "bg-primary shadow-soft"
+                      : "bg-calm/50"
+                    : "bg-muted/25 border border-border/30"
                 }`}
                 initial={{ height: 0 }}
-                animate={{ height: `${Math.max(height, 8)}%` }}
-                transition={{ delay: index * 0.05, duration: 0.3 }}
+                animate={{ height: `${Math.max(height, 10)}%` }}
+                transition={{ delay: index * 0.04, duration: 0.25, ease: "easeOut" }}
               />
               {day.value && (
-                <span className="text-xs">{getMoodEmoji(day.value)}</span>
+                <span className="text-sm">{getMoodEmoji(day.value)}</span>
               )}
             </div>
           );
@@ -76,10 +76,10 @@ export function MoodChart({ data, showLabels = true }: MoodChartProps) {
           {chartData.map((day, index) => (
             <span
               key={day.label + index}
-              className={`text-xs ${
+              className={`text-xs font-medium ${
                 index === chartData.length - 1
-                  ? "text-primary font-medium"
-                  : "text-muted-foreground"
+                  ? "text-primary"
+                  : "text-muted-foreground/70"
               }`}
             >
               {day.label}
