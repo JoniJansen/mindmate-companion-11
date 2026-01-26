@@ -229,7 +229,7 @@ export default function Chat() {
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   useEffect(() => { scrollToBottom(); }, [messages]);
 
-  // Initial greeting or message from navigation
+  // Initial greeting - controlled static message for perfect text flow
   useEffect(() => {
     const initialMessage = localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
     
@@ -238,24 +238,24 @@ export default function Chat() {
         localStorage.removeItem('mindmate-initial-message');
         handleSend(initialMessage);
       } else {
-        setIsLoading(true);
-        const greetingPrompt = language === "de"
-          ? "Der Nutzer hat den Chat geöffnet. Begrüße ihn kurz und warm in 1-2 Sätzen."
-          : "The user opened the chat. Greet them briefly and warmly in 1-2 sentences.";
-        await streamChat({
-          messages: [{ role: "user", content: greetingPrompt }],
-          onDelta: (chunk) => upsertAssistant(chunk),
-          onDone: (fullResponse) => {
-            setIsLoading(false);
-            // Auto-play greeting if enabled AND premium (but not if user is recording)
-            if (canUseVoice && voiceSettings.autoPlayReplies && fullResponse && !isListening) {
-              const voiceId = getVoiceId(language as "en" | "de");
-              const effectiveLang = getEffectiveLanguage(language as "en" | "de");
-              speakTTS(fullResponse, voiceId, effectiveLang, voiceSettings.speed, "greeting");
-            }
-          },
-          onError: handleError,
-        });
+        // Use a carefully crafted static greeting for optimal text flow
+        const staticGreeting = language === "de"
+          ? "Hallo. Ich bin MindMate und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
+          : "Hello. I'm MindMate, and\nI'm here to listen.\n\nTake your time – share what's on your mind.";
+        
+        setMessages([{
+          id: "greeting",
+          content: staticGreeting,
+          role: "assistant",
+          timestamp: new Date(),
+        }]);
+        
+        // Auto-play greeting if enabled AND premium
+        if (canUseVoice && voiceSettings.autoPlayReplies && !isListening) {
+          const voiceId = getVoiceId(language as "en" | "de");
+          const effectiveLang = getEffectiveLanguage(language as "en" | "de");
+          speakTTS(staticGreeting.replace(/\n/g, ' '), voiceId, effectiveLang, voiceSettings.speed, "greeting");
+        }
       }
     };
     init();
@@ -673,15 +673,27 @@ export default function Chat() {
         </div>
       )}
 
-      {/* Quick Replies - stable, min touch targets */}
+      {/* Quick Replies with transition prompt - stable, min touch targets */}
       {messages.length <= 2 && !isLoading && (
-        <div className="shrink-0 px-4 pb-2 bg-background">
-          <div className="max-w-lg mx-auto flex flex-wrap gap-2">
-            {getQuickReplies().map((reply) => (
-              <Button key={reply} variant="outline" size="sm" onClick={() => handleSend(reply)} className="text-[13px] min-h-[44px]">
-                {reply}
-              </Button>
-            ))}
+        <div className="shrink-0 px-4 pb-3 bg-background">
+          <div className="max-w-lg mx-auto">
+            {/* Transition prompt */}
+            <p className="text-xs text-muted-foreground text-center mb-3">
+              {language === "de" ? "Wie möchtest du starten?" : "How would you like to start?"}
+            </p>
+            {/* CTA Buttons */}
+            <div className="flex flex-col gap-2">
+              {getQuickReplies().map((reply) => (
+                <Button 
+                  key={reply} 
+                  variant="outline" 
+                  onClick={() => handleSend(reply)} 
+                  className="text-[14px] min-h-[48px] justify-start px-4 text-left"
+                >
+                  {reply}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       )}
