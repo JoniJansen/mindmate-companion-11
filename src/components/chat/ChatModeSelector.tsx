@@ -58,17 +58,22 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
           <button
             key={mode.id}
             onClick={() => onModeChange(mode.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
+            disabled={isLocked}
+            className={`relative flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
               isActive
                 ? "bg-primary text-primary-foreground shadow-soft"
                 : isLocked
-                  ? "bg-muted/20 text-muted-foreground/50 border border-border/30"
-                  : "bg-muted/40 text-muted-foreground border border-transparent"
+                  ? "bg-muted/20 text-muted-foreground/40 border border-border/30 cursor-not-allowed opacity-60"
+                  : "bg-muted/40 text-muted-foreground border border-transparent hover:bg-muted/60"
             }`}
+            title={isLocked 
+              ? (language === "de" ? "MindMate Plus erforderlich" : "Requires MindMate Plus")
+              : (language === "de" ? mode.descDe : mode.descEn)
+            }
           >
             <Icon className="w-4 h-4" />
             <span>{language === "de" ? mode.labelDe : mode.labelEn}</span>
-            {isLocked && <Lock className="w-3 h-3 ml-0.5 opacity-60" />}
+            {isLocked && <Lock className="w-3 h-3 ml-0.5" />}
           </button>
         );
       })}

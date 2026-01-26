@@ -19,6 +19,7 @@ import { AudioWaveform } from "@/components/chat/AudioWaveform";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
 import { MessagePlayButton } from "@/components/chat/MessagePlayButton";
 import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
+import { ChatDisclaimer } from "@/components/chat/ChatDisclaimer";
 
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
@@ -555,7 +556,10 @@ export default function Chat() {
         />
       </div>
 
-      {/* Message Limit Indicator */}
+      {/* Chat Disclaimer - shows once on first visit */}
+      <ChatDisclaimer />
+
+      {/* Message Limit Indicator - always visible for free users */}
       <MessageLimitIndicator 
         messagesRemaining={messagesRemaining}
         dailyLimit={dailyMessageLimit}

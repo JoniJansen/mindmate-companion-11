@@ -16,40 +16,38 @@ export function MessageLimitIndicator({
   // Don't show for premium users
   if (isPremium) return null;
 
-  // Don't show if plenty of messages remaining (more than half)
-  if (messagesRemaining > dailyLimit / 2) return null;
-
+  const messagesUsed = dailyLimit - messagesRemaining;
   const isLow = messagesRemaining <= 3;
   const isEmpty = messagesRemaining <= 0;
 
   const getMessage = () => {
     if (isEmpty) {
-      // Trust layer: gentle, not alarming
       return language === "de" 
-        ? "Dein Tageslimit ist erreicht" 
-        : "You've reached today's limit";
+        ? "Tageslimit erreicht – morgen geht es weiter" 
+        : "Daily limit reached – continue tomorrow";
     }
     if (isLow) {
       return language === "de"
-        ? `Noch ${messagesRemaining} ${messagesRemaining === 1 ? "Nachricht" : "Nachrichten"} heute`
-        : `${messagesRemaining} ${messagesRemaining === 1 ? "message" : "messages"} left today`;
+        ? `${messagesUsed} von ${dailyLimit} Nachrichten heute`
+        : `${messagesUsed} of ${dailyLimit} messages today`;
     }
+    // Always show usage counter for transparency
     return language === "de"
-      ? `${messagesRemaining} Nachrichten übrig`
-      : `${messagesRemaining} messages left`;
+      ? `${messagesUsed} von ${dailyLimit} Nachrichten heute`
+      : `${messagesUsed} of ${dailyLimit} messages today`;
   };
 
   return (
     <div 
-      className={`text-center py-2 px-4 ${
+      className={`text-center py-1.5 px-4 border-b border-border/30 ${
         isEmpty 
           ? "text-muted-foreground bg-muted/30" 
           : isLow 
             ? "text-amber-700/70 dark:text-amber-400/70" 
-            : "text-muted-foreground"
+            : "text-muted-foreground/70"
       }`}
     >
-      <p className="text-xs font-medium">{getMessage()}</p>
+      <p className="text-[11px] font-medium">{getMessage()}</p>
     </div>
   );
 }

@@ -247,24 +247,24 @@ export default function Upgrade() {
           ))}
         </motion.div>
 
-        {/* Features */}
+        {/* Features - compact */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="space-y-3"
+          className="space-y-2"
         >
           {features.map((feature, i) => (
-            <CalmCard key={i} variant="default" className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <feature.icon className="w-5 h-5 text-primary" />
+            <CalmCard key={i} variant="default" className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <feature.icon className="w-4 h-4 text-primary" />
                 </div>
-                <div>
-                  <p className="font-medium text-foreground">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm">
                     {language === "de" ? feature.title.de : feature.title.en}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground truncate">
                     {language === "de" ? feature.description.de : feature.description.en}
                   </p>
                 </div>
