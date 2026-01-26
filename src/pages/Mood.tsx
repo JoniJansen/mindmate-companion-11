@@ -180,16 +180,16 @@ export default function Mood() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-full bg-background">
       <PageHeader
         title={language === "de" ? "Stimmung" : "Mood"}
         subtitle={language === "de" ? "Wie geht es dir gerade?" : "How are you feeling right now?"}
       />
 
-      <div className="px-4 md:px-6 lg:px-8 py-5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-5">
-        {/* Today's Check-in */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <CalmCard variant="calm">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5">
+        <div className="max-w-lg mx-auto space-y-5">
+          {/* Today's Check-in */}
+          <CalmCard variant="calm" animate={false}>
             <div className="space-y-5">
               <div className="text-center">
                 <h2 className="font-medium text-foreground mb-1">
@@ -207,7 +207,7 @@ export default function Mood() {
               <MoodSelector selected={selectedMood} onSelect={setSelectedMood} size="lg" />
 
               {selectedMood !== null && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-4">
+                <div className="space-y-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">
                       {language === "de" ? "Was beschreibt dich gerade?" : "What describes you now?"} <span className="opacity-50">({language === "de" ? "optional" : "optional"})</span>
@@ -231,31 +231,29 @@ export default function Mood() {
                     <Check className="w-4 h-4" />
                     {isSaving ? (language === "de" ? "Speichern..." : "Saving...") : (language === "de" ? "Speichern" : "Save")}
                   </Button>
-                </motion.div>
+                </div>
               )}
             </div>
           </CalmCard>
-        </motion.div>
 
-        {/* Time Filter */}
-        <div className="flex gap-2">
-          {(["7d", "30d", "90d"] as TimeFilter[]).map(filter => (
-            <Button
-              key={filter}
-              variant={timeFilter === filter ? "default" : "outline"}
-              size="sm"
-              onClick={() => setTimeFilter(filter)}
-              className="flex-1"
-            >
-              {timeFilterLabels[filter]}
-            </Button>
-          ))}
-        </div>
+          {/* Time Filter */}
+          <div className="flex gap-2">
+            {(["7d", "30d", "90d"] as TimeFilter[]).map(filter => (
+              <Button
+                key={filter}
+                variant={timeFilter === filter ? "default" : "outline"}
+                size="sm"
+                onClick={() => setTimeFilter(filter)}
+                className="flex-1"
+              >
+                {timeFilterLabels[filter]}
+              </Button>
+            ))}
+          </div>
 
-        {/* Mood Chart */}
-        {checkins.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <CalmCard variant="gentle">
+          {/* Mood Chart */}
+          {checkins.length > 0 && (
+            <CalmCard variant="gentle" animate={false}>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium text-foreground flex items-center gap-2">
@@ -274,13 +272,11 @@ export default function Mood() {
                 <MoodChart data={chartData} showLabels={timeFilter === "7d"} />
               </div>
             </CalmCard>
-          </motion.div>
-        )}
+          )}
 
-        {/* Low Mood Days - Link to Journal */}
-        {lowMoodDays.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <CalmCard variant="gentle" className="cursor-pointer hover:bg-gentle/10" onClick={() => navigate("/journal")}>
+          {/* Low Mood Days - Link to Journal */}
+          {lowMoodDays.length > 0 && (
+            <CalmCard variant="gentle" animate={false} className="cursor-pointer" onClick={() => navigate("/journal")}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gentle/20 flex items-center justify-center">
@@ -298,12 +294,10 @@ export default function Mood() {
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </div>
             </CalmCard>
-          </motion.div>
-        )}
+          )}
 
-        {/* Talk About It */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <CalmCard variant="gentle" className="cursor-pointer hover:bg-gentle/10" onClick={() => navigate("/chat")}>
+          {/* Talk About It */}
+          <CalmCard variant="gentle" animate={false} className="cursor-pointer" onClick={() => navigate("/chat")}>
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-medium text-foreground">
@@ -316,17 +310,17 @@ export default function Mood() {
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </div>
           </CalmCard>
-        </motion.div>
 
-        {/* Empty State */}
-        {!isLoading && checkins.length === 0 && (
-          <CalmCard variant="gentle" className="text-center py-8">
-            <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">
-              {language === "de" ? "Noch keine Check-ins in diesem Zeitraum" : "No check-ins in this period yet"}
-            </p>
-          </CalmCard>
-        )}
+          {/* Empty State */}
+          {!isLoading && checkins.length === 0 && (
+            <CalmCard variant="gentle" animate={false} className="text-center py-8">
+              <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">
+                {language === "de" ? "Noch keine Check-ins in diesem Zeitraum" : "No check-ins in this period yet"}
+              </p>
+            </CalmCard>
+          )}
+        </div>
       </div>
     </div>
   );

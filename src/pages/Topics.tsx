@@ -225,7 +225,7 @@ export default function Topics() {
 
   // Topic list view
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-full bg-background">
       <PageHeader
         title={language === "de" ? "Themen" : "Topics"}
         subtitle={
@@ -235,21 +235,22 @@ export default function Topics() {
         }
       />
 
-      <div className="px-4 md:px-6 lg:px-8 py-5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder={language === "de" ? "Thema suchen..." : "Search topics..."}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-muted/50 border border-border/50 rounded-xl pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5">
+        <div className="max-w-lg mx-auto space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder={language === "de" ? "Thema suchen..." : "Search topics..."}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-muted/30 border border-border/50 rounded-xl pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/40"
+            />
+          </div>
 
-        {/* Topics grid - responsive grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+          {/* Topics grid */}
+          <div className="space-y-3">
           {filteredTopics.map((topic, index) => {
             const topicProgress = getTopicProgress(topic.id, topic.steps.length);
             const hasProgress = topicProgress > 0;
@@ -305,17 +306,18 @@ export default function Topics() {
               </motion.div>
             );
           })}
-        </div>
+          </div>
 
-        {filteredTopics.length === 0 && (
-          <CalmCard variant="gentle" className="text-center py-8">
-            <p className="text-muted-foreground">
-              {language === "de"
-                ? "Keine Themen gefunden"
-                : "No topics found"}
-            </p>
-          </CalmCard>
-        )}
+          {filteredTopics.length === 0 && (
+            <CalmCard variant="gentle" animate={false} className="text-center py-8">
+              <p className="text-muted-foreground">
+                {language === "de"
+                  ? "Keine Themen gefunden"
+                  : "No topics found"}
+              </p>
+            </CalmCard>
+          )}
+        </div>
       </div>
     </div>
   );
