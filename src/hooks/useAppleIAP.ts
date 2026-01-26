@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -26,9 +26,11 @@ interface UseAppleIAPReturn {
   isAvailable: boolean;
   isLoading: boolean;
   products: AppleProduct[];
+  hasRestoredOnce: boolean;
   purchaseProduct: (productId: string) => Promise<boolean>;
   restorePurchases: () => Promise<boolean>;
   verifyReceipt: (receiptData: string) => Promise<boolean>;
+  autoRestoreOnAppStart: () => Promise<void>;
 }
 
 // Check if running in Capacitor iOS environment
@@ -37,6 +39,10 @@ const isCapacitorIOS = (): boolean => {
     'Capacitor' in window && 
     (window as any).Capacitor?.getPlatform?.() === 'ios';
 };
+
+// Auto-restore check key
+const AUTO_RESTORE_KEY = 'mindmate_ios_auto_restored';
+const AUTO_RESTORE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
 // Mock StoreKit bridge - will be replaced by actual Capacitor plugin
 const StoreKitBridge = {
@@ -73,25 +79,11 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
   const [isAvailable, setIsAvailable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState<AppleProduct[]>([]);
+  const [hasRestoredOnce, setHasRestoredOnce] = useState(false);
   const { toast } = useToast();
+  const hasCheckedRef = useRef(false);
 
-  // Check availability on mount
-  useEffect(() => {
-    const checkAvailability = async () => {
-      const available = await StoreKitBridge.isAvailable();
-      setIsAvailable(available);
-      
-      if (available) {
-        // Fetch products from App Store
-        const productIds = Object.values(APPLE_PRODUCTS);
-        const fetchedProducts = await StoreKitBridge.getProducts(productIds);
-        setProducts(fetchedProducts);
-      }
-    };
-    
-    checkAvailability();
-  }, []);
-
+  // Verify receipt with backend
   const verifyReceipt = useCallback(async (receiptData: string): Promise<boolean> => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -106,24 +98,69 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
       if (error) throw error;
 
       if (data?.success && data?.isActive) {
-        toast({
-          title: 'Abo aktiviert',
-          description: 'Dein MindMate Plus Abo ist jetzt aktiv!',
-        });
         return true;
       }
 
       return false;
     } catch (error) {
       console.error('Receipt verification failed:', error);
-      toast({
-        title: 'Fehler',
-        description: 'Abo-Verifizierung fehlgeschlagen',
-        variant: 'destructive',
-      });
       return false;
     }
-  }, [toast]);
+  }, []);
+
+  // Auto-restore on app start - silent check for existing subscription
+  const autoRestoreOnAppStart = useCallback(async () => {
+    if (!isAvailable || hasCheckedRef.current) return;
+    
+    hasCheckedRef.current = true;
+
+    try {
+      // Check if we've restored recently
+      const lastRestore = localStorage.getItem(AUTO_RESTORE_KEY);
+      if (lastRestore) {
+        const lastRestoreTime = parseInt(lastRestore, 10);
+        if (Date.now() - lastRestoreTime < AUTO_RESTORE_INTERVAL) {
+          console.log('StoreKit: Skipping auto-restore, restored recently');
+          return;
+        }
+      }
+
+      console.log('StoreKit: Auto-restoring purchases on app start');
+      const receiptData = await StoreKitBridge.getReceipt();
+      
+      if (receiptData) {
+        const verified = await verifyReceipt(receiptData);
+        if (verified) {
+          console.log('StoreKit: Auto-restore successful, subscription active');
+          setHasRestoredOnce(true);
+          localStorage.setItem(AUTO_RESTORE_KEY, Date.now().toString());
+        }
+      }
+    } catch (error) {
+      console.error('Auto-restore failed:', error);
+      // Silent failure - don't show toast on auto-restore
+    }
+  }, [isAvailable, verifyReceipt]);
+
+  // Check availability and auto-restore on mount
+  useEffect(() => {
+    const initializeIAP = async () => {
+      const available = await StoreKitBridge.isAvailable();
+      setIsAvailable(available);
+      
+      if (available) {
+        // Fetch products from App Store
+        const productIds = Object.values(APPLE_PRODUCTS);
+        const fetchedProducts = await StoreKitBridge.getProducts(productIds);
+        setProducts(fetchedProducts);
+        
+        // Auto-restore on app start
+        await autoRestoreOnAppStart();
+      }
+    };
+    
+    initializeIAP();
+  }, [autoRestoreOnAppStart]);
 
   const purchaseProduct = useCallback(async (productId: string): Promise<boolean> => {
     if (!isAvailable) {
@@ -142,7 +179,14 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
       
       if (transaction?.receiptData) {
         const verified = await verifyReceipt(transaction.receiptData);
-        return verified;
+        if (verified) {
+          toast({
+            title: 'Abo aktiviert',
+            description: 'Dein MindMate Plus Abo ist jetzt aktiv!',
+          });
+          localStorage.setItem(AUTO_RESTORE_KEY, Date.now().toString());
+          return true;
+        }
       }
       
       return false;
@@ -181,6 +225,8 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
             title: 'Käufe wiederhergestellt',
             description: 'Dein Abo wurde erfolgreich wiederhergestellt',
           });
+          setHasRestoredOnce(true);
+          localStorage.setItem(AUTO_RESTORE_KEY, Date.now().toString());
           return true;
         }
       }
@@ -207,8 +253,10 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
     isAvailable,
     isLoading,
     products,
+    hasRestoredOnce,
     purchaseProduct,
     restorePurchases,
     verifyReceipt,
+    autoRestoreOnAppStart,
   };
 };

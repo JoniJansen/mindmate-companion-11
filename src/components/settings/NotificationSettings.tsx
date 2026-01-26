@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, BellOff, Clock, Calendar, TestTube, Check, X } from "lucide-react";
+import { Bell, BellOff, Clock, Calendar, TestTube, Sparkles, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
+import { usePremium } from "@/hooks/usePremium";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationSettingsProps {
   onClose?: () => void;
@@ -14,6 +16,8 @@ interface NotificationSettingsProps {
 export function NotificationSettings({ onClose }: NotificationSettingsProps) {
   const { language } = useTranslation();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { isPremium, canUseReminders } = usePremium();
   const {
     settings,
     updateSettings,
@@ -53,6 +57,14 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
     }
   };
 
+  const handleMoodReminderToggle = (checked: boolean) => {
+    if (!canUseReminders && checked) {
+      navigate("/upgrade");
+      return;
+    }
+    updateSettings({ moodReminder: checked });
+  };
+
   const handleTestNotification = () => {
     sendTestNotification();
     toast({
@@ -67,6 +79,7 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
     { value: "08:00", label: language === "de" ? "08:00 Morgens" : "8:00 AM" },
     { value: "12:00", label: language === "de" ? "12:00 Mittags" : "12:00 PM" },
     { value: "18:00", label: language === "de" ? "18:00 Abends" : "6:00 PM" },
+    { value: "19:00", label: language === "de" ? "19:00 Abends" : "7:00 PM" },
     { value: "20:00", label: language === "de" ? "20:00 Abends" : "8:00 PM" },
     { value: "21:00", label: language === "de" ? "21:00 Abends" : "9:00 PM" },
   ];
@@ -127,6 +140,57 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
             exit={{ opacity: 0, height: 0 }}
             className="space-y-4"
           >
+            {/* Mood Reminder - Premium Feature */}
+            <div className={`p-4 rounded-xl border ${canUseReminders ? 'bg-card border-border/40' : 'bg-muted/20 border-primary/20'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className={`w-4 h-4 ${canUseReminders ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="font-medium text-foreground">
+                    {language === "de" ? "Stimmungs-Erinnerung" : "Mood Reminder"}
+                  </span>
+                  {!canUseReminders && (
+                    <span className="flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                      <Lock className="w-3 h-3" />
+                      Plus
+                    </span>
+                  )}
+                </div>
+                <Switch
+                  checked={settings.moodReminder && canUseReminders}
+                  onCheckedChange={handleMoodReminderToggle}
+                />
+              </div>
+              
+              <p className="text-xs text-muted-foreground mb-3">
+                {language === "de" 
+                  ? "Tägliche Erinnerung für deinen Stimmungs-Check-in"
+                  : "Daily reminder for your mood check-in"}
+              </p>
+              
+              {settings.moodReminder && canUseReminders && (
+                <div className="mt-3">
+                  <label className="text-xs text-muted-foreground mb-2 block">
+                    {language === "de" ? "Uhrzeit" : "Time"}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {timeOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => updateSettings({ moodReminderTime: option.value })}
+                        className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                          settings.moodReminderTime === option.value
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted hover:bg-muted/80 text-foreground"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Daily Reminder */}
             <div className="p-4 rounded-xl bg-card border border-border/40">
               <div className="flex items-center justify-between mb-3">
