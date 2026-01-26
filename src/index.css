@@ -143,10 +143,9 @@
   html {
     @apply bg-background;
     height: 100%;
-    height: 100svh; /* Small viewport height - accounts for iOS address bar */
+    height: 100svh;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
-    /* Prevent text size adjustment on orientation change */
     -webkit-text-size-adjust: 100%;
   }
 
@@ -156,15 +155,14 @@
     height: 100%;
     height: 100svh;
     overscroll-behavior: none;
-    /* Disable iOS rubber-band scrolling on body */
     overflow: hidden;
     position: fixed;
     width: 100%;
-    line-height: 1.6;
-    letter-spacing: -0.01em;
+    /* Trust layer: generous line-height for calm reading */
+    line-height: 1.65;
+    letter-spacing: -0.008em;
   }
   
-  /* Root container - the ONLY element that scrolls */
   #root {
     @apply bg-background;
     position: fixed;
@@ -173,24 +171,56 @@
     right: 0;
     bottom: 0;
     overflow: hidden;
-    /* Ensure it fills the entire screen including notch areas */
     padding: 0;
     margin: 0;
   }
 
-  /* Refined typography hierarchy */
+  /* === TYPOGRAPHY HIERARCHY: Clear visual weight === */
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
     letter-spacing: -0.02em;
+    /* Fixed heights prevent text jumping */
+    min-height: 1.2em;
   }
 
-  h1 { @apply text-2xl md:text-3xl; }
-  h2 { @apply text-xl md:text-2xl; }
-  h3 { @apply text-lg md:text-xl; }
+  h1 { @apply text-2xl md:text-3xl leading-tight; }
+  h2 { @apply text-xl md:text-2xl leading-tight; }
+  h3 { @apply text-lg md:text-xl leading-snug; }
 
-  /* Clean focus states - subtle but visible */
+  /* Paragraph spacing for calm reading */
+  p {
+    line-height: 1.7;
+    letter-spacing: 0.002em;
+  }
+
+  /* === TAP TARGETS: All interactive elements ≥ 44px === */
+  button, 
+  [role="button"],
+  a,
+  input,
+  select,
+  textarea {
+    /* Ensure minimum touch target */
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exception for inline elements */
+  a:not([class*="button"]):not([class*="btn"]) {
+    min-height: auto;
+    min-width: auto;
+  }
+
+  /* === ACTIVE/PRESS STATES: Subtle darkening, no hover feel === */
+  button:active:not(:disabled),
+  [role="button"]:active:not(:disabled) {
+    filter: brightness(0.92);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Clean focus states - subtle ring */
   *:focus-visible {
-    @apply outline-none ring-2 ring-primary/25 ring-offset-1 ring-offset-background;
+    @apply outline-none ring-2 ring-primary/20 ring-offset-1 ring-offset-background;
   }
 }
 
@@ -213,7 +243,6 @@
     padding-top: env(safe-area-inset-top, 0px);
   }
 
-  /* Hide scrollbar but keep functionality */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -222,23 +251,56 @@
     display: none;
   }
 
-  /* === SCROLL STABILITY: Firm, controlled scrolling === */
+  /* === SCROLL STABILITY: Firm, controlled, no bounce === */
   .scroll-container {
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    /* Prevent momentum scroll bleeding */
-    scroll-behavior: smooth;
-    /* Ensure scroll container takes full space */
     flex: 1;
     min-height: 0;
+    /* Controlled scroll end - no springy feel */
+    scroll-behavior: auto;
   }
 
-  /* Fixed elements that should not scroll */
   .scroll-fixed {
     flex-shrink: 0;
     overflow: hidden;
+  }
+
+  /* === SKELETON LOADING: Calm, static placeholders === */
+  .skeleton {
+    @apply bg-muted/50 rounded-lg;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted) / 0.4) 0%,
+      hsl(var(--muted) / 0.6) 50%,
+      hsl(var(--muted) / 0.4) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-wave 2s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-wave {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* === TRUST LAYER: Gentle error states === */
+  .error-gentle {
+    @apply text-muted-foreground bg-muted/30 border border-border/50 rounded-xl p-4;
+  }
+
+  .error-gentle-icon {
+    @apply text-muted-foreground/70;
+  }
+
+  /* === KEYBOARD HANDLING: No layout jump === */
+  @supports (height: 100dvh) {
+    .keyboard-aware {
+      height: 100dvh;
+      transition: height 0.15s ease-out;
+    }
   }
 }
 

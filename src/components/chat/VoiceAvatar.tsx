@@ -289,42 +289,30 @@ export function VoiceAvatar({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* Make avatar tappable */}
+      {/* Make avatar tappable - min 44px touch target */}
       <button 
         onClick={onTap}
-        className="focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full transition-transform active:scale-95"
+        className="min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-full transition-all duration-150"
         aria-label={getStatusText()}
       >
         {renderAvatar()}
       </button>
       
-      {/* Status indicator - also tappable */}
-      <motion.button
+      {/* Status indicator - also tappable, stable display */}
+      <button
         onClick={onTap}
-        className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 backdrop-blur-sm cursor-pointer hover:bg-muted/70 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-full bg-muted/50 backdrop-blur-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/30"
       >
         {isSpeaking && (
-          <motion.div
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 0.6, repeat: Infinity }}
-          >
-            <Volume2 className="w-4 h-4 text-primary" />
-          </motion.div>
+          <Volume2 className="w-4 h-4 text-primary animate-pulse-gentle" />
         )}
         {isListening && !isSpeaking && (
-          <motion.div
-            animate={{ opacity: [1, 0.5, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          >
-            <Mic className="w-4 h-4 text-primary" />
-          </motion.div>
+          <Mic className="w-4 h-4 text-primary animate-pulse-gentle" />
         )}
         <span className="text-sm text-muted-foreground font-medium">
           {getStatusText()}
         </span>
-      </motion.button>
+      </button>
     </div>
   );
 }
