@@ -142,7 +142,7 @@ export default function Topics() {
           >
             <CalmCard variant="gentle" className="mb-6">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {selectedTopic.longDescription}
+                {getTopicTranslation(selectedTopic.id)?.longDescription || selectedTopic.longDescription}
               </p>
             </CalmCard>
           </motion.div>
@@ -161,6 +161,18 @@ export default function Topics() {
           <div className="space-y-3">
             {selectedTopic.steps.map((step, index) => {
               const isCompleted = completedSteps.includes(step.id);
+              const topicTranslation = getTopicTranslation(selectedTopic.id);
+              const translatedStep = topicTranslation?.steps?.[index];
+              const stepTitle = translatedStep?.title || step.title;
+              const stepDescription = translatedStep?.description || step.description;
+              
+              // Localized step type labels
+              const stepTypeLabel = {
+                chat: language === "de" ? "Chat" : "Chat",
+                journal: language === "de" ? "Tagebuch" : "Journal",
+                exercise: language === "de" ? "Übung" : "Exercise",
+                reflection: language === "de" ? "Reflexion" : "Reflection",
+              };
 
               return (
                 <motion.div
@@ -198,17 +210,17 @@ export default function Topics() {
                               : "text-foreground"
                           }`}
                         >
-                          {step.title}
+                          {stepTitle}
                         </h3>
                         <p className="text-sm text-muted-foreground mt-0.5">
-                          {step.description}
+                          {stepDescription}
                         </p>
-                        <span className="inline-flex items-center gap-1 mt-2 text-xs text-muted-foreground capitalize">
+                        <span className="inline-flex items-center gap-1 mt-2 text-xs text-muted-foreground">
                           {step.type === "chat" && "💬"}
                           {step.type === "journal" && "📝"}
                           {step.type === "exercise" && "🧘"}
                           {step.type === "reflection" && "💭"}
-                          {step.type}
+                          {stepTypeLabel[step.type]}
                         </span>
                       </div>
                       <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
