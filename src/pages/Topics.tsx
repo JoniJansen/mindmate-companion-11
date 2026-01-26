@@ -21,7 +21,7 @@ export default function Topics() {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [progress, setProgress] = useState<TopicProgress>({});
 
-  const { language, getTopicTranslation } = useTranslation();
+  const { language, t, getTopicDisplay } = useTranslation();
   const navigate = useNavigate();
 
   // Load progress
@@ -77,19 +77,18 @@ export default function Topics() {
     }
   };
 
-  const getTranslatedTitle = (topic: Topic) => {
-    const translation = getTopicTranslation(topic.id);
-    return translation?.title || topic.title;
-  };
-
-  const getTranslatedDescription = (topic: Topic) => {
-    const translation = getTopicTranslation(topic.id);
-    return translation?.description || topic.description;
-  };
+  // Single source of truth for topic display strings
+  const getDisplay = (topic: Topic) => getTopicDisplay(topic.id, {
+    title: topic.title,
+    description: topic.description,
+    longDescription: topic.longDescription,
+    steps: topic.steps.map(s => ({ title: s.title, description: s.description })),
+  });
 
   const filteredTopics = topics.filter((topic) => {
-    const title = getTranslatedTitle(topic).toLowerCase();
-    const description = getTranslatedDescription(topic).toLowerCase();
+    const display = getDisplay(topic);
+    const title = display.title.toLowerCase();
+    const description = display.description.toLowerCase();
     const query = searchQuery.toLowerCase();
     return title.includes(query) || description.includes(query);
   });
@@ -101,6 +100,7 @@ export default function Topics() {
       selectedTopic.steps.length
     );
     const completedSteps = progress[selectedTopic.id]?.completedSteps || [];
+    const display = getDisplay(selectedTopic);
 
     return (
       <div className="min-h-screen bg-background pb-24">
@@ -117,19 +117,19 @@ export default function Topics() {
               onClick={() => setSelectedTopic(null)}
               className="mb-4"
             >
-              ← {language === "de" ? "Zurück" : "Back"}
+              ← {t("common.back")}
             </Button>
 
             <div className="flex items-center gap-4">
               <span className="text-4xl">{selectedTopic.icon}</span>
               <div>
                 <h1 className="text-xl font-semibold text-foreground">
-                  {getTranslatedTitle(selectedTopic)}
+                  {display.title}
                 </h1>
                 <p className="text-sm text-muted-foreground">
                   {selectedTopic.steps.length}{" "}
-                  {language === "de" ? "Schritte" : "steps"} · {topicProgress}%{" "}
-                  {language === "de" ? "abgeschlossen" : "complete"}
+                  {t("topics.steps")} · {topicProgress}%{" "}
+                  {t("topics.complete")}
                 </p>
               </div>
             </div>
@@ -143,7 +143,7 @@ export default function Topics() {
           >
             <CalmCard variant="gentle" className="mb-6">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {getTopicTranslation(selectedTopic.id)?.longDescription || selectedTopic.longDescription}
+                {display.longDescription}
               </p>
             </CalmCard>
           </motion.div>
@@ -162,17 +162,14 @@ export default function Topics() {
           <div className="space-y-3">
             {selectedTopic.steps.map((step, index) => {
               const isCompleted = completedSteps.includes(step.id);
-              const topicTranslation = getTopicTranslation(selectedTopic.id);
-              const translatedStep = topicTranslation?.steps?.[index];
-              const stepTitle = translatedStep?.title || step.title;
-              const stepDescription = translatedStep?.description || step.description;
+              const stepDisplay = display.steps[index] || { title: step.title, description: step.description };
               
               // Localized step type labels
               const stepTypeLabel = {
-                chat: language === "de" ? "Chat" : "Chat",
-                journal: language === "de" ? "Tagebuch" : "Journal",
-                exercise: language === "de" ? "Übung" : "Exercise",
-                reflection: language === "de" ? "Reflexion" : "Reflection",
+                chat: t("topics.stepType.chat"),
+                journal: t("topics.stepType.journal"),
+                exercise: t("topics.stepType.exercise"),
+                reflection: t("topics.stepType.reflection"),
               };
 
               return (
@@ -205,23 +202,23 @@ export default function Topics() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3
-                          className={`font-medium ${
-                            isCompleted
-                              ? "text-muted-foreground line-through"
-                              : "text-foreground"
-                          }`}
-                        >
-                          {stepTitle}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-0.5">
-                          {stepDescription}
-                        </p>
-                        <span className="inline-flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                          {step.type === "chat" && "💬"}
-                          {step.type === "journal" && "📝"}
-                          {step.type === "exercise" && "🧘"}
-                          {step.type === "reflection" && "💭"}
-                          {stepTypeLabel[step.type]}
+                        className={`font-medium ${
+                          isCompleted
+                            ? "text-muted-foreground line-through"
+                            : "text-foreground"
+                        }`}
+                      >
+                        {stepDisplay.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        {stepDisplay.description}
+                      </p>
+                      <span className="inline-flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                        {step.type === "chat" && "💬"}
+                        {step.type === "journal" && "📝"}
+                        {step.type === "exercise" && "🧘"}
+                        {step.type === "reflection" && "💭"}
+                        {stepTypeLabel[step.type]}
                         </span>
                       </div>
                       <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -270,6 +267,7 @@ export default function Topics() {
           {filteredTopics.map((topic, index) => {
             const topicProgress = getTopicProgress(topic.id, topic.steps.length);
             const hasProgress = topicProgress > 0;
+            const topicDisplay = getDisplay(topic);
 
             return (
               <motion.div
@@ -287,16 +285,15 @@ export default function Topics() {
                     <span className="text-3xl">{topic.icon}</span>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-foreground">
-                        {getTranslatedTitle(topic)}
+                        {topicDisplay.title}
                       </h3>
                       <p className="text-sm text-muted-foreground line-clamp-1">
-                        {getTranslatedDescription(topic)}
+                        {topicDisplay.description}
                       </p>
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <BookOpen className="w-3 h-3" />
-                          {topic.steps.length}{" "}
-                          {language === "de" ? "Schritte" : "steps"}
+                          {topic.steps.length} {t("topics.steps")}
                         </span>
                         {hasProgress && (
                           <span className="text-xs text-primary flex items-center gap-1">
@@ -327,9 +324,7 @@ export default function Topics() {
           {filteredTopics.length === 0 && (
             <CalmCard variant="gentle" animate={false} className="text-center py-8">
               <p className="text-muted-foreground">
-                {language === "de"
-                  ? "Keine Themen gefunden"
-                  : "No topics found"}
+                {t("topics.noMatch")}
               </p>
             </CalmCard>
           )}

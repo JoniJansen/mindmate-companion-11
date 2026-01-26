@@ -29,7 +29,7 @@ export default function Toolbox() {
     return stored ? new Set(JSON.parse(stored)) : new Set();
   });
 
-  const { language, getExerciseTranslation } = useTranslation();
+  const { language, getExerciseDisplay, t } = useTranslation();
   const { toast } = useToast();
 
   // Handle auto-start from navigation (e.g., Calm mode exercises)
@@ -55,11 +55,8 @@ export default function Toolbox() {
     );
 
     toast({
-      title: language === "de" ? "Übung abgeschlossen" : "Exercise completed",
-      description:
-        language === "de"
-          ? "Gut gemacht! Nimm dir einen Moment."
-          : "Well done! Take a moment.",
+      title: t("toolbox.exerciseCompleted"),
+      description: t("toolbox.greatJob"),
     });
   };
 
@@ -68,30 +65,21 @@ export default function Toolbox() {
       ? exercises
       : exercises.filter((e) => e.category === activeCategory);
 
-  const getExerciseTitle = (exercise: Exercise) => {
-    const translation = getExerciseTranslation(exercise.id);
-    return translation?.title || exercise.title;
-  };
-
-  const getExerciseDescription = (exercise: Exercise) => {
-    const translation = getExerciseTranslation(exercise.id);
-    return translation?.description || exercise.description;
-  };
-
-  const getExerciseLongDescription = (exercise: Exercise) => {
-    const translation = getExerciseTranslation(exercise.id);
-    return translation?.longDescription || exercise.longDescription;
-  };
+  // Single source of truth: use getExerciseDisplay for all exercise strings
+  const getDisplay = (exercise: Exercise) => getExerciseDisplay(exercise.id, {
+    title: exercise.title,
+    description: exercise.description,
+    longDescription: exercise.longDescription,
+    duration: exercise.duration,
+    steps: exercise.steps,
+    prompts: exercise.prompts,
+  });
 
   return (
     <div className="flex flex-col h-full bg-background">
       <PageHeader
-        title={language === "de" ? "Übungen" : "Toolbox"}
-        subtitle={
-          language === "de"
-            ? "Evidenzbasierte Techniken"
-            : "Evidence-based techniques"
-        }
+        title={t("toolbox.title")}
+        subtitle={t("toolbox.subtitle")}
       />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
@@ -117,10 +105,7 @@ export default function Toolbox() {
         {/* Quick tip */}
         <CalmCard variant="calm" className="!py-3">
           <p className="text-sm text-muted-foreground">
-            💡{" "}
-            {language === "de"
-              ? "Regelmäßige kurze Übungen sind wirksamer als seltene lange Sessions."
-              : "Regular short practices are more effective than occasional long sessions."}
+            {t("toolbox.tip")} {t("toolbox.tipText")}
           </p>
         </CalmCard>
 
@@ -129,6 +114,7 @@ export default function Toolbox() {
           {filteredExercises.map((exercise, index) => {
             const isCompleted = completedExercises.has(exercise.id);
             const Icon = exercise.icon;
+            const display = getDisplay(exercise);
 
             return (
               <motion.div
@@ -153,22 +139,22 @@ export default function Toolbox() {
 
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-foreground">
-                        {getExerciseTitle(exercise)}
+                        {display.title}
                       </h3>
                       <p className="text-sm text-muted-foreground line-clamp-2">
-                        {getExerciseDescription(exercise)}
+                        {display.description}
                       </p>
                       <div className="flex items-center gap-3 mt-2">
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {exercise.duration}
+                          {display.durationLabel}
                         </span>
                         <button
                           onClick={() => setInfoExercise(exercise)}
                           className="text-xs text-primary hover:underline flex items-center gap-1"
                         >
                           <Info className="w-3 h-3" />
-                          {language === "de" ? "Warum hilft das?" : "Why it helps"}
+                          {t("toolbox.whyHelps")}
                         </button>
                       </div>
                     </div>
@@ -190,9 +176,7 @@ export default function Toolbox() {
         {filteredExercises.length === 0 && (
           <CalmCard variant="gentle" className="text-center py-8">
             <p className="text-muted-foreground">
-              {language === "de"
-                ? "Keine Übungen in dieser Kategorie"
-                : "No exercises in this category"}
+              {t("toolbox.noExercises")}
             </p>
           </CalmCard>
         )}
@@ -216,44 +200,47 @@ export default function Toolbox() {
               className="w-full max-w-lg bg-card rounded-2xl p-6 shadow-elevated"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="font-semibold text-foreground">
-                  {getExerciseTitle(infoExercise)}
-                </h3>
-                <button
-                  onClick={() => setInfoExercise(null)}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                {getExerciseLongDescription(infoExercise)}
-              </p>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <strong>{language === "de" ? "Dauer:" : "Duration:"}</strong>{" "}
-                  {infoExercise.duration}
-                </p>
-                <p>
-                  <strong>
-                    {language === "de" ? "Am besten geeignet:" : "Best for:"}
-                  </strong>{" "}
-                  {language === "de"
-                    ? "Wenn du dich gestresst oder überfordert fühlst"
-                    : "When you feel stressed or overwhelmed"}
-                </p>
-              </div>
-              <Button
-                className="w-full mt-4"
-                onClick={() => {
-                  setInfoExercise(null);
-                  setSelectedExercise(infoExercise);
-                }}
-              >
-                <Play className="w-4 h-4 mr-2" />
-                {language === "de" ? "Jetzt starten" : "Start now"}
-              </Button>
+              {(() => {
+                const display = getDisplay(infoExercise);
+                return (
+                  <>
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="font-semibold text-foreground">
+                        {display.title}
+                      </h3>
+                      <button
+                        onClick={() => setInfoExercise(null)}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                      {display.longDescription}
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <p>
+                        <strong>{t("toolbox.duration")}:</strong>{" "}
+                        {display.durationLabel}
+                      </p>
+                      <p>
+                        <strong>{t("toolbox.bestFor")}:</strong>{" "}
+                        {t("toolbox.bestForDesc")}
+                      </p>
+                    </div>
+                    <Button
+                      className="w-full mt-4"
+                      onClick={() => {
+                        setInfoExercise(null);
+                        setSelectedExercise(infoExercise);
+                      }}
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      {t("toolbox.startNow")}
+                    </Button>
+                  </>
+                );
+              })()}
             </motion.div>
           </motion.div>
         )}

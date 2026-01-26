@@ -57,6 +57,25 @@ export const translations: Translations = {
   "chat.quickReply3": { en: "I just want to talk", de: "Ich möchte einfach reden" },
   "chat.quickReply4": { en: "Help me relax", de: "Hilf mir zu entspannen" },
   "chat.connectionIssue": { en: "Connection paused", de: "Verbindung unterbrochen" },
+  "chat.voiceFailed": { en: "Voice playback failed", de: "Sprachausgabe fehlgeschlagen" },
+  "chat.modeSelectLabel": { en: "Select chat mode", de: "Chat-Modus wählen" },
+  "chat.requiresPlus": { en: "Requires MindMate Plus", de: "MindMate Plus erforderlich" },
+  "chat.disclaimer": { en: "MindMate is a companion for self-reflection and does not replace professional therapy or counseling.", de: "MindMate ist ein Begleiter für Selbstreflexion und ersetzt keine professionelle Therapie oder Beratung." },
+  "chat.greetingDe": { en: "Hello. I'm MindMate, and\nI'm here to listen.\n\nTake your time – share what's on your mind.", de: "Hallo. Ich bin MindMate und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt." },
+  
+  // Chat mode quick replies
+  "chat.talk.reply1": { en: "I need someone to listen", de: "Ich brauche jemanden zum Zuhören" },
+  "chat.talk.reply2": { en: "Something's been on my mind", de: "Mich beschäftigt etwas" },
+  "chat.clarify.reply1": { en: "Help me organize my thoughts", de: "Hilf mir meine Gedanken zu ordnen" },
+  "chat.clarify.reply2": { en: "I'm feeling confused about something", de: "Ich bin verwirrt über etwas" },
+  "chat.calm.reply1": { en: "I'm feeling anxious", de: "Ich fühle mich ängstlich" },
+  "chat.calm.reply2": { en: "Help me relax", de: "Hilf mir zu entspannen" },
+  "chat.patterns.reply1": { en: "What patterns do you see in me?", de: "Welche Muster siehst du bei mir?" },
+  "chat.patterns.reply2": { en: "Help me understand myself better", de: "Hilf mir mich besser zu verstehen" },
+  
+  // Calm mode exercises
+  "chat.exercise.breathing": { en: "60s Breathing", de: "60s Atmung" },
+  "chat.exercise.grounding": { en: "5-4-3-2-1 Grounding", de: "5-4-3-2-1 Erdung" },
 
   // Journal page
   "journal.title": { en: "Journal", de: "Tagebuch" },
@@ -79,10 +98,19 @@ export const translations: Translations = {
   "journal.emptyEntry": { en: "Empty entry", de: "Leerer Eintrag" },
   "journal.pleaseWriteSomething": { en: "Write something before saving.", de: "Schreibe etwas, bevor du speicherst." },
   "journal.saved": { en: "Saved", de: "Gespeichert" },
-  "journal.entrySaved": { en: "Entry saved.", de: "Eintrag gespeichert." },
+  "journal.entrySaved": { en: "Your entry has been saved.", de: "Dein Eintrag wurde gespeichert." },
   "journal.saveFailed": { en: "Couldn't save—try again.", de: "Speichern nicht möglich—versuche es nochmal." },
   "journal.reflect": { en: "Reflect", de: "Reflektieren" },
   "journal.saving": { en: "Saving...", de: "Speichern..." },
+  "journal.yourPrompt": { en: "Your prompt:", de: "Deine Frage:" },
+  "journal.whatsOnMind": { en: "What's on your mind?", de: "Was beschäftigt dich?" },
+  "journal.tagsOptional": { en: "Tags (optional)", de: "Tags (optional)" },
+  "journal.today": { en: "Today", de: "Heute" },
+  "journal.yesterday": { en: "Yesterday", de: "Gestern" },
+  "journal.reflectionPrompts": { en: "Reflection prompts", de: "Reflexionsfragen" },
+  "journal.refreshPrompts": { en: "Refresh prompts", de: "Neue Fragen laden" },
+  "journal.aiReflection": { en: "AI Reflection", de: "KI-Reflexion" },
+  "journal.analyzingEntries": { en: "Reflecting on your entries...", de: "Analysiere deine Einträge..." },
 
   // Journal prompts
   "journal.prompt1": { en: "What small moment brought you peace today?", de: "Welcher kleine Moment hat dir heute Frieden gebracht?" },
@@ -90,20 +118,41 @@ export const translations: Translations = {
   "journal.prompt3": { en: "What's been on your mind lately?", de: "Was beschäftigt dich in letzter Zeit?" },
   "journal.prompt4": { en: "How are you really feeling today?", de: "Wie fühlst du dich heute wirklich?" },
   "journal.prompt5": { en: "What would make tomorrow better?", de: "Was würde morgen besser machen?" },
+  
+  // Journal tags
+  "journal.tag.anxious": { en: "Anxious", de: "Ängstlich" },
+  "journal.tag.sad": { en: "Sad", de: "Traurig" },
+  "journal.tag.angry": { en: "Angry", de: "Wütend" },
+  "journal.tag.stressed": { en: "Stressed", de: "Gestresst" },
+  "journal.tag.calm": { en: "Calm", de: "Ruhig" },
+  "journal.tag.grateful": { en: "Grateful", de: "Dankbar" },
+  "journal.tag.hopeful": { en: "Hopeful", de: "Hoffnungsvoll" },
+  "journal.tag.overwhelmed": { en: "Overwhelmed", de: "Überfordert" },
+  "journal.tag.work": { en: "Work", de: "Arbeit" },
+  "journal.tag.relationships": { en: "Relationships", de: "Beziehungen" },
+  "journal.tag.family": { en: "Family", de: "Familie" },
+  "journal.tag.health": { en: "Health", de: "Gesundheit" },
+  "journal.tag.selfworth": { en: "Self-worth", de: "Selbstwert" },
+  "journal.tag.future": { en: "Future", de: "Zukunft" },
 
   // Toolbox page
   "toolbox.title": { en: "Toolbox", de: "Werkzeugkasten" },
   "toolbox.subtitle": { en: "Evidence-based techniques", de: "Evidenzbasierte Techniken" },
   "toolbox.suggestedForYou": { en: "For you", de: "Für dich" },
   "toolbox.allExercises": { en: "All", de: "Alle" },
-  "toolbox.noExercises": { en: "Nothing here yet", de: "Noch nichts hier" },
+  "toolbox.noExercises": { en: "No exercises in this category", de: "Keine Übungen in dieser Kategorie" },
   "toolbox.tip": { en: "💡", de: "💡" },
   "toolbox.tipText": { en: "Regular short practices are more effective than occasional long sessions.", de: "Regelmäßige kurze Übungen sind effektiver als gelegentliche lange Sitzungen." },
-  "toolbox.exerciseCompleted": { en: "Well done", de: "Gut gemacht" },
-  "toolbox.greatJob": { en: "You took time for yourself.", de: "Du hast dir Zeit genommen." },
+  "toolbox.exerciseCompleted": { en: "Exercise completed", de: "Übung abgeschlossen" },
+  "toolbox.greatJob": { en: "Well done! Take a moment.", de: "Gut gemacht! Nimm dir einen Moment." },
   "toolbox.completedExercise": { en: "Exercise complete.", de: "Übung abgeschlossen." },
   "toolbox.tapToStart": { en: "Tap Start to begin, or Next to skip", de: "Tippe Starten oder Weiter" },
   "toolbox.autoProgress": { en: "Steps progress automatically", de: "Schritte gehen automatisch weiter" },
+  "toolbox.whyHelps": { en: "Why it helps", de: "Warum hilft das?" },
+  "toolbox.duration": { en: "Duration", de: "Dauer" },
+  "toolbox.bestFor": { en: "Best for", de: "Am besten geeignet" },
+  "toolbox.bestForDesc": { en: "When you feel stressed or overwhelmed", de: "Wenn du dich gestresst oder überfordert fühlst" },
+  "toolbox.startNow": { en: "Start now", de: "Jetzt starten" },
 
   // Categories
   "category.all": { en: "All", de: "Alle" },
@@ -118,11 +167,12 @@ export const translations: Translations = {
   "topics.title": { en: "Topics", de: "Themen" },
   "topics.subtitle": { en: "Choose what to explore", de: "Wähle, was du erkunden möchtest" },
   "topics.searchPlaceholder": { en: "Search topics...", de: "Themen durchsuchen..." },
-  "topics.noMatch": { en: "No topics match your search", de: "Keine Themen entsprechen deiner Suche" },
+  "topics.noMatch": { en: "No topics found", de: "Keine Themen gefunden" },
   "topics.stepCompleted": { en: "Step completed", de: "Schritt abgeschlossen" },
   "topics.greatProgress": { en: "Great progress! Keep going.", de: "Toller Fortschritt! Weiter so." },
   "topics.yourProgress": { en: "Your progress", de: "Dein Fortschritt" },
   "topics.steps": { en: "steps", de: "Schritte" },
+  "topics.complete": { en: "complete", de: "abgeschlossen" },
   "topics.reflectionPath": { en: "Reflection Path", de: "Reflexionspfad" },
   "topics.exercises": { en: "Exercises", de: "Übungen" },
   "topics.noExercises": { en: "No exercises for this topic yet", de: "Noch keine Übungen für dieses Thema" },
@@ -269,6 +319,20 @@ export const translations: Translations = {
   "voice.generating": { en: "Generating...", de: "Wird generiert..." },
   "voice.notSupported": { en: "Voice input is not available", de: "Spracheingabe ist nicht verfügbar" },
   "voice.tryChrome": { en: "Voice features require microphone access in your device settings", de: "Sprachfunktionen benötigen Mikrofonzugriff in deinen Geräteeinstellungen" },
+  "voice.speaking": { en: "MindMate speaking...", de: "MindMate spricht..." },
+  "voice.listeningStatus": { en: "Listening...", de: "Ich höre zu..." },
+
+  // Premium
+  "premium.plusFeature": { en: "Plus feature", de: "Plus-Funktion" },
+  "premium.maybeLater": { en: "Maybe later", de: "Vielleicht später" },
+  "premium.upgradeAnytime": { en: "You can upgrade anytime. No pressure.", de: "Du kannst jederzeit upgraden. Kein Druck." },
+
+  // Swipe hints
+  "swipe.swipeBack": { en: "Swipe to go back", de: "Wischen zum Zurückgehen" },
+  "swipe.tapDismiss": { en: "Tap to dismiss", de: "Tippen zum Schließen" },
+
+  // Summary
+  "summary.date": { en: "Date", de: "Datum" },
 };
 
 // Exercise translations
@@ -667,5 +731,58 @@ export function useTranslation() {
     return translation[language] || translation.en;
   };
 
-  return { t, language, getExerciseTranslation, getTopicTranslation };
+  /**
+   * Single source of truth for exercise display strings.
+   * Always use this instead of accessing exercise properties directly.
+   */
+  const getExerciseDisplay = (exerciseId: string, fallback: { 
+    title: string; 
+    description: string; 
+    longDescription?: string;
+    duration?: string;
+    steps?: { instruction: string; duration?: number }[];
+    prompts?: string[];
+  }) => {
+    const translation = exerciseTranslations[exerciseId];
+    const lang = translation?.[language] || translation?.en;
+    
+    return {
+      title: lang?.title || fallback.title,
+      description: lang?.description || fallback.description,
+      longDescription: lang?.longDescription || fallback.longDescription || "",
+      steps: lang?.steps || fallback.steps?.map(s => s.instruction) || [],
+      prompts: lang?.prompts || fallback.prompts || [],
+      durationLabel: fallback.duration || "",
+    };
+  };
+
+  /**
+   * Single source of truth for topic display strings.
+   * Always use this instead of accessing topic properties directly.
+   */
+  const getTopicDisplay = (topicId: string, fallback: {
+    title: string;
+    description: string;
+    longDescription?: string;
+    steps?: { title: string; description: string }[];
+  }) => {
+    const translation = topicTranslations[topicId];
+    const lang = translation?.[language] || translation?.en;
+    
+    return {
+      title: lang?.title || fallback.title,
+      description: lang?.description || fallback.description,
+      longDescription: lang?.longDescription || fallback.longDescription || "",
+      steps: lang?.steps || fallback.steps || [],
+    };
+  };
+
+  return { 
+    t, 
+    language, 
+    getExerciseTranslation, 
+    getTopicTranslation,
+    getExerciseDisplay,
+    getTopicDisplay,
+  };
 }
