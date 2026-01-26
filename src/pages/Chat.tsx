@@ -230,8 +230,12 @@ export default function Chat() {
   useEffect(() => { scrollToBottom(); }, [messages]);
 
   // Initial greeting - controlled static message for perfect text flow
+  // Use preferences.current.language to ensure we get the saved language preference
   useEffect(() => {
     const initialMessage = localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
+    
+    // Get the actual saved language preference
+    const savedLang = preferences.current.language || language;
     
     const init = async () => {
       if (initialMessage) {
@@ -239,7 +243,8 @@ export default function Chat() {
         handleSend(initialMessage);
       } else {
         // Use a carefully crafted static greeting for optimal text flow
-        const staticGreeting = language === "de"
+        // CRITICAL: Use savedLang from preferences, not the hook language which may not be updated yet
+        const staticGreeting = savedLang === "de"
           ? "Hallo. Ich bin MindMate und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
           : "Hello. I'm MindMate, and\nI'm here to listen.\n\nTake your time – share what's on your mind.";
         
@@ -252,8 +257,8 @@ export default function Chat() {
         
         // Auto-play greeting if enabled AND premium
         if (canUseVoice && voiceSettings.autoPlayReplies && !isListening) {
-          const voiceId = getVoiceId(language as "en" | "de");
-          const effectiveLang = getEffectiveLanguage(language as "en" | "de");
+          const voiceId = getVoiceId(savedLang as "en" | "de");
+          const effectiveLang = getEffectiveLanguage(savedLang as "en" | "de");
           speakTTS(staticGreeting.replace(/\n/g, ' '), voiceId, effectiveLang, voiceSettings.speed, "greeting");
         }
       }
