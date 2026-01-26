@@ -247,15 +247,15 @@ export default function Settings() {
         backTo="/"
       />
 
-      {/* Single scroll container for iOS stability */}
+      {/* Single scroll container for iOS stability - min-h-0 is critical for flex scroll */}
       <div 
-        className="flex-1 overflow-y-auto overscroll-contain"
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
         style={{ 
           WebkitOverflowScrolling: 'touch',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
         }}
       >
-        <div className="px-4 py-4 pb-24 max-w-lg mx-auto space-y-6">
+        {/* pb-32 ensures last items clear BottomNav + safe area */}
+        <div className="px-4 py-4 pb-32 max-w-lg mx-auto space-y-6">
         {/* Subscription */}
         <SubscriptionSection onUpgradeClick={() => navigate("/upgrade")} />
 

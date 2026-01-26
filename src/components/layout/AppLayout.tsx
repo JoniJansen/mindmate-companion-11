@@ -23,8 +23,7 @@ export function AppLayout() {
         left: 0,
         right: 0,
         bottom: 0,
-        // Safe area for status bar at top
-        paddingTop: 'env(safe-area-inset-top, 0px)',
+        // IMPORTANT: Safe-area top is handled by PageHeader ONLY to avoid double padding
         // If nav is hidden, add safe area at bottom; otherwise nav handles it
         paddingBottom: shouldHideNav ? 'env(safe-area-inset-bottom, 0px)' : '0px'
       }}
