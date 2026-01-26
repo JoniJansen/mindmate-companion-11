@@ -1,7 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
-import { AppFooter } from "./AppFooter";
-import { useBackupReminder } from "@/hooks/useBackupReminder";
 
 // Fixed bottom nav height - must match BottomNav component
 const BOTTOM_NAV_HEIGHT = 56; // Compact: 56px nav content
@@ -9,10 +7,7 @@ const BOTTOM_NAV_HEIGHT = 56; // Compact: 56px nav content
 export function AppLayout() {
   const location = useLocation();
   
-  // Initialize backup reminder
-  useBackupReminder();
-  
-  // Pages that should NOT show the bottom nav and footer
+  // Pages that should NOT show the bottom nav
   const hideNavRoutes = ["/settings", "/safety", "/summary"];
   const shouldHideNav = hideNavRoutes.some(route => location.pathname.startsWith(route));
   
@@ -45,13 +40,8 @@ export function AppLayout() {
         <Outlet />
       </main>
       
-      {/* Bottom elements - fixed, never scroll */}
-      {!shouldHideNav && (
-        <>
-          <AppFooter />
-          <BottomNav />
-        </>
-      )}
+      {/* Bottom nav - fixed, never scroll */}
+      {!shouldHideNav && <BottomNav />}
     </div>
   );
 }

@@ -88,7 +88,7 @@ export default function Toolbox() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
         <div className="max-w-lg mx-auto space-y-4">
         {/* Category filters */}
         <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
