@@ -314,10 +314,10 @@ export default function Journal() {
 
   // List mode
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-full bg-background">
       <PageHeader title={language === "de" ? "Tagebuch" : "Journal"} subtitle={language === "de" ? "Deine Gedanken, dein Raum" : "Your thoughts, your space"} />
 
-      <div className="px-4 md:px-6 lg:px-8 py-5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-5">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-5 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full space-y-5">
         {/* Weekly Recap Card */}
         {entries.length >= 3 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

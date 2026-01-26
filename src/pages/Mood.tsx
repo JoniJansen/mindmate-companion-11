@@ -186,7 +186,7 @@ export default function Mood() {
         subtitle={language === "de" ? "Wie geht es dir gerade?" : "How are you feeling right now?"}
       />
 
-      <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
         <div className="max-w-lg mx-auto space-y-5">
           {/* Today's Check-in */}
           <CalmCard variant="calm" animate={false}>

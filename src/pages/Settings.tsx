@@ -985,42 +985,100 @@ export default function Settings() {
           </div>
         </motion.div>
 
-        {/* Legal & Cookie Settings */}
+        {/* Legal & Info Section */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.25 }}
-          className="space-y-3"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
         >
-          <CalmCard 
-            className="p-4 cursor-pointer hover:bg-muted/30 transition-colors"
-            onClick={openCookieSettings}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Cookie className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
+            {language === "de" ? "Rechtliches & Info" : "Legal & Info"}
+          </h2>
+          <div className="space-y-2">
+            {/* Cookie Settings */}
+            <CalmCard 
+              className="cursor-pointer hover:bg-muted/30 transition-colors"
+              onClick={openCookieSettings}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                    <Cookie className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <span className="font-medium text-foreground">
                     {language === "de" ? "Cookie-Einstellungen" : "Cookie Settings"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {language === "de" ? "Tracking-Präferenzen anpassen" : "Manage tracking preferences"}
-                  </p>
+                  </span>
                 </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </CalmCard>
+
+            {/* Legal Links Grid */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => navigate("/privacy")}
+                className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {language === "de" ? "Datenschutz" : "Privacy Policy"}
+                </span>
+              </button>
+              <button
+                onClick={() => navigate("/terms")}
+                className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {language === "de" ? "AGB" : "Terms of Use"}
+                </span>
+              </button>
+              <button
+                onClick={() => navigate("/impressum")}
+                className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {language === "de" ? "Impressum" : "Legal Notice"}
+                </span>
+              </button>
+              <button
+                onClick={() => navigate("/faq")}
+                className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
+              >
+                <span className="text-sm font-medium text-foreground">FAQ</span>
+              </button>
+              <button
+                onClick={() => navigate("/cancellation")}
+                className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {language === "de" ? "Widerruf" : "Withdrawal"}
+                </span>
+              </button>
+              <button
+                onClick={() => navigate("/about")}
+                className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {language === "de" ? "Über uns" : "About"}
+                </span>
+              </button>
+              <button
+                onClick={() => navigate("/contact")}
+                className="col-span-2 p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {language === "de" ? "Kontakt" : "Contact"}
+                </span>
+              </button>
             </div>
-          </CalmCard>
+          </div>
         </motion.div>
 
         {/* App Info */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-center pt-4"
+          transition={{ delay: 0.35 }}
+          className="text-center pt-6 pb-4"
         >
           <p className="text-xs text-muted-foreground">MindMate v1.0.0</p>
           <p className="text-xs text-muted-foreground mt-1">{t("settings.madeWithCare")}</p>
