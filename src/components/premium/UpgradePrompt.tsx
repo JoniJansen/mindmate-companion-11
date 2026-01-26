@@ -112,13 +112,22 @@ export function UpgradePrompt({
               <p className="text-xs text-muted-foreground mt-0.5">{t.description}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" className="text-primary text-xs" onClick={handleUpgrade}>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button size="sm" variant="ghost" className="text-primary text-xs min-h-[44px]" onClick={handleUpgrade}>
               {t.cta}
             </Button>
             {onDismiss && (
-              <Button size="icon" variant="ghost" className="w-6 h-6" onClick={onDismiss}>
-                <X className="w-3 h-3" />
+              <Button 
+                size="icon" 
+                variant="ghost" 
+                className="shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDismiss();
+                }}
+                aria-label="Dismiss"
+              >
+                <X className="w-4 h-4" />
               </Button>
             )}
           </div>

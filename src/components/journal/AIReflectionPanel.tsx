@@ -23,11 +23,16 @@ export const AIReflectionPanel = forwardRef<HTMLDivElement, AIReflectionPanelPro
         exit={{ opacity: 0, y: 20 }}
       >
         <CalmCard variant="gentle" className="relative">
+          {/* Close button - 44px tap target */}
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 w-6 h-6"
-            onClick={onClose}
+            className="absolute top-1 right-1 shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label={language === "de" ? "Schließen" : "Close"}
           >
             <X className="w-4 h-4" />
           </Button>

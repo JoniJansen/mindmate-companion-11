@@ -36,10 +36,14 @@ export function EmotionalTimeline({
         {summary ? (
           <>
             <button
-              onClick={onClose}
-              className="absolute top-3 right-3 p-1 rounded-full hover:bg-muted/50 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose?.();
+              }}
+              className="absolute top-2 right-2 flex items-center justify-center w-11 h-11 rounded-xl hover:bg-muted/50 transition-colors"
+              aria-label="Close timeline"
             >
-              <X className="w-4 h-4 text-muted-foreground" />
+              <X className="w-5 h-5 text-muted-foreground" />
             </button>
             
             <div className="flex items-center gap-2 mb-3">
