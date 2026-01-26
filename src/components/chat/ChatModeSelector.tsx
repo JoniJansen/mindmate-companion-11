@@ -1,5 +1,7 @@
+import { useRef, useEffect, useState } from "react";
 import { MessageCircle, Lightbulb, Heart, TrendingUp, Lock } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { cn } from "@/lib/utils";
 
 export type ChatMode = "talk" | "clarify" | "calm" | "patterns";
 
@@ -13,70 +15,171 @@ const modes = [
   {
     id: "talk" as ChatMode,
     icon: MessageCircle,
-    labelEn: "Talk it out",
-    labelDe: "Frei reden",
-    descEn: "Free emotional conversation",
-    descDe: "Freies emotionales Gespräch",
+    labelEn: "Talk",
+    labelDe: "Freireden",
   },
   {
     id: "clarify" as ChatMode,
     icon: Lightbulb,
     labelEn: "Clarify",
     labelDe: "Klären",
-    descEn: "Guided reflection",
-    descDe: "Geführte Reflexion",
   },
   {
     id: "calm" as ChatMode,
     icon: Heart,
-    labelEn: "Calm down",
+    labelEn: "Calm",
     labelDe: "Beruhigen",
-    descEn: "Emotional regulation",
-    descDe: "Emotionale Regulierung",
   },
   {
     id: "patterns" as ChatMode,
     icon: TrendingUp,
     labelEn: "Patterns",
     labelDe: "Muster",
-    descEn: "Understand yourself",
-    descDe: "Dich selbst verstehen",
   },
 ];
 
 export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }: ChatModeSelectorProps) {
   const { language } = useTranslation();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
+
+  // Check scroll position for edge fades
+  const updateFades = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setShowLeftFade(scrollLeft > 4);
+    setShowRightFade(scrollLeft < scrollWidth - clientWidth - 4);
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    
+    updateFades();
+    el.addEventListener("scroll", updateFades, { passive: true });
+    window.addEventListener("resize", updateFades);
+    
+    return () => {
+      el.removeEventListener("scroll", updateFades);
+      window.removeEventListener("resize", updateFades);
+    };
+  }, []);
+
+  // Scroll active tab into view on mount
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    
+    const activeIndex = modes.findIndex(m => m.id === activeMode);
+    const buttons = el.querySelectorAll("button");
+    if (buttons[activeIndex]) {
+      buttons[activeIndex].scrollIntoView({ behavior: "instant", inline: "center", block: "nearest" });
+    }
+    
+    // Delay fade check after scroll
+    requestAnimationFrame(updateFades);
+  }, [activeMode]);
 
   return (
-    <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto flex gap-2 overflow-x-auto scrollbar-hide">
-      {modes.map((mode) => {
-        const isActive = activeMode === mode.id;
-        const isLocked = lockedModes.includes(mode.id);
-        const Icon = mode.icon;
-        
-        return (
-          <button
-            key={mode.id}
-            onClick={() => onModeChange(mode.id)}
-            disabled={isLocked}
-            className={`relative flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
-              isActive
-                ? "bg-primary text-primary-foreground shadow-soft"
-                : isLocked
-                  ? "bg-muted/20 text-muted-foreground/40 border border-border/30 cursor-not-allowed opacity-60"
-                  : "bg-muted/40 text-muted-foreground border border-transparent hover:bg-muted/60"
-            }`}
-            title={isLocked 
-              ? (language === "de" ? "MindMate Plus erforderlich" : "Requires MindMate Plus")
-              : (language === "de" ? mode.descDe : mode.descEn)
-            }
-          >
-            <Icon className="w-4 h-4" />
-            <span>{language === "de" ? mode.labelDe : mode.labelEn}</span>
-            {isLocked && <Lock className="w-3 h-3 ml-0.5" />}
-          </button>
-        );
-      })}
+    <div className="relative w-full max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto">
+      {/* Left fade overlay */}
+      <div 
+        className={cn(
+          "absolute left-0 top-0 bottom-0 w-6 z-10 pointer-events-none transition-opacity duration-150",
+          "bg-gradient-to-r from-background to-transparent",
+          showLeftFade ? "opacity-100" : "opacity-0"
+        )}
+        aria-hidden="true"
+      />
+      
+      {/* Right fade overlay */}
+      <div 
+        className={cn(
+          "absolute right-0 top-0 bottom-0 w-6 z-10 pointer-events-none transition-opacity duration-150",
+          "bg-gradient-to-l from-background to-transparent",
+          showRightFade ? "opacity-100" : "opacity-0"
+        )}
+        aria-hidden="true"
+      />
+
+      {/* Scrollable segmented control container */}
+      <div 
+        ref={scrollRef}
+        className="flex overflow-x-auto scrollbar-hide scroll-smooth"
+        style={{ 
+          scrollSnapType: "x mandatory",
+          WebkitOverflowScrolling: "touch",
+        }}
+      >
+        {/* Inner control wrapper - unified pill background */}
+        <div 
+          className="inline-flex items-center gap-1 p-1 mx-auto bg-muted/50 rounded-xl border border-border/40"
+          role="tablist"
+          aria-label={language === "de" ? "Chat-Modus wählen" : "Select chat mode"}
+        >
+          {modes.map((mode) => {
+            const isActive = activeMode === mode.id;
+            const isLocked = lockedModes.includes(mode.id);
+            const Icon = mode.icon;
+            const label = language === "de" ? mode.labelDe : mode.labelEn;
+            
+            return (
+              <button
+                key={mode.id}
+                role="tab"
+                aria-selected={isActive}
+                aria-disabled={isLocked}
+                onClick={() => !isLocked && onModeChange(mode.id)}
+                disabled={isLocked}
+                className={cn(
+                  // Base styles - unified height, centered content
+                  "relative flex items-center justify-center gap-1.5",
+                  "h-9 px-3.5 min-w-fit",
+                  "text-[13px] font-medium whitespace-nowrap",
+                  "rounded-lg transition-all duration-150 ease-out",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+                  // Scroll snap
+                  "scroll-snap-align-center",
+                  // Active state
+                  isActive && [
+                    "bg-background text-foreground",
+                    "shadow-sm",
+                  ],
+                  // Inactive state
+                  !isActive && !isLocked && [
+                    "text-muted-foreground",
+                    "hover:text-foreground hover:bg-background/50",
+                    "active:bg-background/70",
+                  ],
+                  // Locked state
+                  isLocked && [
+                    "text-muted-foreground/50 cursor-not-allowed",
+                  ]
+                )}
+                title={
+                  isLocked 
+                    ? (language === "de" ? "MindMate Plus erforderlich" : "Requires MindMate Plus")
+                    : label
+                }
+              >
+                <Icon 
+                  className={cn(
+                    "w-3.5 h-3.5 flex-shrink-0",
+                    isActive && "text-primary"
+                  )} 
+                />
+                <span className="leading-none">{label}</span>
+                {isLocked && (
+                  <Lock className="w-3 h-3 flex-shrink-0 ml-0.5 opacity-60" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
