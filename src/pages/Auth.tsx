@@ -210,7 +210,7 @@ export default function Auth() {
             {authMode === "signup" && (
               <div className="space-y-2">
                 <Label htmlFor="displayName">
-                  {language === "de" ? "Name (optional)" : "Name (optional)"}
+                  {language === "de" ? "Dein Name (optional)" : "Your name (optional)"}
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />

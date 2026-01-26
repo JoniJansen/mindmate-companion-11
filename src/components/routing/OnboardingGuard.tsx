@@ -13,13 +13,15 @@ interface OnboardingGuardProps {
  * 1. New user (no session, no onboarding): → /welcome
  * 2. Onboarded but not logged in: → /auth
  * 3. Logged in: → children (app content)
+ * 
+ * CRITICAL: This guard MUST block access until authentication is confirmed.
  */
 export function OnboardingGuard({ children }: OnboardingGuardProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const { hasCompletedOnboarding } = useOnboardingStatus();
   const location = useLocation();
 
-  // Show loading while checking auth state
+  // Show loading while checking auth state - CRITICAL: Don't render children until auth is confirmed
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -28,14 +30,19 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
     );
   }
 
+  // CRITICAL: Check authentication FIRST before anything else
   // If authenticated, allow access
   if (isAuthenticated) {
     return <>{children}</>;
   }
 
-  // If not authenticated but completed onboarding, redirect to auth
-  if (hasCompletedOnboarding()) {
-    return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  // Not authenticated - determine where to redirect
+  const onboardingCompleted = hasCompletedOnboarding();
+  
+  // If completed onboarding but not authenticated, redirect to auth
+  if (onboardingCompleted) {
+    const redirectPath = encodeURIComponent(location.pathname);
+    return <Navigate to={`/auth?redirect=${redirectPath}`} replace />;
   }
 
   // If not authenticated and haven't completed onboarding, redirect to welcome
