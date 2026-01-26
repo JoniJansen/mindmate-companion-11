@@ -136,10 +136,10 @@ export default function Settings() {
     }
   }, [searchParams, toast, language, checkSubscriptionStatus]);
 
-  const voiceTypeOptions: { value: VoiceType; label: string }[] = [
-    { value: "female", label: t("voice.female") },
-    { value: "male", label: t("voice.male") },
-    { value: "neutral", label: t("voice.neutral") },
+  const voiceTypeOptions: { value: VoiceType; label: string; description: string }[] = [
+    { value: "female", label: t("voice.female"), description: language === "de" ? "Ruhig & warm" : "Calm & warm" },
+    { value: "male", label: t("voice.male"), description: language === "de" ? "Vertrauensvoll & klar" : "Trustworthy & clear" },
+    { value: "neutral", label: t("voice.neutral"), description: language === "de" ? "Sanft & ausgeglichen" : "Soft & balanced" },
   ];
 
   const voiceSpeedOptions: { value: VoiceSpeed; label: string }[] = [
@@ -235,7 +235,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-background">
+    <div className="flex flex-col h-full bg-background">
       <PageHeader 
         title={t("settings.title")} 
         subtitle={t("settings.subtitle")}
@@ -243,7 +243,15 @@ export default function Settings() {
         backTo="/"
       />
 
-      <div className="px-4 py-4 max-w-lg mx-auto space-y-6" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      {/* Single scroll container for iOS stability */}
+      <div 
+        className="flex-1 overflow-y-auto overscroll-contain"
+        style={{ 
+          WebkitOverflowScrolling: 'touch',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)' 
+        }}
+      >
+        <div className="px-4 py-4 pb-24 max-w-lg mx-auto space-y-6">
         {/* Subscription */}
         <SubscriptionSection onUpgradeClick={() => navigate("/upgrade")} />
 
@@ -616,9 +624,12 @@ export default function Settings() {
                           : "hover:bg-muted/50"
                       }`}
                     >
-                      <span className="font-medium text-foreground">{option.label}</span>
+                      <div className="text-left">
+                        <p className="font-medium text-foreground">{option.label}</p>
+                        <p className="text-sm text-muted-foreground">{option.description}</p>
+                      </div>
                       {voiceSettings.voiceType === option.value && (
-                        <Check className="w-5 h-5 text-primary" />
+                        <Check className="w-5 h-5 text-primary shrink-0" />
                       )}
                     </button>
                   ))}
@@ -1116,6 +1127,7 @@ export default function Settings() {
           <p className="text-xs text-muted-foreground">MindMate v1.0.0</p>
           <p className="text-xs text-muted-foreground mt-1">{t("settings.madeWithCare")}</p>
         </motion.div>
+        </div>
       </div>
     </div>
   );
