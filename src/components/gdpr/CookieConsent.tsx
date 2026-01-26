@@ -27,15 +27,46 @@ export function openCookieSettings() {
   window.dispatchEvent(new CustomEvent(COOKIE_SETTINGS_EVENT));
 }
 
+/**
+ * Detects the user's preferred language from multiple sources:
+ * 1. Saved preferences (mindmate-preferences.language)
+ * 2. Browser/system language (navigator.language)
+ * 3. Fallback to English
+ */
+function detectLanguage(): "en" | "de" {
+  try {
+    // First priority: Check saved preferences (from onboarding or settings)
+    const prefsRaw = localStorage.getItem("mindmate-preferences");
+    if (prefsRaw) {
+      const prefs = JSON.parse(prefsRaw);
+      if (prefs.language === "de" || prefs.language === "en") {
+        return prefs.language;
+      }
+    }
+    
+    // Second priority: Check browser/system language
+    const browserLang = navigator.language || (navigator as any).userLanguage || "";
+    if (browserLang.toLowerCase().startsWith("de")) {
+      return "de";
+    }
+    
+    // Fallback to English
+    return "en";
+  } catch {
+    return "en";
+  }
+}
+
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<ConsentSettings>(defaultSettings);
-  const [language, setLanguage] = useState<"en" | "de">("en");
+  const [language, setLanguage] = useState<"en" | "de">(() => detectLanguage());
 
+  // Initial setup and listen for preference changes
   useEffect(() => {
-    const stored = localStorage.getItem("mindmate_language") || "en";
-    setLanguage(stored as "en" | "de");
+    // Re-detect language on mount (in case preferences were just set)
+    setLanguage(detectLanguage());
 
     const consent = localStorage.getItem("cookie_consent");
     if (!consent) {
@@ -50,6 +81,28 @@ export function CookieConsent() {
       }
     }
   }, []);
+  
+  // Listen for preference changes (e.g., when user completes onboarding)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setLanguage(detectLanguage());
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also poll for same-tab changes (localStorage events don't fire in same tab)
+    const interval = setInterval(() => {
+      const newLang = detectLanguage();
+      if (newLang !== language) {
+        setLanguage(newLang);
+      }
+    }, 500);
+    
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [language]);
 
   // Listen for external open event
   useEffect(() => {
