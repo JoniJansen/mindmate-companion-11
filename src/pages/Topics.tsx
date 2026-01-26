@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, ChevronRight, CheckCircle2, Clock, BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
+import { TabHint } from "@/components/shared/TabHint";
 import { Button } from "@/components/ui/button";
 import { topics, Topic } from "@/data/topics";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -249,6 +250,9 @@ export default function Topics() {
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
         <div className="max-w-lg mx-auto space-y-4">
+          {/* First-visit hint */}
+          <TabHint tabId="topics" />
+          
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

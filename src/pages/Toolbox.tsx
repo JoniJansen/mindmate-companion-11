@@ -4,6 +4,7 @@ import { Clock, Play, CheckCircle2, Info, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
+import { TabHint } from "@/components/shared/TabHint";
 import { Button } from "@/components/ui/button";
 import { ExercisePlayer } from "@/components/toolbox/ExercisePlayer";
 import { exercises, Exercise, getExerciseById } from "@/data/exercises";
@@ -90,6 +91,9 @@ export default function Toolbox() {
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
         <div className="max-w-lg mx-auto space-y-4">
+        {/* First-visit hint */}
+        <TabHint tabId="toolbox" />
+        
         {/* Category filters */}
         <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((cat) => (

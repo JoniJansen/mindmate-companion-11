@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Check, ChevronRight, TrendingUp, Calendar, Filter, BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
+import { TabHint } from "@/components/shared/TabHint";
 import { Button } from "@/components/ui/button";
 import { MoodSelector, getMoodEmoji, getMoodLabel } from "@/components/mood/MoodSelector";
 import { FeelingTags } from "@/components/mood/FeelingTags";
@@ -188,6 +189,8 @@ export default function Mood() {
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
         <div className="max-w-lg mx-auto space-y-5">
+          {/* First-visit hint */}
+          <TabHint tabId="mood" />
           {/* Today's Check-in */}
           <CalmCard variant="calm" animate={false}>
             <div className="space-y-5">

@@ -87,12 +87,16 @@ export default function Settings() {
   }, [user, checkAdminStatus]);
 
   const handleRestartTour = () => {
+    // Clear both tour completion flags
     localStorage.removeItem("mindmate_tour_completed");
+    localStorage.removeItem("mindmate_tour_auto_triggered");
+    // Also clear tab hints so they show again
+    localStorage.removeItem("mindmate_tab_hints_seen");
     toast({
       title: language === "de" ? "Tour zurückgesetzt" : "Tour reset",
       description: language === "de" 
-        ? "Gehe zum Chat, um die Tour zu starten." 
-        : "Go to Chat to start the tour.",
+        ? "Die App-Einführung startet beim nächsten Chat-Besuch." 
+        : "The app tour will start on your next chat visit.",
     });
     navigate("/chat");
   };

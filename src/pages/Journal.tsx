@@ -4,6 +4,7 @@ import { Plus, Search, Sparkles, TrendingUp, Loader2, Mic, MicOff, X, Calendar, 
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
+import { TabHint } from "@/components/shared/TabHint";
 import { JournalEditor } from "@/components/journal/JournalEditor";
 import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
 import { JournalPrompts } from "@/components/journal/JournalPrompts";
@@ -318,6 +319,8 @@ export default function Journal() {
       <PageHeader title={language === "de" ? "Tagebuch" : "Journal"} subtitle={language === "de" ? "Deine Gedanken, dein Raum" : "Your thoughts, your space"} />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-5 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full space-y-5">
+        {/* First-visit hint */}
+        <TabHint tabId="journal" />
         {/* Weekly Recap Card */}
         {entries.length >= 3 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

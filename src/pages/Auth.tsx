@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, ArrowLeft, Loader2, Eye, EyeOff, Sun, Moon } from "lucide-react";
+import { Mail, Lock, User, ArrowLeft, Loader2, Eye, EyeOff, Sun, Moon, Shield } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,10 @@ export default function Auth() {
   const { language } = useTranslation();
   const { isDark, setMode: setThemeMode } = useTheme();
 
-  const [authMode, setAuthMode] = useState<AuthMode>("login");
+  // Check if coming from onboarding
+  const fromOnboarding = searchParams.get("from") === "onboarding";
+  
+  const [authMode, setAuthMode] = useState<AuthMode>(fromOnboarding ? "signup" : "login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -85,8 +88,15 @@ export default function Auth() {
       switchAction: { en: "Sign up", de: "Registrieren" },
     },
     signup: {
-      title: { en: "Create account", de: "Konto erstellen" },
-      subtitle: { en: "Start your mental wellness journey", de: "Starte deine Reise zu mehr Wohlbefinden" },
+      title: { en: "Create your account", de: "Erstelle dein Konto" },
+      subtitle: { 
+        en: fromOnboarding 
+          ? "Keep your reflections safe and synced across devices." 
+          : "Start your mental wellness journey",
+        de: fromOnboarding 
+          ? "Speichere deine Gedanken sicher und synchronisiere sie geräteübergreifend." 
+          : "Starte deine Reise zu mehr Wohlbefinden",
+      },
       button: { en: "Create account", de: "Konto erstellen" },
       switch: { en: "Already have an account?", de: "Bereits ein Konto?" },
       switchAction: { en: "Sign in", de: "Anmelden" },
@@ -114,13 +124,17 @@ export default function Auth() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="p-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm">{language === "de" ? "Zurück" : "Back"}</span>
-        </button>
+        {fromOnboarding ? (
+          <div className="w-10" /> // Spacer - don't show back on post-onboarding
+        ) : (
+          <button
+            onClick={() => navigate("/landing")}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm">{language === "de" ? "Zurück" : "Back"}</span>
+          </button>
+        )}
         
         {/* Dark Mode Toggle */}
         <button
@@ -178,6 +192,16 @@ export default function Auth() {
               <p className="text-muted-foreground text-sm">
                 {language === "de" ? t.subtitle.de : t.subtitle.en}
               </p>
+              
+              {/* Trust badge for post-onboarding users */}
+              {fromOnboarding && authMode === "signup" && (
+                <div className="flex items-center justify-center gap-2 mt-3 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/10">
+                  <Shield className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs text-muted-foreground">
+                    {language === "de" ? "Sicher & verschlüsselt" : "Secure & encrypted"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
