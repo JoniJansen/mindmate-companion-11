@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
-import { Volume2, Pause, Loader2, Lock } from "lucide-react";
+import { Volume2, Pause, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Skeleton } from "@/components/ui/loading-skeleton";
 
 interface MessagePlayButtonProps {
   isPlaying: boolean;
@@ -30,15 +30,11 @@ export function MessagePlayButton({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="absolute -bottom-2 -right-2"
-    >
+    <div className="absolute -bottom-2 -right-2">
       <Button
         variant="outline"
-        size="icon"
-        className="h-7 w-7 rounded-full bg-background shadow-soft border-border/50 hover:bg-muted relative"
+        size="icon-sm"
+        className="h-8 w-8 rounded-full bg-background shadow-soft border-border/50 relative"
         onClick={handleClick}
         disabled={isLoading}
         aria-label={!isPremium 
@@ -46,7 +42,7 @@ export function MessagePlayButton({
           : isPlaying ? t("voice.stop") : t("voice.play")}
       >
         {isLoading ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
+          <Skeleton className="h-3.5 w-3.5 rounded-full" />
         ) : isPlaying ? (
           <Pause className="w-3.5 h-3.5 text-primary" />
         ) : (
@@ -56,6 +52,6 @@ export function MessagePlayButton({
           <Lock className="w-2 h-2 absolute -bottom-0.5 -right-0.5 text-muted-foreground" />
         )}
       </Button>
-    </motion.div>
+    </div>
   );
 }

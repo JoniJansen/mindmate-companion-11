@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { MessageCircle, Lightbulb, Heart, TrendingUp, Lock } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -56,22 +55,21 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
         const Icon = mode.icon;
         
         return (
-          <motion.button
+          <button
             key={mode.id}
             onClick={() => onModeChange(mode.id)}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-200 ${
+            className={`flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
               isActive
                 ? "bg-primary text-primary-foreground shadow-soft"
                 : isLocked
                   ? "bg-muted/20 text-muted-foreground/50 border border-border/30"
-                  : "bg-muted/40 text-muted-foreground hover:bg-muted/60 hover:text-foreground border border-transparent"
+                  : "bg-muted/40 text-muted-foreground border border-transparent"
             }`}
-            whileTap={{ scale: 0.97 }}
           >
             <Icon className="w-4 h-4" />
             <span>{language === "de" ? mode.labelDe : mode.labelEn}</span>
             {isLocked && <Lock className="w-3 h-3 ml-0.5 opacity-60" />}
-          </motion.button>
+          </button>
         );
       })}
     </div>

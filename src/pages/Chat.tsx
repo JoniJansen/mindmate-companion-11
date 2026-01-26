@@ -638,18 +638,15 @@ export default function Chat() {
             </div>
           ))}
 
-          {/* Typing indicator */}
+          {/* Typing indicator - Skeleton instead of spinner for calm feel */}
           {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
             <div className="flex justify-start">
-              <div className="bg-card border border-border/50 px-4 py-3 rounded-2xl rounded-bl-lg shadow-soft flex gap-1.5">
-                {[0, 0.15, 0.3].map((delay, i) => (
-                  <motion.div 
-                    key={i} 
-                    className="w-1.5 h-1.5 bg-muted-foreground/60 rounded-full" 
-                    animate={{ opacity: [0.4, 1, 0.4] }} 
-                    transition={{ duration: 1, repeat: Infinity, delay }} 
-                  />
-                ))}
+              <div className="bg-card border border-border/50 px-4 py-3 rounded-2xl rounded-bl-lg shadow-soft">
+                <div className="flex gap-1.5 items-center">
+                  <div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                </div>
               </div>
             </div>
           )}
@@ -658,12 +655,12 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Calm Mode Quick Exercises - fixed position, no animation */}
+      {/* Calm Mode Quick Exercises - stable, min touch targets */}
       {chatMode === "calm" && messages.length > 0 && (
         <div className="shrink-0 px-4 pb-2 bg-background">
           <div className="max-w-lg mx-auto flex gap-2">
             {calmExercises.map((ex) => (
-              <Button key={ex.id} variant="outline" size="sm" className="flex-1 gap-2" onClick={() => handleCalmExercise(ex.id)}>
+              <Button key={ex.id} variant="outline" size="sm" className="flex-1 gap-2 min-h-[44px]" onClick={() => handleCalmExercise(ex.id)}>
                 <ex.icon className="w-4 h-4" />
                 {ex.label}
               </Button>
@@ -672,12 +669,12 @@ export default function Chat() {
         </div>
       )}
 
-      {/* Quick Replies - no animation, stable */}
+      {/* Quick Replies - stable, min touch targets */}
       {messages.length <= 2 && !isLoading && (
         <div className="shrink-0 px-4 pb-2 bg-background">
           <div className="max-w-lg mx-auto flex flex-wrap gap-2">
             {getQuickReplies().map((reply) => (
-              <Button key={reply} variant="outline" size="sm" onClick={() => handleSend(reply)} className="text-[13px]">
+              <Button key={reply} variant="outline" size="sm" onClick={() => handleSend(reply)} className="text-[13px] min-h-[44px]">
                 {reply}
               </Button>
             ))}
@@ -780,7 +777,7 @@ export default function Chat() {
               </TooltipProvider>
             )}
 
-            {/* Text input with send button */}
+            {/* Text input with send button - stable layout */}
             <div className="flex-1 relative">
               <input
                 type="text"
@@ -793,7 +790,7 @@ export default function Chat() {
                   } 
                 }}
                 placeholder={isListening && canUseVoice ? t("voice.listening") : (language === "de" ? "Schreib etwas..." : "Type something...")}
-                className="w-full h-10 bg-muted/30 border border-border/50 rounded-full px-4 pr-11 text-[15px] focus:outline-none focus:border-primary/40 focus:bg-background transition-colors"
+                className="w-full h-11 bg-muted/30 border border-border/50 rounded-full px-4 pr-12 text-[15px] focus:outline-none focus:border-primary/40 focus:bg-background transition-colors"
                 disabled={isLoading || (!canSendMessage() && !isPremium)}
               />
               <Button 

@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
 
 interface MessageLimitIndicatorProps {
@@ -25,27 +24,32 @@ export function MessageLimitIndicator({
 
   const getMessage = () => {
     if (isEmpty) {
+      // Trust layer: gentle, not alarming
       return language === "de" 
-        ? "Keine Nachrichten mehr heute" 
-        : "No messages left today";
+        ? "Dein Tageslimit ist erreicht" 
+        : "You've reached today's limit";
     }
     if (isLow) {
       return language === "de"
-        ? `Noch ${messagesRemaining} ${messagesRemaining === 1 ? "Antwort" : "Antworten"} heute`
-        : `${messagesRemaining} ${messagesRemaining === 1 ? "response" : "responses"} left today`;
+        ? `Noch ${messagesRemaining} ${messagesRemaining === 1 ? "Nachricht" : "Nachrichten"} heute`
+        : `${messagesRemaining} ${messagesRemaining === 1 ? "message" : "messages"} left today`;
     }
     return language === "de"
-      ? `${messagesRemaining} Antworten übrig`
-      : `${messagesRemaining} responses left`;
+      ? `${messagesRemaining} Nachrichten übrig`
+      : `${messagesRemaining} messages left`;
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className={`text-center py-1.5 ${isEmpty ? "text-destructive/70" : isLow ? "text-amber-600/70" : "text-muted-foreground"}`}
+    <div 
+      className={`text-center py-2 px-4 ${
+        isEmpty 
+          ? "text-muted-foreground bg-muted/30" 
+          : isLow 
+            ? "text-amber-700/70 dark:text-amber-400/70" 
+            : "text-muted-foreground"
+      }`}
     >
-      <p className="text-xs">{getMessage()}</p>
-    </motion.div>
+      <p className="text-xs font-medium">{getMessage()}</p>
+    </div>
   );
 }
