@@ -503,8 +503,7 @@ export default function Chat() {
         left: 0,
         right: 0,
         bottom: 0,
-        // Safe area at top for status bar
-        paddingTop: 'env(safe-area-inset-top, 0px)',
+        // IMPORTANT: Safe-area top is handled by PageHeader ONLY to avoid double padding
         // Reserve space for bottom nav + safe area
         paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`
       }}
@@ -568,8 +567,8 @@ export default function Chat() {
         }
       />
 
-      {/* Mode Selector */}
-      <div className="px-4 md:px-6 lg:px-8 py-2.5 border-b border-border/30 bg-background/50">
+      {/* Mode Selector - min-w-0 prevents flex compression issues on iOS */}
+      <div className="shrink-0 min-w-0 px-4 md:px-6 lg:px-8 py-2 border-b border-border/30 bg-background/50">
         <ChatModeSelector 
           activeMode={chatMode} 
           onModeChange={handleModeChange}

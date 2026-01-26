@@ -88,12 +88,13 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
   }, [activeMode]);
 
   return (
-    <div className="relative w-full">
+    // CRITICAL: min-w-0 prevents flex compression issues on iOS
+    <div className="relative w-full min-w-0">
       {/* Left fade overlay */}
       <div 
         className={cn(
-          "absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none transition-opacity duration-150",
-          "bg-gradient-to-r from-background via-background/80 to-transparent",
+          "absolute left-0 top-0 bottom-0 w-6 z-10 pointer-events-none transition-opacity duration-150",
+          "bg-gradient-to-r from-background via-background/60 to-transparent",
           showLeftFade ? "opacity-100" : "opacity-0"
         )}
         aria-hidden="true"
@@ -102,25 +103,25 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
       {/* Right fade overlay */}
       <div 
         className={cn(
-          "absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none transition-opacity duration-150",
-          "bg-gradient-to-l from-background via-background/80 to-transparent",
+          "absolute right-0 top-0 bottom-0 w-6 z-10 pointer-events-none transition-opacity duration-150",
+          "bg-gradient-to-l from-background via-background/60 to-transparent",
           showRightFade ? "opacity-100" : "opacity-0"
         )}
         aria-hidden="true"
       />
 
-      {/* Scrollable segmented control container */}
+      {/* Scrollable segmented control container - min-w-0 + flex-nowrap for iOS robustness */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto scrollbar-hide px-1"
+        className="flex overflow-x-auto scrollbar-hide"
         style={{ 
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
         }}
       >
-        {/* Inner control wrapper - unified pill background */}
+        {/* Inner control wrapper - unified pill background, flex-nowrap prevents wrapping */}
         <div 
-          className="inline-flex items-center gap-0.5 p-1 mx-auto bg-muted/60 rounded-xl border border-border/50"
+          className="inline-flex flex-nowrap items-center gap-0.5 p-1 mx-auto bg-muted/60 rounded-xl border border-border/50"
           role="tablist"
           aria-label={language === "de" ? "Chat-Modus wählen" : "Select chat mode"}
         >
