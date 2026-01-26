@@ -50,19 +50,23 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
     if (!el) return;
     
     const { scrollLeft, scrollWidth, clientWidth } = el;
-    setShowLeftFade(scrollLeft > 4);
-    setShowRightFade(scrollLeft < scrollWidth - clientWidth - 4);
+    const isScrollable = scrollWidth > clientWidth;
+    setShowLeftFade(isScrollable && scrollLeft > 4);
+    setShowRightFade(isScrollable && scrollLeft < scrollWidth - clientWidth - 4);
   };
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     
-    updateFades();
+    // Initial check after render
+    const timer = setTimeout(updateFades, 50);
+    
     el.addEventListener("scroll", updateFades, { passive: true });
     window.addEventListener("resize", updateFades);
     
     return () => {
+      clearTimeout(timer);
       el.removeEventListener("scroll", updateFades);
       window.removeEventListener("resize", updateFades);
     };
@@ -84,12 +88,12 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
   }, [activeMode]);
 
   return (
-    <div className="relative w-full max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto">
+    <div className="relative w-full">
       {/* Left fade overlay */}
       <div 
         className={cn(
-          "absolute left-0 top-0 bottom-0 w-6 z-10 pointer-events-none transition-opacity duration-150",
-          "bg-gradient-to-r from-background to-transparent",
+          "absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none transition-opacity duration-150",
+          "bg-gradient-to-r from-background via-background/80 to-transparent",
           showLeftFade ? "opacity-100" : "opacity-0"
         )}
         aria-hidden="true"
@@ -98,8 +102,8 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
       {/* Right fade overlay */}
       <div 
         className={cn(
-          "absolute right-0 top-0 bottom-0 w-6 z-10 pointer-events-none transition-opacity duration-150",
-          "bg-gradient-to-l from-background to-transparent",
+          "absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none transition-opacity duration-150",
+          "bg-gradient-to-l from-background via-background/80 to-transparent",
           showRightFade ? "opacity-100" : "opacity-0"
         )}
         aria-hidden="true"
@@ -108,7 +112,7 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
       {/* Scrollable segmented control container */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto scrollbar-hide scroll-smooth"
+        className="flex overflow-x-auto scrollbar-hide px-1"
         style={{ 
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
@@ -116,7 +120,7 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
       >
         {/* Inner control wrapper - unified pill background */}
         <div 
-          className="inline-flex items-center gap-1 p-1 mx-auto bg-muted/50 rounded-xl border border-border/40"
+          className="inline-flex items-center gap-0.5 p-1 mx-auto bg-muted/60 rounded-xl border border-border/50"
           role="tablist"
           aria-label={language === "de" ? "Chat-Modus wählen" : "Select chat mode"}
         >
@@ -135,28 +139,27 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
                 onClick={() => !isLocked && onModeChange(mode.id)}
                 disabled={isLocked}
                 className={cn(
-                  // Base styles - unified height, centered content
+                  // Base styles - 44px min tap target, centered content
                   "relative flex items-center justify-center gap-1.5",
-                  "h-9 px-3.5 min-w-fit",
+                  "min-h-[44px] h-11 px-3 min-w-fit",
                   "text-[13px] font-medium whitespace-nowrap",
-                  "rounded-lg transition-all duration-150 ease-out",
+                  "rounded-[10px] transition-all duration-150 ease-out",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                   // Scroll snap
-                  "scroll-snap-align-center",
-                  // Active state
+                  "snap-center",
+                  // Active state - clear visual dominance
                   isActive && [
                     "bg-background text-foreground",
-                    "shadow-sm",
+                    "shadow-sm border border-border/30",
                   ],
-                  // Inactive state
+                  // Inactive state - clearly secondary
                   !isActive && !isLocked && [
                     "text-muted-foreground",
-                    "hover:text-foreground hover:bg-background/50",
-                    "active:bg-background/70",
+                    "active:bg-background/60 active:text-foreground",
                   ],
                   // Locked state
                   isLocked && [
-                    "text-muted-foreground/50 cursor-not-allowed",
+                    "text-muted-foreground/40 cursor-not-allowed",
                   ]
                 )}
                 title={
@@ -167,13 +170,13 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
               >
                 <Icon 
                   className={cn(
-                    "w-3.5 h-3.5 flex-shrink-0",
-                    isActive && "text-primary"
+                    "w-4 h-4 flex-shrink-0",
+                    isActive ? "text-primary" : "text-current"
                   )} 
                 />
                 <span className="leading-none">{label}</span>
                 {isLocked && (
-                  <Lock className="w-3 h-3 flex-shrink-0 ml-0.5 opacity-60" />
+                  <Lock className="w-3 h-3 flex-shrink-0 ml-0.5" />
                 )}
               </button>
             );
