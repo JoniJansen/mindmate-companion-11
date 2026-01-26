@@ -163,22 +163,37 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   return (
     <div className="fixed inset-0 bg-background z-[100] flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-border">
-        <button type="button" onClick={handleClose} className="p-2 hover:bg-muted rounded-lg">
+      <div className="flex items-center justify-between px-2 py-2 border-b border-border">
+        {/* Close button - 44px tap target */}
+        <button 
+          type="button" 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClose();
+          }} 
+          className="flex items-center justify-center w-11 h-11 hover:bg-muted rounded-xl shrink-0 transition-colors"
+          aria-label="Close exercise"
+        >
           <X className="w-5 h-5" />
         </button>
-        <span className="text-sm text-muted-foreground">{exerciseTitle}</span>
-        {/* Voice toggle */}
+        
+        <span className="text-sm text-muted-foreground truncate px-2">{exerciseTitle}</span>
+        
+        {/* Voice toggle - 44px tap target */}
         {isSupported && (
           <button 
             type="button" 
-            onClick={toggleVoice} 
-            className={`p-2 rounded-lg ${voiceEnabled ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleVoice();
+            }} 
+            className={`flex items-center justify-center w-11 h-11 rounded-xl shrink-0 transition-colors ${voiceEnabled ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
+            aria-label={voiceEnabled ? "Disable voice" : "Enable voice"}
           >
             {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
           </button>
         )}
-        {!isSupported && <div className="w-10" />}
+        {!isSupported && <div className="w-11 shrink-0" />}
       </div>
 
       {/* Progress bar */}

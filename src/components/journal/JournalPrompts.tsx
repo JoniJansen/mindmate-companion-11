@@ -73,9 +73,13 @@ export function JournalPrompts({ onSelectPrompt }: JournalPromptsProps) {
         </div>
         <Button
           variant="ghost"
-          size="sm"
-          onClick={refreshPrompts}
-          className="h-8 px-2 text-muted-foreground hover:text-foreground"
+          size="icon"
+          onClick={(e) => {
+            e.stopPropagation();
+            refreshPrompts();
+          }}
+          className="text-muted-foreground hover:text-foreground shrink-0"
+          aria-label={language === "de" ? "Neue Fragen laden" : "Refresh prompts"}
         >
           <RefreshCw className="w-4 h-4" />
         </Button>
