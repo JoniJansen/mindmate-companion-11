@@ -18,7 +18,8 @@ import {
   Volume2,
   Download,
   LogOut,
-  Cookie
+  Cookie,
+  Heart
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -813,7 +814,35 @@ export default function Settings() {
         >
           <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">{t("settings.support")}</h2>
           <div className="space-y-3">
-            <CalmCard variant="default" className="cursor-pointer hover:shadow-card transition-shadow">
+            {/* Safety / Crisis Resources - PROMINENT for Apple Mental Health compliance */}
+            <CalmCard 
+              variant="default" 
+              className="cursor-pointer hover:shadow-card transition-shadow"
+              onClick={() => navigate("/safety")}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {language === "de" ? "Unterstützung & Ressourcen" : "Support & Resources"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {language === "de" ? "Krisenressourcen immer erreichbar" : "Crisis resources always available"}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </div>
+            </CalmCard>
+
+            <CalmCard 
+              variant="default" 
+              className="cursor-pointer hover:shadow-card transition-shadow"
+              onClick={() => navigate("/privacy")}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
@@ -828,7 +857,11 @@ export default function Settings() {
               </div>
             </CalmCard>
 
-            <CalmCard variant="default" className="cursor-pointer hover:shadow-card transition-shadow">
+            <CalmCard 
+              variant="default" 
+              className="cursor-pointer hover:shadow-card transition-shadow"
+              onClick={() => navigate("/faq")}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
