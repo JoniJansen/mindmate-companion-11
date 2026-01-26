@@ -5,6 +5,8 @@ import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon } from "lucide
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+import { useAuth } from "@/hooks/useAuth";
 import logoImage from "@/assets/logo.png";
 
 type Language = "en" | "de";
@@ -110,6 +112,8 @@ export default function Onboarding() {
   });
   const navigate = useNavigate();
   const { isDark, setMode: setThemeMode } = useTheme();
+  const { completeOnboarding } = useOnboardingStatus();
+  const { isAuthenticated } = useAuth();
 
   const currentStepIndex = steps.indexOf(currentStep);
   const t = translations[state.language];
@@ -121,7 +125,16 @@ export default function Onboarding() {
     } else {
       // Save preferences to localStorage
       localStorage.setItem("mindmate-preferences", JSON.stringify(state));
-      navigate("/");
+      
+      // Mark onboarding as completed
+      completeOnboarding();
+      
+      // If already authenticated, go to app; otherwise go to auth
+      if (isAuthenticated) {
+        navigate("/", { replace: true });
+      } else {
+        navigate("/auth?from=onboarding", { replace: true });
+      }
     }
   };
 

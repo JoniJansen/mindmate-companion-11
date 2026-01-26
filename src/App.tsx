@@ -7,13 +7,15 @@ import { useEffect } from "react";
 
 // Layout
 import { AppLayout } from "@/components/layout/AppLayout";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { OnboardingGuard } from "@/components/routing/OnboardingGuard";
 import { CookieConsent } from "@/components/gdpr/CookieConsent";
 import { TourProvider } from "@/components/tour/TourProvider";
 
 // Hooks
 import { useAppleIAP } from "@/hooks/useAppleIAP";
 import { usePremium } from "@/hooks/usePremium";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+import { useAuth } from "@/hooks/useAuth";
 
 // Pages
 import Landing from "@/pages/Landing";
@@ -88,6 +90,45 @@ function IAPRestoreInitializer() {
   return null;
 }
 
+// Root redirect handler - decides where to send users
+function RootRedirect() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const { hasCompletedOnboarding } = useOnboardingStatus();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  
+  // If authenticated, go to chat
+  if (isAuthenticated) {
+    return <Navigate to="/chat" replace />;
+  }
+  
+  // If completed onboarding but not authenticated, go to auth
+  if (hasCompletedOnboarding()) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  // New user - go to welcome/onboarding
+  return <Navigate to="/welcome" replace />;
+}
+
+// Cookie consent wrapper - delays until after onboarding
+function DelayedCookieConsent() {
+  const { hasCompletedOnboarding } = useOnboardingStatus();
+  
+  // Only show cookie consent after onboarding is complete
+  if (!hasCompletedOnboarding()) {
+    return null;
+  }
+  
+  return <CookieConsent />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -97,20 +138,22 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <TourProvider>
-          <CookieConsent />
+          <DelayedCookieConsent />
           <Routes>
-            {/* Landing Page */}
+            {/* Root - intelligent redirect */}
+            <Route path="/" element={<RootRedirect />} />
+            
+            {/* Landing Page - marketing/info */}
             <Route path="/landing" element={<Landing />} />
             
             {/* Auth */}
             <Route path="/auth" element={<Auth />} />
             
-            {/* Onboarding */}
+            {/* Onboarding - accessible without auth */}
             <Route path="/welcome" element={<Onboarding />} />
             
-            {/* Main app with bottom navigation - Protected */}
-            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route path="/" element={<Navigate to="/chat" replace />} />
+            {/* Main app with bottom navigation - Protected with OnboardingGuard */}
+            <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
               <Route path="/chat" element={<Chat />} />
               <Route path="/journal" element={<Journal />} />
               <Route path="/topics" element={<Topics />} />
@@ -119,11 +162,11 @@ const App = () => (
             </Route>
             
             {/* Standalone protected pages */}
-            <Route path="/summary" element={<ProtectedRoute><Summary /></ProtectedRoute>} />
+            <Route path="/summary" element={<OnboardingGuard><Summary /></OnboardingGuard>} />
             <Route path="/safety" element={<Safety />} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/settings" element={<OnboardingGuard><Settings /></OnboardingGuard>} />
             <Route path="/install" element={<Install />} />
-            <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+            <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/impressum" element={<Impressum />} />
@@ -131,7 +174,7 @@ const App = () => (
             <Route path="/cancellation" element={<Cancellation />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
-            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
