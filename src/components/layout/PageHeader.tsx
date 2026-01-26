@@ -59,13 +59,17 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 -mr-1.5">
             {rightElement || (showSettings && (
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                onClick={() => navigate("/settings")}
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/50 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate("/settings");
+                }}
+                aria-label="Settings"
               >
                 <Settings className="w-[18px] h-[18px] stroke-[1.8]" />
               </Button>
