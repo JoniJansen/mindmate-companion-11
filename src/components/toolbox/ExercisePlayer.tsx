@@ -16,7 +16,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [stepProgress, setStepProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const { t, getExerciseTranslation } = useTranslation();
+  const { t, getExerciseDisplay } = useTranslation();
   
   const { speak, stop, isSpeaking, isSupported } = useSpeechSynthesis({
     rate: 0.85,
@@ -25,28 +25,25 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }
   });
 
-  const translation = getExerciseTranslation(exercise.id);
-  const exerciseTitle = translation?.title || exercise.title;
-  
-  const translatedSteps = translation?.steps;
-  const getStepInstruction = (index: number) => {
-    if (translatedSteps && translatedSteps[index]) {
-      return translatedSteps[index];
-    }
-    return exercise.steps[index]?.instruction || "";
-  };
-  
-  const translatedPrompts = translation?.prompts;
-  const getPrompt = (index: number) => {
-    if (translatedPrompts && translatedPrompts[index % translatedPrompts.length]) {
-      return translatedPrompts[index % translatedPrompts.length];
-    }
-    return exercise.prompts?.[index % (exercise.prompts?.length || 1)] || "";
-  };
+  // Single source of truth for exercise display strings
+  const display = getExerciseDisplay(exercise.id, {
+    title: exercise.title,
+    description: exercise.description,
+    longDescription: exercise.longDescription,
+    duration: exercise.duration,
+    steps: exercise.steps,
+    prompts: exercise.prompts,
+  });
 
   const step = exercise.steps[currentStep];
   const totalSteps = exercise.steps.length;
   const overallProgress = ((currentStep + stepProgress / 100) / totalSteps) * 100;
+
+  // Helper to get step instruction from display
+  const getStepInstruction = (index: number) => display.steps[index] || exercise.steps[index]?.instruction || "";
+  
+  // Helper to get prompt from display
+  const getPrompt = (index: number) => display.prompts[index % display.prompts.length] || "";
 
   // Speak current step when it changes or when playing starts
   useEffect(() => {
@@ -123,8 +120,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
           <button type="button" onClick={handleClose} className="p-2 hover:bg-muted rounded-lg">
             <X className="w-5 h-5" />
           </button>
-          <span className="text-sm text-muted-foreground">{exerciseTitle}</span>
-          <div className="w-10" />
+        <span className="text-sm text-muted-foreground">{display.title}</span>
+        <div className="w-10" />
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center p-6">
@@ -177,7 +174,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
           <X className="w-5 h-5" />
         </button>
         
-        <span className="text-sm text-muted-foreground truncate px-2">{exerciseTitle}</span>
+        <span className="text-sm text-muted-foreground truncate px-2">{display.title}</span>
         
         {/* Voice toggle - 44px tap target */}
         {isSupported && (

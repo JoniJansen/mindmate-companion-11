@@ -24,26 +24,15 @@ const stepTypeIcon = {
 export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDetailProps) {
   const [activeTab, setActiveTab] = useState<'path' | 'exercises'>('path');
   const navigate = useNavigate();
-  const { t, getTopicTranslation, getExerciseTranslation } = useTranslation();
+  const { t, getTopicDisplay, getExerciseDisplay } = useTranslation();
 
-  const translation = getTopicTranslation(topic.id);
-  const topicTitle = translation?.title || topic.title;
-  const topicLongDescription = translation?.longDescription || topic.longDescription;
-  const translatedSteps = translation?.steps;
-  
-  const getStepTitle = (index: number) => translatedSteps?.[index]?.title || topic.steps[index]?.title;
-  const getStepDescription = (index: number) => translatedSteps?.[index]?.description || topic.steps[index]?.description;
-  
-  // Get translated exercise title and description
-  const getExerciseTitle = (exerciseId: string, fallback: string) => {
-    const exTranslation = getExerciseTranslation(exerciseId);
-    return exTranslation?.title || fallback;
-  };
-  
-  const getExerciseDescription = (exerciseId: string, fallback: string) => {
-    const exTranslation = getExerciseTranslation(exerciseId);
-    return exTranslation?.description || fallback;
-  };
+  // Single source of truth for topic display strings
+  const display = getTopicDisplay(topic.id, {
+    title: topic.title,
+    description: topic.description,
+    longDescription: topic.longDescription,
+    steps: topic.steps.map(s => ({ title: s.title, description: s.description })),
+  });
 
   const stepTypeLabel: Record<string, string> = {
     reflection: t("topics.stepType.reflection"),
@@ -86,7 +75,7 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="text-2xl">{topic.icon}</span>
-            <h1 className="text-xl font-semibold text-foreground">{topicTitle}</h1>
+            <h1 className="text-xl font-semibold text-foreground">{display.title}</h1>
           </div>
         </div>
       </div>
@@ -94,7 +83,7 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
       {/* Description */}
       <CalmCard variant="gentle" className="mb-6">
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {topicLongDescription}
+          {display.longDescription}
         </p>
       </CalmCard>
 
@@ -146,6 +135,7 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
             {topic.steps.map((step, index) => {
               const isComplete = progress[`${topic.id}-${step.id}`];
               const Icon = stepTypeIcon[step.type];
+              const stepDisplay = display.steps[index] || { title: step.title, description: step.description };
               
               return (
                 <motion.div
@@ -173,10 +163,10 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className={`font-medium ${isComplete ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                            {getStepTitle(index)}
+                            {stepDisplay.title}
                           </h3>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">{getStepDescription(index)}</p>
+                        <p className="text-sm text-muted-foreground mb-2">{stepDisplay.description}</p>
                         <div className="flex items-center gap-2">
                           <Icon className="w-3 h-3 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">{stepTypeLabel[step.type]}</span>
@@ -202,40 +192,48 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
             exit={{ opacity: 0, y: -10 }}
             className="space-y-3"
           >
-            {topic.exercises.map((exercise, index) => (
-              <motion.div
-                key={exercise.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <CalmCard 
-                  variant="elevated"
-                  className="cursor-pointer hover:shadow-elevated transition-shadow"
-                  onClick={() => handleStartExercise(exercise)}
+            {topic.exercises.map((exercise, index) => {
+              const exerciseDisplay = getExerciseDisplay(exercise.id, {
+                title: exercise.title,
+                description: exercise.description,
+                duration: exercise.duration,
+              });
+              
+              return (
+                <motion.div
+                  key={exercise.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                      <Dumbbell className="w-5 h-5 text-primary" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-foreground">
-                        {getExerciseTitle(exercise.id, exercise.title)}
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {getExerciseDescription(exercise.id, exercise.description)}
-                      </p>
-                    </div>
+                  <CalmCard 
+                    variant="elevated"
+                    className="cursor-pointer hover:shadow-elevated transition-shadow"
+                    onClick={() => handleStartExercise(exercise)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <Dumbbell className="w-5 h-5 text-primary" />
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-foreground">
+                          {exerciseDisplay.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-1">
+                          {exerciseDisplay.description}
+                        </p>
+                      </div>
 
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                      <Clock className="w-3 h-3" />
-                      {exercise.duration}
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                        <Clock className="w-3 h-3" />
+                        {exerciseDisplay.durationLabel}
+                      </div>
                     </div>
-                  </div>
-                </CalmCard>
-              </motion.div>
-            ))}
+                  </CalmCard>
+                </motion.div>
+              );
+            })}
 
             {topic.exercises.length === 0 && (
               <CalmCard variant="gentle" className="text-center py-6">
