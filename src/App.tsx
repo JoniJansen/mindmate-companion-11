@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 
 // Layout
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -40,6 +40,9 @@ import Contact from "@/pages/Contact";
 import About from "@/pages/About";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
+
+// DEV-ONLY: Device QA screen (lazy load to exclude from prod bundle)
+const DevQA = lazy(() => import("@/pages/DevQA"));
 
 const queryClient = new QueryClient();
 
@@ -175,6 +178,15 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
+            
+            {/* DEV-ONLY: Device QA screen */}
+            {import.meta.env.DEV && (
+              <Route path="/dev-qa" element={
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" /></div>}>
+                  <OnboardingGuard><DevQA /></OnboardingGuard>
+                </Suspense>
+              } />
+            )}
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />

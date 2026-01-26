@@ -65,6 +65,29 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
     el.addEventListener("scroll", updateFades, { passive: true });
     window.addEventListener("resize", updateFades);
     
+    // DEV-ONLY: Check if last tab is clipped (automated visual check)
+    if (import.meta.env.DEV) {
+      const checkClipping = () => {
+        const buttons = el.querySelectorAll("button");
+        const lastButton = buttons[buttons.length - 1];
+        if (lastButton) {
+          const containerRect = el.getBoundingClientRect();
+          const buttonRect = lastButton.getBoundingClientRect();
+          const isClipped = buttonRect.right > containerRect.right + 4;
+          const isPartiallyHidden = buttonRect.left + buttonRect.width * 0.5 > containerRect.right;
+          
+          if (isClipped && el.scrollLeft === 0) {
+            console.warn(
+              `[ChatModeSelector] Last tab "${lastButton.textContent}" may be clipped at rest. ` +
+              `Container: ${containerRect.width}px, Content needs: ${el.scrollWidth}px. ` +
+              `Consider ensuring parent has min-w-0 and no overflow-hidden.`
+            );
+          }
+        }
+      };
+      setTimeout(checkClipping, 100);
+    }
+    
     return () => {
       clearTimeout(timer);
       el.removeEventListener("scroll", updateFades);
