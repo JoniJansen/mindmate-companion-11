@@ -516,15 +516,20 @@ export default function Chat() {
         showLogo
         showBack={false}
         rightElement={
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2 -mr-1.5">
+            {/* Voice Mode Toggle - isolated tap target */}
             <TooltipProvider delayDuration={300}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    onClick={toggleVoiceMode} 
-                    className={`relative ${voiceModeEnabled && canUseVoice ? "text-primary" : "text-muted-foreground"}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleVoiceMode();
+                    }} 
+                    className={`relative shrink-0 ${voiceModeEnabled && canUseVoice ? "text-primary" : "text-muted-foreground"}`}
+                    aria-label={voiceModeEnabled ? "Disable voice mode" : "Enable voice mode"}
                   >
                     {canUseVoice ? (
                       voiceModeEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />
@@ -545,7 +550,18 @@ export default function Chat() {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Button variant="ghost" size="icon" onClick={() => navigate("/safety")} className="text-destructive">
+            
+            {/* Emergency/Safety Button - isolated tap target */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate("/safety");
+              }} 
+              className="text-destructive shrink-0"
+              aria-label={language === "de" ? "Krisenressourcen" : "Crisis resources"}
+            >
               <Phone className="w-5 h-5" />
             </Button>
           </div>
