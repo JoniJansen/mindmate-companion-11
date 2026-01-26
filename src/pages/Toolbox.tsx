@@ -78,7 +78,7 @@ export default function Toolbox() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-full bg-background">
       <PageHeader
         title={language === "de" ? "Übungen" : "Toolbox"}
         subtitle={
@@ -88,7 +88,8 @@ export default function Toolbox() {
         }
       />
 
-      <div className="px-4 md:px-6 lg:px-8 py-5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto space-y-4">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5">
+        <div className="max-w-lg mx-auto space-y-4">
         {/* Category filters */}
         <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((cat) => (
@@ -186,6 +187,7 @@ export default function Toolbox() {
             </p>
           </CalmCard>
         )}
+        </div>
       </div>
 
       {/* Info modal */}

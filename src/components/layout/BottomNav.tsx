@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
+// Height exported for layout calculations (nav content only, safe area added separately)
+export const BOTTOM_NAV_HEIGHT = 56;
+
 export function BottomNav() {
   const location = useLocation();
   const { language } = useTranslation();
@@ -48,12 +51,17 @@ export function BottomNav() {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border/40"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border/50"
       style={{ 
+        // Safe area fills the space below home indicator
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
-      <div className="flex items-center justify-around px-1 py-1.5 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+      {/* Nav content - fixed height */}
+      <div 
+        className="flex items-center justify-around px-2 max-w-lg md:max-w-xl mx-auto"
+        style={{ height: `${BOTTOM_NAV_HEIGHT}px` }}
+      >
         {navItems.map((item) => {
           const isActive = location.pathname === item.to || 
             (item.to !== "/" && location.pathname.startsWith(item.to));
@@ -64,31 +72,22 @@ export function BottomNav() {
               key={item.to}
               to={item.to}
               data-tour={item.tourId}
-              className="relative flex flex-col items-center justify-center min-w-[60px] py-1.5"
+              className="relative flex flex-col items-center justify-center flex-1 h-full"
             >
-              <motion.div
-                className={`flex items-center justify-center w-11 h-11 rounded-2xl transition-all duration-200 ${
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-150 ${
                   isActive 
-                    ? "bg-primary/10 text-primary" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "bg-primary/12 text-primary" 
+                    : "text-muted-foreground active:bg-muted/50"
                 }`}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2]' : 'stroke-[1.6]'}`} />
-              </motion.div>
-              <span className={`text-[10px] mt-0.5 font-medium tracking-wide transition-colors duration-200 ${
-                isActive ? "text-primary" : "text-muted-foreground/70"
+                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2]' : 'stroke-[1.5]'}`} />
+              </div>
+              <span className={`text-[10px] mt-0.5 font-medium transition-colors duration-150 ${
+                isActive ? "text-primary" : "text-muted-foreground/60"
               }`}>
                 {item.label}
               </span>
-              {isActive && (
-                <motion.div
-                  layoutId="nav-indicator"
-                  className="absolute top-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-primary/60"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
             </NavLink>
           );
         })}

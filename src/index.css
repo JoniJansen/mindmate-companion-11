@@ -139,37 +139,43 @@
     @apply border-border;
   }
 
-  /* Ensure html and body fill entire viewport */
+  /* === FULLSCREEN LAYOUT: Native iOS Feel === */
   html {
     @apply bg-background;
+    height: 100%;
+    height: 100svh; /* Small viewport height - accounts for iOS address bar */
     overscroll-behavior: none;
-    min-height: 100%;
-    min-height: 100dvh;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent text size adjustment on orientation change */
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    height: 100%;
+    height: 100svh;
     overscroll-behavior: none;
-    -webkit-overflow-scrolling: touch;
-    min-height: 100%;
-    min-height: 100dvh;
+    /* Disable iOS rubber-band scrolling on body */
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
     line-height: 1.6;
     letter-spacing: -0.01em;
   }
   
-  /* Prevent iOS elastic scroll on body */
-  html, body, #root {
-    height: 100%;
-    overflow: hidden;
-  }
-  
+  /* Root container - the ONLY element that scrolls */
   #root {
-    overflow: auto;
     @apply bg-background;
-    min-height: 100%;
-    min-height: 100dvh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    /* Ensure it fills the entire screen including notch areas */
+    padding: 0;
+    margin: 0;
   }
 
   /* Refined typography hierarchy */
@@ -182,10 +188,9 @@
   h2 { @apply text-xl md:text-2xl; }
   h3 { @apply text-lg md:text-xl; }
 
-  /* Smoother focus states */
+  /* Clean focus states - subtle but visible */
   *:focus-visible {
-    @apply outline-none ring-2 ring-primary/30 ring-offset-2 ring-offset-background;
-    transition: box-shadow 0.15s ease;
+    @apply outline-none ring-2 ring-primary/25 ring-offset-1 ring-offset-background;
   }
 }
 
@@ -201,14 +206,14 @@
   }
 
   .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 1rem);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .safe-top {
-    padding-top: env(safe-area-inset-top, 1rem);
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
-  /* Professional scrollbar */
+  /* Hide scrollbar but keep functionality */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -217,11 +222,23 @@
     display: none;
   }
 
-  /* Refined scroll container */
-  .scroll-stable {
+  /* === SCROLL STABILITY: Firm, controlled scrolling === */
+  .scroll-container {
     overflow-y: auto;
-    overscroll-behavior-y: contain;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    /* Prevent momentum scroll bleeding */
+    scroll-behavior: smooth;
+    /* Ensure scroll container takes full space */
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Fixed elements that should not scroll */
+  .scroll-fixed {
+    flex-shrink: 0;
+    overflow: hidden;
   }
 }
 
@@ -252,10 +269,5 @@
 
   .gradient-warm {
     background: linear-gradient(135deg, hsl(var(--accent-soft)) 0%, hsl(var(--background)) 100%);
-  }
-
-  /* Stable transitions */
-  .transition-stable {
-    @apply transition-all duration-200 ease-out;
   }
 }
