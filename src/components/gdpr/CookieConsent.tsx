@@ -28,6 +28,15 @@ export function openCookieSettings() {
 }
 
 /**
+ * Check if running on iOS native app (Capacitor)
+ */
+function isCapacitorIOS(): boolean {
+  return typeof window !== 'undefined' && 
+    'Capacitor' in window && 
+    (window as any).Capacitor?.getPlatform?.() === 'ios';
+}
+
+/**
  * Detects the user's preferred language from multiple sources:
  * 1. Saved preferences (mindmate-preferences.language)
  * 2. Browser/system language (navigator.language)
@@ -67,6 +76,22 @@ export function CookieConsent() {
   useEffect(() => {
     // Re-detect language on mount (in case preferences were just set)
     setLanguage(detectLanguage());
+
+    // IMPORTANT: Do NOT show cookie banner on iOS native app
+    // Apple rejected the app for using cookies without AppTrackingTransparency
+    // Since MindMate doesn't actually track users, we simply skip the cookie banner on iOS
+    if (isCapacitorIOS()) {
+      // Auto-accept essential-only on iOS (no tracking, no banner needed)
+      const essentialOnly: ConsentSettings = {
+        essential: true,
+        analytics: false,
+        marketing: false,
+        timestamp: new Date().toISOString(),
+      };
+      localStorage.setItem("cookie_consent", JSON.stringify(essentialOnly));
+      setSettings(essentialOnly);
+      return;
+    }
 
     const consent = localStorage.getItem("cookie_consent");
     if (!consent) {

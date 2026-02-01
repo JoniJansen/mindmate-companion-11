@@ -44,34 +44,99 @@ const isCapacitorIOS = (): boolean => {
 const AUTO_RESTORE_KEY = 'mindmate_ios_auto_restored';
 const AUTO_RESTORE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
-// Mock StoreKit bridge - will be replaced by actual Capacitor plugin
+// Access native StoreKit plugin via Capacitor
+const getStoreKitPlugin = (): any | null => {
+  if (!isCapacitorIOS()) return null;
+  try {
+    const Capacitor = (window as any).Capacitor;
+    if (Capacitor?.Plugins?.StoreKit) {
+      return Capacitor.Plugins.StoreKit;
+    }
+    // Fallback: try registerPlugin pattern
+    if (Capacitor?.registerPlugin) {
+      return Capacitor.registerPlugin('StoreKit');
+    }
+  } catch (e) {
+    console.warn('StoreKit plugin not available:', e);
+  }
+  return null;
+};
+
+// StoreKit bridge - calls native iOS StoreKit via Capacitor plugin
 const StoreKitBridge = {
   isAvailable: async (): Promise<boolean> => {
-    return isCapacitorIOS();
+    if (!isCapacitorIOS()) return false;
+    const plugin = getStoreKitPlugin();
+    if (!plugin) return false;
+    try {
+      const result = await plugin.isAvailable();
+      return result?.available === true;
+    } catch (e) {
+      console.warn('StoreKit availability check failed:', e);
+      return false;
+    }
   },
   
   getProducts: async (productIds: string[]): Promise<AppleProduct[]> => {
-    // This would be implemented by native StoreKit code
-    console.log('StoreKit: Fetching products', productIds);
-    return [];
+    const plugin = getStoreKitPlugin();
+    if (!plugin) return [];
+    try {
+      const result = await plugin.getProducts({ productIds });
+      return result?.products || [];
+    } catch (e) {
+      console.error('StoreKit: Failed to fetch products', e);
+      return [];
+    }
   },
   
   purchaseProduct: async (productId: string): Promise<AppleTransaction | null> => {
-    // This would trigger native StoreKit purchase flow
-    console.log('StoreKit: Purchasing', productId);
-    return null;
+    const plugin = getStoreKitPlugin();
+    if (!plugin) {
+      console.error('StoreKit plugin not available for purchase');
+      return null;
+    }
+    try {
+      const result = await plugin.purchaseProduct({ productId });
+      if (result?.success) {
+        return {
+          transactionId: result.transactionId,
+          productId: result.productId,
+          receiptData: result.receiptData || '',
+        };
+      }
+      // User cancelled
+      if (result?.cancelled) {
+        return null;
+      }
+      return null;
+    } catch (e) {
+      console.error('StoreKit: Purchase failed', e);
+      throw e;
+    }
   },
   
   restorePurchases: async (): Promise<AppleTransaction[]> => {
-    // This would restore previous purchases
-    console.log('StoreKit: Restoring purchases');
-    return [];
+    const plugin = getStoreKitPlugin();
+    if (!plugin) return [];
+    try {
+      const result = await plugin.restorePurchases();
+      return result?.transactions || [];
+    } catch (e) {
+      console.error('StoreKit: Restore failed', e);
+      return [];
+    }
   },
   
   getReceipt: async (): Promise<string | null> => {
-    // This would get the current receipt data
-    console.log('StoreKit: Getting receipt');
-    return null;
+    const plugin = getStoreKitPlugin();
+    if (!plugin) return null;
+    try {
+      const result = await plugin.restorePurchases();
+      return result?.receiptData || null;
+    } catch (e) {
+      console.error('StoreKit: Failed to get receipt', e);
+      return null;
+    }
   },
 };
 
