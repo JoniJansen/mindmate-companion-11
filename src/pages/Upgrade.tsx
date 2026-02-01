@@ -372,6 +372,45 @@ export default function Upgrade() {
             </Button>
           )}
 
+          {/* Subscription Info - Required by Apple Guideline 3.1.2 */}
+          <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+            <h4 className="font-medium text-sm text-foreground">
+              {language === "de" ? "Abo-Informationen" : "Subscription Information"}
+            </h4>
+            <div className="text-xs text-muted-foreground space-y-1.5">
+              <p>
+                <strong>{language === "de" ? "Titel:" : "Title:"}</strong> MindMate Plus
+              </p>
+              <p>
+                <strong>{language === "de" ? "Laufzeit:" : "Duration:"}</strong>{" "}
+                {selectedPlan === "yearly" 
+                  ? (language === "de" ? "1 Jahr (automatische Verlängerung)" : "1 Year (auto-renewing)")
+                  : (language === "de" ? "1 Monat (automatische Verlängerung)" : "1 Month (auto-renewing)")
+                }
+              </p>
+              <p>
+                <strong>{language === "de" ? "Preis:" : "Price:"}</strong>{" "}
+                {selectedPlan === "yearly" ? "€79,00/Jahr" : "€9,99/Monat"}
+                {selectedPlan === "monthly" && (language === "de" ? " (nach 7-Tage-Testphase)" : " (after 7-day trial)")}
+              </p>
+              <p className="pt-1">
+                {language === "de" 
+                  ? "Die Zahlung wird über deinen Apple ID Account abgerechnet. Das Abo verlängert sich automatisch, sofern du es nicht mindestens 24 Stunden vor Ablauf des aktuellen Zeitraums kündigst."
+                  : "Payment will be charged to your Apple ID account. Subscription automatically renews unless cancelled at least 24 hours before the end of the current period."
+                }
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Link to="/terms" className="text-xs text-primary hover:underline">
+                {language === "de" ? "Nutzungsbedingungen" : "Terms of Use"}
+              </Link>
+              <span className="text-muted-foreground">•</span>
+              <Link to="/privacy" className="text-xs text-primary hover:underline">
+                {language === "de" ? "Datenschutz" : "Privacy Policy"}
+              </Link>
+            </div>
+          </div>
+
           <div className="text-center space-y-2">
             <p className="text-xs text-muted-foreground">
               {isAppleIAPAvailable 

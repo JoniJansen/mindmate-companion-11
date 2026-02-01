@@ -450,7 +450,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
     setIsUploadingAvatar(true);
     try {
-      const fileExt = file.name.split(".").pop();
+      const fileExt = file.name.split(".").pop()?.toLowerCase() || 'jpg';
       const fileName = `avatar.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
 
@@ -469,13 +469,18 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       refreshProfile();
       toast({ title: t.avatarUpdated });
     } catch (error: any) {
+      console.error('Avatar upload error:', error);
       toast({
         title: language === "de" ? "Fehler beim Hochladen" : "Upload failed",
-        description: error.message,
+        description: error.message || (language === "de" ? "Bitte versuche es erneut" : "Please try again"),
         variant: "destructive",
       });
     } finally {
       setIsUploadingAvatar(false);
+      // Reset file input to allow re-selecting the same file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -726,6 +731,10 @@ export function AccountSettings({ language }: AccountSettingsProps) {
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              // On iOS, we need to be careful with camera access
+              // Using accept="image/*" allows both camera and gallery
+              // The capture attribute can cause crashes if camera permissions aren't granted
+              // So we deliberately DO NOT use capture="environment" or capture="user"
               onChange={handleAvatarUpload}
               className="hidden"
             />
