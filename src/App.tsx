@@ -40,6 +40,8 @@ import Contact from "@/pages/Contact";
 import About from "@/pages/About";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
+import ReviewInstructions from "@/pages/ReviewInstructions";
+import ReviewStatus from "@/pages/ReviewStatus";
 
 // DEV-ONLY: Device QA screen (lazy load to exclude from prod bundle)
 const DevQA = lazy(() => import("@/pages/DevQA"));
@@ -178,6 +180,10 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
+            
+            {/* Review Mode Pages - accessible without OnboardingGuard for Apple Review */}
+            <Route path="/review-instructions" element={<ReviewInstructions />} />
+            <Route path="/review-status" element={<ReviewStatus />} />
             
             {/* DEV-ONLY: Device QA screen */}
             {import.meta.env.DEV && (

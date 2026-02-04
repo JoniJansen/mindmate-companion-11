@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { isReviewAccount, isReviewModeActive, activateReviewMode } from "@/lib/reviewMode";
 
 export interface PremiumState {
   isPremium: boolean;
@@ -12,6 +13,7 @@ export interface PremiumState {
   cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: string;
   subscriptionStatus?: string;
+  isReviewMode?: boolean;
 }
 
 const DAILY_MESSAGE_LIMIT = 15;
@@ -25,6 +27,7 @@ interface StoredState {
   cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: string;
   subscriptionStatus?: string;
+  isReviewMode?: boolean;
 }
 
 const getToday = () => new Date().toISOString().split("T")[0];
@@ -33,6 +36,7 @@ const getDefaultState = (): StoredState => ({
   isPremium: false,
   dailyMessagesUsed: 0,
   lastResetDate: getToday(),
+  isReviewMode: false,
 });
 
 export function usePremium() {
@@ -67,6 +71,27 @@ export function usePremium() {
     }
     setIsLoaded(true);
   }, []);
+
+  // Check for review mode and auto-grant premium
+  useEffect(() => {
+    if (user) {
+      const isReview = isReviewAccount(user.email) || isReviewModeActive();
+      
+      if (isReview && !state.isPremium) {
+        console.log("[Premium] Review mode detected, granting premium access");
+        activateReviewMode();
+        
+        const reviewState: StoredState = {
+          ...state,
+          isPremium: true,
+          planType: "review",
+          subscriptionStatus: "active",
+          isReviewMode: true,
+        };
+        saveState(reviewState);
+      }
+    }
+  }, [user, state.isPremium]);
 
   // Check subscription status from backend
   const checkSubscriptionStatus = useCallback(async () => {
