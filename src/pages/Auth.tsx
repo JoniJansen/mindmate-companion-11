@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, ArrowLeft, Loader2, Eye, EyeOff, Sun, Moon, Shield } from "lucide-react";
+import { Mail, Lock, User, ArrowLeft, Loader2, Eye, EyeOff, Sun, Moon, Shield, Star } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
+import { REVIEW_CREDENTIALS, activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
@@ -30,6 +31,7 @@ export default function Auth() {
   const [displayName, setDisplayName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isReviewLoading, setIsReviewLoading] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -39,19 +41,82 @@ export default function Auth() {
     }
   }, [isAuthenticated, authLoading, navigate, searchParams]);
 
+  // Review/Demo Login - bypasses all verification
+  const handleReviewLogin = async () => {
+    setIsReviewLoading(true);
+    
+    try {
+      // Normalize credentials
+      const reviewEmail = REVIEW_CREDENTIALS.email.trim().toLowerCase();
+      const reviewPassword = REVIEW_CREDENTIALS.password;
+      
+      console.log("[Review Login] Attempting login for:", reviewEmail);
+      
+      await signIn(reviewEmail, reviewPassword);
+      
+      // Activate review mode for premium bypass
+      activateReviewMode();
+      
+      toast({
+        title: "Review Login Successful",
+        description: "Welcome! All premium features are unlocked.",
+      });
+      
+      // Navigate to review instructions
+      navigate("/review-instructions", { replace: true });
+    } catch (error: any) {
+      console.error("[Review Login] Error:", error);
+      
+      // Provide detailed error message for debugging
+      let errorMessage = error.message || "Unknown error";
+      
+      // Common error translations
+      if (errorMessage.includes("Invalid login credentials")) {
+        errorMessage = "Review account not found. Please contact support: support@mindmate.de";
+      } else if (errorMessage.includes("Email not confirmed")) {
+        errorMessage = "Email verification pending. Please contact support.";
+      } else if (errorMessage.includes("Too many requests")) {
+        errorMessage = "Rate limited. Please wait a moment and try again.";
+      }
+      
+      toast({
+        title: "Review Login Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsReviewLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      // Normalize email input
+      const normalizedEmail = email.trim().toLowerCase();
+      
       if (authMode === "login") {
-        await signIn(email, password);
+        await signIn(normalizedEmail, password);
+        
+        // Check if this is the review account
+        if (isReviewAccount(normalizedEmail)) {
+          activateReviewMode();
+          toast({
+            title: "Review Mode Active",
+            description: "All premium features are unlocked.",
+          });
+          navigate("/review-instructions", { replace: true });
+          return;
+        }
+        
         toast({
           title: language === "de" ? "Willkommen zurück!" : "Welcome back!",
           description: language === "de" ? "Du bist jetzt eingeloggt." : "You are now logged in.",
         });
       } else if (authMode === "signup") {
-        await signUp(email, password, displayName);
+        await signUp(normalizedEmail, password, displayName);
         toast({
           title: language === "de" ? "Konto erstellt!" : "Account created!",
           description: language === "de" 
@@ -59,7 +124,7 @@ export default function Auth() {
             : "Welcome to MindMate!",
         });
       } else if (authMode === "forgot-password") {
-        await resetPassword(email);
+        await resetPassword(normalizedEmail);
         toast({
           title: language === "de" ? "E-Mail gesendet" : "Email sent",
           description: language === "de" 
@@ -69,6 +134,7 @@ export default function Auth() {
         setAuthMode("login");
       }
     } catch (error: any) {
+      console.error("[Auth] Error:", error);
       toast({
         title: language === "de" ? "Fehler" : "Error",
         description: error.message,
@@ -302,6 +368,36 @@ export default function Auth() {
               {language === "de" ? t.switchAction.de : t.switchAction.en}
             </button>
           </div>
+
+          {/* Review/Demo Login Button - Always visible for Apple Review */}
+          {authMode === "login" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="pt-4 border-t border-border/50"
+            >
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-dashed border-amber-500/50 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+                onClick={handleReviewLogin}
+                disabled={isReviewLoading}
+              >
+                {isReviewLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                ) : (
+                  <Star className="w-5 h-5 mr-2" />
+                )}
+                {language === "de" ? "Review / Demo Login" : "Review / Demo Login"}
+              </Button>
+              <p className="text-xs text-center text-muted-foreground mt-2">
+                {language === "de" 
+                  ? "Für App Store Review und Testzwecke" 
+                  : "For App Store Review and testing purposes"}
+              </p>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </div>

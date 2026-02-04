@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.weekly-recap]
 verify_jwt = false
+
+[functions.setup-review-account]
+verify_jwt = false
+
+[functions.verify-apple-receipt]
+verify_jwt = false
