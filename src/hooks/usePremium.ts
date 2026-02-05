@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { isReviewAccount, isReviewModeActive, activateReviewMode } from "@/lib/reviewMode";
+import { useRevenueCat, PREMIUM_ENTITLEMENT } from "./useRevenueCat";
 
 export interface PremiumState {
   isPremium: boolean;
@@ -44,6 +45,16 @@ export function usePremium() {
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
+  
+  // RevenueCat integration for iOS
+  const { 
+    isAvailable: isRevenueCatAvailable, 
+    isPremium: isRevenueCatPremium,
+    offerings,
+    purchasePackage,
+    restorePurchases,
+    checkEntitlements,
+  } = useRevenueCat();
 
   // Load state from localStorage and check for daily reset
   useEffect(() => {
@@ -72,6 +83,20 @@ export function usePremium() {
     setIsLoaded(true);
   }, []);
 
+  // Sync RevenueCat premium status to local state
+  useEffect(() => {
+    if (isRevenueCatPremium && !state.isPremium) {
+      console.log("[Premium] RevenueCat premium detected, syncing to local state");
+      const newState: StoredState = {
+        ...state,
+        isPremium: true,
+        planType: "revenuecat",
+        subscriptionStatus: "active",
+      };
+      saveState(newState);
+    }
+  }, [isRevenueCatPremium, state.isPremium]);
+
   // Check for review mode and auto-grant premium
   useEffect(() => {
     if (user) {
@@ -99,6 +124,16 @@ export function usePremium() {
     
     setIsCheckingSubscription(true);
     try {
+      // First check RevenueCat if available
+      if (isRevenueCatAvailable) {
+        const hasPremium = await checkEntitlements();
+        if (hasPremium) {
+          setIsCheckingSubscription(false);
+          return;
+        }
+      }
+
+      // Fallback to backend check
       const { data, error } = await supabase.functions.invoke("manage-subscription", {
         body: { userId: user.id, action: "status" },
       });
@@ -124,7 +159,7 @@ export function usePremium() {
     } finally {
       setIsCheckingSubscription(false);
     }
-  }, [user, isCheckingSubscription, state]);
+  }, [user, isCheckingSubscription, state, isRevenueCatAvailable, checkEntitlements]);
 
   // Check subscription on mount and when user changes
   useEffect(() => {
@@ -162,10 +197,93 @@ export function usePremium() {
     return state.dailyMessagesUsed < DAILY_MESSAGE_LIMIT;
   }, [state]);
 
-  // Create checkout session for upgrade
+  // Cancel subscription - only for web/Stripe subscriptions
+  const cancelSubscription = useCallback(async () => {
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
+
+    // For RevenueCat, users manage subscriptions through App Store
+    if (isRevenueCatAvailable) {
+      throw new Error("Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements");
+    }
+
+    const { data, error } = await supabase.functions.invoke("manage-subscription", {
+      body: { userId: user.id, action: "cancel" },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    await checkSubscriptionStatus();
+    return data;
+  }, [user, checkSubscriptionStatus, isRevenueCatAvailable]);
+
+  // Reactivate subscription - only for web/Stripe subscriptions
+  const reactivateSubscription = useCallback(async () => {
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
+
+    // For RevenueCat, users manage subscriptions through App Store
+    if (isRevenueCatAvailable) {
+      throw new Error("Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements");
+    }
+
+    const { data, error } = await supabase.functions.invoke("manage-subscription", {
+      body: { userId: user.id, action: "reactivate" },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    await checkSubscriptionStatus();
+    return data;
+  }, [user, checkSubscriptionStatus, isRevenueCatAvailable]);
+
+  // Open billing portal - only for web/Stripe subscriptions
+  const openBillingPortal = useCallback(async () => {
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
+
+    // For RevenueCat, direct to App Store subscriptions
+    if (isRevenueCatAvailable) {
+      // Open App Store subscription management
+      window.location.href = "https://apps.apple.com/account/subscriptions";
+      return;
+    }
+
+    const { data, error } = await supabase.functions.invoke("manage-subscription", {
+      body: { userId: user.id, action: "portal" },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (data?.url) {
+      window.location.href = data.url;
+    }
+  }, [user, isRevenueCatAvailable]);
+
+  // Legacy upgrade method - deprecated, use Upgrade page
+  const upgradeToPremium = useCallback(() => {
+    window.location.href = "/upgrade";
+  }, []);
+
+  // Create checkout session - deprecated for iOS, kept for web fallback
   const createCheckoutSession = useCallback(async (planType: "monthly" | "yearly") => {
     if (!user) {
       throw new Error("Not authenticated");
+    }
+
+    // For iOS, this shouldn't be called - use RevenueCat instead
+    if (isRevenueCatAvailable) {
+      console.warn("createCheckoutSession called on iOS - should use RevenueCat");
+      return;
     }
 
     const { data, error } = await supabase.functions.invoke("create-checkout", {
@@ -184,67 +302,7 @@ export function usePremium() {
     if (data?.url) {
       window.location.href = data.url;
     }
-  }, [user]);
-
-  // Cancel subscription
-  const cancelSubscription = useCallback(async () => {
-    if (!user) {
-      throw new Error("Not authenticated");
-    }
-
-    const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "cancel" },
-    });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    await checkSubscriptionStatus();
-    return data;
-  }, [user, checkSubscriptionStatus]);
-
-  // Reactivate subscription
-  const reactivateSubscription = useCallback(async () => {
-    if (!user) {
-      throw new Error("Not authenticated");
-    }
-
-    const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "reactivate" },
-    });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    await checkSubscriptionStatus();
-    return data;
-  }, [user, checkSubscriptionStatus]);
-
-  // Open billing portal
-  const openBillingPortal = useCallback(async () => {
-    if (!user) {
-      throw new Error("Not authenticated");
-    }
-
-    const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "portal" },
-    });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (data?.url) {
-      window.location.href = data.url;
-    }
-  }, [user]);
-
-  // Legacy upgrade method (now uses checkout)
-  const upgradeToPremium = useCallback(() => {
-    createCheckoutSession("monthly");
-  }, [createCheckoutSession]);
+  }, [user, isRevenueCatAvailable]);
 
   // Downgrade from premium (for testing or cancellation)
   const downgradeFromPremium = useCallback(() => {
@@ -255,22 +313,25 @@ export function usePremium() {
     saveState(newState);
   }, [state, saveState]);
 
-  // Feature flags
-  const canUseVoice = state.isPremium;
-  const canUseWeeklyRecap = state.isPremium;
-  const canUseSessionSummary = state.isPremium;
-  const canUseGuidedJournal = state.isPremium;
-  const canUsePatternMode = state.isPremium;
-  const canUseClarifyMode = state.isPremium;
-  const canUseReminders = state.isPremium;
+  // Compute final premium status (RevenueCat OR local state)
+  const finalIsPremium = state.isPremium || isRevenueCatPremium;
 
-  const messagesRemaining = state.isPremium 
+  // Feature flags
+  const canUseVoice = finalIsPremium;
+  const canUseWeeklyRecap = finalIsPremium;
+  const canUseSessionSummary = finalIsPremium;
+  const canUseGuidedJournal = finalIsPremium;
+  const canUsePatternMode = finalIsPremium;
+  const canUseClarifyMode = finalIsPremium;
+  const canUseReminders = finalIsPremium;
+
+  const messagesRemaining = finalIsPremium 
     ? Infinity 
     : Math.max(0, DAILY_MESSAGE_LIMIT - state.dailyMessagesUsed);
 
   return {
     // State
-    isPremium: state.isPremium,
+    isPremium: finalIsPremium,
     isLoaded,
     dailyMessagesUsed: state.dailyMessagesUsed,
     dailyMessageLimit: DAILY_MESSAGE_LIMIT,
@@ -279,6 +340,12 @@ export function usePremium() {
     cancelAtPeriodEnd: state.cancelAtPeriodEnd,
     currentPeriodEnd: state.currentPeriodEnd,
     subscriptionStatus: state.subscriptionStatus,
+    
+    // RevenueCat specific
+    isRevenueCatAvailable,
+    offerings,
+    purchasePackage,
+    restorePurchases,
     
     // Feature flags
     canUseVoice,
