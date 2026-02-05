@@ -12,7 +12,6 @@ import { CookieConsent } from "@/components/gdpr/CookieConsent";
 import { TourProvider } from "@/components/tour/TourProvider";
 
 // Hooks
-import { useAppleIAP } from "@/hooks/useAppleIAP";
 import { usePremium } from "@/hooks/usePremium";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
@@ -77,20 +76,17 @@ function ThemeInitializer() {
   return null;
 }
 
-// iOS IAP auto-restore on app start
-function IAPRestoreInitializer() {
-  const { isAvailable, autoRestoreOnAppStart } = useAppleIAP();
-  const { checkSubscriptionStatus } = usePremium();
+// RevenueCat subscription restore on app start
+function SubscriptionRestoreInitializer() {
+  const { isRevenueCatAvailable, restorePurchases, checkSubscriptionStatus } = usePremium();
 
   useEffect(() => {
-    // Auto-restore iOS purchases silently on app start
-    if (isAvailable) {
-      autoRestoreOnAppStart().then(() => {
-        // Refresh subscription status after restore
-        checkSubscriptionStatus();
-      });
+    // Auto-check subscription status on app start
+    // RevenueCat handles restore internally when checking entitlements
+    if (isRevenueCatAvailable) {
+      checkSubscriptionStatus();
     }
-  }, [isAvailable, autoRestoreOnAppStart, checkSubscriptionStatus]);
+  }, [isRevenueCatAvailable, checkSubscriptionStatus]);
 
   return null;
 }
@@ -138,7 +134,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ThemeInitializer />
-      <IAPRestoreInitializer />
+      <SubscriptionRestoreInitializer />
       <Toaster />
       <Sonner />
       <BrowserRouter>

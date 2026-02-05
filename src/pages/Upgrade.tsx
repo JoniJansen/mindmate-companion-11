@@ -10,8 +10,6 @@ import {
   Calendar,
   MessageSquare,
   Loader2,
-  ExternalLink,
-  Apple,
   RotateCcw
 } from "lucide-react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
@@ -21,21 +19,27 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { usePremium } from "@/hooks/usePremium";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useAppleIAP, APPLE_PRODUCTS } from "@/hooks/useAppleIAP";
+import { REVENUECAT_PRODUCTS } from "@/hooks/useRevenueCat";
 
 export default function Upgrade() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { language } = useTranslation();
   const { toast } = useToast();
-  const { isPremium, createCheckoutSession, checkSubscriptionStatus } = usePremium();
-  const { isAvailable: isAppleIAPAvailable, isLoading: isAppleLoading, purchaseProduct, restorePurchases } = useAppleIAP();
+  const { 
+    isPremium, 
+    checkSubscriptionStatus,
+    isRevenueCatAvailable,
+    offerings,
+    purchasePackage,
+    restorePurchases,
+  } = usePremium();
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedWithdrawal, setAcceptedWithdrawal] = useState(false);
 
-  // Handle success/cancel from Stripe
+  // Handle success from previous Stripe flow (legacy)
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast({
@@ -77,18 +81,49 @@ export default function Upgrade() {
     
     setIsLoading(true);
     try {
-      // Use Apple IAP on iOS, Stripe otherwise
-      if (isAppleIAPAvailable) {
-        const productId = selectedPlan === "yearly" 
-          ? APPLE_PRODUCTS.YEARLY 
-          : APPLE_PRODUCTS.MONTHLY;
-        const success = await purchaseProduct(productId);
-        if (success) {
-          await checkSubscriptionStatus();
-          navigate("/settings", { replace: true });
+      if (isRevenueCatAvailable && offerings) {
+        // Find the correct package from RevenueCat offerings
+        const packageId = selectedPlan === "yearly" ? "yearly" : "monthly";
+        const packageToPurchase = offerings.availablePackages.find(
+          (pkg) => pkg.identifier === packageId || 
+                   pkg.product.identifier === (selectedPlan === "yearly" 
+                     ? REVENUECAT_PRODUCTS.YEARLY 
+                     : REVENUECAT_PRODUCTS.MONTHLY)
+        );
+        
+        if (!packageToPurchase) {
+          // Fallback: find any matching package
+          const fallbackPackage = offerings.availablePackages.find(
+            (pkg) => pkg.product.identifier.includes(selectedPlan)
+          );
+          
+          if (fallbackPackage) {
+            const success = await purchasePackage(fallbackPackage);
+            if (success) {
+              await checkSubscriptionStatus();
+              navigate("/settings", { replace: true });
+            }
+          } else {
+            throw new Error(language === "de" 
+              ? "Produkt nicht gefunden. Bitte versuche es später erneut."
+              : "Product not found. Please try again later.");
+          }
+        } else {
+          const success = await purchasePackage(packageToPurchase);
+          if (success) {
+            await checkSubscriptionStatus();
+            navigate("/settings", { replace: true });
+          }
         }
       } else {
-        await createCheckoutSession(selectedPlan);
+        // Web fallback - show message that iOS is required
+        toast({
+          title: language === "de" ? "Nur in der iOS App verfügbar" : "Only available in iOS app",
+          description: language === "de" 
+            ? "Bitte lade die MindMate App aus dem App Store um ein Abo abzuschließen."
+            : "Please download the MindMate app from the App Store to subscribe.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({
@@ -120,18 +155,33 @@ export default function Upgrade() {
     }
   };
 
+  // Get prices from RevenueCat offerings if available
+  const getPrice = (planType: "monthly" | "yearly") => {
+    if (offerings) {
+      const pkg = offerings.availablePackages.find(
+        (p) => p.identifier === planType || 
+               p.product.identifier.includes(planType)
+      );
+      if (pkg) {
+        return pkg.product.priceString;
+      }
+    }
+    // Fallback prices
+    return planType === "yearly" ? "€79,00" : "€9,99";
+  };
+
   const plans = [
     {
       id: "monthly" as const,
       name: language === "de" ? "Monatlich" : "Monthly",
-      price: "€9,99",
+      price: getPrice("monthly"),
       interval: language === "de" ? "/Monat" : "/month",
       trial: language === "de" ? "7 Tage kostenlos testen" : "7-day free trial",
     },
     {
       id: "yearly" as const,
       name: language === "de" ? "Jährlich" : "Yearly",
-      price: "€79",
+      price: getPrice("yearly"),
       interval: language === "de" ? "/Jahr" : "/year",
       savings: language === "de" ? "2 Monate gratis" : "2 months free",
       monthlyEquivalent: "€6,58",
@@ -359,11 +409,11 @@ export default function Upgrade() {
             )}
           </Button>
 
-          {/* iOS Restore Purchases */}
-          {isAppleIAPAvailable && (
+          {/* Restore Purchases - always visible on iOS */}
+          {isRevenueCatAvailable && (
             <Button
               onClick={handleRestorePurchases}
-              disabled={isLoading || isAppleLoading}
+              disabled={isLoading}
               variant="outline"
               className="w-full h-10"
             >
@@ -390,7 +440,7 @@ export default function Upgrade() {
               </p>
               <p>
                 <strong>{language === "de" ? "Preis:" : "Price:"}</strong>{" "}
-                {selectedPlan === "yearly" ? "€79,00/Jahr" : "€9,99/Monat"}
+                {getPrice(selectedPlan)}{selectedPlan === "yearly" ? "/Jahr" : "/Monat"}
                 {selectedPlan === "monthly" && (language === "de" ? " (nach 7-Tage-Testphase)" : " (after 7-day trial)")}
               </p>
               <p className="pt-1">
@@ -413,10 +463,7 @@ export default function Upgrade() {
 
           <div className="text-center space-y-2">
             <p className="text-xs text-muted-foreground">
-              {isAppleIAPAvailable 
-                ? (language === "de" ? "Sicherer Kauf über Apple" : "Secure purchase via Apple")
-                : (language === "de" ? "Sichere Zahlung über Stripe" : "Secure payment via Stripe")
-              }
+              {language === "de" ? "Sicherer Kauf über Apple" : "Secure purchase via Apple"}
             </p>
             <p className="text-xs text-muted-foreground">
               {language === "de" 
