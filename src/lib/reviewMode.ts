@@ -1,8 +1,8 @@
 /**
  * Review Mode Configuration
  * 
- * This module provides robust Apple App Store review support.
- * The review account gets automatic premium access and bypasses rate limits.
+ * This module provides robust App Store review support for Apple and Google Play.
+ * Review accounts get automatic premium access and bypass rate limits.
  */
 
 // Review account credentials - stored securely, not exposed in UI
@@ -11,10 +11,21 @@ export const REVIEW_CREDENTIALS = {
   password: "MindMate2026Review!",
 } as const;
 
-// Check if current user is the review account
+export const GOOGLE_REVIEW_CREDENTIALS = {
+  email: "google-review@mindmate.de",
+  password: "MindMate2026Review!",
+} as const;
+
+// All review emails for checking
+const REVIEW_EMAILS = [
+  REVIEW_CREDENTIALS.email.toLowerCase(),
+  GOOGLE_REVIEW_CREDENTIALS.email.toLowerCase(),
+];
+
+// Check if current user is a review account (Apple or Google)
 export const isReviewAccount = (email?: string | null): boolean => {
   if (!email) return false;
-  return email.toLowerCase().trim() === REVIEW_CREDENTIALS.email.toLowerCase();
+  return REVIEW_EMAILS.includes(email.toLowerCase().trim());
 };
 
 // Check if review mode is active (based on localStorage flag or account)
