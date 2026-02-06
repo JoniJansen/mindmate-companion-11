@@ -38,6 +38,7 @@ import Cancellation from "@/pages/Cancellation";
 import Contact from "@/pages/Contact";
 import About from "@/pages/About";
 import Admin from "@/pages/Admin";
+import DeleteAccount from "@/pages/DeleteAccount";
 import NotFound from "@/pages/NotFound";
 import ReviewInstructions from "@/pages/ReviewInstructions";
 import ReviewStatus from "@/pages/ReviewStatus";
@@ -175,6 +176,7 @@ const App = () => (
             <Route path="/cancellation" element={<Cancellation />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
+            <Route path="/delete-account" element={<DeleteAccount />} />
             <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
             
             {/* Review Mode Pages - accessible without OnboardingGuard for Apple Review */}
