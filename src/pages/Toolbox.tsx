@@ -109,8 +109,8 @@ export default function Toolbox() {
           </p>
         </CalmCard>
 
-        {/* Exercise list - grid on larger screens */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        {/* Exercise list - single column for clean layout */}
+        <div className="grid grid-cols-1 gap-3">
           {filteredExercises.map((exercise, index) => {
             const isCompleted = completedExercises.has(exercise.id);
             const Icon = exercise.icon;

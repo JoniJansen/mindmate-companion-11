@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { getMoodEmoji } from "./MoodSelector";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface MoodDataPoint {
   date: string;
@@ -13,6 +14,7 @@ interface MoodChartProps {
 }
 
 export function MoodChart({ data, showLabels = true }: MoodChartProps) {
+  const { language } = useTranslation();
   const chartData = useMemo(() => {
     // Get last 7 days
     const days: { label: string; value: number | null; date: Date }[] = [];
@@ -26,14 +28,14 @@ export function MoodChart({ data, showLabels = true }: MoodChartProps) {
       const entry = data.find((d) => d.date.startsWith(dateStr));
 
       days.push({
-        label: date.toLocaleDateString("en-US", { weekday: "short" }).slice(0, 2),
+        label: date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { weekday: "short" }).slice(0, 2),
         value: entry?.value || null,
         date,
       });
     }
 
     return days;
-  }, [data]);
+  }, [data, language]);
 
   const maxValue = 5;
 

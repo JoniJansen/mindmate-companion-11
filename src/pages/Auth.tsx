@@ -225,7 +225,7 @@ export default function Auth() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm space-y-8"
+          className="w-full max-w-sm md:max-w-md space-y-8"
         >
           {/* Logo & Title */}
           <div className="text-center space-y-4">
