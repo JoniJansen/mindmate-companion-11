@@ -284,6 +284,12 @@ export const translations: Translations = {
   "resource.selfCare": { en: "Self-Care During Difficult Times", de: "Selbstfürsorge in schwierigen Zeiten" },
   "resource.selfCareDesc": { en: "Coping strategies and immediate relief techniques", de: "Bewältigungsstrategien und Techniken zur sofortigen Entlastung" },
 
+  // Not Found page
+  "notFound.title": { en: "Page not found", de: "Seite nicht gefunden" },
+  "notFound.description": { en: "The page you're looking for doesn't exist. Let's get you back on track.", de: "Die Seite, die du suchst, existiert nicht. Lass uns dich zurückbringen." },
+  "notFound.goToChat": { en: "Go to Chat", de: "Zum Chat" },
+  "notFound.goBack": { en: "Go Back", de: "Zurück" },
+
   // Emotional Timeline
   "timeline.title": { en: "Emotional Timeline", de: "Emotionale Zeitleiste" },
   "timeline.description": { en: "Notice gentle patterns over time", de: "Bemerke sanfte Muster über die Zeit" },
