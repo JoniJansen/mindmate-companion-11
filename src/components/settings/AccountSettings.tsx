@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell } from "lucide-react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell, ImageIcon } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -724,17 +725,13 @@ export function AccountSettings({ language }: AccountSettingsProps) {
               {isUploadingAvatar ? (
                 <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
               ) : (
-                <Camera className="w-3.5 h-3.5" />
+                <ImageIcon className="w-3.5 h-3.5" />
               )}
             </button>
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
-              // On iOS, we need to be careful with camera access
-              // Using accept="image/*" allows both camera and gallery
-              // The capture attribute can cause crashes if camera permissions aren't granted
-              // So we deliberately DO NOT use capture="environment" or capture="user"
+              accept={Capacitor.isNativePlatform() ? "image/jpeg,image/png,image/gif,image/webp" : "image/*"}
               onChange={handleAvatarUpload}
               className="hidden"
             />
