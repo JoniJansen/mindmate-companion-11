@@ -440,24 +440,35 @@ export default function Upgrade() {
               </p>
               <p>
                 <strong>{language === "de" ? "Preis:" : "Price:"}</strong>{" "}
-                {getPrice(selectedPlan)}{selectedPlan === "yearly" ? "/Jahr" : "/Monat"}
+                {getPrice(selectedPlan)}{selectedPlan === "yearly" 
+                  ? (language === "de" ? "/Jahr" : "/year") 
+                  : (language === "de" ? "/Monat" : "/month")}
                 {selectedPlan === "monthly" && (language === "de" ? " (nach 7-Tage-Testphase)" : " (after 7-day trial)")}
               </p>
               <p className="pt-1">
                 {language === "de" 
-                  ? "Die Zahlung wird über deinen Apple ID Account abgerechnet. Das Abo verlängert sich automatisch, sofern du es nicht mindestens 24 Stunden vor Ablauf des aktuellen Zeitraums kündigst."
-                  : "Payment will be charged to your Apple ID account. Subscription automatically renews unless cancelled at least 24 hours before the end of the current period."
+                  ? "Die Zahlung wird über deinen Apple ID Account abgerechnet. Das Abo verlängert sich automatisch, sofern du es nicht mindestens 24 Stunden vor Ablauf des aktuellen Zeitraums kündigst. Du kannst dein Abo in den Einstellungen deines Apple ID Accounts verwalten und kündigen."
+                  : "Payment will be charged to your Apple ID account. Subscription automatically renews unless cancelled at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID account settings."
                 }
               </p>
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
               <Link to="/terms" className="text-xs text-primary hover:underline">
-                {language === "de" ? "Nutzungsbedingungen" : "Terms of Use"}
+                {language === "de" ? "Nutzungsbedingungen (AGB)" : "Terms of Use (EULA)"}
               </Link>
               <span className="text-muted-foreground">•</span>
               <Link to="/privacy" className="text-xs text-primary hover:underline">
                 {language === "de" ? "Datenschutz" : "Privacy Policy"}
               </Link>
+              <span className="text-muted-foreground">•</span>
+              <a 
+                href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-xs text-primary hover:underline"
+              >
+                Apple EULA
+              </a>
             </div>
           </div>
 
