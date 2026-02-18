@@ -11,53 +11,53 @@
        - Warm neutrals for emotional safety
        - Refined accents that feel trustworthy */
 
-    /* Warm cream background - softer than pure white */
-    --background: 40 20% 98%;
-    --foreground: 220 20% 22%;
+    /* Cool light-blue background - matching logo backdrop */
+    --background: 195 30% 96%;
+    --foreground: 210 25% 18%;
 
-    /* Card surfaces - subtle warmth, refined borders */
-    --card: 40 18% 99.5%;
-    --card-foreground: 220 20% 22%;
+    /* Card surfaces - soft cool white */
+    --card: 195 22% 99%;
+    --card-foreground: 210 25% 18%;
 
-    --popover: 40 18% 99.5%;
-    --popover-foreground: 220 20% 22%;
+    --popover: 195 22% 99%;
+    --popover-foreground: 210 25% 18%;
 
-    /* Sage green primary - calming, professional */
-    --primary: 152 30% 40%;
-    --primary-foreground: 40 20% 99%;
-    --primary-soft: 152 22% 95%;
+    /* Blue-green primary from logo - trustworthy, calming */
+    --primary: 200 42% 38%;
+    --primary-foreground: 195 30% 99%;
+    --primary-soft: 200 30% 94%;
 
-    /* Soft lavender secondary - gentle, not demanding */
-    --secondary: 260 18% 95%;
-    --secondary-foreground: 260 20% 38%;
+    /* Fresh green secondary - from logo's green side */
+    --secondary: 130 35% 92%;
+    --secondary-foreground: 140 30% 32%;
 
-    /* Muted tones - warm gray, refined */
-    --muted: 40 10% 94%;
-    --muted-foreground: 220 12% 48%;
+    /* Muted tones - cool gray */
+    --muted: 200 12% 93%;
+    --muted-foreground: 210 14% 46%;
 
-    /* Warm terracotta accent - inviting, grounded */
-    --accent: 18 50% 55%;
-    --accent-foreground: 40 20% 99%;
-    --accent-soft: 18 40% 96%;
+    /* Green accent - from logo's right side */
+    --accent: 140 45% 45%;
+    --accent-foreground: 195 30% 99%;
+    --accent-soft: 140 30% 94%;
 
-    /* Calm teal - professional serenity */
-    --calm: 178 32% 44%;
-    --calm-foreground: 40 20% 99%;
-    --calm-soft: 178 25% 96%;
+    /* Calm blue - from logo's left side */
+    --calm: 210 38% 48%;
+    --calm-foreground: 195 30% 99%;
+    --calm-soft: 210 25% 95%;
 
-    /* Gentle lavender for mood/emotions */
-    --gentle: 268 28% 65%;
-    --gentle-foreground: 40 20% 99%;
-    --gentle-soft: 268 25% 96%;
+    /* Gentle green for mood/emotions */
+    --gentle: 155 32% 55%;
+    --gentle-foreground: 195 30% 99%;
+    --gentle-soft: 155 25% 95%;
 
     /* Safety red - warm, not clinical */
     --destructive: 4 58% 50%;
-    --destructive-foreground: 40 20% 99%;
+    --destructive-foreground: 195 30% 99%;
 
-    /* Borders - refined, structural */
-    --border: 40 12% 90%;
-    --input: 40 12% 90%;
-    --ring: 152 30% 40%;
+    /* Borders - cool, refined */
+    --border: 200 14% 89%;
+    --input: 200 14% 89%;
+    --ring: 200 42% 38%;
 
     --radius: 0.875rem;
 
@@ -80,57 +80,57 @@
   .dark {
     /* DARK MODE: Warm, refined - evening comfort, not harsh */
 
-    --background: 225 20% 10%;
-    --foreground: 40 12% 92%;
+    --background: 210 22% 10%;
+    --foreground: 195 14% 92%;
 
-    --card: 225 18% 12.5%;
-    --card-foreground: 40 12% 92%;
+    --card: 210 20% 13%;
+    --card-foreground: 195 14% 92%;
 
-    --popover: 225 18% 12.5%;
-    --popover-foreground: 40 12% 92%;
+    --popover: 210 20% 13%;
+    --popover-foreground: 195 14% 92%;
 
-    --primary: 152 34% 50%;
-    --primary-foreground: 225 20% 10%;
-    --primary-soft: 152 20% 16%;
+    --primary: 200 44% 52%;
+    --primary-foreground: 210 22% 8%;
+    --primary-soft: 200 22% 16%;
 
-    --secondary: 260 16% 20%;
-    --secondary-foreground: 260 22% 84%;
+    --secondary: 140 18% 18%;
+    --secondary-foreground: 140 24% 82%;
 
-    --muted: 225 14% 15%;
-    --muted-foreground: 220 12% 55%;
+    --muted: 210 16% 15%;
+    --muted-foreground: 200 12% 55%;
 
-    --accent: 18 48% 50%;
-    --accent-foreground: 40 12% 96%;
-    --accent-soft: 18 32% 16%;
+    --accent: 140 40% 44%;
+    --accent-foreground: 195 14% 96%;
+    --accent-soft: 140 24% 15%;
 
-    --calm: 178 30% 40%;
-    --calm-foreground: 40 12% 96%;
-    --calm-soft: 178 20% 14%;
+    --calm: 210 34% 44%;
+    --calm-foreground: 195 14% 96%;
+    --calm-soft: 210 20% 14%;
 
-    --gentle: 268 26% 50%;
-    --gentle-foreground: 40 12% 96%;
-    --gentle-soft: 268 20% 16%;
+    --gentle: 155 28% 44%;
+    --gentle-foreground: 195 14% 96%;
+    --gentle-soft: 155 18% 15%;
 
     --destructive: 4 52% 46%;
-    --destructive-foreground: 40 12% 96%;
+    --destructive-foreground: 195 14% 96%;
 
-    --border: 225 14% 16%;
-    --input: 225 14% 16%;
-    --ring: 152 34% 50%;
+    --border: 210 16% 17%;
+    --input: 210 16% 17%;
+    --ring: 200 44% 52%;
 
-    /* Dark shadows - subtle depth cues */
-    --shadow-soft: 0 1px 3px -1px hsl(225 25% 4% / 0.2);
-    --shadow-card: 0 2px 8px -3px hsl(225 25% 4% / 0.3);
-    --shadow-elevated: 0 4px 16px -4px hsl(225 25% 4% / 0.4);
+    /* Dark shadows */
+    --shadow-soft: 0 1px 3px -1px hsl(210 25% 4% / 0.2);
+    --shadow-card: 0 2px 8px -3px hsl(210 25% 4% / 0.3);
+    --shadow-elevated: 0 4px 16px -4px hsl(210 25% 4% / 0.4);
 
-    --sidebar-background: 225 20% 9%;
-    --sidebar-foreground: 40 12% 90%;
-    --sidebar-primary: 152 34% 50%;
-    --sidebar-primary-foreground: 40 12% 96%;
-    --sidebar-accent: 225 14% 13%;
-    --sidebar-accent-foreground: 40 12% 90%;
-    --sidebar-border: 225 14% 14%;
-    --sidebar-ring: 152 34% 50%;
+    --sidebar-background: 210 22% 9%;
+    --sidebar-foreground: 195 14% 90%;
+    --sidebar-primary: 200 44% 52%;
+    --sidebar-primary-foreground: 195 14% 96%;
+    --sidebar-accent: 210 16% 13%;
+    --sidebar-accent-foreground: 195 14% 90%;
+    --sidebar-border: 210 16% 15%;
+    --sidebar-ring: 200 44% 52%;
   }
 }
 
