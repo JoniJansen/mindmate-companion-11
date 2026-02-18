@@ -717,29 +717,37 @@ export function AccountSettings({ language }: AccountSettingsProps) {
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploadingAvatar}
-              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              {isUploadingAvatar ? (
-                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <ImageIcon className="w-3.5 h-3.5" />
-              )}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept={Capacitor.isNativePlatform() ? "image/jpeg,image/png,image/gif,image/webp" : "image/*"}
-              onChange={handleAvatarUpload}
-              className="hidden"
-            />
+            {/* CRITICAL: Do NOT show upload button on iOS native - file input causes WKWebView crash on iPad (Guideline 2.1) */}
+            {!Capacitor.isNativePlatform() && (
+              <>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingAvatar}
+                  className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                >
+                  {isUploadingAvatar ? (
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <ImageIcon className="w-3.5 h-3.5" />
+                  )}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
+              </>
+            )}
           </div>
           <div className="flex-1">
             <p className="font-medium text-foreground">{t.changeAvatar}</p>
             <p className="text-sm text-muted-foreground">
-              {language === "de" ? "JPG, PNG oder GIF. Max 5MB" : "JPG, PNG or GIF. Max 5MB"}
+              {Capacitor.isNativePlatform() 
+                ? (language === "de" ? "Profilbild wird über die Web-Version geändert" : "Change profile picture via web version")
+                : (language === "de" ? "JPG, PNG oder GIF. Max 5MB" : "JPG, PNG or GIF. Max 5MB")
+              }
             </p>
           </div>
         </div>
