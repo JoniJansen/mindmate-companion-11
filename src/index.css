@@ -6,138 +6,136 @@
 
 @layer base {
   :root {
-    /* DESIGN PHILOSOPHY: Premium, quiet, professional mental health space
-       - Subtle contrast for calm reading
-       - Warm neutrals for emotional safety
-       - Refined accents that feel trustworthy */
+    /* DESIGN PHILOSOPHY: Clean, premium mental health space
+       - White/neutral backgrounds — no blue tint
+       - Sophisticated green accents — trustworthy, calming
+       - Warm neutrals for emotional safety */
 
-    /* Cool light-blue background - matching logo backdrop */
-    --background: 195 30% 96%;
-    --foreground: 210 25% 18%;
+    --background: 0 0% 98%;
+    --foreground: 150 8% 15%;
 
-    /* Card surfaces - soft cool white */
-    --card: 195 22% 99%;
-    --card-foreground: 210 25% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 8% 15%;
 
-    --popover: 195 22% 99%;
-    --popover-foreground: 210 25% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 8% 15%;
 
-    /* Blue-green primary from logo - trustworthy, calming */
-    --primary: 200 42% 38%;
-    --primary-foreground: 195 30% 99%;
-    --primary-soft: 200 30% 94%;
+    /* Primary: refined forest green — premium, trustworthy */
+    --primary: 152 32% 36%;
+    --primary-foreground: 0 0% 99%;
+    --primary-soft: 150 20% 94%;
 
-    /* Fresh green secondary - from logo's green side */
-    --secondary: 130 35% 92%;
-    --secondary-foreground: 140 30% 32%;
+    /* Secondary: light sage surface */
+    --secondary: 148 18% 93%;
+    --secondary-foreground: 150 20% 30%;
 
-    /* Muted tones - cool gray */
-    --muted: 200 12% 93%;
-    --muted-foreground: 210 14% 46%;
+    /* Muted: warm neutral gray */
+    --muted: 140 6% 93%;
+    --muted-foreground: 150 6% 46%;
 
-    /* Green accent - from logo's right side */
-    --accent: 140 45% 45%;
-    --accent-foreground: 195 30% 99%;
-    --accent-soft: 140 30% 94%;
+    /* Accent: vibrant but refined green */
+    --accent: 152 38% 42%;
+    --accent-foreground: 0 0% 99%;
+    --accent-soft: 150 18% 94%;
 
-    /* Calm blue - from logo's left side */
-    --calm: 210 38% 48%;
-    --calm-foreground: 195 30% 99%;
-    --calm-soft: 210 25% 95%;
+    /* Calm: deeper green for trust elements */
+    --calm: 156 28% 34%;
+    --calm-foreground: 0 0% 99%;
+    --calm-soft: 155 16% 94%;
 
-    /* Gentle green for mood/emotions */
-    --gentle: 155 32% 55%;
-    --gentle-foreground: 195 30% 99%;
-    --gentle-soft: 155 25% 95%;
+    /* Gentle: soft sage for mood/emotions */
+    --gentle: 148 26% 48%;
+    --gentle-foreground: 0 0% 99%;
+    --gentle-soft: 148 16% 94%;
 
-    /* Safety red - warm, not clinical */
+    /* Safety red — warm, not clinical */
     --destructive: 4 58% 50%;
-    --destructive-foreground: 195 30% 99%;
+    --destructive-foreground: 0 0% 99%;
 
-    /* Borders - cool, refined */
-    --border: 200 14% 89%;
-    --input: 200 14% 89%;
-    --ring: 200 42% 38%;
+    /* Borders: neutral, clean */
+    --border: 150 8% 89%;
+    --input: 150 8% 89%;
+    --ring: 152 32% 36%;
 
     --radius: 0.875rem;
 
-    /* Professional shadows - refined depth */
-    --shadow-soft: 0 1px 3px -1px hsl(220 20% 20% / 0.04), 0 2px 6px -2px hsl(220 20% 20% / 0.03);
-    --shadow-card: 0 2px 8px -3px hsl(220 20% 20% / 0.06), 0 4px 12px -4px hsl(220 20% 20% / 0.04);
-    --shadow-elevated: 0 4px 16px -4px hsl(220 20% 20% / 0.08), 0 8px 24px -8px hsl(220 20% 20% / 0.06);
+    /* Professional shadows */
+    --shadow-soft: 0 1px 3px -1px hsl(150 10% 20% / 0.04), 0 2px 6px -2px hsl(150 10% 20% / 0.03);
+    --shadow-card: 0 2px 8px -3px hsl(150 10% 20% / 0.06), 0 4px 12px -4px hsl(150 10% 20% / 0.04);
+    --shadow-elevated: 0 4px 16px -4px hsl(150 10% 20% / 0.08), 0 8px 24px -8px hsl(150 10% 20% / 0.06);
 
-    /* Sidebar - warm neutrals */
-    --sidebar-background: 40 18% 99%;
-    --sidebar-foreground: 220 18% 28%;
-    --sidebar-primary: 220 18% 18%;
-    --sidebar-primary-foreground: 40 18% 99%;
-    --sidebar-accent: 40 12% 96%;
-    --sidebar-accent-foreground: 220 18% 18%;
-    --sidebar-border: 40 10% 92%;
-    --sidebar-ring: 152 30% 40%;
+    /* Sidebar */
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 150 8% 18%;
+    --sidebar-primary: 152 32% 36%;
+    --sidebar-primary-foreground: 0 0% 99%;
+    --sidebar-accent: 148 10% 96%;
+    --sidebar-accent-foreground: 150 8% 18%;
+    --sidebar-border: 150 6% 92%;
+    --sidebar-ring: 152 32% 36%;
   }
 
   .dark {
-    /* DARK MODE: Sophisticated, muted — evening comfort, premium feel */
+    /* DARK MODE: Deep, sophisticated — green accents only */
 
-    --background: 205 25% 9%;
-    --foreground: 200 10% 90%;
+    --background: 160 10% 7%;
+    --foreground: 150 6% 90%;
 
-    --card: 205 22% 12%;
-    --card-foreground: 200 10% 90%;
+    --card: 158 10% 10%;
+    --card-foreground: 150 6% 90%;
 
-    --popover: 205 22% 12%;
-    --popover-foreground: 200 10% 90%;
+    --popover: 158 10% 10%;
+    --popover-foreground: 150 6% 90%;
 
-    /* Primary: desaturated teal-blue — elegant, not glowing */
-    --primary: 198 38% 48%;
-    --primary-foreground: 205 25% 6%;
-    --primary-soft: 198 18% 15%;
+    /* Primary: muted emerald — elegant, not glowing */
+    --primary: 152 30% 42%;
+    --primary-foreground: 160 10% 5%;
+    --primary-soft: 152 14% 14%;
 
-    /* Secondary: very subtle warm-neutral tint */
-    --secondary: 200 12% 16%;
-    --secondary-foreground: 200 14% 78%;
+    /* Secondary: subtle dark surface */
+    --secondary: 155 8% 14%;
+    --secondary-foreground: 150 10% 76%;
 
-    /* Muted: barely tinted cool gray */
-    --muted: 205 14% 14%;
-    --muted-foreground: 200 8% 50%;
+    /* Muted: neutral dark gray with green undertone */
+    --muted: 155 8% 12%;
+    --muted-foreground: 150 5% 48%;
 
-    /* Accent: muted sage — not bright green */
-    --accent: 170 22% 38%;
-    --accent-foreground: 200 10% 92%;
-    --accent-soft: 170 14% 14%;
+    /* Accent: refined sage */
+    --accent: 150 22% 36%;
+    --accent-foreground: 150 6% 92%;
+    --accent-soft: 150 10% 12%;
 
-    /* Calm: subtle steel blue — refined, not neon */
-    --calm: 205 26% 42%;
-    --calm-foreground: 200 10% 92%;
-    --calm-soft: 205 16% 13%;
+    /* Calm: deep forest green */
+    --calm: 155 22% 34%;
+    --calm-foreground: 150 6% 92%;
+    --calm-soft: 155 12% 11%;
 
-    /* Gentle: warm sage — not emerald */
-    --gentle: 168 18% 38%;
-    --gentle-foreground: 200 10% 92%;
-    --gentle-soft: 168 12% 13%;
+    /* Gentle: warm sage */
+    --gentle: 148 18% 36%;
+    --gentle-foreground: 150 6% 92%;
+    --gentle-soft: 148 10% 11%;
 
     --destructive: 4 48% 44%;
-    --destructive-foreground: 200 10% 94%;
+    --destructive-foreground: 150 6% 94%;
 
-    /* Borders: subtle definition */
-    --border: 205 14% 16%;
-    --input: 205 14% 16%;
-    --ring: 198 38% 48%;
+    /* Borders */
+    --border: 155 8% 15%;
+    --input: 155 8% 15%;
+    --ring: 152 30% 42%;
 
-    /* Dark shadows — deep but not harsh */
-    --shadow-soft: 0 1px 3px -1px hsl(210 30% 3% / 0.25);
-    --shadow-card: 0 2px 8px -3px hsl(210 30% 3% / 0.35);
-    --shadow-elevated: 0 4px 16px -4px hsl(210 30% 3% / 0.45);
+    /* Shadows */
+    --shadow-soft: 0 1px 3px -1px hsl(160 15% 3% / 0.3);
+    --shadow-card: 0 2px 8px -3px hsl(160 15% 3% / 0.4);
+    --shadow-elevated: 0 4px 16px -4px hsl(160 15% 3% / 0.5);
 
-    --sidebar-background: 205 25% 8%;
-    --sidebar-foreground: 200 10% 88%;
-    --sidebar-primary: 198 38% 48%;
-    --sidebar-primary-foreground: 200 10% 94%;
-    --sidebar-accent: 205 14% 12%;
-    --sidebar-accent-foreground: 200 10% 88%;
-    --sidebar-border: 205 14% 14%;
-    --sidebar-ring: 198 38% 48%;
+    --sidebar-background: 160 10% 6%;
+    --sidebar-foreground: 150 6% 88%;
+    --sidebar-primary: 152 30% 42%;
+    --sidebar-primary-foreground: 150 6% 94%;
+    --sidebar-accent: 155 8% 10%;
+    --sidebar-accent-foreground: 150 6% 88%;
+    --sidebar-border: 155 8% 13%;
+    --sidebar-ring: 152 30% 42%;
   }
 }
 
