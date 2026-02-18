@@ -891,28 +891,31 @@ export default function Settings() {
               </div>
             </CalmCard>
 
-            <CalmCard 
-              variant="default" 
-              className="cursor-pointer hover:shadow-card transition-shadow"
-              onClick={() => navigate("/install")}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Download className="w-5 h-5 text-primary" />
+            {/* Hide Install App on native iOS/Android builds */}
+            {!(window as any).Capacitor && (
+              <CalmCard 
+                variant="default" 
+                className="cursor-pointer hover:shadow-card transition-shadow"
+                onClick={() => navigate("/install")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Download className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {language === "de" ? "App installieren" : "Install App"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {language === "de" ? "Zum Startbildschirm hinzufügen" : "Add to home screen"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {language === "de" ? "App installieren" : "Install App"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {language === "de" ? "Zum Startbildschirm hinzufügen" : "Add to home screen"}
-                    </p>
-                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </div>
-            </CalmCard>
+              </CalmCard>
+            )}
 
             <CalmCard 
               variant="default" 

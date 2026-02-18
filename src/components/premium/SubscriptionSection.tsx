@@ -130,19 +130,22 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleManageBilling}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <CreditCard className="w-4 h-4 mr-2" />
-                )}
-                {language === "de" ? "Zahlung verwalten" : "Manage billing"}
-              </Button>
+              {/* Hide Stripe billing portal on native iOS/Android - Apple Guideline 3.1.1 */}
+              {!(window as any).Capacitor && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleManageBilling}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <CreditCard className="w-4 h-4 mr-2" />
+                  )}
+                  {language === "de" ? "Zahlung verwalten" : "Manage billing"}
+                </Button>
+              )}
 
               {cancelAtPeriodEnd ? (
                 <Button 
