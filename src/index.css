@@ -78,59 +78,66 @@
   }
 
   .dark {
-    /* DARK MODE: Warm, refined - evening comfort, not harsh */
+    /* DARK MODE: Sophisticated, muted — evening comfort, premium feel */
 
-    --background: 210 22% 10%;
-    --foreground: 195 14% 92%;
+    --background: 205 25% 9%;
+    --foreground: 200 10% 90%;
 
-    --card: 210 20% 13%;
-    --card-foreground: 195 14% 92%;
+    --card: 205 22% 12%;
+    --card-foreground: 200 10% 90%;
 
-    --popover: 210 20% 13%;
-    --popover-foreground: 195 14% 92%;
+    --popover: 205 22% 12%;
+    --popover-foreground: 200 10% 90%;
 
-    --primary: 200 44% 52%;
-    --primary-foreground: 210 22% 8%;
-    --primary-soft: 200 22% 16%;
+    /* Primary: desaturated teal-blue — elegant, not glowing */
+    --primary: 198 38% 48%;
+    --primary-foreground: 205 25% 6%;
+    --primary-soft: 198 18% 15%;
 
-    --secondary: 140 18% 18%;
-    --secondary-foreground: 140 24% 82%;
+    /* Secondary: very subtle warm-neutral tint */
+    --secondary: 200 12% 16%;
+    --secondary-foreground: 200 14% 78%;
 
-    --muted: 210 16% 15%;
-    --muted-foreground: 200 12% 55%;
+    /* Muted: barely tinted cool gray */
+    --muted: 205 14% 14%;
+    --muted-foreground: 200 8% 50%;
 
-    --accent: 140 40% 44%;
-    --accent-foreground: 195 14% 96%;
-    --accent-soft: 140 24% 15%;
+    /* Accent: muted sage — not bright green */
+    --accent: 170 22% 38%;
+    --accent-foreground: 200 10% 92%;
+    --accent-soft: 170 14% 14%;
 
-    --calm: 210 34% 44%;
-    --calm-foreground: 195 14% 96%;
-    --calm-soft: 210 20% 14%;
+    /* Calm: subtle steel blue — refined, not neon */
+    --calm: 205 26% 42%;
+    --calm-foreground: 200 10% 92%;
+    --calm-soft: 205 16% 13%;
 
-    --gentle: 155 28% 44%;
-    --gentle-foreground: 195 14% 96%;
-    --gentle-soft: 155 18% 15%;
+    /* Gentle: warm sage — not emerald */
+    --gentle: 168 18% 38%;
+    --gentle-foreground: 200 10% 92%;
+    --gentle-soft: 168 12% 13%;
 
-    --destructive: 4 52% 46%;
-    --destructive-foreground: 195 14% 96%;
+    --destructive: 4 48% 44%;
+    --destructive-foreground: 200 10% 94%;
 
-    --border: 210 16% 17%;
-    --input: 210 16% 17%;
-    --ring: 200 44% 52%;
+    /* Borders: subtle definition */
+    --border: 205 14% 16%;
+    --input: 205 14% 16%;
+    --ring: 198 38% 48%;
 
-    /* Dark shadows */
-    --shadow-soft: 0 1px 3px -1px hsl(210 25% 4% / 0.2);
-    --shadow-card: 0 2px 8px -3px hsl(210 25% 4% / 0.3);
-    --shadow-elevated: 0 4px 16px -4px hsl(210 25% 4% / 0.4);
+    /* Dark shadows — deep but not harsh */
+    --shadow-soft: 0 1px 3px -1px hsl(210 30% 3% / 0.25);
+    --shadow-card: 0 2px 8px -3px hsl(210 30% 3% / 0.35);
+    --shadow-elevated: 0 4px 16px -4px hsl(210 30% 3% / 0.45);
 
-    --sidebar-background: 210 22% 9%;
-    --sidebar-foreground: 195 14% 90%;
-    --sidebar-primary: 200 44% 52%;
-    --sidebar-primary-foreground: 195 14% 96%;
-    --sidebar-accent: 210 16% 13%;
-    --sidebar-accent-foreground: 195 14% 90%;
-    --sidebar-border: 210 16% 15%;
-    --sidebar-ring: 200 44% 52%;
+    --sidebar-background: 205 25% 8%;
+    --sidebar-foreground: 200 10% 88%;
+    --sidebar-primary: 198 38% 48%;
+    --sidebar-primary-foreground: 200 10% 94%;
+    --sidebar-accent: 205 14% 12%;
+    --sidebar-accent-foreground: 200 10% 88%;
+    --sidebar-border: 205 14% 14%;
+    --sidebar-ring: 198 38% 48%;
   }
 }
 
