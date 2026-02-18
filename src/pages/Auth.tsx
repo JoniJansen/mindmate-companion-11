@@ -72,7 +72,7 @@ export default function Auth() {
       
       // Common error translations
       if (errorMessage.includes("Invalid login credentials")) {
-        errorMessage = "Review account not found. Please contact support: support@mindmate.de";
+        errorMessage = "Review account not found. Please contact support: support@soulvay.com";
       } else if (errorMessage.includes("Email not confirmed")) {
         errorMessage = "Email verification pending. Please contact support.";
       } else if (errorMessage.includes("Too many requests")) {

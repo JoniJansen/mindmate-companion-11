@@ -136,7 +136,7 @@ export default function Home() {
     }
   };
 
-  const handleTalkToMindMate = () => {
+  const handleTalkToSoulvay = () => {
     if (inputValue.trim()) {
       // Pass the thought to chat
       localStorage.setItem('mindmate-initial-message', inputValue.trim());
@@ -285,7 +285,7 @@ export default function Home() {
                 
                 {/* Talk to Soulvay */}
                 <Button
-                  onClick={handleTalkToMindMate}
+                  onClick={handleTalkToSoulvay}
                   className="rounded-xl gap-2"
                 >
                   <MessageCircle className="w-4 h-4" />

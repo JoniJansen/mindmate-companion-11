@@ -56,10 +56,10 @@ export default function Install() {
 
   const content = {
     de: {
-      title: "MindMate installieren",
+      title: "Soulvay installieren",
       subtitle: "Installiere die App für schnellen Zugriff",
       installed: "App bereits installiert",
-      installedDesc: "MindMate ist bereits auf deinem Gerät installiert.",
+      installedDesc: "Soulvay ist bereits auf deinem Gerät installiert.",
       openApp: "App öffnen",
       installButton: "Jetzt installieren",
       iosTitle: "Installation auf iPhone/iPad",
@@ -77,10 +77,10 @@ export default function Install() {
       benefitsTitle: "Vorteile der Installation"
     },
     en: {
-      title: "Install MindMate",
+      title: "Install Soulvay",
       subtitle: "Install the app for quick access",
       installed: "App already installed",
-      installedDesc: "MindMate is already installed on your device.",
+      installedDesc: "Soulvay is already installed on your device.",
       openApp: "Open App",
       installButton: "Install Now",
       iosTitle: "Installation on iPhone/iPad",
@@ -125,7 +125,7 @@ export default function Install() {
             className="text-center"
           >
             <div className="w-24 h-24 mx-auto mb-4 rounded-2xl overflow-hidden shadow-lg">
-              <img src={logoImage} alt="MindMate" className="w-full h-full object-cover" />
+              <img src={logoImage} alt="Soulvay" className="w-full h-full object-cover" />
             </div>
             <p className="text-muted-foreground">{t.subtitle}</p>
           </motion.div>
