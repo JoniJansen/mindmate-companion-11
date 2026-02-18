@@ -21,12 +21,12 @@ export default function DeleteAccount() {
             <Trash2 className="w-8 h-8 text-destructive" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            {isDE ? "Konto löschen – MindMate" : "Delete Account – MindMate"}
+            {isDE ? "Konto löschen – Soulvay" : "Delete Account – Soulvay"}
           </h1>
           <p className="text-muted-foreground">
             {isDE
-              ? "Hier erfährst du, wie du dein MindMate-Konto und alle zugehörigen Daten löschen kannst."
-              : "Learn how to delete your MindMate account and all associated data."}
+              ? "Hier erfährst du, wie du dein Soulvay-Konto und alle zugehörigen Daten löschen kannst."
+               : "Learn how to delete your Soulvay account and all associated data."}
           </p>
         </div>
 
@@ -43,8 +43,8 @@ export default function DeleteAccount() {
                 number={1}
                 text={
                   isDE
-                    ? "Öffne die MindMate-App und melde dich mit deinem Konto an."
-                    : "Open the MindMate app and sign in to your account."
+                    ? "Öffne die Soulvay-App und melde dich mit deinem Konto an."
+                    : "Open the Soulvay app and sign in to your account."
                 }
               />
               <Step
@@ -184,7 +184,7 @@ export default function DeleteAccount() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
-          MindMate · MindMade by Jonathan Jansen
+          Soulvay · MindMade by Jonathan Jansen
         </p>
       </div>
     </div>

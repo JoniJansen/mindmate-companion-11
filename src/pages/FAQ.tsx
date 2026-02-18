@@ -23,7 +23,7 @@ export default function FAQ() {
   const content = {
     en: {
       title: "Frequently Asked Questions",
-      subtitle: "Find answers to common questions about MindMate",
+      subtitle: "Find answers to common questions about Soulvay",
       categories: [
         {
           icon: Shield,
@@ -60,8 +60,8 @@ export default function FAQ() {
               a: "The free version includes 5 AI chat messages per day, basic journaling, mood tracking, and access to our toolbox exercises."
             },
             {
-              q: "What does MindMate Plus include?",
-              a: "MindMate Plus offers unlimited AI conversations, voice chat, AI-powered journal reflections, weekly recaps, and priority support for €9.99/month or €79/year."
+              q: "What does Soulvay Plus include?",
+              a: "Soulvay Plus offers unlimited AI conversations, voice chat, AI-powered journal reflections, weekly recaps, and priority support for €9.99/month or €79/year."
             },
             {
               q: "How do I cancel my subscription?",
@@ -82,12 +82,12 @@ export default function FAQ() {
           title: "AI & Chat",
           questions: [
             {
-              q: "Is MindMate a replacement for therapy?",
-              a: "No. MindMate is a supportive wellness tool, not a substitute for professional mental health care. If you're experiencing a crisis or need professional help, please contact a licensed therapist or emergency services."
+              q: "Is Soulvay a replacement for therapy?",
+              a: "No. Soulvay is a supportive wellness tool, not a substitute for professional mental health care. If you're experiencing a crisis or need professional help, please contact a licensed therapist or emergency services."
             },
             {
               q: "How does the AI work?",
-              a: "MindMate uses advanced AI models to provide empathetic, supportive responses based on evidence-based therapeutic techniques. The AI learns from our training but never stores your personal conversations for training purposes."
+              a: "Soulvay uses advanced AI models to provide empathetic, supportive responses based on evidence-based therapeutic techniques. The AI learns from our training but never stores your personal conversations for training purposes."
             },
             {
               q: "Can I trust the AI's advice?",
@@ -95,7 +95,7 @@ export default function FAQ() {
             },
             {
               q: "What happens if I share something serious?",
-              a: "MindMate is designed to recognize crisis situations and will provide appropriate resources and hotline numbers. For immediate emergencies, always contact emergency services (112 in Germany/EU)."
+              a: "Soulvay is designed to recognize crisis situations and will provide appropriate resources and hotline numbers. For immediate emergencies, always contact emergency services (112 in Germany/EU)."
             }
           ]
         },
@@ -104,19 +104,19 @@ export default function FAQ() {
           title: "App Usage",
           questions: [
             {
-              q: "Can I use MindMate offline?",
+              q: "Can I use Soulvay offline?",
               a: "Basic features like reviewing past journal entries work offline, but AI chat and syncing require an internet connection."
             },
             {
               q: "Is there a mobile app?",
-              a: "MindMate is a progressive web app (PWA). You can install it on your phone by tapping 'Add to Home Screen' in your browser for an app-like experience."
+              a: "Soulvay is available as a mobile app on iOS and Android, as well as a progressive web app (PWA)."
             },
             {
               q: "How do I change the language?",
               a: "Go to Settings > Language to switch between English and German."
             },
             {
-              q: "Can I use MindMate on multiple devices?",
+              q: "Can I use Soulvay on multiple devices?",
               a: "Yes! Your account syncs across all devices. Just log in with the same account on any device."
             }
           ]
@@ -143,7 +143,7 @@ export default function FAQ() {
     },
     de: {
       title: "Häufig gestellte Fragen",
-      subtitle: "Finde Antworten auf häufige Fragen zu MindMate",
+      subtitle: "Finde Antworten auf häufige Fragen zu Soulvay",
       categories: [
         {
           icon: Shield,
@@ -180,8 +180,8 @@ export default function FAQ() {
               a: "Die kostenlose Version beinhaltet 5 KI-Chat-Nachrichten pro Tag, Basis-Tagebuch, Stimmungstracking und Zugang zu unseren Toolbox-Übungen."
             },
             {
-              q: "Was beinhaltet MindMate Plus?",
-              a: "MindMate Plus bietet unbegrenzte KI-Gespräche, Sprach-Chat, KI-gestützte Tagebuch-Reflexionen, wöchentliche Zusammenfassungen und Priority-Support für €9,99/Monat oder €79/Jahr."
+              q: "Was beinhaltet Soulvay Plus?",
+              a: "Soulvay Plus bietet unbegrenzte KI-Gespräche, Sprach-Chat, KI-gestützte Tagebuch-Reflexionen, wöchentliche Zusammenfassungen und Priority-Support für €9,99/Monat oder €79/Jahr."
             },
             {
               q: "Wie kündige ich mein Abonnement?",
@@ -202,12 +202,12 @@ export default function FAQ() {
           title: "KI & Chat",
           questions: [
             {
-              q: "Ist MindMate ein Ersatz für Therapie?",
-              a: "Nein. MindMate ist ein unterstützendes Wellness-Tool, kein Ersatz für professionelle psychische Gesundheitsversorgung. Wenn du eine Krise erlebst oder professionelle Hilfe benötigst, kontaktiere bitte einen zugelassenen Therapeuten oder Notdienste."
+              q: "Ist Soulvay ein Ersatz für Therapie?",
+              a: "Nein. Soulvay ist ein unterstützendes Wellness-Tool, kein Ersatz für professionelle psychische Gesundheitsversorgung. Wenn du eine Krise erlebst oder professionelle Hilfe benötigst, kontaktiere bitte einen zugelassenen Therapeuten oder Notdienste."
             },
             {
               q: "Wie funktioniert die KI?",
-              a: "MindMate verwendet fortschrittliche KI-Modelle, um einfühlsame, unterstützende Antworten basierend auf evidenzbasierten therapeutischen Techniken zu geben. Die KI lernt aus unserem Training, speichert aber niemals deine persönlichen Gespräche zu Trainingszwecken."
+              a: "Soulvay verwendet fortschrittliche KI-Modelle, um einfühlsame, unterstützende Antworten basierend auf evidenzbasierten therapeutischen Techniken zu geben. Die KI lernt aus unserem Training, speichert aber niemals deine persönlichen Gespräche zu Trainingszwecken."
             },
             {
               q: "Kann ich den Ratschlägen der KI vertrauen?",
@@ -215,7 +215,7 @@ export default function FAQ() {
             },
             {
               q: "Was passiert, wenn ich etwas Ernstes teile?",
-              a: "MindMate ist darauf ausgelegt, Krisensituationen zu erkennen und wird entsprechende Ressourcen und Hotline-Nummern bereitstellen. Bei sofortigen Notfällen kontaktiere immer den Notdienst (112 in Deutschland/EU)."
+              a: "Soulvay ist darauf ausgelegt, Krisensituationen zu erkennen und wird entsprechende Ressourcen und Hotline-Nummern bereitstellen. Bei sofortigen Notfällen kontaktiere immer den Notdienst (112 in Deutschland/EU)."
             }
           ]
         },
@@ -224,19 +224,19 @@ export default function FAQ() {
           title: "App-Nutzung",
           questions: [
             {
-              q: "Kann ich MindMate offline nutzen?",
+              q: "Kann ich Soulvay offline nutzen?",
               a: "Grundfunktionen wie das Anzeigen vergangener Tagebucheinträge funktionieren offline, aber KI-Chat und Synchronisierung erfordern eine Internetverbindung."
             },
             {
               q: "Gibt es eine mobile App?",
-              a: "MindMate ist eine Progressive Web App (PWA). Du kannst sie auf deinem Handy installieren, indem du 'Zum Startbildschirm hinzufügen' in deinem Browser tippst, für ein App-ähnliches Erlebnis."
+              a: "Soulvay ist als mobile App für iOS und Android verfügbar, sowie als Progressive Web App (PWA)."
             },
             {
               q: "Wie ändere ich die Sprache?",
               a: "Gehe zu Einstellungen > Sprache, um zwischen Englisch und Deutsch zu wechseln."
             },
             {
-              q: "Kann ich MindMate auf mehreren Geräten nutzen?",
+              q: "Kann ich Soulvay auf mehreren Geräten nutzen?",
               a: "Ja! Dein Konto synchronisiert sich über alle Geräte. Melde dich einfach mit demselben Konto auf jedem Gerät an."
             }
           ]

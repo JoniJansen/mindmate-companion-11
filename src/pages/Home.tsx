@@ -283,7 +283,7 @@ export default function Home() {
                   {language === "de" ? "Speichern" : "Save"}
                 </Button>
                 
-                {/* Talk to MindMate */}
+                {/* Talk to Soulvay */}
                 <Button
                   onClick={handleTalkToMindMate}
                   className="rounded-xl gap-2"

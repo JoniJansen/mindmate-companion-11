@@ -33,7 +33,7 @@ interface Resource {
 export default function Safety() {
   const { t, language } = useTranslation();
 
-  // Jutta Jansen - Psychologin M.Sc., Heilpraktikerin für Psychotherapie
+  // Professional contact
   const professionalContact = {
     name: "Jutta Jansen",
     role: language === "de" ? "Psychologin M.Sc., Heilpraktikerin für Psychotherapie" : "Psychologist M.Sc., Psychotherapist",

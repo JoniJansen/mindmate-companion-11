@@ -247,7 +247,7 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
         if (verified) {
           toast({
             title: 'Abo aktiviert',
-            description: 'Dein MindMate Plus Abo ist jetzt aktiv!',
+            description: 'Dein Soulvay Plus Abo ist jetzt aktiv!',
           });
           localStorage.setItem(AUTO_RESTORE_KEY, Date.now().toString());
           return true;

@@ -594,7 +594,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     try {
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: "totp",
-        friendlyName: "MindMate Authenticator",
+        friendlyName: "Soulvay Authenticator",
       });
 
       if (error) throw error;
@@ -794,7 +794,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
               <>
                 <p className="text-xs text-muted-foreground">{t.displayName}</p>
                 <p className="font-medium text-foreground truncate">
-                  {profile?.display_name || (language === "de" ? "MindMate Nutzer" : "MindMate User")}
+                  {profile?.display_name || (language === "de" ? "Soulvay Nutzer" : "Soulvay User")}
                 </p>
               </>
             )}

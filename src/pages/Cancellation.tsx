@@ -48,13 +48,13 @@ We will carry out such reimbursement using the same means of payment as you used
           title: "Exception for Digital Content",
           content: `**Important Notice regarding digital content:**
 
-If you have requested that the provision of digital content (such as access to MindMate Plus features) begins during the withdrawal period, you acknowledge that:
+If you have requested that the provision of digital content (such as access to Soulvay Plus features) begins during the withdrawal period, you acknowledge that:
 
 1. You will lose your right of withdrawal once the digital content has been fully provided, provided that the performance has begun with your prior express consent and your acknowledgment that you thereby lose your right of withdrawal.
 
 2. If you have given your consent and acknowledgment, but the digital content has not been fully provided when you withdraw, you may still be entitled to a partial refund proportional to what has been provided up to the time you informed us of your withdrawal, compared to the full coverage of the contract.
 
-**By subscribing to MindMate Plus, you explicitly consent to the immediate performance of the service and acknowledge that you lose your right of withdrawal once the digital content has been fully provided.**`
+**By subscribing to Soulvay Plus, you explicitly consent to the immediate performance of the service and acknowledge that you lose your right of withdrawal once the digital content has been fully provided.**`
         },
         {
           icon: FileText,
@@ -73,7 +73,7 @@ Email: joni.jansen00@gmail.com
 
 I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the provision of the following service:
 
-**MindMate Plus Subscription**
+**Soulvay Plus Subscription**
 
 Ordered on (*) / received on (*): _______________
 
@@ -134,13 +134,13 @@ Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der u
           title: "Ausnahme für digitale Inhalte",
           content: `**Wichtiger Hinweis zu digitalen Inhalten:**
 
-Wenn Sie verlangt haben, dass die Bereitstellung digitaler Inhalte (wie der Zugang zu MindMate Plus-Funktionen) während der Widerrufsfrist beginnt, nehmen Sie zur Kenntnis, dass:
+Wenn Sie verlangt haben, dass die Bereitstellung digitaler Inhalte (wie der Zugang zu Soulvay Plus-Funktionen) während der Widerrufsfrist beginnt, nehmen Sie zur Kenntnis, dass:
 
 1. Sie Ihr Widerrufsrecht bei vollständiger Vertragserfüllung verlieren, wenn die Ausführung mit Ihrer ausdrücklichen vorherigen Zustimmung und Ihrer Kenntnisnahme begonnen hat, dass Sie damit Ihr Widerrufsrecht verlieren.
 
 2. Wenn Sie Ihre Zustimmung und Kenntnisnahme erteilt haben, aber die digitalen Inhalte zum Zeitpunkt Ihres Widerrufs noch nicht vollständig bereitgestellt wurden, haben Sie möglicherweise Anspruch auf eine anteilige Rückerstattung entsprechend dem, was bis zum Zeitpunkt Ihrer Widerrufsmitteilung bereitgestellt wurde.
 
-**Mit dem Abschluss eines MindMate Plus-Abonnements stimmen Sie ausdrücklich der sofortigen Ausführung der Dienstleistung zu und nehmen zur Kenntnis, dass Sie Ihr Widerrufsrecht verlieren, sobald die digitalen Inhalte vollständig bereitgestellt wurden.**`
+**Mit dem Abschluss eines Soulvay Plus-Abonnements stimmen Sie ausdrücklich der sofortigen Ausführung der Dienstleistung zu und nehmen zur Kenntnis, dass Sie Ihr Widerrufsrecht verlieren, sobald die digitalen Inhalte vollständig bereitgestellt wurden.**`
         },
         {
           icon: FileText,
@@ -159,7 +159,7 @@ E-Mail: joni.jansen00@gmail.com
 
 Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über die Erbringung der folgenden Dienstleistung:
 
-**MindMate Plus-Abonnement**
+**Soulvay Plus-Abonnement**
 
 Bestellt am (*) / erhalten am (*): _______________
 

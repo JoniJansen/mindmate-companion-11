@@ -49,7 +49,7 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
             {showLogo && (
               <img 
                 src={logoImage} 
-                alt="MindMate" 
+                alt="Soulvay" 
                 className="w-9 h-9 object-contain rounded-xl shrink-0"
               />
             )}
