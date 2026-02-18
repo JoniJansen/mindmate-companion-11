@@ -10,15 +10,15 @@ export default function About() {
 
   const content = {
     en: {
-      title: "About MindMate",
+      title: "About Soulvay",
       subtitle: "Your psychological companion",
       mission: {
         title: "Our Mission",
-        content: "We believe everyone deserves a safe space to explore their thoughts and feelings. MindMate was created to be that space – a gentle, private companion that helps you understand yourself better, one conversation at a time.",
+        content: "We believe everyone deserves a safe space to explore their thoughts and feelings. Soulvay was created to be that space – a gentle, private companion that helps you understand yourself better, one conversation at a time.",
       },
       story: {
         title: "Our Story",
-        content: "MindMate was born from a simple idea: mental wellness support should be accessible, private, and always available. We understand that not everyone can access therapy or counseling when they need it. That's why we built MindMate – to bridge the gap between daily struggles and professional care.",
+        content: "Soulvay was born from a simple idea: mental wellness support should be accessible, private, and always available. We understand that not everyone can access therapy or counseling when they need it. That's why we built Soulvay – to bridge the gap between daily struggles and professional care.",
       },
       values: [
         {
@@ -44,26 +44,26 @@ export default function About() {
       ],
       disclaimer: {
         title: "Important Note",
-        content: "MindMate is a supportive wellness tool, not a replacement for professional mental health care. If you're experiencing a crisis or need professional help, please reach out to a licensed therapist or emergency services.",
+        content: "Soulvay is a supportive wellness tool, not a replacement for professional mental health care. If you're experiencing a crisis or need professional help, please reach out to a licensed therapist or emergency services.",
       },
       team: {
         title: "The Team",
-        content: "MindMate is created by MindMade, a small team passionate about making mental wellness accessible to everyone.",
+        content: "Soulvay is created by MindMade, a small team passionate about making mental wellness accessible to everyone.",
         founder: "Jonathan Jansen",
         role: "Founder",
         location: "Bad Honnef, Germany",
       },
     },
     de: {
-      title: "Über MindMate",
+      title: "Über Soulvay",
       subtitle: "Dein psychologischer Begleiter",
       mission: {
         title: "Unsere Mission",
-        content: "Wir glauben, dass jeder einen sicheren Raum verdient, um seine Gedanken und Gefühle zu erkunden. MindMate wurde erschaffen, um dieser Raum zu sein – ein sanfter, privater Begleiter, der dir hilft, dich selbst besser zu verstehen, ein Gespräch nach dem anderen.",
+        content: "Wir glauben, dass jeder einen sicheren Raum verdient, um seine Gedanken und Gefühle zu erkunden. Soulvay wurde erschaffen, um dieser Raum zu sein – ein sanfter, privater Begleiter, der dir hilft, dich selbst besser zu verstehen, ein Gespräch nach dem anderen.",
       },
       story: {
         title: "Unsere Geschichte",
-        content: "MindMate entstand aus einer einfachen Idee: Unterstützung für mentales Wohlbefinden sollte zugänglich, privat und immer verfügbar sein. Wir verstehen, dass nicht jeder Zugang zu Therapie oder Beratung hat, wenn er sie braucht. Deshalb haben wir MindMate entwickelt – um die Lücke zwischen täglichen Herausforderungen und professioneller Betreuung zu schließen.",
+        content: "Soulvay entstand aus einer einfachen Idee: Unterstützung für mentales Wohlbefinden sollte zugänglich, privat und immer verfügbar sein. Wir verstehen, dass nicht jeder Zugang zu Therapie oder Beratung hat, wenn er sie braucht. Deshalb haben wir Soulvay entwickelt – um die Lücke zwischen täglichen Herausforderungen und professioneller Betreuung zu schließen.",
       },
       values: [
         {
@@ -89,11 +89,11 @@ export default function About() {
       ],
       disclaimer: {
         title: "Wichtiger Hinweis",
-        content: "MindMate ist ein unterstützendes Wellness-Tool, kein Ersatz für professionelle psychische Gesundheitsversorgung. Wenn du eine Krise erlebst oder professionelle Hilfe benötigst, wende dich bitte an einen zugelassenen Therapeuten oder den Notdienst.",
+        content: "Soulvay ist ein unterstützendes Wellness-Tool, kein Ersatz für professionelle psychische Gesundheitsversorgung. Wenn du eine Krise erlebst oder professionelle Hilfe benötigst, wende dich bitte an einen zugelassenen Therapeuten oder den Notdienst.",
       },
       team: {
         title: "Das Team",
-        content: "MindMate wird von MindMade entwickelt, einem kleinen Team, das sich leidenschaftlich dafür einsetzt, mentales Wohlbefinden für alle zugänglich zu machen.",
+        content: "Soulvay wird von MindMade entwickelt, einem kleinen Team, das sich leidenschaftlich dafür einsetzt, mentales Wohlbefinden für alle zugänglich zu machen.",
         founder: "Jonathan Jansen",
         role: "Gründer",
         location: "Bad Honnef, Deutschland",

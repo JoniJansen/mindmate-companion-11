@@ -29,15 +29,15 @@ const translations = {
     getStarted: "Begin",
     welcome: {
       title: "A quiet space for your mind",
-      subtitle: "MindMate is here to listen. No goals, no pressure—just a calm companion when you need one.",
+      subtitle: "Soulvay is here to listen. No goals, no pressure—just a calm companion when you need one.",
     },
     disclaimer: {
       title: "A few words before we start",
-      text: "MindMate is an AI companion—thoughtful, but not a therapist. It can listen and help you reflect, but it",
+      text: "Soulvay is an AI companion—thoughtful, but not a therapist. It can listen and help you reflect, but it",
       notReplacement: "cannot replace professional support",
       textEnd: "for mental health concerns.",
       crisis: "If you're going through something serious, please reach out to a real person. We'll always show you how.",
-      checkbox: "I understand MindMate is not therapy or medical advice",
+      checkbox: "I understand Soulvay is not therapy or medical advice",
     },
     preferences: {
       title: "Make it yours",
@@ -67,15 +67,15 @@ const translations = {
     getStarted: "Beginnen",
     welcome: {
       title: "Ein ruhiger Raum für deinen Geist",
-      subtitle: "MindMate ist hier, um zuzuhören. Keine Ziele, kein Druck—einfach ein ruhiger Begleiter, wenn du einen brauchst.",
+      subtitle: "Soulvay ist hier, um zuzuhören. Keine Ziele, kein Druck—einfach ein ruhiger Begleiter, wenn du einen brauchst.",
     },
     disclaimer: {
       title: "Ein paar Worte bevor wir starten",
-      text: "MindMate ist ein KI-Begleiter—durchdacht, aber kein Therapeut. Es kann zuhören und dir helfen zu reflektieren, aber es",
+      text: "Soulvay ist ein KI-Begleiter—durchdacht, aber kein Therapeut. Es kann zuhören und dir helfen zu reflektieren, aber es",
       notReplacement: "kann professionelle Unterstützung nicht ersetzen",
       textEnd: "bei psychischen Anliegen.",
       crisis: "Wenn du etwas Ernstes durchmachst, wende dich bitte an einen echten Menschen. Wir zeigen dir immer, wie.",
-      checkbox: "Ich verstehe, dass MindMate keine Therapie oder medizinischer Rat ist",
+      checkbox: "Ich verstehe, dass Soulvay keine Therapie oder medizinischer Rat ist",
     },
     preferences: {
       title: "Mach es zu deinem",
@@ -283,7 +283,7 @@ function WelcomeStep({ t }: WelcomeStepProps) {
           <div className="w-24 h-24 rounded-full overflow-hidden">
             <img 
               src={logoImage} 
-              alt="MindMate Logo" 
+              alt="Soulvay Logo" 
               className="w-24 h-24 object-cover rounded-full"
             />
           </div>

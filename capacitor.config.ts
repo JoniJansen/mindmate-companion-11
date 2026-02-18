@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "de.mindmate.app",
-  appName: "MindMate",
+  appName: "Soulvay",
   webDir: "dist",
   server: {
     // DEV MODE: Uncomment for live-reload during development
@@ -12,7 +12,7 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: "automatic",
     backgroundColor: "#000000",
-    scheme: "MindMate",
+    scheme: "Soulvay",
     preferredContentMode: "mobile",
     // Smooth keyboard handling
     scrollEnabled: true,

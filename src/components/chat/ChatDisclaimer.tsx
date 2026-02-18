@@ -36,8 +36,8 @@ export function ChatDisclaimer() {
               <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
               <p className="text-[11px] text-muted-foreground leading-relaxed flex-1">
                 {language === "de" 
-                  ? "MindMate ist ein Begleiter für Selbstreflexion und ersetzt keine professionelle Therapie oder Beratung."
-                  : "MindMate is a companion for self-reflection and does not replace professional therapy or counseling."}
+                  ? "Soulvay ist ein Begleiter für Selbstreflexion und ersetzt keine professionelle Therapie oder Beratung."
+                  : "Soulvay is a companion for self-reflection and does not replace professional therapy or counseling."}
               </p>
               <button
                 onClick={handleDismiss}

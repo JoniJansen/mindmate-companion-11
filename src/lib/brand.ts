@@ -1,14 +1,14 @@
-// MindMate Brand Positioning
-// Defines what MindMate is and isn't - the soul of the product
+// Soulvay Brand Positioning
+// Defines what Soulvay is and isn't - the soul of the product
 
 export const positioning = {
   en: {
     // Core statement
     statement:
-      "MindMate is a quiet space for your inner world. Not therapy, not coaching—just a calm companion for reflection.",
+      "Soulvay is a quiet space for your inner world. Not therapy, not coaching—just a calm companion for reflection.",
 
     // App Store / Homepage description (under 120 words)
-    appDescription: `MindMate is a private space for your thoughts. Talk through what's on your mind, journal without judgment, and notice emotional patterns over time.
+    appDescription: `Soulvay is a private space for your thoughts. Talk through what's on your mind, journal without judgment, and notice emotional patterns over time.
 
 No diagnoses. No productivity tracking. No pressure.
 
@@ -30,9 +30,9 @@ For self-aware adults who want support without the weight of therapy or the hype
 
     // Differentiators
     vsTherapy:
-      "MindMate doesn't diagnose or treat. It's a companion for daily reflection—between or instead of therapy sessions.",
+      "Soulvay doesn't diagnose or treat. It's a companion for daily reflection—between or instead of therapy sessions.",
     vsCoaching:
-      "No goals, no accountability, no pressure. MindMate meets you where you are, without pushing you somewhere.",
+      "No goals, no accountability, no pressure. Soulvay meets you where you are, without pushing you somewhere.",
     vsProductivity:
       "No streaks, no scores, no gamification. Just a calm space you return to when you need it.",
 
@@ -50,9 +50,9 @@ For self-aware adults who want support without the weight of therapy or the hype
   },
   de: {
     statement:
-      "MindMate ist ein ruhiger Raum für deine innere Welt. Keine Therapie, kein Coaching—einfach ein ruhiger Begleiter für Reflexion.",
+      "Soulvay ist ein ruhiger Raum für deine innere Welt. Keine Therapie, kein Coaching—einfach ein ruhiger Begleiter für Reflexion.",
 
-    appDescription: `MindMate ist ein privater Raum für deine Gedanken. Rede über das, was dich beschäftigt, schreibe ohne Urteil, und erkenne emotionale Muster über Zeit.
+    appDescription: `Soulvay ist ein privater Raum für deine Gedanken. Rede über das, was dich beschäftigt, schreibe ohne Urteil, und erkenne emotionale Muster über Zeit.
 
 Keine Diagnosen. Kein Produktivitäts-Tracking. Kein Druck.
 
@@ -72,9 +72,9 @@ Für selbstreflektierte Erwachsene, die Unterstützung ohne das Gewicht von Ther
     ],
 
     vsTherapy:
-      "MindMate diagnostiziert oder behandelt nicht. Es ist ein Begleiter für tägliche Reflexion—zwischen oder statt Therapiesitzungen.",
+      "Soulvay diagnostiziert oder behandelt nicht. Es ist ein Begleiter für tägliche Reflexion—zwischen oder statt Therapiesitzungen.",
     vsCoaching:
-      "Keine Ziele, keine Verantwortlichkeit, kein Druck. MindMate holt dich dort ab, wo du bist, ohne dich irgendwohin zu drängen.",
+      "Keine Ziele, keine Verantwortlichkeit, kein Druck. Soulvay holt dich dort ab, wo du bist, ohne dich irgendwohin zu drängen.",
     vsProductivity:
       "Keine Streaks, keine Punkte, keine Gamification. Einfach ein ruhiger Raum, zu dem du zurückkehrst, wenn du ihn brauchst.",
 
@@ -94,15 +94,15 @@ Für selbstreflektierte Erwachsene, die Unterstützung ohne das Gewicht von Ther
 export const trustBoundaries = {
   en: {
     title: "Trust & Boundaries",
-    content: `MindMate is an AI companion—thoughtful, but not human. It can listen, reflect, and help you notice patterns, but it cannot diagnose, treat, or replace professional support.
+    content: `Soulvay is an AI companion—thoughtful, but not human. It can listen, reflect, and help you notice patterns, but it cannot diagnose, treat, or replace professional support.
 
-What MindMate does well:
+What Soulvay does well:
 • Listen without judgment
 • Offer gentle reflection questions
 • Notice emotional themes over time
 • Suggest grounding exercises when you're stressed
 
-What MindMate cannot do:
+What Soulvay cannot do:
 • Provide therapy or medical advice
 • Diagnose mental health conditions
 • Handle crisis situations (we'll guide you to real support)
@@ -112,15 +112,15 @@ If you're struggling with something serious, please reach out to a professional.
   },
   de: {
     title: "Vertrauen & Grenzen",
-    content: `MindMate ist ein KI-Begleiter—durchdacht, aber nicht menschlich. Es kann zuhören, reflektieren und dir helfen, Muster zu erkennen, aber es kann nicht diagnostizieren, behandeln oder professionelle Unterstützung ersetzen.
+    content: `Soulvay ist ein KI-Begleiter—durchdacht, aber nicht menschlich. Es kann zuhören, reflektieren und dir helfen, Muster zu erkennen, aber es kann nicht diagnostizieren, behandeln oder professionelle Unterstützung ersetzen.
 
-Was MindMate gut kann:
+Was Soulvay gut kann:
 • Zuhören ohne Urteil
 • Sanfte Reflexionsfragen anbieten
 • Emotionale Themen über Zeit bemerken
 • Erdungsübungen vorschlagen, wenn du gestresst bist
 
-Was MindMate nicht kann:
+Was Soulvay nicht kann:
 • Therapie oder medizinischen Rat bieten
 • Psychische Erkrankungen diagnostizieren
 • Krisensituationen bewältigen (wir leiten dich zu echter Hilfe)
@@ -132,39 +132,26 @@ Wenn du mit etwas Ernstem kämpfst, wende dich bitte an einen Fachmann. Es ist k
 
 export const safetyMicrocopy = {
   en: {
-    // Gentle entry to crisis topic
     crisisGentleEntry:
       "It sounds like things are really difficult right now. I want you to know that reaching out is a sign of strength, not weakness.",
-
-    // Calm boundary statement
     aiLimitation:
       "I'm here to listen, but I'm not a therapist. For what you're describing, a real person might be more helpful. Would you like to see some support options?",
-
-    // Non-alarmist crisis prompt
     crisisOffer:
       "I noticed you might be going through something heavy. There are people who specialize in this—would it help to see some resources?",
-
-    // Safety page intro
     safetyIntro:
       "These resources are here whenever you need them. Reaching out takes courage—and it's always okay to ask for help.",
-
-    // After crisis redirect
     afterSupport:
       "I'm still here when you're ready to talk more. Take the time you need.",
   },
   de: {
     crisisGentleEntry:
       "Es klingt, als wäre gerade wirklich alles schwer. Ich möchte, dass du weißt: Sich Hilfe zu suchen ist ein Zeichen von Stärke, nicht Schwäche.",
-
     aiLimitation:
       "Ich bin hier, um zuzuhören, aber ich bin kein Therapeut. Für das, was du beschreibst, könnte ein echter Mensch hilfreicher sein. Möchtest du einige Unterstützungsmöglichkeiten sehen?",
-
     crisisOffer:
       "Ich habe bemerkt, dass du vielleicht gerade etwas Schweres durchmachst. Es gibt Menschen, die sich darauf spezialisiert haben—würde es helfen, einige Ressourcen zu sehen?",
-
     safetyIntro:
       "Diese Ressourcen sind hier, wann immer du sie brauchst. Es braucht Mut, sich Hilfe zu holen—und es ist immer okay, um Hilfe zu bitten.",
-
     afterSupport:
       "Ich bin immer noch hier, wenn du bereit bist, weiter zu reden. Nimm dir die Zeit, die du brauchst.",
   },

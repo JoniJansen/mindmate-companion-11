@@ -47,13 +47,13 @@ export function UpgradePrompt({
       en: {
         title: "Voice conversations",
         subtitle: "Premium feature",
-        description: "Speak naturally with MindMate. Voice input and warm AI responses.",
+        description: "Speak naturally with Soulvay. Voice input and warm AI responses.",
         cta: "Unlock voice",
       },
       de: {
         title: "Sprachgespräche",
         subtitle: "Premium-Funktion",
-        description: "Sprich natürlich mit MindMate. Spracheingabe und warme KI-Antworten.",
+        description: "Sprich natürlich mit Soulvay. Spracheingabe und warme KI-Antworten.",
         cta: "Stimme freischalten",
       },
     },
@@ -73,13 +73,13 @@ export function UpgradePrompt({
     },
     general: {
       en: {
-        title: "MindMate Plus",
+        title: "Soulvay Plus",
         subtitle: "A quiet space for your mind",
         description: "Unlimited conversations, voice features, and deeper insights.",
         cta: "Learn more",
       },
       de: {
-        title: "MindMate Plus",
+        title: "Soulvay Plus",
         subtitle: "Ein ruhiger Raum für deinen Geist",
         description: "Unbegrenzte Gespräche, Sprachfunktionen und tiefere Einblicke.",
         cta: "Mehr erfahren",

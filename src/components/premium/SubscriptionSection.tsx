@@ -110,7 +110,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="font-medium text-foreground">MindMate Plus</p>
+                  <p className="font-medium text-foreground">Soulvay Plus</p>
                   <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                     {planType === "yearly" 
                       ? (language === "de" ? "Jährlich" : "Yearly") 
@@ -202,7 +202,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
               <Sparkles className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium text-foreground">MindMate Plus</p>
+              <p className="font-medium text-foreground">Soulvay Plus</p>
               <p className="text-sm text-muted-foreground">
                 {language === "de" 
                   ? "Entfalte dein volles Potenzial" 
