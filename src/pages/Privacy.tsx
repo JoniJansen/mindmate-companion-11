@@ -12,7 +12,7 @@ export default function Privacy() {
     en: {
       title: "Privacy Policy",
       lastUpdated: "Last updated: January 2026",
-      intro: "Your privacy matters to us. MindMate is designed with your privacy and security as core principles. This policy explains how we handle your personal information.",
+      intro: "Your privacy matters to us. Soulvay is designed with your privacy and security as core principles. This policy explains how we handle your personal information.",
       sections: [
         {
           icon: Lock,
@@ -83,7 +83,7 @@ To exercise these rights, go to Settings > Account or contact us at joni.jansen0
 • In-app notification
 • Email (if you've opted in)
 
-Continued use of MindMate after changes constitutes acceptance of the updated policy.`
+Continued use of Soulvay after changes constitutes acceptance of the updated policy.`
         }
       ],
       contact: {
@@ -95,7 +95,7 @@ Continued use of MindMate after changes constitutes acceptance of the updated po
     de: {
       title: "Datenschutzerklärung",
       lastUpdated: "Zuletzt aktualisiert: Januar 2026",
-      intro: "Deine Privatsphäre ist uns wichtig. MindMate wurde mit Datenschutz und Sicherheit als Grundprinzipien entwickelt. Diese Richtlinie erklärt, wie wir mit deinen persönlichen Daten umgehen.",
+      intro: "Deine Privatsphäre ist uns wichtig. Soulvay wurde mit Datenschutz und Sicherheit als Grundprinzipien entwickelt. Diese Richtlinie erklärt, wie wir mit deinen persönlichen Daten umgehen.",
       sections: [
         {
           icon: Lock,
@@ -166,7 +166,7 @@ Um diese Rechte auszuüben, gehe zu Einstellungen > Konto oder kontaktiere uns u
 • In-App-Benachrichtigung
 • E-Mail (wenn du dich angemeldet hast)
 
-Die weitere Nutzung von MindMate nach Änderungen gilt als Akzeptanz der aktualisierten Richtlinie.`
+Die weitere Nutzung von Soulvay nach Änderungen gilt als Akzeptanz der aktualisierten Richtlinie.`
         }
       ],
       contact: {

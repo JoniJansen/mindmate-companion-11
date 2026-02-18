@@ -12,34 +12,34 @@ export default function Terms() {
     en: {
       title: "Terms of Service",
       lastUpdated: "Last updated: January 2026",
-      intro: "Welcome to MindMate. By using our service, you agree to these terms. Please read them carefully.",
+      intro: "Welcome to Soulvay. By using our service, you agree to these terms. Please read them carefully.",
       sections: [
         {
           icon: FileText,
-          title: "1. About MindMate",
-          content: `MindMate is an AI-powered mental wellness companion designed to help you reflect, journal, and develop emotional awareness. 
+          title: "1. About Soulvay",
+          content: `Soulvay is an AI-powered mental wellness companion designed to help you reflect, journal, and develop emotional awareness. 
 
-**Important Disclaimer**: MindMate is NOT a substitute for professional mental health care, therapy, or medical advice. It is a supportive tool, not a licensed healthcare provider.
+**Important Disclaimer**: Soulvay is NOT a substitute for professional mental health care, therapy, or medical advice. It is a supportive tool, not a licensed healthcare provider.
 
 If you are experiencing a mental health crisis, please contact emergency services or a crisis hotline immediately.`
         },
         {
           icon: AlertTriangle,
           title: "2. Eligibility & Acceptable Use",
-          content: `**Age Requirement**: You must be at least 16 years old to use MindMate. Users under 18 should have parental consent.
+          content: `**Age Requirement**: You must be at least 16 years old to use Soulvay. Users under 18 should have parental consent.
 
 **Acceptable Use**: You agree to:
-• Use MindMate for personal, non-commercial purposes only
+• Use Soulvay for personal, non-commercial purposes only
 • Not share content that is illegal, harmful, or violates others' rights
 • Not attempt to reverse-engineer or exploit our systems
 • Not use the service to harm yourself or others
 
-**Content Responsibility**: You are responsible for the content you create in MindMate. We do not monitor individual content but may take action if we become aware of violations.`
+**Content Responsibility**: You are responsible for the content you create in Soulvay. We do not monitor individual content but may take action if we become aware of violations.`
         },
         {
           icon: CreditCard,
           title: "3. Subscriptions & Payments",
-          content: `**Free Tier**: MindMate offers a free tier with limited features (5 messages per day, basic journaling).
+          content: `**Free Tier**: Soulvay offers a free tier with limited features (5 messages per day, basic journaling).
 
 **Plus Subscription**: Premium features are available through a monthly subscription (€9.99/month or €89.99/year).
 
@@ -56,22 +56,22 @@ If you are experiencing a mental health crisis, please contact emergency service
         {
           icon: Scale,
           title: "4. Intellectual Property",
-          content: `**Your Content**: You retain ownership of all content you create (journal entries, chat messages). By using MindMate, you grant us a limited license to process this content to provide our services.
+          content: `**Your Content**: You retain ownership of all content you create (journal entries, chat messages). By using Soulvay, you grant us a limited license to process this content to provide our services.
 
-**Our Content**: The MindMate app, including its design, code, AI models, and exercises, is our intellectual property. You may not copy, modify, or distribute it without permission.
+**Our Content**: The Soulvay app, including its design, code, AI models, and exercises, is our intellectual property. You may not copy, modify, or distribute it without permission.
 
-**Feedback**: If you provide feedback or suggestions, we may use them to improve MindMate without compensation.`
+**Feedback**: If you provide feedback or suggestions, we may use them to improve Soulvay without compensation.`
         },
         {
           icon: Ban,
           title: "5. Limitations & Disclaimers",
-          content: `**No Medical Advice**: MindMate provides general wellness support, not medical, psychological, or psychiatric advice. Always consult qualified professionals for health concerns.
+          content: `**No Medical Advice**: Soulvay provides general wellness support, not medical, psychological, or psychiatric advice. Always consult qualified professionals for health concerns.
 
 **AI Limitations**: Our AI may occasionally provide inaccurate or unhelpful responses. It cannot diagnose conditions or prescribe treatments.
 
 **Service Availability**: We strive for high availability but cannot guarantee uninterrupted service. We may modify or discontinue features with notice.
 
-**Liability Limitation**: To the maximum extent permitted by law, MindMate is not liable for any indirect, incidental, or consequential damages arising from your use of the service.`
+**Liability Limitation**: To the maximum extent permitted by law, Soulvay is not liable for any indirect, incidental, or consequential damages arising from your use of the service.`
         },
         {
           icon: RefreshCw,
@@ -91,39 +91,39 @@ If you are experiencing a mental health crisis, please contact emergency service
         content: "If you have questions about these terms, please contact us at:",
         email: "joni.jansen00@gmail.com"
       },
-      agreement: "By using MindMate, you acknowledge that you have read, understood, and agree to these Terms of Service."
+      agreement: "By using Soulvay, you acknowledge that you have read, understood, and agree to these Terms of Service."
     },
     de: {
       title: "Nutzungsbedingungen",
       lastUpdated: "Zuletzt aktualisiert: Januar 2026",
-      intro: "Willkommen bei MindMate. Durch die Nutzung unseres Dienstes stimmst du diesen Bedingungen zu. Bitte lies sie sorgfältig durch.",
+      intro: "Willkommen bei Soulvay. Durch die Nutzung unseres Dienstes stimmst du diesen Bedingungen zu. Bitte lies sie sorgfältig durch.",
       sections: [
         {
           icon: FileText,
-          title: "1. Über MindMate",
-          content: `MindMate ist ein KI-gestützter Begleiter für mentales Wohlbefinden, der dir hilft zu reflektieren, Tagebuch zu führen und emotionales Bewusstsein zu entwickeln.
+          title: "1. Über Soulvay",
+          content: `Soulvay ist ein KI-gestützter Begleiter für mentales Wohlbefinden, der dir hilft zu reflektieren, Tagebuch zu führen und emotionales Bewusstsein zu entwickeln.
 
-**Wichtiger Hinweis**: MindMate ist KEIN Ersatz für professionelle psychische Gesundheitsversorgung, Therapie oder medizinische Beratung. Es ist ein unterstützendes Werkzeug, kein zugelassener Gesundheitsdienstleister.
+**Wichtiger Hinweis**: Soulvay ist KEIN Ersatz für professionelle psychische Gesundheitsversorgung, Therapie oder medizinische Beratung. Es ist ein unterstützendes Werkzeug, kein zugelassener Gesundheitsdienstleister.
 
 Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst oder eine Krisenhotline.`
         },
         {
           icon: AlertTriangle,
           title: "2. Berechtigung & Akzeptable Nutzung",
-          content: `**Altersanforderung**: Du musst mindestens 16 Jahre alt sein, um MindMate zu nutzen. Nutzer unter 18 Jahren sollten die Zustimmung der Eltern haben.
+          content: `**Altersanforderung**: Du musst mindestens 16 Jahre alt sein, um Soulvay zu nutzen. Nutzer unter 18 Jahren sollten die Zustimmung der Eltern haben.
 
 **Akzeptable Nutzung**: Du stimmst zu:
-• MindMate nur für persönliche, nicht-kommerzielle Zwecke zu nutzen
+• Soulvay nur für persönliche, nicht-kommerzielle Zwecke zu nutzen
 • Keine illegalen, schädlichen oder die Rechte anderer verletzenden Inhalte zu teilen
 • Nicht zu versuchen, unsere Systeme zu reverse-engineeren oder auszunutzen
 • Den Dienst nicht zu nutzen, um dir selbst oder anderen zu schaden
 
-**Inhaltsverantwortung**: Du bist für die von dir in MindMate erstellten Inhalte verantwortlich. Wir überwachen keine individuellen Inhalte, können aber bei Bekanntwerden von Verstößen Maßnahmen ergreifen.`
+**Inhaltsverantwortung**: Du bist für die von dir in Soulvay erstellten Inhalte verantwortlich. Wir überwachen keine individuellen Inhalte, können aber bei Bekanntwerden von Verstößen Maßnahmen ergreifen.`
         },
         {
           icon: CreditCard,
           title: "3. Abonnements & Zahlungen",
-          content: `**Kostenlose Stufe**: MindMate bietet eine kostenlose Stufe mit eingeschränkten Funktionen (5 Nachrichten pro Tag, Basis-Tagebuch).
+          content: `**Kostenlose Stufe**: Soulvay bietet eine kostenlose Stufe mit eingeschränkten Funktionen (5 Nachrichten pro Tag, Basis-Tagebuch).
 
 **Plus-Abonnement**: Premium-Funktionen sind über ein monatliches Abonnement verfügbar (€9,99/Monat oder €89,99/Jahr).
 
@@ -140,22 +140,22 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
         {
           icon: Scale,
           title: "4. Geistiges Eigentum",
-          content: `**Deine Inhalte**: Du behältst das Eigentum an allen von dir erstellten Inhalten (Tagebucheinträge, Chat-Nachrichten). Durch die Nutzung von MindMate gewährst du uns eine begrenzte Lizenz zur Verarbeitung dieser Inhalte zur Bereitstellung unserer Dienste.
+          content: `**Deine Inhalte**: Du behältst das Eigentum an allen von dir erstellten Inhalten (Tagebucheinträge, Chat-Nachrichten). Durch die Nutzung von Soulvay gewährst du uns eine begrenzte Lizenz zur Verarbeitung dieser Inhalte zur Bereitstellung unserer Dienste.
 
-**Unsere Inhalte**: Die MindMate-App, einschließlich ihres Designs, Codes, ihrer KI-Modelle und Übungen, ist unser geistiges Eigentum. Du darfst sie ohne Erlaubnis nicht kopieren, modifizieren oder verbreiten.
+**Unsere Inhalte**: Die Soulvay-App, einschließlich ihres Designs, Codes, ihrer KI-Modelle und Übungen, ist unser geistiges Eigentum. Du darfst sie ohne Erlaubnis nicht kopieren, modifizieren oder verbreiten.
 
-**Feedback**: Wenn du Feedback oder Vorschläge gibst, können wir diese ohne Vergütung zur Verbesserung von MindMate nutzen.`
+**Feedback**: Wenn du Feedback oder Vorschläge gibst, können wir diese ohne Vergütung zur Verbesserung von Soulvay nutzen.`
         },
         {
           icon: Ban,
           title: "5. Einschränkungen & Haftungsausschlüsse",
-          content: `**Keine medizinische Beratung**: MindMate bietet allgemeine Wellness-Unterstützung, keine medizinische, psychologische oder psychiatrische Beratung. Konsultiere immer qualifizierte Fachleute bei gesundheitlichen Bedenken.
+          content: `**Keine medizinische Beratung**: Soulvay bietet allgemeine Wellness-Unterstützung, keine medizinische, psychologische oder psychiatrische Beratung. Konsultiere immer qualifizierte Fachleute bei gesundheitlichen Bedenken.
 
 **KI-Einschränkungen**: Unsere KI kann gelegentlich ungenaue oder nicht hilfreiche Antworten geben. Sie kann keine Erkrankungen diagnostizieren oder Behandlungen verschreiben.
 
 **Dienstverfügbarkeit**: Wir streben hohe Verfügbarkeit an, können aber keinen ununterbrochenen Dienst garantieren. Wir können Funktionen mit Vorankündigung ändern oder einstellen.
 
-**Haftungsbeschränkung**: Im gesetzlich zulässigen Umfang haftet MindMate nicht für indirekte, zufällige oder Folgeschäden, die aus deiner Nutzung des Dienstes entstehen.`
+**Haftungsbeschränkung**: Im gesetzlich zulässigen Umfang haftet Soulvay nicht für indirekte, zufällige oder Folgeschäden, die aus deiner Nutzung des Dienstes entstehen.`
         },
         {
           icon: RefreshCw,
@@ -175,7 +175,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
         content: "Wenn du Fragen zu diesen Bedingungen hast, kontaktiere uns bitte unter:",
         email: "joni.jansen00@gmail.com"
       },
-      agreement: "Durch die Nutzung von MindMate bestätigst du, dass du diese Nutzungsbedingungen gelesen und verstanden hast und ihnen zustimmst."
+      agreement: "Durch die Nutzung von Soulvay bestätigst du, dass du diese Nutzungsbedingungen gelesen und verstanden hast und ihnen zustimmst."
     }
   };
 

@@ -203,11 +203,11 @@ export function usePushNotifications() {
     const lang = getLang();
     const messages = {
       en: {
-        title: "MindMate Reminder 🌿",
+        title: "Soulvay Reminder 🌿",
         body: "Take a moment to check in with yourself. How are you feeling?",
       },
       de: {
-        title: "MindMate Erinnerung 🌿",
+        title: "Soulvay Erinnerung 🌿",
         body: "Nimm dir einen Moment, um bei dir einzuchecken. Wie fühlst du dich?",
       },
     };
@@ -233,25 +233,25 @@ export const notificationMessages = {
     en: [
       { title: "How are you feeling? 🌿", body: "Take a moment to check in with your mood." },
       { title: "Mood Check-in Time 💭", body: "A quick check-in helps you track your emotional patterns." },
-      { title: "MindMate Here 🌙", body: "Ready for your evening mood check-in?" },
+      { title: "Soulvay Here 🌙", body: "Ready for your evening mood check-in?" },
     ],
     de: [
       { title: "Wie fühlst du dich? 🌿", body: "Nimm dir einen Moment für deinen Stimmungs-Check-in." },
       { title: "Zeit für den Mood-Check 💭", body: "Ein kurzer Check-in hilft dir, deine emotionalen Muster zu erkennen." },
-      { title: "MindMate ist da 🌙", body: "Bereit für deinen Abend-Check-in?" },
+      { title: "Soulvay ist da 🌙", body: "Bereit für deinen Abend-Check-in?" },
     ],
   },
   dailyReminder: {
     en: [
       { title: "Evening Check-in 🌙", body: "How was your day? Take a moment to reflect." },
       { title: "Time for You 💭", body: "A few minutes of journaling can make a difference." },
-      { title: "MindMate is Here 🌿", body: "Ready to listen whenever you want to talk." },
+      { title: "Soulvay is Here 🌿", body: "Ready to listen whenever you want to talk." },
       { title: "Daily Reflection ✨", body: "What's one thing you're grateful for today?" },
     ],
     de: [
       { title: "Abend Check-in 🌙", body: "Wie war dein Tag? Nimm dir einen Moment zum Reflektieren." },
       { title: "Zeit für Dich 💭", body: "Ein paar Minuten Tagebuch können viel bewirken." },
-      { title: "MindMate ist da 🌿", body: "Bereit zuzuhören, wann immer du reden möchtest." },
+      { title: "Soulvay ist da 🌿", body: "Bereit zuzuhören, wann immer du reden möchtest." },
       { title: "Tägliche Reflexion ✨", body: "Wofür bist du heute dankbar?" },
     ],
   },
