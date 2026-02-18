@@ -44,7 +44,7 @@ export const translations: Translations = {
   "common.helpfulPrompts": { en: "Helpful prompts", de: "Hilfreiche Impulse" },
 
   // Chat page
-  "chat.title": { en: "MindMate", de: "MindMate" },
+  "chat.title": { en: "Soulvay", de: "Soulvay" },
   "chat.subtitle": { en: "Always here for you", de: "Immer für dich da" },
   "chat.inputPlaceholder": { en: "Type something...", de: "Schreibe etwas..." },
   "chat.endSummarize": { en: "Wrap up", de: "Zusammenfassen" },
@@ -59,9 +59,9 @@ export const translations: Translations = {
   "chat.connectionIssue": { en: "Connection paused", de: "Verbindung unterbrochen" },
   "chat.voiceFailed": { en: "Voice playback failed", de: "Sprachausgabe fehlgeschlagen" },
   "chat.modeSelectLabel": { en: "Select chat mode", de: "Chat-Modus wählen" },
-  "chat.requiresPlus": { en: "Requires MindMate Plus", de: "MindMate Plus erforderlich" },
-  "chat.disclaimer": { en: "MindMate is a companion for self-reflection and does not replace professional therapy or counseling.", de: "MindMate ist ein Begleiter für Selbstreflexion und ersetzt keine professionelle Therapie oder Beratung." },
-  "chat.greetingDe": { en: "Hello. I'm MindMate, and\nI'm here to listen.\n\nTake your time – share what's on your mind.", de: "Hallo. Ich bin MindMate und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt." },
+  "chat.requiresPlus": { en: "Requires Soulvay Plus", de: "Soulvay Plus erforderlich" },
+  "chat.disclaimer": { en: "Soulvay is a companion for self-reflection and does not replace professional therapy or counseling.", de: "Soulvay ist ein Begleiter für Selbstreflexion und ersetzt keine professionelle Therapie oder Beratung." },
+  "chat.greetingDe": { en: "Hello. I'm Soulvay, and\nI'm here to listen.\n\nTake your time – share what's on your mind.", de: "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt." },
   
   // Chat mode quick replies
   "chat.talk.reply1": { en: "I need someone to listen", de: "Ich brauche jemanden zum Zuhören" },

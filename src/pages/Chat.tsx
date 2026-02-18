@@ -245,8 +245,8 @@ export default function Chat() {
         // Use a carefully crafted static greeting for optimal text flow
         // CRITICAL: Use savedLang from preferences, not the hook language which may not be updated yet
         const staticGreeting = savedLang === "de"
-          ? "Hallo. Ich bin MindMate und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
-          : "Hello. I'm MindMate, and\nI'm here to listen.\n\nTake your time – share what's on your mind.";
+          ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
+          : "Hello. I'm Soulvay, and\nI'm here to listen.\n\nTake your time – share what's on your mind.";
         
         setMessages([{
           id: "greeting",

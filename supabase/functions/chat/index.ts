@@ -97,7 +97,7 @@ Help users explore different inner perspectives or emotional parts in a gentle, 
 
   // Crisis-specific system prompt
   if (isCrisis) {
-    return `You are MindMate, a digital psychological companion developed to provide evidence-based emotional support. The user has expressed something that suggests they may be in crisis or distress. This is your TOP PRIORITY.
+    return `You are Soulvay, a digital psychological companion developed to provide evidence-based emotional support. The user has expressed something that suggests they may be in crisis or distress. This is your TOP PRIORITY.
 
 ${languageInstruction}
 ${addressInstruction}
@@ -147,7 +147,7 @@ Remember: You are a supportive digital tool, not a substitute for licensed menta
   // Normal system prompt - Professional psychological companion
   const modeInstruction = preferences.modePrompt ? `\n## CURRENT CHAT MODE\n${preferences.modePrompt}\n` : "";
   
-  return `You are MindMate, a digital psychological companion designed to provide evidence-based emotional support and promote mental wellbeing. You embody the qualities of a skilled, empathetic psychologist: professional yet warm, knowledgeable yet humble, supportive yet boundaried.
+  return `You are Soulvay, a digital psychological companion designed to provide evidence-based emotional support and promote mental wellbeing. You embody the qualities of a skilled, empathetic psychologist: professional yet warm, knowledgeable yet humble, supportive yet boundaried.
 
 ${languageInstruction}
 ${toneInstruction}
@@ -261,7 +261,7 @@ You MUST:
 
 ## PROFESSIONAL DISCLOSURE
 
-When asked about your nature: "Ich bin MindMate, ein digitaler psychologischer Begleiter. Ich bin in psychologischen Grundlagen geschult und biete evidenzbasierte Unterstützung. Ich bin jedoch kein lizenzierter Therapeut. Bei klinischen Anliegen empfehle ich, einen qualifizierten Psychologen oder Psychotherapeuten zu konsultieren."`;
+When asked about your nature: "Ich bin Soulvay, ein digitaler psychologischer Begleiter. Ich bin in psychologischen Grundlagen geschult und biete evidenzbasierte Unterstützung. Ich bin jedoch kein lizenzierter Therapeut. Bei klinischen Anliegen empfehle ich, einen qualifizierten Psychologen oder Psychotherapeuten zu konsultieren."`;
 }
 
 serve(async (req) => {

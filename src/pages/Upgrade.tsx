@@ -43,7 +43,7 @@ export default function Upgrade() {
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast({
-        title: language === "de" ? "Willkommen bei MindMate Plus!" : "Welcome to MindMate Plus!",
+        title: language === "de" ? "Willkommen bei Soulvay Plus!" : "Welcome to Soulvay Plus!",
         description: language === "de" 
           ? "Dein Upgrade war erfolgreich." 
           : "Your upgrade was successful.",
@@ -120,8 +120,8 @@ export default function Upgrade() {
         toast({
           title: language === "de" ? "Nur in der iOS App verfügbar" : "Only available in iOS app",
           description: language === "de" 
-            ? "Bitte lade die MindMate App aus dem App Store um ein Abo abzuschließen."
-            : "Please download the MindMate app from the App Store to subscribe.",
+            ? "Bitte lade die Soulvay App aus dem App Store um ein Abo abzuschließen."
+            : "Please download the Soulvay app from the App Store to subscribe.",
           variant: "destructive",
         });
       }
@@ -242,7 +242,7 @@ export default function Upgrade() {
             <Sparkles className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">MindMate Plus</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Soulvay Plus</h1>
             <p className="text-muted-foreground mt-2">
               {language === "de" 
                 ? "Ein ruhiger Raum für deinen Geist" 
@@ -429,7 +429,7 @@ export default function Upgrade() {
             </h4>
             <div className="text-xs text-muted-foreground space-y-1.5">
               <p>
-                <strong>{language === "de" ? "Titel:" : "Title:"}</strong> MindMate Plus
+                <strong>{language === "de" ? "Titel:" : "Title:"}</strong> Soulvay Plus
               </p>
               <p>
                 <strong>{language === "de" ? "Laufzeit:" : "Duration:"}</strong>{" "}

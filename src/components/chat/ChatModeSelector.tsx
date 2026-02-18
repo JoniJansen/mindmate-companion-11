@@ -188,7 +188,7 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
                 )}
                 title={
                   isLocked 
-                    ? (language === "de" ? "MindMate Plus erforderlich" : "Requires MindMate Plus")
+                    ? (language === "de" ? "Soulvay Plus erforderlich" : "Requires Soulvay Plus")
                     : label
                 }
               >

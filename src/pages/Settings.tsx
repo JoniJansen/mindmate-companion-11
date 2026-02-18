@@ -124,7 +124,7 @@ export default function Settings() {
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast({
-        title: language === "de" ? "Willkommen bei MindMate Plus!" : "Welcome to MindMate Plus!",
+        title: language === "de" ? "Willkommen bei Soulvay Plus!" : "Welcome to Soulvay Plus!",
         description: language === "de" 
           ? "Dein Upgrade war erfolgreich." 
           : "Your upgrade was successful.",
@@ -1128,7 +1128,7 @@ export default function Settings() {
           transition={{ delay: 0.35 }}
           className="text-center pt-6 pb-4"
         >
-          <p className="text-xs text-muted-foreground">MindMate v1.0.0</p>
+          <p className="text-xs text-muted-foreground">Soulvay v1.0.0</p>
           <p className="text-xs text-muted-foreground mt-1">{t("settings.madeWithCare")}</p>
         </motion.div>
         </div>

@@ -159,10 +159,10 @@ export default function ReviewInstructions() {
             <CalmCard variant="elevated">
               <h3 className="font-medium text-foreground mb-3">App Information</h3>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p><strong>App Name:</strong> MindMate</p>
+                <p><strong>App Name:</strong> Soulvay</p>
                 <p><strong>Purpose:</strong> Mental wellness companion with AI chat, journaling, mood tracking, and self-care tools</p>
                 <p><strong>Target Audience:</strong> Adults seeking mental wellness support</p>
-                <p><strong>Subscription:</strong> MindMate Plus (€9.99/month or €79/year)</p>
+                <p><strong>Subscription:</strong> Soulvay Plus (€9.99/month or €79/year)</p>
               </div>
             </CalmCard>
           </motion.div>
