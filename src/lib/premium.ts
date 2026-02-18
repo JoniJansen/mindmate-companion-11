@@ -1,4 +1,4 @@
-// MindMate Premium vs Free Feature Structure
+// Soulvay Premium vs Free Feature Structure
 // This defines the psychological and product structure, not technical paywall
 
 export type FeatureTier = "free" | "premium";
