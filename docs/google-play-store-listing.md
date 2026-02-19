@@ -1,58 +1,26 @@
-# MindMate – Google Play Store Listing
-
-## 📁 Store Assets
-
-Die folgenden Grafiken wurden generiert und befinden sich in `/public/store/`:
-
-| Datei | Größe | Verwendung |
-|-------|-------|------------|
-| `feature-graphic.png` | 1024×512 | Feature Graphic (Banner oben im Store) |
-| `app-icon-512.png` | 512×512 | App-Icon für Play Store |
-| `screenshot-1-chat-de.png` | 1080×1920 | Screenshot 1: Chat-Funktion |
-| `screenshot-2-journal-de.png` | 1080×1920 | Screenshot 2: Tagebuch |
-| `screenshot-3-mood-de.png` | 1080×1920 | Screenshot 3: Mood-Tracking |
-| `screenshot-4-toolbox-de.png` | 1080×1920 | Screenshot 4: Toolbox |
-
-### ⚠️ Hinweis zu Screenshots
-
-Die KI-generierten Screenshots enthalten unleserlichen Platzhalter-Text. Für die finale Einreichung empfehle ich:
-
-1. **Echte Screenshots** direkt von der App auf einem Gerät machen
-2. **Overlay-Texte** mit Canva, Figma oder einem Screenshot-Generator hinzufügen:
-   - Screenshot 1: "Dein einfühlsamer Begleiter"
-   - Screenshot 2: "Gedanken festhalten"
-   - Screenshot 3: "Verstehe deine Gefühle"
-   - Screenshot 4: "Ruhe finden"
-   - Screenshot 5 (optional): "Privat & sicher"
-
-### 📱 Empfohlene Screenshot-Tools
-- [Screenshot Generator](https://screenshots.pro)
-- [App Mockup](https://app-mockup.com)
-- [Previewed](https://previewed.app)
-
----
+# Soulvay – Google Play Store Listing
 
 ## 🇩🇪 Deutsch
 
 ### App-Name (max. 30 Zeichen)
 ```
-MindMate
+Soulvay - Mental Buddy
 ```
 
 ### Kurzbeschreibung (max. 80 Zeichen)
 ```
-Dein psychologischer Begleiter für innere Klarheit – privat, einfühlsam, immer da.
+Dein mentaler Begleiter für innere Klarheit – privat, einfühlsam, immer da.
 ```
 
 ### Vollständige Beschreibung (max. 4.000 Zeichen)
 ```
-MindMate – Dein psychologischer Begleiter
+Soulvay – Dein mentaler Begleiter
 
-Manchmal braucht man jemanden zum Reden. Jemanden, der zuhört, ohne zu urteilen. MindMate ist dieser Begleiter – ein sicherer Raum für deine Gedanken und Gefühle.
+Manchmal braucht man jemanden zum Reden. Jemanden, der zuhört, ohne zu urteilen. Soulvay ist dieser Begleiter – ein sicherer Raum für deine Gedanken und Gefühle.
 
-🧠 WAS IST MINDMATE?
+🧠 WAS IST SOULVAY?
 
-MindMate ist dein privater psychologischer Begleiter. Keine Therapie, kein Coaching – sondern ein einfühlsamer Gesprächspartner, der dir hilft, deine Gedanken zu ordnen und dich selbst besser zu verstehen.
+Soulvay ist dein privater mentaler Begleiter. Keine Therapie, kein Coaching – sondern ein einfühlsamer Gesprächspartner, der dir hilft, deine Gedanken zu ordnen und dich selbst besser zu verstehen.
 
 💬 EINFACH REDEN
 
@@ -89,7 +57,7 @@ MindMate ist dein privater psychologischer Begleiter. Keine Therapie, kein Coach
 • Keine Weitergabe an Dritte
 • DSGVO-konform
 
-✨ MINDMATE PLUS
+✨ SOULVAY PLUS
 
 Erweitere dein Erlebnis mit Premium-Features:
 • Unbegrenzte Gespräche
@@ -100,11 +68,9 @@ Erweitere dein Erlebnis mit Premium-Features:
 
 ⚠️ WICHTIGER HINWEIS
 
-MindMate ersetzt keine professionelle psychologische oder medizinische Behandlung. Bei akuten Krisen wende dich bitte an professionelle Hilfsangebote wie die Telefonseelsorge (0800 111 0 111).
+Soulvay ist ein Wellness-Tool und ersetzt keine professionelle psychologische oder medizinische Behandlung. Bei akuten Krisen wende dich bitte an die Telefonseelsorge (0800 111 0 111).
 
----
-
-Starte jetzt deine Reise zu mehr innerer Klarheit. MindMate wartet auf dich.
+Starte jetzt deine Reise zu mehr innerer Klarheit. Soulvay wartet auf dich.
 ```
 
 ---
@@ -113,23 +79,23 @@ Starte jetzt deine Reise zu mehr innerer Klarheit. MindMate wartet auf dich.
 
 ### App Name (max. 30 characters)
 ```
-MindMate
+Soulvay - Mental Buddy
 ```
 
 ### Short Description (max. 80 characters)
 ```
-Your psychological companion for inner clarity – private, empathetic, always there.
+Your mental companion for inner clarity – private, empathetic, always there.
 ```
 
 ### Full Description (max. 4,000 characters)
 ```
-MindMate – Your Psychological Companion
+Soulvay – Your Mental Companion
 
-Sometimes you need someone to talk to. Someone who listens without judgment. MindMate is that companion – a safe space for your thoughts and feelings.
+Sometimes you need someone to talk to. Someone who listens without judgment. Soulvay is that companion – a safe space for your thoughts and feelings.
 
-🧠 WHAT IS MINDMATE?
+🧠 WHAT IS SOULVAY?
 
-MindMate is your private psychological companion. Not therapy, not coaching – but an empathetic conversation partner who helps you organize your thoughts and understand yourself better.
+Soulvay is your private mental companion. Not therapy, not coaching – but an empathetic conversation partner who helps you organize your thoughts and understand yourself better.
 
 💬 JUST TALK
 
@@ -166,7 +132,7 @@ MindMate is your private psychological companion. Not therapy, not coaching – 
 • No third-party sharing
 • GDPR compliant
 
-✨ MINDMATE PLUS
+✨ SOULVAY PLUS
 
 Enhance your experience with premium features:
 • Unlimited conversations
@@ -177,11 +143,9 @@ Enhance your experience with premium features:
 
 ⚠️ IMPORTANT NOTICE
 
-MindMate does not replace professional psychological or medical treatment. In acute crises, please contact professional services like crisis hotlines in your country.
+Soulvay is a wellness tool and does not replace professional psychological or medical treatment. In acute crises, please contact professional services like crisis hotlines in your country.
 
----
-
-Start your journey to greater inner clarity. MindMate is waiting for you.
+Start your journey to greater inner clarity. Soulvay is waiting for you.
 ```
 
 ---
@@ -190,20 +154,7 @@ Start your journey to greater inner clarity. MindMate is waiting for you.
 
 ### Kategorie
 - **Primär:** Gesundheit & Fitness
-- **Sekundär:** Lifestyle
-
-### Tags/Keywords (DE)
-Psychologie, Tagebuch, Achtsamkeit, Mental Health, Stimmung, Selbstreflexion, Gespräche, KI-Begleiter, Meditation, Entspannung
-
-### Tags/Keywords (EN)
-Psychology, Journal, Mindfulness, Mental Health, Mood, Self-reflection, Conversations, AI Companion, Meditation, Relaxation
-
-### Inhaltsaltersfreigabe
-- **Empfohlen:** USK ab 0 / PEGI 3 (Keine bedenklichen Inhalte)
-- **Hinweis:** App enthält Hinweise auf Krisenhotlines
+- **Tags:** Achtsamkeit, Selbstfürsorge, Tagebuch
 
 ### Datenschutz-URL
 https://mindmate-companion-11.lovable.app/privacy
-
-### Support-E-Mail
-(Deine Support-E-Mail einfügen)
