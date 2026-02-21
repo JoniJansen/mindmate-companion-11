@@ -116,14 +116,23 @@ export default function Upgrade() {
           }
         }
       } else {
-        // Web fallback - show message that iOS is required
-        toast({
-          title: language === "de" ? "Nur in der iOS App verfügbar" : "Only available in iOS app",
-          description: language === "de" 
-            ? "Bitte lade die Soulvay App aus dem App Store um ein Abo abzuschließen."
-            : "Please download the Soulvay app from the App Store to subscribe.",
-          variant: "destructive",
+        // Web: use Stripe Checkout
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        const { data, error } = await supabase.functions.invoke("create-checkout", {
+          body: {
+            userId: user?.id || crypto.randomUUID(),
+            planType: selectedPlan,
+            successUrl: `${window.location.origin}/upgrade?success=true`,
+            cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
+          },
         });
+
+        if (error) throw new Error(error.message);
+        if (data?.url) {
+          window.location.href = data.url;
+        }
       }
     } catch (error) {
       toast({
@@ -446,10 +455,15 @@ export default function Upgrade() {
                 {selectedPlan === "monthly" && (language === "de" ? " (nach 7-Tage-Testphase)" : " (after 7-day trial)")}
               </p>
               <p className="pt-1">
-                {language === "de" 
-                  ? "Die Zahlung wird über deinen Apple ID Account abgerechnet. Das Abo verlängert sich automatisch, sofern du es nicht mindestens 24 Stunden vor Ablauf des aktuellen Zeitraums kündigst. Du kannst dein Abo in den Einstellungen deines Apple ID Accounts verwalten und kündigen."
-                  : "Payment will be charged to your Apple ID account. Subscription automatically renews unless cancelled at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID account settings."
-                }
+                {isRevenueCatAvailable ? (
+                  language === "de" 
+                    ? "Die Zahlung wird über deinen Apple ID Account abgerechnet. Das Abo verlängert sich automatisch, sofern du es nicht mindestens 24 Stunden vor Ablauf des aktuellen Zeitraums kündigst. Du kannst dein Abo in den Einstellungen deines Apple ID Accounts verwalten und kündigen."
+                    : "Payment will be charged to your Apple ID account. Subscription automatically renews unless cancelled at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID account settings."
+                ) : (
+                  language === "de"
+                    ? "Das Abo verlängert sich automatisch. Du kannst es jederzeit in deinen Kontoeinstellungen kündigen. Die Zahlung erfolgt sicher über Stripe."
+                    : "Subscription automatically renews. You can cancel anytime in your account settings. Payment is processed securely via Stripe."
+                )}
               </p>
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
@@ -474,7 +488,10 @@ export default function Upgrade() {
 
           <div className="text-center space-y-2">
             <p className="text-xs text-muted-foreground">
-              {language === "de" ? "Sicherer Kauf über Apple" : "Secure purchase via Apple"}
+              {isRevenueCatAvailable 
+                ? (language === "de" ? "Sicherer Kauf über Apple" : "Secure purchase via Apple")
+                : (language === "de" ? "Sicherer Kauf über Stripe" : "Secure purchase via Stripe")
+              }
             </p>
             <p className="text-xs text-muted-foreground">
               {language === "de" 
