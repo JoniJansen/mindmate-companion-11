@@ -29,7 +29,7 @@ Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
 Germany
-Email: joni.jansen00@gmail.com
+Email: service@soulvay.com
 Phone: +49 176 44680467
 
 You may use the model withdrawal form below, but it is not obligatory.
@@ -69,7 +69,7 @@ Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
 Germany
-Email: joni.jansen00@gmail.com
+Email: service@soulvay.com
 
 I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the provision of the following service:
 
@@ -92,7 +92,7 @@ Date: _______________
       ],
       additionalInfo: {
         title: "Additional Information",
-        content: "For any questions regarding your right of withdrawal, please contact us at joni.jansen00@gmail.com. We are committed to ensuring a smooth and fair process for all our customers."
+        content: "For any questions regarding your right of withdrawal, please contact us at service@soulvay.com. We are committed to ensuring a smooth and fair process for all our customers."
       }
     },
     de: {
@@ -115,7 +115,7 @@ Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
 Deutschland
-E-Mail: joni.jansen00@gmail.com
+E-Mail: service@soulvay.com
 Telefon: +49 176 44680467
 
 Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.
@@ -155,7 +155,7 @@ Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
 Deutschland
-E-Mail: joni.jansen00@gmail.com
+E-Mail: service@soulvay.com
 
 Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über die Erbringung der folgenden Dienstleistung:
 
@@ -178,7 +178,7 @@ Datum: _______________
       ],
       additionalInfo: {
         title: "Weitere Informationen",
-        content: "Bei Fragen zu Ihrem Widerrufsrecht kontaktieren Sie uns bitte unter joni.jansen00@gmail.com. Wir sind bestrebt, einen reibungslosen und fairen Prozess für alle unsere Kunden zu gewährleisten."
+        content: "Bei Fragen zu Ihrem Widerrufsrecht kontaktieren Sie uns bitte unter service@soulvay.com. Wir sind bestrebt, einen reibungslosen und fairen Prozess für alle unsere Kunden zu gewährleisten."
       }
     }
   };

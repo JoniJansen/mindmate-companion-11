@@ -65,7 +65,7 @@ We will NEVER use your data for:
 • **Portability**: Download your data in a standard format (JSON).
 • **Objection**: Opt out of analytics and non-essential data processing.
 
-To exercise these rights, go to Settings > Account or contact us at joni.jansen00@gmail.com`
+To exercise these rights, go to Settings > Account or contact us at service@soulvay.com`
         },
         {
           icon: Trash2,
@@ -89,7 +89,7 @@ Continued use of Soulvay after changes constitutes acceptance of the updated pol
       contact: {
         title: "Contact Us",
         content: "For privacy-related questions or concerns, please contact us at:",
-        email: "joni.jansen00@gmail.com"
+        email: "service@soulvay.com"
       }
     },
     de: {
@@ -148,7 +148,7 @@ Wir werden deine Daten NIEMALS verwenden für:
 • **Übertragbarkeit**: Lade deine Daten in einem Standardformat (JSON) herunter.
 • **Widerspruch**: Widerspreche Analytics und nicht-essentieller Datenverarbeitung.
 
-Um diese Rechte auszuüben, gehe zu Einstellungen > Konto oder kontaktiere uns unter joni.jansen00@gmail.com`
+Um diese Rechte auszuüben, gehe zu Einstellungen > Konto oder kontaktiere uns unter service@soulvay.com`
         },
         {
           icon: Trash2,
@@ -172,7 +172,7 @@ Die weitere Nutzung von Soulvay nach Änderungen gilt als Akzeptanz der aktualis
       contact: {
         title: "Kontakt",
         content: "Für datenschutzbezogene Fragen oder Bedenken kontaktiere uns bitte unter:",
-        email: "joni.jansen00@gmail.com"
+        email: "service@soulvay.com"
       }
     }
   };

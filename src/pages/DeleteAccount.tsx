@@ -174,10 +174,10 @@ export default function DeleteAccount() {
                 : "If you have trouble deleting your account or cannot do it yourself, contact us via email:"}
             </p>
             <a
-              href="mailto:joni.jansen00@gmail.com?subject=Account%20Deletion%20Request"
+              href="mailto:service@soulvay.com?subject=Account%20Deletion%20Request"
               className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
             >
-              joni.jansen00@gmail.com
+              service@soulvay.com
             </a>
           </CardContent>
         </Card>
