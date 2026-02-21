@@ -9,7 +9,7 @@ interface ThemeConfig {
 }
 
 const defaultTheme: ThemeConfig = {
-  mode: "system",
+  mode: "light",
   accentColor: "sage",
 };
 
