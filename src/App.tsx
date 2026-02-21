@@ -51,26 +51,29 @@ const queryClient = new QueryClient();
 // Initialize theme from localStorage
 function ThemeInitializer() {
   useEffect(() => {
+    const root = document.documentElement;
     try {
       const stored = localStorage.getItem("mindmate-theme");
       if (stored) {
         const theme = JSON.parse(stored);
-        const root = document.documentElement;
         
-        // Determine actual mode
+        // Determine actual mode - default to light
         let actualMode: "light" | "dark" = theme.mode === "system"
           ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-          : theme.mode;
+          : (theme.mode || "light");
 
-        // Apply dark/light class
         if (actualMode === "dark") {
           root.classList.add("dark");
         } else {
           root.classList.remove("dark");
         }
+      } else {
+        // No stored theme - ensure light mode
+        root.classList.remove("dark");
       }
     } catch {
-      // Use defaults
+      // Default to light mode
+      root.classList.remove("dark");
     }
   }, []);
 
