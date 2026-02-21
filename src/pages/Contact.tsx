@@ -119,7 +119,7 @@ export default function Contact() {
     // Simulate sending (in production, this would call an edge function)
     // For now, we'll use mailto as a fallback
     try {
-      const mailtoLink = `mailto:joni.jansen00@gmail.com?subject=${encodeURIComponent(
+      const mailtoLink = `mailto:service@soulvay.com?subject=${encodeURIComponent(
         formData.subject || (language === "de" ? "Kontaktanfrage" : "Contact Inquiry")
       )}&body=${encodeURIComponent(
         `Name: ${formData.name}\nEmail: ${formData.email}\n\n${formData.message}`
@@ -290,7 +290,7 @@ export default function Contact() {
               
               <div className="space-y-3">
                 <a
-                  href="mailto:joni.jansen00@gmail.com"
+                  href="mailto:service@soulvay.com"
                   className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
                 >
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -298,7 +298,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{t.directContact.email}</p>
-                    <p className="text-sm font-medium text-foreground">joni.jansen00@gmail.com</p>
+                    <p className="text-sm font-medium text-foreground">service@soulvay.com</p>
                   </div>
                 </a>
                 

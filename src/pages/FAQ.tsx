@@ -69,7 +69,7 @@ export default function FAQ() {
             },
             {
               q: "Is there a refund policy?",
-              a: "Yes, we offer a 7-day money-back guarantee for new subscribers. After 7 days, refunds are handled on a case-by-case basis. Contact us at joni.jansen00@gmail.com."
+              a: "Yes, we offer a 7-day money-back guarantee for new subscribers. After 7 days, refunds are handled on a case-by-case basis. Contact us at service@soulvay.com."
             },
             {
               q: "What payment methods do you accept?",
@@ -127,15 +127,15 @@ export default function FAQ() {
           questions: [
             {
               q: "How can I contact support?",
-              a: "Email us at joni.jansen00@gmail.com for any questions, feedback, or issues. We typically respond within 24-48 hours."
+              a: "Email us at service@soulvay.com for any questions, feedback, or issues. We typically respond within 24-48 hours."
             },
             {
               q: "I found a bug. How do I report it?",
-              a: "Please email us at joni.jansen00@gmail.com with a description of the issue, your device type, and browser. Screenshots help!"
+              a: "Please email us at service@soulvay.com with a description of the issue, your device type, and browser. Screenshots help!"
             },
             {
               q: "Can I suggest new features?",
-              a: "Absolutely! We love hearing from users. Send your ideas to joni.jansen00@gmail.com."
+              a: "Absolutely! We love hearing from users. Send your ideas to service@soulvay.com."
             }
           ]
         }
@@ -189,7 +189,7 @@ export default function FAQ() {
             },
             {
               q: "Gibt es eine Rückerstattungsrichtlinie?",
-              a: "Ja, wir bieten eine 7-tägige Geld-zurück-Garantie für neue Abonnenten. Nach 7 Tagen werden Erstattungen im Einzelfall behandelt. Kontaktiere uns unter joni.jansen00@gmail.com."
+              a: "Ja, wir bieten eine 7-tägige Geld-zurück-Garantie für neue Abonnenten. Nach 7 Tagen werden Erstattungen im Einzelfall behandelt. Kontaktiere uns unter service@soulvay.com."
             },
             {
               q: "Welche Zahlungsmethoden akzeptiert ihr?",
@@ -247,15 +247,15 @@ export default function FAQ() {
           questions: [
             {
               q: "Wie kann ich den Support kontaktieren?",
-              a: "Schreibe uns eine E-Mail an joni.jansen00@gmail.com für alle Fragen, Feedback oder Probleme. Wir antworten normalerweise innerhalb von 24-48 Stunden."
+              a: "Schreibe uns eine E-Mail an service@soulvay.com für alle Fragen, Feedback oder Probleme. Wir antworten normalerweise innerhalb von 24-48 Stunden."
             },
             {
               q: "Ich habe einen Fehler gefunden. Wie melde ich ihn?",
-              a: "Bitte schreibe uns eine E-Mail an joni.jansen00@gmail.com mit einer Beschreibung des Problems, deinem Gerätetyp und Browser. Screenshots helfen!"
+              a: "Bitte schreibe uns eine E-Mail an service@soulvay.com mit einer Beschreibung des Problems, deinem Gerätetyp und Browser. Screenshots helfen!"
             },
             {
               q: "Kann ich neue Funktionen vorschlagen?",
-              a: "Absolut! Wir freuen uns über Feedback von Nutzern. Sende deine Ideen an joni.jansen00@gmail.com."
+              a: "Absolut! Wir freuen uns über Feedback von Nutzern. Sende deine Ideen an service@soulvay.com."
             }
           ]
         }
@@ -334,7 +334,7 @@ export default function FAQ() {
               : "We're happy to help!"}
           </p>
           <a
-            href="mailto:joni.jansen00@gmail.com"
+            href="mailto:service@soulvay.com"
             className="inline-flex items-center justify-center px-6 py-2 bg-primary text-primary-foreground rounded-full font-medium text-sm hover:bg-primary/90 transition-colors"
           >
             {language === "de" ? "Kontakt aufnehmen" : "Contact Us"}
