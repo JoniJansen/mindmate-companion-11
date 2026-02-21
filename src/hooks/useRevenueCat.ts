@@ -228,7 +228,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
         await syncSubscriptionToBackend(info);
         toast({
           title: 'Abo aktiviert',
-          description: 'Dein MindMate Plus Abo ist jetzt aktiv!',
+          description: 'Dein Soulvay Plus Abo ist jetzt aktiv!',
         });
         return true;
       }
