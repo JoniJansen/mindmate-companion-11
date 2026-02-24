@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
-      payment_method_types: ["card", "sepa_debit", "paypal"],
+      payment_method_types: ["card"],
       allow_promotion_codes: true,
       line_items: [
         {
