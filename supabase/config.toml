@@ -26,3 +26,15 @@ verify_jwt = false
 
 [functions.revenuecat-webhook]
 verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.manage-subscription]
+verify_jwt = false
+
+[functions.admin]
+verify_jwt = false
