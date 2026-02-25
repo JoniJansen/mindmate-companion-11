@@ -146,7 +146,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="bg-background flex flex-col" style={{ minHeight: '100dvh' }}>
       {/* Header with Dark Mode Toggle */}
       <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top">
         <div className="w-10" /> {/* Spacer */}
