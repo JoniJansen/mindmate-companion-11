@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ChevronRight, CheckCircle2, Clock, BookOpen } from "lucide-react";
+import { Search, ChevronRight, CheckCircle2, Clock, BookOpen, GraduationCap, StickyNote, MessageCircle, Save, Send, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { TabHint } from "@/components/shared/TabHint";
@@ -9,6 +9,9 @@ import { topics, Topic } from "@/data/topics";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLastState } from "@/hooks/useLastState";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TopicProgress {
   [topicId: string]: {
@@ -17,15 +20,29 @@ interface TopicProgress {
   };
 }
 
+interface TopicNotes {
+  [topicId: string]: string;
+}
+
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+
 export default function Topics() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [progress, setProgress] = useState<TopicProgress>({});
+  const [detailTab, setDetailTab] = useState<"learn" | "path" | "notes" | "ai">("learn");
+  const [topicNotes, setTopicNotes] = useState<TopicNotes>({});
+  const [topicChatMessages, setTopicChatMessages] = useState<{role: "user" | "assistant"; content: string}[]>([]);
+  const [topicChatInput, setTopicChatInput] = useState("");
+  const [topicChatLoading, setTopicChatLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   const { language, t, getTopicDisplay } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { setLastTopic } = useLastState();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   // Handle navigation state (open specific topic)
   useEffect(() => {
@@ -48,6 +65,130 @@ export default function Topics() {
       }
     }
   }, []);
+
+  // Load notes
+  useEffect(() => {
+    const stored = localStorage.getItem("mindmate-topic-notes");
+    if (stored) {
+      try { setTopicNotes(JSON.parse(stored)); } catch {}
+    }
+  }, []);
+
+  // Reset chat when topic changes
+  useEffect(() => {
+    if (selectedTopic) {
+      setTopicChatMessages([]);
+      setTopicChatInput("");
+      setDetailTab("learn");
+    }
+  }, [selectedTopic?.id]);
+
+  // Scroll chat to bottom
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [topicChatMessages]);
+
+  const saveNotes = (topicId: string, content: string) => {
+    const updated = { ...topicNotes, [topicId]: content };
+    setTopicNotes(updated);
+    localStorage.setItem("mindmate-topic-notes", JSON.stringify(updated));
+  };
+
+  const saveNoteToJournal = async (topicId: string) => {
+    if (!user || !topicNotes[topicId]?.trim()) return;
+    const topic = topics.find(tp => tp.id === topicId);
+    try {
+      await supabase.from("journal_entries").insert({
+        user_id: user.id,
+        user_session_id: user.id,
+        content: topicNotes[topicId],
+        title: `${topic?.icon || ""} ${topic?.title || topicId}`,
+        source: "topic-notes",
+        tags: [topicId],
+      } as any);
+      toast({ title: t("topics.savedToJournal"), description: t("chat.chatSavedDesc") });
+    } catch {
+      toast({ title: t("common.error"), variant: "destructive" });
+    }
+  };
+
+  const sendTopicChat = useCallback(async () => {
+    if (!topicChatInput.trim() || topicChatLoading || !selectedTopic) return;
+    const userMsg = { role: "user" as const, content: topicChatInput.trim() };
+    const newMessages = [...topicChatMessages, userMsg];
+    setTopicChatMessages(newMessages);
+    setTopicChatInput("");
+    setTopicChatLoading(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      const display = getTopicDisplay(selectedTopic.id, {
+        title: selectedTopic.title,
+        description: selectedTopic.description,
+        longDescription: selectedTopic.longDescription,
+        steps: selectedTopic.steps.map(s => ({ title: s.title, description: s.description })),
+      });
+
+      const topicContext = `You are helping the user learn about and apply the topic "${display.title}" to their personal situation. Topic description: ${display.longDescription}. Available learning content covers: ${selectedTopic.learn.map(l => l.title).join(", ")}. Be educational, empathetic, and personalized. Answer in ${language === "de" ? "German" : "English"}.`;
+      
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          messages: newMessages,
+          preferences: { language, tone: "gentle", addressForm: "du", modePrompt: topicContext },
+        }),
+      });
+
+      if (!resp.ok || !resp.body) throw new Error("Failed");
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let fullResponse = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || !line.trim() || !line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") break;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              fullResponse += content;
+              setTopicChatMessages(prev => {
+                const last = prev[prev.length - 1];
+                if (last?.role === "assistant") {
+                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: m.content + content } : m);
+                }
+                return [...prev, { role: "assistant", content }];
+              });
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+    } catch {
+      setTopicChatMessages(prev => [...prev, { role: "assistant", content: language === "de" ? "Entschuldigung, es gab einen Fehler. Bitte versuche es erneut." : "Sorry, something went wrong. Please try again." }]);
+    }
+    setTopicChatLoading(false);
+  }, [topicChatInput, topicChatLoading, selectedTopic, topicChatMessages, language, getTopicDisplay]);
 
   const saveProgress = (topicId: string, stepId: number) => {
     const newProgress = {
@@ -120,139 +261,211 @@ export default function Topics() {
 
   // Topic detail view
   if (selectedTopic) {
-    const topicProgress = getTopicProgress(
-      selectedTopic.id,
-      selectedTopic.steps.length
-    );
+    const topicProgress = getTopicProgress(selectedTopic.id, selectedTopic.steps.length);
     const completedSteps = progress[selectedTopic.id]?.completedSteps || [];
     const display = getDisplay(selectedTopic);
+    const currentNote = topicNotes[selectedTopic.id] || "";
+
+    const tabItems = [
+      { key: "learn" as const, label: t("topics.learn"), icon: GraduationCap },
+      { key: "path" as const, label: t("topics.reflectionPath"), icon: BookOpen },
+      { key: "notes" as const, label: t("topics.notes"), icon: StickyNote },
+      { key: "ai" as const, label: t("topics.aiChat"), icon: MessageCircle },
+    ];
 
     return (
       <div className="min-h-screen bg-background pb-24">
         <div className="px-4 md:px-6 lg:px-8 py-6 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelectedTopic(null)}
-              className="mb-4"
-            >
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+            <Button variant="ghost" size="sm" onClick={() => setSelectedTopic(null)} className="mb-3">
               ← {t("common.back")}
             </Button>
-
             <div className="flex items-center gap-4">
               <span className="text-4xl">{selectedTopic.icon}</span>
               <div>
-                <h1 className="text-xl font-semibold text-foreground">
-                  {display.title}
-                </h1>
+                <h1 className="text-xl font-semibold text-foreground">{display.title}</h1>
                 <p className="text-sm text-muted-foreground">
-                  {selectedTopic.steps.length}{" "}
-                  {t("topics.steps")} · {topicProgress}%{" "}
-                  {t("topics.complete")}
+                  {selectedTopic.steps.length} {t("topics.steps")} · {topicProgress}% {t("topics.complete")}
                 </p>
               </div>
             </div>
           </motion.div>
 
-          {/* Description */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <CalmCard variant="gentle" className="mb-6">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {display.longDescription}
-              </p>
-            </CalmCard>
-          </motion.div>
-
           {/* Progress bar */}
-          <div className="h-2 bg-muted rounded-full mb-6 overflow-hidden">
-            <motion.div
-              className="h-full bg-primary rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${topicProgress}%` }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            />
+          <div className="h-2 bg-muted rounded-full mb-4 overflow-hidden">
+            <motion.div className="h-full bg-primary rounded-full" initial={{ width: 0 }} animate={{ width: `${topicProgress}%` }} transition={{ delay: 0.2, duration: 0.5 }} />
           </div>
 
-          {/* Steps */}
-          <div className="space-y-3">
-            {selectedTopic.steps.map((step, index) => {
-              const isCompleted = completedSteps.includes(step.id);
-              const stepDisplay = display.steps[index] || { title: step.title, description: step.description };
-              
-              // Localized step type labels
-              const stepTypeLabel = {
-                chat: t("topics.stepType.chat"),
-                journal: t("topics.stepType.journal"),
-                exercise: t("topics.stepType.exercise"),
-                reflection: t("topics.stepType.reflection"),
-              };
+          {/* Tabs */}
+          <div className="flex gap-1 mb-4 overflow-x-auto scrollbar-hide">
+            {tabItems.map(tab => (
+              <Button
+                key={tab.key}
+                variant={detailTab === tab.key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDetailTab(tab.key)}
+                className="gap-1.5 shrink-0 text-xs"
+              >
+                <tab.icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </Button>
+            ))}
+          </div>
 
-              return (
-                <motion.div
-                  key={step.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + index * 0.05 }}
-                >
-                  <CalmCard
-                    variant={isCompleted ? "calm" : "gentle"}
-                    className={`cursor-pointer transition-all ${
-                      isCompleted ? "opacity-75" : "hover:bg-muted/50"
-                    }`}
-                    onClick={() => handleStepAction(selectedTopic, step, index)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                          isCompleted
-                            ? "bg-primary/20 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {isCompleted ? (
-                          <CheckCircle2 className="w-4 h-4" />
-                        ) : (
-                          <span className="text-sm font-medium">{index + 1}</span>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3
-                        className={`font-medium ${
-                          isCompleted
-                            ? "text-muted-foreground line-through"
-                            : "text-foreground"
-                        }`}
-                      >
-                        {stepDisplay.title}
+          <AnimatePresence mode="wait">
+            {/* LEARN TAB */}
+            {detailTab === "learn" && (
+              <motion.div key="learn" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
+                {/* Description */}
+                <CalmCard variant="gentle">
+                  <p className="text-sm text-muted-foreground leading-relaxed">{display.longDescription}</p>
+                </CalmCard>
+
+                {selectedTopic.learn.map((section, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                    <CalmCard variant="elevated" className="space-y-3">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4 text-primary" />
+                        {section.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        {stepDisplay.description}
-                      </p>
-                      <span className="inline-flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                        {step.type === "chat" && "💬"}
-                        {step.type === "journal" && "📝"}
-                        {step.type === "exercise" && "🧘"}
-                        {step.type === "reflection" && "💭"}
-                        {stepTypeLabel[step.type]}
-                        </span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                    </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{section.content}</p>
+                      {section.reflectionQuestion && (
+                        <div className="mt-3 p-3 bg-primary/5 rounded-xl border border-primary/10">
+                          <p className="text-xs font-medium text-primary mb-1">💭 {t("topics.reflectionQuestion")}</p>
+                          <p className="text-sm text-foreground italic">{section.reflectionQuestion}</p>
+                        </div>
+                      )}
+                    </CalmCard>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+
+            {/* PATH TAB */}
+            {detailTab === "path" && (
+              <motion.div key="path" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-3">
+                {selectedTopic.steps.map((step, index) => {
+                  const isCompleted = completedSteps.includes(step.id);
+                  const stepDisplay = display.steps[index] || { title: step.title, description: step.description };
+                  const stepTypeLabel: Record<string, string> = {
+                    chat: t("topics.stepType.chat"), journal: t("topics.stepType.journal"),
+                    exercise: t("topics.stepType.exercise"), reflection: t("topics.stepType.reflection"),
+                  };
+                  return (
+                    <motion.div key={step.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}>
+                      <CalmCard
+                        variant={isCompleted ? "calm" : "gentle"}
+                        className={`cursor-pointer transition-all ${isCompleted ? "opacity-75" : "hover:bg-muted/50"}`}
+                        onClick={() => handleStepAction(selectedTopic, step, index)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isCompleted ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                            {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <span className="text-sm font-medium">{index + 1}</span>}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className={`font-medium ${isCompleted ? "text-muted-foreground line-through" : "text-foreground"}`}>{stepDisplay.title}</h3>
+                            <p className="text-sm text-muted-foreground mt-0.5">{stepDisplay.description}</p>
+                            <span className="inline-flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                              {step.type === "chat" && "💬"}{step.type === "journal" && "📝"}{step.type === "exercise" && "🧘"}{step.type === "reflection" && "💭"}
+                              {stepTypeLabel[step.type]}
+                            </span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                        </div>
+                      </CalmCard>
+                    </motion.div>
+                  );
+                })}
+
+                {/* Exercises */}
+                {selectedTopic.exercises.length > 0 && (
+                  <>
+                    <h3 className="font-medium text-foreground mt-4 mb-2">{t("topics.exercises")}</h3>
+                    {selectedTopic.exercises.map(ex => (
+                      <CalmCard key={ex.id} variant="elevated" className="cursor-pointer hover:bg-muted/50" onClick={() => navigate("/toolbox")}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"><BookOpen className="w-5 h-5 text-primary" /></div>
+                          <div className="flex-1"><h4 className="font-medium text-foreground">{ex.title}</h4><p className="text-sm text-muted-foreground">{ex.description}</p></div>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{ex.duration}</span>
+                        </div>
+                      </CalmCard>
+                    ))}
+                  </>
+                )}
+              </motion.div>
+            )}
+
+            {/* NOTES TAB */}
+            {detailTab === "notes" && (
+              <motion.div key="notes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
+                <CalmCard variant="elevated">
+                  <textarea
+                    value={currentNote}
+                    onChange={(e) => saveNotes(selectedTopic.id, e.target.value)}
+                    placeholder={t("topics.notesPlaceholder")}
+                    className="w-full min-h-[200px] bg-transparent text-foreground text-sm leading-relaxed resize-none focus:outline-none placeholder:text-muted-foreground/60"
+                  />
+                </CalmCard>
+                {currentNote.trim() && (
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="gap-2" onClick={() => saveNoteToJournal(selectedTopic.id)}>
+                      <Save className="w-4 h-4" />
+                      {t("topics.saveToJournal")}
+                    </Button>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* AI CHAT TAB */}
+            {detailTab === "ai" && (
+              <motion.div key="ai" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-3">
+                {topicChatMessages.length === 0 && (
+                  <CalmCard variant="gentle">
+                    <p className="text-sm text-muted-foreground">{t("topics.topicChatIntro")}</p>
                   </CalmCard>
-                </motion.div>
-              );
-            })}
-          </div>
+                )}
+
+                <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+                  {topicChatMessages.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                      <div className={`max-w-[88%] px-4 py-3 rounded-2xl text-[15px] leading-relaxed whitespace-pre-wrap ${
+                        msg.role === "user"
+                          ? "bg-primary text-primary-foreground rounded-br-lg"
+                          : "bg-card border border-border/50 text-foreground rounded-bl-lg shadow-soft"
+                      }`}>
+                        {msg.content}
+                      </div>
+                    </div>
+                  ))}
+                  {topicChatLoading && topicChatMessages[topicChatMessages.length - 1]?.role !== "assistant" && (
+                    <div className="flex justify-start">
+                      <div className="bg-card border border-border/50 px-4 py-3 rounded-2xl rounded-bl-lg shadow-soft">
+                        <div className="flex gap-1.5"><div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" /><div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{animationDelay:'150ms'}} /><div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{animationDelay:'300ms'}} /></div>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={topicChatInput}
+                    onChange={(e) => setTopicChatInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendTopicChat(); } }}
+                    placeholder={t("topics.askAboutTopic")}
+                    className="flex-1 h-11 bg-muted/30 border border-border/50 rounded-full px-4 text-[15px] focus:outline-none focus:border-primary/40"
+                    disabled={topicChatLoading}
+                  />
+                  <Button size="icon" className="rounded-full h-10 w-10" onClick={sendTopicChat} disabled={!topicChatInput.trim() || topicChatLoading}>
+                    {topicChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     );

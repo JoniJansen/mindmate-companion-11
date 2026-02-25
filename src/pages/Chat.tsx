@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, MicOff, Phone, FileText, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw } from "lucide-react";
+import { Send, Mic, MicOff, Phone, FileText, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
@@ -70,6 +72,7 @@ export default function Chat() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const { t, language } = useTranslation();
   const preferences = useRef<Preferences>(getPreferences());
   const { isOnline } = useNetworkStatus();
@@ -595,7 +598,32 @@ export default function Chat() {
                 }`}>
                   <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   {message.role === "assistant" && (
-                    <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
+                    <div className="flex items-center gap-1 mt-1">
+                      <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!user) return;
+                          try {
+                            await supabase.from("journal_entries").insert({
+                              user_id: user.id,
+                              user_session_id: user.id,
+                              content: message.content,
+                              title: language === "de" ? "Chat-Nachricht" : "Chat Message",
+                              source: "chat",
+                              tags: ["chat"],
+                            } as any);
+                            toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
+                          } catch {
+                            toast({ title: t("common.error"), variant: "destructive" });
+                          }
+                        }}
+                        className="p-1.5 rounded-full hover:bg-muted/50 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                        title={t("chat.saveMessage")}
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -648,11 +676,27 @@ export default function Chat() {
       {/* Action Buttons */}
       {messages.length > 4 && (
         <div className="shrink-0 px-4 pb-2 bg-background">
-          <div className="max-w-lg mx-auto flex gap-2">
+          <div className="max-w-lg mx-auto flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" className="gap-2" onClick={handleSummary}>
               <FileText className="w-4 h-4" />
               {t("chat.summary")}
               {!canUseSessionSummary && <Lock className="w-3 h-3 ml-1" />}
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2" onClick={async () => {
+              if (!user) return;
+              const chatContent = messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
+              try {
+                await supabase.from("journal_entries").insert({
+                  user_id: user.id, user_session_id: user.id,
+                  content: chatContent,
+                  title: language === "de" ? "Chat-Gespräch" : "Chat Conversation",
+                  source: "chat", tags: ["chat"],
+                } as any);
+                toast({ title: t("chat.savedToJournal"), description: t("chat.chatSavedDesc") });
+              } catch { toast({ title: t("common.error"), variant: "destructive" }); }
+            }}>
+              <Save className="w-4 h-4" />
+              {t("chat.saveChat")}
             </Button>
             <Button variant="ghost" size="sm" className="gap-2 text-destructive" onClick={() => navigate("/safety")}>
               <AlertTriangle className="w-4 h-4" />
