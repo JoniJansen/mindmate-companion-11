@@ -86,7 +86,7 @@ export function usePremium() {
   // Sync RevenueCat premium status to local state
   useEffect(() => {
     if (isRevenueCatPremium && !state.isPremium) {
-      console.log("[Premium] RevenueCat premium detected, syncing to local state");
+      if (import.meta.env.DEV) console.log("[Premium] RevenueCat premium detected, syncing to local state");
       const newState: StoredState = {
         ...state,
         isPremium: true,
@@ -103,7 +103,7 @@ export function usePremium() {
       const isReview = isReviewAccount(user.email) || isReviewModeActive();
       
       if (isReview && !state.isPremium) {
-        console.log("[Premium] Review mode detected, granting premium access");
+        if (import.meta.env.DEV) console.log("[Premium] Review mode detected, granting premium access");
         activateReviewMode();
         
         const reviewState: StoredState = {

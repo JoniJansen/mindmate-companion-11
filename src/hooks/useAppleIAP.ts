@@ -185,18 +185,18 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
       if (lastRestore) {
         const lastRestoreTime = parseInt(lastRestore, 10);
         if (Date.now() - lastRestoreTime < AUTO_RESTORE_INTERVAL) {
-          console.log('StoreKit: Skipping auto-restore, restored recently');
+          if (import.meta.env.DEV) console.log('StoreKit: Skipping auto-restore, restored recently');
           return;
         }
       }
 
-      console.log('StoreKit: Auto-restoring purchases on app start');
+      if (import.meta.env.DEV) console.log('StoreKit: Auto-restoring purchases on app start');
       const receiptData = await StoreKitBridge.getReceipt();
       
       if (receiptData) {
         const verified = await verifyReceipt(receiptData);
         if (verified) {
-          console.log('StoreKit: Auto-restore successful, subscription active');
+          if (import.meta.env.DEV) console.log('StoreKit: Auto-restore successful, subscription active');
           setHasRestoredOnce(true);
           localStorage.setItem(AUTO_RESTORE_KEY, Date.now().toString());
         }
