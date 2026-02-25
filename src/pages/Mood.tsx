@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Check, ChevronRight, TrendingUp, Calendar, BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -162,13 +162,13 @@ export default function Mood() {
     }
   };
 
-  const chartData = checkins.map(c => ({ date: c.created_at, value: c.mood_value }));
+  const chartData = useMemo(() => checkins.map(c => ({ date: c.created_at, value: c.mood_value })), [checkins]);
 
-  const averageMood = checkins.length > 0
+  const averageMood = useMemo(() => checkins.length > 0
     ? Math.round(checkins.reduce((sum, c) => sum + c.mood_value, 0) / checkins.length * 10) / 10
-    : null;
+    : null, [checkins]);
 
-  const lowMoodDays = checkins.filter(c => c.mood_value <= 2);
+  const lowMoodDays = useMemo(() => checkins.filter(c => c.mood_value <= 2), [checkins]);
 
   const timeFilterKeys: Record<TimeFilter, string> = {
     "7d": "mood.filter7d",

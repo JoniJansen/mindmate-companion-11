@@ -19,7 +19,7 @@ const NotFound = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="text-center max-w-sm">
-        <div className="w-20 h-20 rounded-3xl bg-gentle-soft flex items-center justify-center mx-auto mb-6">
+        <div className="w-20 h-20 rounded-3xl bg-muted flex items-center justify-center mx-auto mb-6">
           <span className="text-4xl">🌿</span>
         </div>
         <h1 className="text-2xl font-bold text-foreground mb-2">{t("notFound.title")}</h1>

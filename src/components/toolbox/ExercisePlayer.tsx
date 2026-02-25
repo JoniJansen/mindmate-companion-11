@@ -146,7 +146,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
             <button
               type="button"
               onClick={handleFinish}
-              className="px-6 py-3 rounded-xl bg-calm text-calm-foreground hover:bg-calm/90"
+              className="px-6 py-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {t("common.finish")}
             </button>
@@ -214,8 +214,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
           {/* Breathing circle */}
           {exercise.category === 'breathing' && (
-            <div className={`w-24 h-24 rounded-full bg-calm/20 mx-auto mb-6 flex items-center justify-center transition-transform duration-1000 ${isPlaying ? 'scale-110' : 'scale-100'}`}>
-              <div className="w-12 h-12 rounded-full bg-calm/40" />
+            <div className={`w-24 h-24 rounded-full bg-primary/20 mx-auto mb-6 flex items-center justify-center transition-transform duration-1000 ${isPlaying ? 'scale-110' : 'scale-100'}`}>
+              <div className="w-12 h-12 rounded-full bg-primary/40" />
             </div>
           )}
 
@@ -243,7 +243,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
           {/* Prompts */}
           {exercise.prompts && exercise.prompts.length > 0 && (
-            <div className="mt-6 p-4 bg-gentle/10 rounded-xl text-left">
+            <div className="mt-6 p-4 bg-muted/50 rounded-xl text-left">
               <p className="text-xs text-muted-foreground mb-1">{t("common.helpfulPrompts")}:</p>
               <p className="text-sm text-foreground italic">
                 {getPrompt(currentStep)}
@@ -264,7 +264,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
           <button
             type="button"
             onClick={() => setIsPlaying(!isPlaying)}
-            className="flex-1 max-w-40 h-14 rounded-xl bg-calm text-calm-foreground hover:bg-calm/90 flex items-center justify-center gap-2 font-medium text-base"
+            className="flex-1 max-w-40 h-14 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2 font-medium text-base"
           >
             {isPlaying ? (
               <>

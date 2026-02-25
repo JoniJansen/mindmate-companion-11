@@ -436,6 +436,27 @@ export const translations: Translations = {
 
   // Summary
   "summary.date": { en: "Date", de: "Datum" },
+
+  // Home page
+  "home.greetingMorning": { en: "Good morning", de: "Guten Morgen" },
+  "home.greetingAfternoon": { en: "Good afternoon", de: "Guten Tag" },
+  "home.greetingEvening": { en: "Good evening", de: "Guten Abend" },
+  "home.howAreYou": { en: "How are you?", de: "Wie geht es dir?" },
+  "home.inputPlaceholder": { en: "What's on your mind? Just type or talk...", de: "Was geht dir durch den Kopf? Schreib oder sprich einfach drauf los..." },
+  "home.listening": { en: "Listening...", de: "Ich höre zu..." },
+  "home.save": { en: "Save", de: "Speichern" },
+  "home.talk": { en: "Talk", de: "Reden" },
+  "home.unloadThoughts": { en: "Unload your thoughts. No goal needed.", de: "Lade deine Gedanken ab. Kein Ziel nötig." },
+  "home.talkToMe": { en: "Talk to me", de: "Mit mir reden" },
+  "home.innerDialogue": { en: "Inner dialogue", de: "Innerer Dialog" },
+  "home.myTimeline": { en: "My Timeline", de: "Meine Timeline" },
+  "home.thoughtsPatterns": { en: "Thoughts & patterns", de: "Gedanken & Muster" },
+  "home.recentThoughts": { en: "Recent thoughts", de: "Letzte Gedanken" },
+  "home.all": { en: "All", de: "Alle" },
+  "home.noThoughts": { en: "No thoughts yet. Just unload what's on your mind.", de: "Noch keine Gedanken. Lade einfach ab, was dir durch den Kopf geht." },
+  "home.thoughtSaved": { en: "Thought saved", de: "Gedanke gespeichert" },
+  "home.thoughtSavedDesc": { en: "Your thought has been saved to the timeline.", de: "Dein Gedanke wurde in der Timeline gespeichert." },
+  "home.saveFailed": { en: "Could not save thought.", de: "Konnte nicht gespeichert werden." },
 };
 
 // Exercise translations

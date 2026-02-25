@@ -325,7 +325,7 @@ export default function Landing() {
             {/* Plus Plan */}
             <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 border border-primary/20 shadow-card relative overflow-hidden">
               <div className="absolute top-4 right-4">
-                <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+                <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-medium">
                   {t.pricing.plus.trial}
                 </span>
               </div>
