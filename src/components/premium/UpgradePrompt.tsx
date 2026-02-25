@@ -99,6 +99,7 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
   if (variant === "banner") {
     return (
       <motion.div
+        ref={ref}
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-primary/5 border border-primary/20 rounded-xl p-4"
@@ -140,6 +141,7 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
   if (variant === "modal") {
     return (
       <motion.div
+        ref={ref}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="bg-card border border-border rounded-2xl p-6 shadow-lg max-w-sm mx-auto"
@@ -185,6 +187,7 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
   // Inline variant (default)
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-primary/5 border border-primary/10 rounded-xl p-4"
