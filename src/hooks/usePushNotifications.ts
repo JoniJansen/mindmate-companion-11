@@ -101,6 +101,21 @@ export function usePushNotifications() {
           localStorage.setItem(LAST_NOTIFICATION_KEY, JSON.stringify(lastData));
         }
       }
+
+      // Smart: Streak at risk (evening nudge if not active today)
+      if (settings.dailyReminder && currentTime === "21:00") {
+        const streakKey = `streak_${today}`;
+        if (!lastData[streakKey]) {
+          try {
+            const activityLog = localStorage.getItem("mindmate_today_active");
+            if (!activityLog || activityLog !== today) {
+              sendStreakReminder();
+              lastData[streakKey] = true;
+              localStorage.setItem(LAST_NOTIFICATION_KEY, JSON.stringify(lastData));
+            }
+          } catch {}
+        }
+      }
     };
 
     // Check immediately and then every minute
@@ -187,6 +202,14 @@ export function usePushNotifications() {
     showNotification(message.title, message.body, { tag: "mindmate-weekly" });
   }, [showNotification, getLang]);
 
+  // Send streak at-risk reminder
+  const sendStreakReminder = useCallback(() => {
+    const lang = getLang();
+    const messages = notificationMessages.streakReminder[lang as "en" | "de"];
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    showNotification(randomMessage.title, randomMessage.body, { tag: "mindmate-streak" });
+  }, [showNotification, getLang]);
+
   // Update settings
   const updateSettings = useCallback((updates: Partial<NotificationSettings>) => {
     setSettings((prev) => {
@@ -258,5 +281,17 @@ export const notificationMessages = {
   weeklyRecap: {
     en: { title: "Your Weekly Recap is Ready 📊", body: "See patterns and insights from your week." },
     de: { title: "Dein Wochenrückblick ist da 📊", body: "Entdecke Muster und Einblicke aus deiner Woche." },
+  },
+  streakReminder: {
+    en: [
+      { title: "Don't break your streak 🔥", body: "A quick check-in keeps your momentum going." },
+      { title: "You're on a roll! ✨", body: "Just one minute to keep your streak alive." },
+      { title: "Still time today 🌙", body: "A mood check-in or a thought — that's all it takes." },
+    ],
+    de: [
+      { title: "Halte deinen Streak 🔥", body: "Ein kurzer Check-in hält dein Momentum." },
+      { title: "Du bist dran! ✨", body: "Nur eine Minute, um deinen Streak zu behalten." },
+      { title: "Noch Zeit heute 🌙", body: "Ein Stimmungs-Check-in oder ein Gedanke — mehr braucht es nicht." },
+    ],
   },
 };
