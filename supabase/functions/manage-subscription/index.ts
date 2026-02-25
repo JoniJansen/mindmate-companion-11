@@ -1,5 +1,4 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import Stripe from "https://esm.sh/stripe@17.7.0?target=deno&no-check";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 import { requireUser } from "../_shared/auth.ts";
 
@@ -14,7 +13,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // JWT auth - get user_id from token
+    // JWT auth
     let userId: string;
     try {
       const { user } = await requireUser(req);
@@ -31,7 +30,6 @@ Deno.serve(async (req) => {
       throw new Error("Stripe secret key not configured");
     }
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2024-11-20.acacia" });
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -46,6 +44,27 @@ Deno.serve(async (req) => {
 
     const subData = sub.data;
 
+    // Use fetch-based Stripe API calls instead of SDK to avoid Deno.core.runMicrotasks errors
+    const stripeRequest = async (method: string, path: string, body?: Record<string, string>) => {
+      const url = `https://api.stripe.com/v1${path}`;
+      const options: RequestInit = {
+        method,
+        headers: {
+          "Authorization": `Bearer ${stripeKey}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      };
+      if (body) {
+        options.body = new URLSearchParams(body).toString();
+      }
+      const res = await fetch(url, options);
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error?.message || `Stripe API error: ${res.status}`);
+      }
+      return res.json();
+    };
+
     switch (action) {
       case "status":
         return new Response(JSON.stringify({
@@ -56,25 +75,32 @@ Deno.serve(async (req) => {
           currentPeriodEnd: subData.current_period_end,
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-      case "cancel":
+      case "cancel": {
         if (!subData.stripe_subscription_id) throw new Error("No active subscription");
-        await stripe.subscriptions.update(subData.stripe_subscription_id, { cancel_at_period_end: true });
+        await stripeRequest("POST", `/subscriptions/${subData.stripe_subscription_id}`, {
+          cancel_at_period_end: "true",
+        });
         await supabase.from("subscriptions").update({ cancel_at_period_end: true }).eq("id", subData.id);
         return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
 
-      case "reactivate":
+      case "reactivate": {
         if (!subData.stripe_subscription_id) throw new Error("No subscription");
-        await stripe.subscriptions.update(subData.stripe_subscription_id, { cancel_at_period_end: false });
+        await stripeRequest("POST", `/subscriptions/${subData.stripe_subscription_id}`, {
+          cancel_at_period_end: "false",
+        });
         await supabase.from("subscriptions").update({ cancel_at_period_end: false }).eq("id", subData.id);
         return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
 
-      case "portal":
+      case "portal": {
         if (!subData.stripe_customer_id) throw new Error("No customer");
-        const portal = await stripe.billingPortal.sessions.create({
+        const portal = await stripeRequest("POST", "/billing_portal/sessions", {
           customer: subData.stripe_customer_id,
           return_url: `${req.headers.get("origin")}/settings`,
         });
         return new Response(JSON.stringify({ url: portal.url }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
 
       default:
         throw new Error("Invalid action");

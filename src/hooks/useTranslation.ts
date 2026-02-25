@@ -129,6 +129,13 @@ export const translations: Translations = {
   "journal.discoverPatterns": { en: "Discover Patterns", de: "Muster entdecken" },
   "journal.continue": { en: "Continue", de: "Weiter" },
 
+  // Journal filter chips
+  "journal.filter.all": { en: "All", de: "Alle" },
+  "journal.filter.free": { en: "Free", de: "Frei" },
+  "journal.filter.chat": { en: "Chat", de: "Chat" },
+  "journal.filter.summary": { en: "AI Summary", de: "KI-Zusammenfassung" },
+  "journal.filter.guided": { en: "Guided", de: "Geführt" },
+
   // Journal prompts
   "journal.prompt1": { en: "What small moment brought you peace today?", de: "Welcher kleine Moment hat dir heute Frieden gebracht?" },
   "journal.prompt2": { en: "What are you grateful for right now?", de: "Wofür bist du gerade dankbar?" },

@@ -448,11 +448,11 @@ export default function Journal() {
         {/* Source Filter Chips */}
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
           {[
-            { key: "all", label: language === "de" ? "Alle" : "All" },
-            { key: "free", label: language === "de" ? "Frei" : "Free" },
-            { key: "chat", label: "Chat" },
-            { key: "summary", label: language === "de" ? "KI-Zusammenfassung" : "AI Summary" },
-            { key: "guided", label: language === "de" ? "Geführt" : "Guided" },
+            { key: "all", label: t("journal.filter.all") },
+            { key: "free", label: t("journal.filter.free") },
+            { key: "chat", label: t("journal.filter.chat") },
+            { key: "summary", label: t("journal.filter.summary") },
+            { key: "guided", label: t("journal.filter.guided") },
           ].map(f => (
             <button
               key={f.key}

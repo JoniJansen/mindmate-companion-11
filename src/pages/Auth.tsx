@@ -49,7 +49,7 @@ export default function Auth() {
       const reviewEmail = REVIEW_CREDENTIALS.email.trim().toLowerCase();
       const reviewPassword = REVIEW_CREDENTIALS.password;
       
-      console.log("[Review Login] Attempting login for:", reviewEmail);
+      if (import.meta.env.DEV) console.log("[Review Login] Attempting login for:", reviewEmail);
       
       await signIn(reviewEmail, reviewPassword);
       activateReviewMode();

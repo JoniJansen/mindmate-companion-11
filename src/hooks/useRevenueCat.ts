@@ -125,7 +125,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
       if (error) {
         console.error('Failed to sync subscription:', error);
       } else {
-        console.log('Subscription synced to backend');
+        if (import.meta.env.DEV) console.log('Subscription synced to backend');
       }
     } catch (error) {
       console.error('Sync subscription error:', error);
@@ -162,7 +162,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
 
       const Purchases = await getPurchasesPlugin();
       if (!Purchases) {
-        console.log('RevenueCat: Not available (not on iOS)');
+        if (import.meta.env.DEV) console.log('RevenueCat: Not available (not on iOS)');
         return;
       }
 
@@ -174,20 +174,20 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
 
         purchasesRef.current = Purchases;
         setIsAvailable(true);
-        console.log('RevenueCat: Initialized successfully');
+        if (import.meta.env.DEV) console.log('RevenueCat: Initialized successfully');
 
         // Identify user with Supabase user ID
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await Purchases.logIn({ appUserID: user.id });
-          console.log('RevenueCat: User identified:', user.id);
+          if (import.meta.env.DEV) console.log('RevenueCat: User identified:', user.id);
         }
 
         // Get offerings
         const { offerings: offeringsData } = await Purchases.getOfferings();
         if (offeringsData.current) {
           setOfferings(offeringsData.current);
-          console.log('RevenueCat: Offerings loaded');
+          if (import.meta.env.DEV) console.log('RevenueCat: Offerings loaded');
         }
 
         // Check current entitlements
@@ -237,7 +237,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     } catch (error: any) {
       // User cancelled
       if (error.code === 'PURCHASE_CANCELLED') {
-        console.log('Purchase cancelled by user');
+        if (import.meta.env.DEV) console.log('Purchase cancelled by user');
         return false;
       }
 
