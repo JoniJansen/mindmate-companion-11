@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { X, Sparkles, TrendingUp, ArrowRight, ChevronRight, Copy, Share2, Check } from "lucide-react";
 import { useState } from "react";
@@ -58,7 +59,7 @@ interface AISummaryDetailProps {
   onClose: () => void;
 }
 
-export function AISummaryDetail({ content, createdAt, onClose }: AISummaryDetailProps) {
+export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(function AISummaryDetail({ content, createdAt, onClose }, ref) {
   const { t, language } = useTranslation();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
@@ -129,6 +130,7 @@ export function AISummaryDetail({ content, createdAt, onClose }: AISummaryDetail
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -247,4 +249,4 @@ export function AISummaryDetail({ content, createdAt, onClose }: AISummaryDetail
       </div>
     </motion.div>
   );
-}
+});
