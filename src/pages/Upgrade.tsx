@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { REVENUECAT_PRODUCTS } from "@/hooks/useRevenueCat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { StandalonePage } from "@/components/layout/StandalonePage";
 
 export default function Upgrade() {
   const navigate = useNavigate();
@@ -254,6 +255,7 @@ export default function Upgrade() {
   ];
 
   return (
+    <StandalonePage>
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50">
@@ -536,5 +538,6 @@ export default function Upgrade() {
         </motion.div>
       </div>
     </div>
+    </StandalonePage>
   );
 }
