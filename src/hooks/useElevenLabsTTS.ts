@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { VoiceSpeed } from "./useVoiceSettings";
 
 interface UseElevenLabsTTSOptions {
@@ -62,11 +63,15 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
       setLoadingMessageId(messageId || null);
       
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        
         const response = await fetch(TTS_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             text,
