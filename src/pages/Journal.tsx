@@ -7,6 +7,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { TabHint } from "@/components/shared/TabHint";
 import { JournalEditor } from "@/components/journal/JournalEditor";
 import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
+import { AISummaryCard } from "@/components/journal/AISummaryCard";
 import { JournalPrompts } from "@/components/journal/JournalPrompts";
 import { AIReflectionPanel } from "@/components/journal/AIReflectionPanel";
 import { useAuth } from "@/hooks/useAuth";
@@ -467,17 +468,28 @@ export default function Journal() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               {filteredEntries.map((entry, index) => (
-                <JournalEntryCard
-                  key={entry.id}
-                  id={entry.id}
-                  title={entry.title}
-                  content={entry.content}
-                  mood={entry.mood}
-                  source={entry.source}
-                  createdAt={entry.created_at}
-                  index={index}
-                  onClick={() => { setSelectedEntry(entry); setDraftContent(entry.content); setSelectedTags(entry.tags || []); setIsEditorOpen(true); }}
-                />
+                entry.source === "chat-summary" ? (
+                  <AISummaryCard
+                    key={entry.id}
+                    id={entry.id}
+                    content={entry.content}
+                    createdAt={entry.created_at}
+                    index={index}
+                    onClick={() => { setSelectedEntry(entry); setDraftContent(entry.content); setSelectedTags(entry.tags || []); setIsEditorOpen(true); }}
+                  />
+                ) : (
+                  <JournalEntryCard
+                    key={entry.id}
+                    id={entry.id}
+                    title={entry.title}
+                    content={entry.content}
+                    mood={entry.mood}
+                    source={entry.source}
+                    createdAt={entry.created_at}
+                    index={index}
+                    onClick={() => { setSelectedEntry(entry); setDraftContent(entry.content); setSelectedTags(entry.tags || []); setIsEditorOpen(true); }}
+                  />
+                )
               ))}
             </div>
           )}
