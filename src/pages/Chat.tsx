@@ -698,6 +698,49 @@ export default function Chat() {
               <Save className="w-4 h-4" />
               {t("chat.saveChat")}
             </Button>
+            <Button variant="outline" size="sm" className="gap-2" onClick={async () => {
+              if (!user) return;
+              toast({ title: t("chat.generatingSummary"), description: t("chat.pleaseWait") });
+              try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+                const chatMsgs = messages.filter(m => !m.isError).map(m => ({ role: m.role, content: m.content }));
+                const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-summary`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                    apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                  },
+                  body: JSON.stringify({ messages: chatMsgs }),
+                });
+                if (!resp.ok) throw new Error("Failed");
+                const summary = await resp.json();
+                const structuredContent = [
+                  `## ${language === "de" ? "Zusammenfassung" : "Summary"}`,
+                  summary.summary || "",
+                  "",
+                  `### ${language === "de" ? "Themen" : "Themes"}`,
+                  ...(summary.emotionalThemes || []).map((t: string) => `• ${t}`),
+                  "",
+                  `### ${language === "de" ? "Stimmungsverlauf" : "Mood Journey"}`,
+                  `${summary.moodProgression?.start || "💭"} → ${summary.moodProgression?.end || "🙂"} ${summary.moodProgression?.insight || ""}`,
+                  "",
+                  `### ${language === "de" ? "Nächster Schritt" : "Next Step"}`,
+                  summary.nextStep || "",
+                ].join("\n");
+                await supabase.from("journal_entries").insert({
+                  user_id: user.id, user_session_id: user.id,
+                  content: structuredContent,
+                  title: language === "de" ? "KI-Zusammenfassung" : "AI Summary",
+                  source: "chat-summary", tags: ["chat", "summary"],
+                } as any);
+                toast({ title: t("chat.savedToJournal"), description: t("chat.summarySavedDesc") });
+              } catch { toast({ title: t("common.error"), variant: "destructive" }); }
+            }}>
+              <FileText className="w-4 h-4" />
+              {t("chat.saveSummary")}
+            </Button>
             <Button variant="ghost" size="sm" className="gap-2 text-destructive" onClick={() => navigate("/safety")}>
               <AlertTriangle className="w-4 h-4" />
               {t("chat.crisisHelp2")}
