@@ -12,6 +12,8 @@ import {
   Loader2,
   RotateCcw
 } from "lucide-react";
+import { FeatureMatrix } from "@/components/premium/FeatureMatrix";
+import { ProgressUnlock } from "@/components/premium/ProgressUnlock";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
@@ -20,6 +22,8 @@ import { usePremium } from "@/hooks/usePremium";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { REVENUECAT_PRODUCTS } from "@/hooks/useRevenueCat";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Upgrade() {
   const navigate = useNavigate();
@@ -38,6 +42,30 @@ export default function Upgrade() {
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedWithdrawal, setAcceptedWithdrawal] = useState(false);
+  const { user } = useAuth();
+  const [userStats, setUserStats] = useState({ chatSessions: 0, journalEntries: 0, moodCheckins: 0, exercisesCompleted: 0 });
+
+  // Load user stats for progress display
+  useEffect(() => {
+    if (!user) return;
+    const loadStats = async () => {
+      try {
+        const [journalRes, moodRes, activityRes] = await Promise.all([
+          supabase.from('journal_entries').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+          supabase.from('mood_checkins').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+          supabase.from('user_activity_log').select('activity_type').eq('user_id', user.id),
+        ]);
+        const activities = activityRes.data || [];
+        setUserStats({
+          journalEntries: journalRes.count || 0,
+          moodCheckins: moodRes.count || 0,
+          chatSessions: activities.filter(a => a.activity_type === 'chat_session').length,
+          exercisesCompleted: activities.filter(a => a.activity_type === 'exercise_completed').length,
+        });
+      } catch { /* silent */ }
+    };
+    loadStats();
+  }, [user]);
 
   // Handle success from previous Stripe flow (legacy)
   useEffect(() => {
@@ -331,6 +359,12 @@ export default function Upgrade() {
             </CalmCard>
           ))}
         </motion.div>
+
+        {/* Progress Unlock */}
+        <ProgressUnlock stats={userStats} />
+
+        {/* Feature Comparison Matrix */}
+        <FeatureMatrix />
 
         {/* Legal Consent */}
         <motion.div
