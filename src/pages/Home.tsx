@@ -13,6 +13,8 @@ import { useActivityLog } from "@/hooks/useActivityLog";
 import { StreakCounter } from "@/components/streak/StreakCounter";
 import { StreakMilestone } from "@/components/streak/StreakMilestone";
 import { WeeklyProgress } from "@/components/streak/WeeklyProgress";
+import { usePersonalization } from "@/hooks/usePersonalization";
+import { AdaptiveSuggestions } from "@/components/home/AdaptiveSuggestions";
 
 interface RecentThought {
   id: string;
@@ -35,6 +37,7 @@ export default function Home() {
   const { toast } = useToast();
   const streak = useStreak();
   const { logActivity } = useActivityLog();
+  const { suggestions } = usePersonalization();
   const [showMilestone, setShowMilestone] = useState(true);
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
@@ -360,6 +363,12 @@ export default function Home() {
             currentStreak={streak.currentStreak}
           />
         )}
+
+        {/* Adaptive Suggestions */}
+        <AdaptiveSuggestions
+          suggestions={suggestions}
+          onStartExercise={(exercise) => navigate("/toolbox", { state: { startExercise: exercise.id } })}
+        />
 
         {/* Recent Thoughts */}
         <motion.div

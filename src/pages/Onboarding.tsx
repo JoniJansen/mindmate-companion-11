@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon } from "lucide-react";
+import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
@@ -18,10 +18,52 @@ interface OnboardingState {
   tone: Tone;
   addressForm: AddressForm;
   disclaimerAccepted: boolean;
+  // Phase 3: New personalization fields
+  focusAreas: string[];
+  reflectionFrequency: string;
+  personalGoal: string;
 }
 
-const steps = ["welcome", "disclaimer", "preferences"] as const;
+const steps = ["welcome", "disclaimer", "preferences", "focus", "frequency", "goal"] as const;
 type Step = typeof steps[number];
+
+const focusOptions = {
+  en: [
+    { id: "stress", label: "Stress", emoji: "😤" },
+    { id: "anxiety", label: "Anxiety", emoji: "😰" },
+    { id: "sleep", label: "Sleep", emoji: "😴" },
+    { id: "relationships", label: "Relationships", emoji: "💛" },
+    { id: "selfworth", label: "Self-worth", emoji: "🌱" },
+    { id: "motivation", label: "Motivation", emoji: "⚡" },
+    { id: "grief", label: "Grief & Loss", emoji: "🕊️" },
+    { id: "general", label: "Just exploring", emoji: "🔍" },
+  ],
+  de: [
+    { id: "stress", label: "Stress", emoji: "😤" },
+    { id: "anxiety", label: "Angst", emoji: "😰" },
+    { id: "sleep", label: "Schlaf", emoji: "😴" },
+    { id: "relationships", label: "Beziehungen", emoji: "💛" },
+    { id: "selfworth", label: "Selbstwert", emoji: "🌱" },
+    { id: "motivation", label: "Motivation", emoji: "⚡" },
+    { id: "grief", label: "Trauer & Verlust", emoji: "🕊️" },
+    { id: "general", label: "Einfach erkunden", emoji: "🔍" },
+  ],
+};
+
+const frequencyOptions = {
+  en: [
+    { id: "daily", label: "Every day", desc: "Build a daily habit" },
+    { id: "3-4x", label: "3-4x per week", desc: "Regular check-ins" },
+    { id: "weekly", label: "Once a week", desc: "Weekly reflection" },
+    { id: "flexible", label: "When I need it", desc: "No pressure" },
+  ],
+  de: [
+    { id: "daily", label: "Jeden Tag", desc: "Eine tägliche Gewohnheit aufbauen" },
+    { id: "3-4x", label: "3-4x pro Woche", desc: "Regelmäßige Check-ins" },
+    { id: "weekly", label: "Einmal pro Woche", desc: "Wöchentliche Reflexion" },
+    { id: "flexible", label: "Wenn ich es brauche", desc: "Kein Druck" },
+  ],
+};
 
 const translations = {
   en: {
@@ -44,21 +86,22 @@ const translations = {
       subtitle: "You can change these anytime",
       language: "Language",
       tone: "How should I speak?",
-      tones: {
-        gentle: "Gentle",
-        neutral: "Balanced",
-        structured: "Clear",
-      },
+      tones: { gentle: "Gentle", neutral: "Balanced", structured: "Clear" },
       addressForm: "How should I address you?",
-      addressForms: {
-        du: "Informal",
-        sie: "Formal",
-      },
+      addressForms: { du: "Informal", sie: "Formal" },
     },
-    firstQuestion: {
-      title: "One more thing",
-      subtitle: "What brings you here today?",
-      placeholder: "I've been feeling... / I want to... / Just exploring...",
+    focus: {
+      title: "What's on your mind?",
+      subtitle: "Choose what resonates — you can pick multiple.",
+    },
+    frequency: {
+      title: "How often would you like to reflect?",
+      subtitle: "This helps us personalize your experience.",
+    },
+    goal: {
+      title: "Imagine 4 weeks from now",
+      subtitle: "What would be different?",
+      placeholder: "I'd feel more calm... / I'd understand myself better... / I'd sleep better...",
       skip: "Skip for now",
     },
   },
@@ -82,21 +125,22 @@ const translations = {
       subtitle: "Du kannst das jederzeit ändern",
       language: "Sprache",
       tone: "Wie soll ich sprechen?",
-      tones: {
-        gentle: "Sanft",
-        neutral: "Ausgewogen",
-        structured: "Klar",
-      },
+      tones: { gentle: "Sanft", neutral: "Ausgewogen", structured: "Klar" },
       addressForm: "Wie soll ich dich ansprechen?",
-      addressForms: {
-        du: "Du (informell)",
-        sie: "Sie (formell)",
-      },
+      addressForms: { du: "Du (informell)", sie: "Sie (formell)" },
     },
-    firstQuestion: {
-      title: "Noch eine Sache",
-      subtitle: "Was führt dich heute hierher?",
-      placeholder: "Ich fühle mich... / Ich möchte... / Ich schaue mich nur um...",
+    focus: {
+      title: "Was beschäftigt dich?",
+      subtitle: "Wähle, was sich richtig anfühlt — Mehrfachauswahl möglich.",
+    },
+    frequency: {
+      title: "Wie oft möchtest du reflektieren?",
+      subtitle: "Das hilft uns, dein Erlebnis zu personalisieren.",
+    },
+    goal: {
+      title: "Stell dir vor: 4 Wochen ab jetzt",
+      subtitle: "Was wäre anders?",
+      placeholder: "Ich wäre ruhiger... / Ich würde mich besser verstehen... / Ich würde besser schlafen...",
       skip: "Erstmal überspringen",
     },
   },
@@ -105,7 +149,6 @@ const translations = {
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome");
   const [state, setState] = useState<OnboardingState>(() => {
-    // Auto-detect browser language — German users see German by default
     const browserLang = navigator.language?.toLowerCase() || "";
     const detectedLang: Language = browserLang.startsWith("de") ? "de" : "en";
     return {
@@ -113,6 +156,9 @@ export default function Onboarding() {
       tone: "gentle",
       addressForm: "du",
       disclaimerAccepted: false,
+      focusAreas: [],
+      reflectionFrequency: "",
+      personalGoal: "",
     };
   });
   const navigate = useNavigate();
@@ -128,35 +174,56 @@ export default function Onboarding() {
     if (nextIndex < steps.length) {
       setCurrentStep(steps[nextIndex]);
     } else {
-      // Save preferences to localStorage
-      localStorage.setItem("mindmate-preferences", JSON.stringify(state));
-      
-      // Mark onboarding as completed
-      completeOnboarding();
-      
-      // If already authenticated, go to app; otherwise go to auth
-      if (isAuthenticated) {
-        navigate("/", { replace: true });
-      } else {
-        navigate("/auth?from=onboarding", { replace: true });
-      }
+      finishOnboarding();
+    }
+  };
+
+  const finishOnboarding = () => {
+    // Save preferences
+    localStorage.setItem("mindmate-preferences", JSON.stringify({
+      language: state.language,
+      tone: state.tone,
+      addressForm: state.addressForm,
+      disclaimerAccepted: state.disclaimerAccepted,
+    }));
+
+    // Save personalization data separately
+    localStorage.setItem("soulvay-personalization", JSON.stringify({
+      focusAreas: state.focusAreas,
+      reflectionFrequency: state.reflectionFrequency,
+      personalGoal: state.personalGoal,
+    }));
+
+    completeOnboarding();
+
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
+    } else {
+      navigate("/auth?from=onboarding", { replace: true });
     }
   };
 
   const canProceed = () => {
-    if (currentStep === "disclaimer") {
-      return state.disclaimerAccepted;
-    }
+    if (currentStep === "disclaimer") return state.disclaimerAccepted;
+    if (currentStep === "focus") return state.focusAreas.length > 0;
+    if (currentStep === "frequency") return state.reflectionFrequency !== "";
     return true;
+  };
+
+  const toggleFocus = (id: string) => {
+    setState(s => ({
+      ...s,
+      focusAreas: s.focusAreas.includes(id)
+        ? s.focusAreas.filter(f => f !== id)
+        : [...s.focusAreas, id],
+    }));
   };
 
   return (
     <div className="bg-background flex flex-col" style={{ minHeight: '100dvh' }}>
-      {/* Header with Dark Mode Toggle */}
+      {/* Header */}
       <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top">
-        <div className="w-10" /> {/* Spacer */}
-        
-        {/* Progress indicator */}
+        <div className="w-10" />
         <div className="flex justify-center gap-2">
           {steps.map((step, index) => (
             <motion.div
@@ -171,8 +238,6 @@ export default function Onboarding() {
             />
           ))}
         </div>
-        
-        {/* Dark Mode Toggle */}
         <button
           onClick={() => setThemeMode(isDark ? "light" : "dark")}
           className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
@@ -190,246 +255,128 @@ export default function Onboarding() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col px-6 pb-6">
+      <div className="flex-1 flex flex-col px-6 pb-6 overflow-y-auto">
         <AnimatePresence mode="wait">
           {currentStep === "welcome" && (
-            <motion.div
-              key="welcome"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            >
+            <motion.div key="welcome" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
               <WelcomeStep t={t.welcome} />
             </motion.div>
           )}
           {currentStep === "disclaimer" && (
-            <motion.div
-              key="disclaimer"
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <DisclaimerStep
-                t={t.disclaimer}
-                accepted={state.disclaimerAccepted}
-                onAcceptChange={(accepted) =>
-                  setState((s) => ({ ...s, disclaimerAccepted: accepted }))
-                }
-              />
+            <motion.div key="disclaimer" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <DisclaimerStep t={t.disclaimer} accepted={state.disclaimerAccepted} onAcceptChange={(accepted) => setState(s => ({ ...s, disclaimerAccepted: accepted }))} />
             </motion.div>
           )}
           {currentStep === "preferences" && (
-            <motion.div
-              key="preferences"
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <PreferencesStep
-                t={t.preferences}
-                language={state.language}
-                tone={state.tone}
-                addressForm={state.addressForm}
-                onLanguageChange={(language) => setState((s) => ({ ...s, language }))}
-                onToneChange={(tone) => setState((s) => ({ ...s, tone }))}
-                onAddressFormChange={(addressForm) => setState((s) => ({ ...s, addressForm }))}
-              />
+            <motion.div key="preferences" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <PreferencesStep t={t.preferences} language={state.language} tone={state.tone} addressForm={state.addressForm} onLanguageChange={(language) => setState(s => ({ ...s, language }))} onToneChange={(tone) => setState(s => ({ ...s, tone }))} onAddressFormChange={(addressForm) => setState(s => ({ ...s, addressForm }))} />
+            </motion.div>
+          )}
+          {currentStep === "focus" && (
+            <motion.div key="focus" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <FocusStep t={t.focus} options={focusOptions[state.language]} selected={state.focusAreas} onToggle={toggleFocus} />
+            </motion.div>
+          )}
+          {currentStep === "frequency" && (
+            <motion.div key="frequency" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <FrequencyStep t={t.frequency} options={frequencyOptions[state.language]} selected={state.reflectionFrequency} onSelect={(f) => setState(s => ({ ...s, reflectionFrequency: f }))} />
+            </motion.div>
+          )}
+          {currentStep === "goal" && (
+            <motion.div key="goal" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <GoalStep t={t.goal} value={state.personalGoal} onChange={(g) => setState(s => ({ ...s, personalGoal: g }))} />
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Continue button */}
-        <div className="mt-auto pt-6 safe-bottom">
-          <Button
-            size="xl"
-            className="w-full"
-            onClick={handleNext}
-            disabled={!canProceed()}
-          >
-            {currentStep === "preferences" ? t.getStarted : t.continue}
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
+        <div className="mt-auto pt-6 safe-bottom shrink-0">
+          {currentStep === "goal" ? (
+            <div className="space-y-3">
+              <Button size="xl" className="w-full" onClick={finishOnboarding}>
+                {t.getStarted}
+                <Sparkles className="w-5 h-5 ml-2" />
+              </Button>
+              {!state.personalGoal && (
+                <Button variant="ghost" className="w-full text-muted-foreground" onClick={finishOnboarding}>
+                  {t.goal.skip}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <Button size="xl" className="w-full" onClick={handleNext} disabled={!canProceed()}>
+              {t.continue}
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-interface WelcomeStepProps {
-  t: typeof translations.en.welcome;
-}
+// === Step Components ===
 
-function WelcomeStep({ t }: WelcomeStepProps) {
+function WelcomeStep({ t }: { t: typeof translations.en.welcome }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-      {/* Modern circular logo with breathing animation and glow */}
       <div className="relative mb-12">
-        {/* Outer glow effect */}
-        <motion.div
-          className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-2xl scale-150"
-          animate={{ 
-            opacity: [0.5, 0.8, 0.5],
-            scale: [1.4, 1.6, 1.4]
-          }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
-        
-        {/* Main logo container */}
-        <motion.div
-          className="relative w-32 h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10 dark:from-primary/25 dark:to-primary/10 dark:shadow-primary/30"
-          animate={{ 
-            scale: [1, 1.02, 1],
-          }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        >
+        <motion.div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-2xl scale-150" animate={{ opacity: [0.5, 0.8, 0.5], scale: [1.4, 1.6, 1.4] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+        <motion.div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10 dark:from-primary/25 dark:to-primary/10 dark:shadow-primary/30" animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
           <div className="w-24 h-24 rounded-full overflow-hidden">
-            <img 
-              src={logoImage} 
-              alt="Soulvay Logo" 
-              className="w-24 h-24 object-cover rounded-full"
-            />
+            <img src={logoImage} alt="Soulvay Logo" className="w-24 h-24 object-cover rounded-full" />
           </div>
         </motion.div>
       </div>
-
-      <h1 className="text-2xl font-semibold text-foreground mb-4 text-balance">
-        {t.title}
-      </h1>
-
-      <p className="text-muted-foreground text-base leading-relaxed max-w-xs">
-        {t.subtitle}
-      </p>
+      <h1 className="text-2xl font-semibold text-foreground mb-4 text-balance">{t.title}</h1>
+      <p className="text-muted-foreground text-base leading-relaxed max-w-xs">{t.subtitle}</p>
     </div>
   );
 }
 
-interface DisclaimerStepProps {
-  t: typeof translations.en.disclaimer;
-  accepted: boolean;
-  onAcceptChange: (accepted: boolean) => void;
-}
-
-function DisclaimerStep({ t, accepted, onAcceptChange }: DisclaimerStepProps) {
+function DisclaimerStep({ t, accepted, onAcceptChange }: { t: typeof translations.en.disclaimer; accepted: boolean; onAcceptChange: (v: boolean) => void }) {
   return (
     <div className="flex-1 flex flex-col justify-center px-2">
-      <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
-        {t.title}
-      </h2>
-
+      <h2 className="text-xl font-semibold text-foreground mb-6 text-center">{t.title}</h2>
       <div className="bg-card rounded-2xl p-5 mb-6 shadow-soft border border-border/40 dark:border-border/60 dark:bg-card/80">
-        <p className="text-foreground text-sm leading-relaxed">
-          {t.text}{" "}
-          <span className="font-medium text-primary">{t.notReplacement}</span>{" "}
-          {t.textEnd}
-        </p>
-        <p className="text-muted-foreground text-sm leading-relaxed mt-4 pt-4 border-t border-border/40 dark:border-border/60">
-          {t.crisis}
-        </p>
+        <p className="text-foreground text-sm leading-relaxed">{t.text} <span className="font-medium text-primary">{t.notReplacement}</span> {t.textEnd}</p>
+        <p className="text-muted-foreground text-sm leading-relaxed mt-4 pt-4 border-t border-border/40 dark:border-border/60">{t.crisis}</p>
       </div>
-
       <label className="flex items-center gap-3 cursor-pointer group bg-muted/40 dark:bg-muted/60 rounded-xl p-4 transition-colors hover:bg-muted/60 dark:hover:bg-muted/80">
-        <Checkbox
-          checked={accepted}
-          onCheckedChange={(checked) => onAcceptChange(checked === true)}
-        />
-        <span className="text-sm text-foreground leading-relaxed">
-          {t.checkbox}
-        </span>
+        <Checkbox checked={accepted} onCheckedChange={(checked) => onAcceptChange(checked === true)} />
+        <span className="text-sm text-foreground leading-relaxed">{t.checkbox}</span>
       </label>
     </div>
   );
 }
 
-interface PreferencesStepProps {
-  t: typeof translations.en.preferences;
-  language: Language;
-  tone: Tone;
-  addressForm: AddressForm;
-  onLanguageChange: (language: Language) => void;
-  onToneChange: (tone: Tone) => void;
-  onAddressFormChange: (addressForm: AddressForm) => void;
-}
-
-function PreferencesStep({
-  t,
-  language,
-  tone,
-  addressForm,
-  onLanguageChange,
-  onToneChange,
-  onAddressFormChange,
-}: PreferencesStepProps) {
+function PreferencesStep({ t, language, tone, addressForm, onLanguageChange, onToneChange, onAddressFormChange }: {
+  t: typeof translations.en.preferences; language: Language; tone: Tone; addressForm: AddressForm;
+  onLanguageChange: (l: Language) => void; onToneChange: (t: Tone) => void; onAddressFormChange: (a: AddressForm) => void;
+}) {
   return (
     <div className="flex-1 flex flex-col pt-4">
-      <h2 className="text-xl font-semibold text-foreground mb-2 text-center">
-        {t.title}
-      </h2>
-      <p className="text-muted-foreground text-sm text-center mb-8">
-        {t.subtitle}
-      </p>
-
+      <h2 className="text-xl font-semibold text-foreground mb-2 text-center">{t.title}</h2>
+      <p className="text-muted-foreground text-sm text-center mb-8">{t.subtitle}</p>
       <div className="space-y-6">
-        {/* Language */}
         <PreferenceSection icon={Globe} title={t.language}>
           <div className="flex gap-2">
-            <OptionButton
-              selected={language === "en"}
-              onClick={() => onLanguageChange("en")}
-            >
-              English
-            </OptionButton>
-            <OptionButton
-              selected={language === "de"}
-              onClick={() => onLanguageChange("de")}
-            >
-              Deutsch
-            </OptionButton>
+            <OptionButton selected={language === "en"} onClick={() => onLanguageChange("en")}>English</OptionButton>
+            <OptionButton selected={language === "de"} onClick={() => onLanguageChange("de")}>Deutsch</OptionButton>
           </div>
         </PreferenceSection>
-
-        {/* Tone */}
         <PreferenceSection icon={MessageCircle} title={t.tone}>
           <div className="flex gap-2 flex-wrap">
-            <OptionButton
-              selected={tone === "gentle"}
-              onClick={() => onToneChange("gentle")}
-            >
-              {t.tones.gentle}
-            </OptionButton>
-            <OptionButton
-              selected={tone === "neutral"}
-              onClick={() => onToneChange("neutral")}
-            >
-              {t.tones.neutral}
-            </OptionButton>
-            <OptionButton
-              selected={tone === "structured"}
-              onClick={() => onToneChange("structured")}
-            >
-              {t.tones.structured}
-            </OptionButton>
+            <OptionButton selected={tone === "gentle"} onClick={() => onToneChange("gentle")}>{t.tones.gentle}</OptionButton>
+            <OptionButton selected={tone === "neutral"} onClick={() => onToneChange("neutral")}>{t.tones.neutral}</OptionButton>
+            <OptionButton selected={tone === "structured"} onClick={() => onToneChange("structured")}>{t.tones.structured}</OptionButton>
           </div>
         </PreferenceSection>
-
-        {/* Form of address - only show for German */}
         {language === "de" && (
           <PreferenceSection icon={User} title={t.addressForm}>
             <div className="flex gap-2">
-              <OptionButton
-                selected={addressForm === "du"}
-                onClick={() => onAddressFormChange("du")}
-              >
-                {t.addressForms.du}
-              </OptionButton>
-              <OptionButton
-                selected={addressForm === "sie"}
-                onClick={() => onAddressFormChange("sie")}
-              >
-                {t.addressForms.sie}
-              </OptionButton>
+              <OptionButton selected={addressForm === "du"} onClick={() => onAddressFormChange("du")}>{t.addressForms.du}</OptionButton>
+              <OptionButton selected={addressForm === "sie"} onClick={() => onAddressFormChange("sie")}>{t.addressForms.sie}</OptionButton>
             </div>
           </PreferenceSection>
         )}
@@ -438,13 +385,116 @@ function PreferencesStep({
   );
 }
 
-interface PreferenceSectionProps {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  children: React.ReactNode;
+function FocusStep({ t, options, selected, onToggle }: {
+  t: typeof translations.en.focus;
+  options: { id: string; label: string; emoji: string }[];
+  selected: string[];
+  onToggle: (id: string) => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col pt-4">
+      <div className="text-center mb-8">
+        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <Target className="w-7 h-7 text-primary" />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
+        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {options.map((opt) => (
+          <button
+            key={opt.id}
+            onClick={() => onToggle(opt.id)}
+            className={`flex items-center gap-3 p-4 rounded-2xl text-left transition-all duration-200 border ${
+              selected.includes(opt.id)
+                ? "bg-primary/10 border-primary/30 shadow-sm"
+                : "bg-card border-border/40 hover:border-border/60"
+            }`}
+          >
+            <span className="text-xl">{opt.emoji}</span>
+            <span className={`text-sm font-medium ${selected.includes(opt.id) ? "text-foreground" : "text-muted-foreground"}`}>
+              {opt.label}
+            </span>
+            {selected.includes(opt.id) && <Check className="w-4 h-4 text-primary ml-auto" />}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
-function PreferenceSection({ icon: Icon, title, children }: PreferenceSectionProps) {
+function FrequencyStep({ t, options, selected, onSelect }: {
+  t: typeof translations.en.frequency;
+  options: { id: string; label: string; desc: string }[];
+  selected: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col pt-4">
+      <div className="text-center mb-8">
+        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <Clock className="w-7 h-7 text-primary" />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
+        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+      </div>
+      <div className="space-y-3">
+        {options.map((opt) => (
+          <button
+            key={opt.id}
+            onClick={() => onSelect(opt.id)}
+            className={`w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-200 border ${
+              selected === opt.id
+                ? "bg-primary/10 border-primary/30 shadow-sm"
+                : "bg-card border-border/40 hover:border-border/60"
+            }`}
+          >
+            <div className="flex-1">
+              <p className={`text-sm font-medium ${selected === opt.id ? "text-foreground" : "text-muted-foreground"}`}>{opt.label}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
+            </div>
+            {selected === opt.id && (
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                <Check className="w-5 h-5 text-primary" />
+              </motion.div>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GoalStep({ t, value, onChange }: {
+  t: typeof translations.en.goal;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col pt-4">
+      <div className="text-center mb-8">
+        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <Sparkles className="w-7 h-7 text-primary" />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
+        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+      </div>
+      <div className="bg-card rounded-2xl border border-border/40 p-4">
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={t.placeholder}
+          className="w-full bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none resize-none min-h-[120px] text-base leading-relaxed"
+          rows={4}
+        />
+      </div>
+    </div>
+  );
+}
+
+// === Shared UI ===
+
+function PreferenceSection({ icon: Icon, title, children }: { icon: React.ComponentType<{ className?: string }>; title: string; children: React.ReactNode }) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
@@ -456,24 +506,16 @@ function PreferenceSection({ icon: Icon, title, children }: PreferenceSectionPro
   );
 }
 
-interface OptionButtonProps {
-  selected: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}
-
-function OptionButton({ selected, onClick, children }: OptionButtonProps) {
+function OptionButton({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`
-        px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-        ${selected
+      className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+        selected
           ? "bg-primary text-primary-foreground shadow-md dark:shadow-primary/20"
           : "bg-muted/50 text-muted-foreground hover:bg-muted dark:bg-muted/70 dark:text-foreground/70 dark:hover:bg-muted dark:hover:text-foreground"
-        }
-      `}
+      }`}
     >
       <span className="flex items-center gap-2">
         {selected && <Check className="w-4 h-4" />}
