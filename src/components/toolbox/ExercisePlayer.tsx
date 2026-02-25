@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { X, Play, Pause, RotateCcw, Check, ChevronRight, Volume2, VolumeX } from "lucide-react";
+import { X, Play, Pause, RotateCcw, Check, ChevronRight, Volume2, VolumeX, Loader2 } from "lucide-react";
 import { Exercise } from "@/data/exercises";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
+import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
+import { useVoiceSettings } from "@/hooks/useVoiceSettings";
 
 interface ExercisePlayerProps {
   exercise: Exercise;
@@ -16,12 +17,13 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [stepProgress, setStepProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const { t, getExerciseDisplay } = useTranslation();
+  const { t, language, getExerciseDisplay } = useTranslation();
+  const { getVoiceId, speed } = useVoiceSettings();
   
-  const { speak, stop, isSpeaking, isSupported } = useSpeechSynthesis({
-    rate: 0.85,
-    onEnd: () => {
-      // Voice finished, continue with timer if playing
+  const { speak, stop, isSpeaking, isLoading } = useElevenLabsTTS({
+    onError: (err) => {
+      console.warn("Exercise TTS error:", err);
+      // Silently degrade - exercise still works without voice
     }
   });
 
@@ -47,9 +49,10 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Speak current step when it changes or when playing starts
   useEffect(() => {
-    if (voiceEnabled && isSupported) {
+    if (voiceEnabled) {
       const instruction = getStepInstruction(currentStep);
-      speak(instruction);
+      const voiceId = getVoiceId(language as "en" | "de");
+      speak(instruction, voiceId, language as "en" | "de", speed);
     }
   }, [currentStep, voiceEnabled]);
 
@@ -107,7 +110,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       stop();
     } else {
       const instruction = getStepInstruction(currentStep);
-      speak(instruction);
+      const voiceId = getVoiceId(language as "en" | "de");
+      speak(instruction, voiceId, language as "en" | "de", speed);
     }
     setVoiceEnabled(!voiceEnabled);
   };
@@ -177,20 +181,17 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
         <span className="text-sm text-muted-foreground truncate px-2">{display.title}</span>
         
         {/* Voice toggle - 44px tap target */}
-        {isSupported && (
-          <button 
-            type="button" 
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleVoice();
-            }} 
-            className={`flex items-center justify-center w-11 h-11 rounded-xl shrink-0 transition-colors ${voiceEnabled ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
-            aria-label={voiceEnabled ? "Disable voice" : "Enable voice"}
-          >
-            {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-          </button>
-        )}
-        {!isSupported && <div className="w-11 shrink-0" />}
+        <button 
+          type="button" 
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleVoice();
+          }} 
+          className={`flex items-center justify-center w-11 h-11 rounded-xl shrink-0 transition-colors ${voiceEnabled ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
+          aria-label={voiceEnabled ? "Disable voice" : "Enable voice"}
+        >
+          {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+        </button>
       </div>
 
       {/* Progress bar */}
@@ -204,11 +205,11 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-md mx-auto text-center">
-          {/* Speaking indicator */}
-          {isSpeaking && voiceEnabled && (
+          {/* Speaking/Loading indicator */}
+          {voiceEnabled && (isSpeaking || isLoading) && (
             <div className="flex items-center justify-center gap-2 mb-4 text-primary">
-              <Volume2 className="w-4 h-4 animate-pulse" />
-              <span className="text-sm">{t("voice.listening").replace("...", "")}...</span>
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Volume2 className="w-4 h-4 animate-pulse" />}
+              <span className="text-sm">{isLoading ? t("voice.loading") : t("voice.speaking")}</span>
             </div>
           )}
 
