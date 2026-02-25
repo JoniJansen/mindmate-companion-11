@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Moon, Lock, ArrowLeft, Timer, Volume2, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Play, Pause, Moon, Lock, ArrowLeft, Timer, Volume2, Loader2, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { usePremium } from "@/hooks/usePremium";
 import { useNavigate } from "react-router-dom";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { useToast } from "@/hooks/use-toast";
 
 interface AudioSession {
   id: string;
@@ -17,6 +19,8 @@ interface AudioSession {
   emoji: string;
   script: { en: string; de: string };
 }
+
+const VOICE_ID = "EXAVITQu4vr4xnSDxMaL"; // Sarah — gentle female
 
 const audioSessions: AudioSession[] = [
   {
@@ -77,109 +81,52 @@ const audioSessions: AudioSession[] = [
   },
 ];
 
+const prefersReducedMotion = typeof window !== "undefined"
+  && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
 export default function AudioLibrary() {
   const { t, language } = useTranslation();
   const { isPremium } = usePremium();
   const navigate = useNavigate();
-  const [playing, setPlaying] = useState<string | null>(null);
+  const { toast } = useToast();
   const [sleepMode, setSleepMode] = useState(false);
-  const [sleepTimer, setSleepTimer] = useState(15); // minutes
-  const [sleepTimeLeft, setSleepTimeLeft] = useState(0);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const [sleepTimerMinutes, setSleepTimerMinutes] = useState(15);
 
-  // Sleep timer countdown
-  useEffect(() => {
-    if (sleepTimeLeft > 0) {
-      timerRef.current = setInterval(() => {
-        setSleepTimeLeft(prev => {
-          if (prev <= 1) {
-            handleStopAudio();
-            setSleepMode(false);
-            return 0;
-          }
-          return prev - 1;
+  const player = useAudioPlayer({
+    onEnd: () => {
+      // noop — state resets automatically
+    },
+    onError: (msg) => {
+      if (msg === "offline") {
+        toast({
+          title: t("common.offline"),
+          description: t("common.offlineBody"),
+          variant: "destructive",
         });
-      }, 1000);
-      return () => clearInterval(timerRef.current);
-    }
-  }, [sleepTimeLeft > 0]);
+      }
+    },
+  });
 
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      audioRef.current?.pause();
-      clearInterval(timerRef.current);
-    };
-  }, []);
-
-  const handlePlaySession = async (session: AudioSession) => {
+  const handlePlaySession = (session: AudioSession) => {
     if (!isPremium) {
       navigate("/settings", { state: { scrollTo: "premium" } });
       return;
     }
 
-    if (playing === session.id) {
-      handleStopAudio();
-      return;
-    }
-
-    setPlaying(session.id);
-    setIsGenerating(true);
-
-    try {
-      const text = language === "de" ? session.script.de : session.script.en;
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            text,
-            voiceId: "EXAVITQu4vr4xnSDxMaL", // Sarah — gentle female voice
-            speed: 0.9,
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error("TTS failed");
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-
-      if (audioRef.current) {
-        audioRef.current.pause();
-        URL.revokeObjectURL(audioRef.current.src);
-      }
-
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.onended = () => {
-        setPlaying(null);
-        URL.revokeObjectURL(url);
-      };
-      await audio.play();
-    } catch (err) {
-      console.warn("Audio playback failed:", err);
-      setPlaying(null);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleStopAudio = () => {
-    audioRef.current?.pause();
-    setPlaying(null);
+    const text = language === "de" ? session.script.de : session.script.en;
+    player.togglePlayPause(session.id, text, VOICE_ID, 0.9);
   };
 
   const startSleepMode = () => {
     setSleepMode(true);
-    setSleepTimeLeft(sleepTimer * 60);
+    player.startSleepTimer(sleepTimerMinutes);
+  };
+
+  const exitSleepMode = () => {
+    setSleepMode(false);
+    player.cancelSleepTimer();
+    player.stop();
+    toast({ title: t("audio.sleepEnded") });
   };
 
   const formatTime = (seconds: number) => {
@@ -188,40 +135,44 @@ export default function AudioLibrary() {
     return `${m}:${String(s).padStart(2, "0")}`;
   };
 
+  // Check if sleep timer ran out
+  if (sleepMode && player.sleepTimer <= 0 && sleepMode) {
+    // Timer ended
+    setSleepMode(false);
+    toast({ title: t("audio.sleepEnded") });
+  }
+
   // Sleep mode UI
-  if (sleepMode) {
+  if (sleepMode && player.sleepTimer > 0) {
     return (
       <div className="fixed inset-0 bg-[#0a0a0f] z-50 flex flex-col items-center justify-center text-white">
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={prefersReducedMotion ? {} : { opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center"
         >
           <Moon className="w-12 h-12 mx-auto mb-6 text-primary/60" />
           <p className="text-6xl font-light tracking-wider mb-4">
-            {formatTime(sleepTimeLeft)}
+            {formatTime(player.sleepTimer)}
           </p>
           <p className="text-sm text-white/40 mb-8">
-            {language === "de" ? "Schlaf gut" : "Sleep well"}
+            {t("audio.sleepWell")}
           </p>
 
-          {playing && (
+          {player.state === "playing" && (
             <div className="flex items-center gap-2 text-primary/60 mb-8">
               <Volume2 className="w-4 h-4" />
-              <span className="text-sm">{language === "de" ? "Wird abgespielt..." : "Playing..."}</span>
+              <span className="text-sm">{t("audio.playing")}</span>
             </div>
           )}
 
           <Button
             variant="ghost"
-            className="text-white/40 hover:text-white/60"
-            onClick={() => {
-              setSleepMode(false);
-              setSleepTimeLeft(0);
-              handleStopAudio();
-            }}
+            className="text-white/40 hover:text-white/60 min-h-[44px] min-w-[44px]"
+            onClick={exitSleepMode}
+            aria-label={t("audio.exit")}
           >
-            {language === "de" ? "Beenden" : "Exit"}
+            {t("audio.exit")}
           </Button>
         </motion.div>
       </div>
@@ -233,35 +184,43 @@ export default function AudioLibrary() {
       <div className="px-4 py-6 max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="min-h-[44px] min-w-[44px]">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
             <h1 className="text-xl font-semibold text-foreground">
-              {language === "de" ? "Audio-Bibliothek" : "Audio Library"}
+              {t("audio.title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {language === "de" ? "Geführte Sessions für innere Ruhe" : "Guided sessions for inner peace"}
+              {t("audio.subtitle")}
             </p>
           </div>
         </div>
+
+        {/* Offline banner */}
+        {!player.isOnline && (
+          <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-2">
+            <WifiOff className="w-4 h-4 text-destructive" />
+            <p className="text-xs text-muted-foreground">{t("common.offline")}</p>
+          </div>
+        )}
 
         {/* Premium badge */}
         {!isPremium && (
           <div className="mb-4 p-3 rounded-xl bg-primary/5 border border-primary/20 text-center">
             <Lock className="w-4 h-4 text-primary mx-auto mb-1" />
             <p className="text-xs text-muted-foreground">
-              {language === "de" ? "Premium-Funktion — Upgrade für Zugang" : "Premium feature — Upgrade for access"}
+              {t("audio.premiumRequired")}
             </p>
           </div>
         )}
 
         {/* Sleep Mode Toggle */}
         <motion.button
-          initial={{ opacity: 0, y: 10 }}
+          initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={startSleepMode}
-          className="w-full mb-6 p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-colors text-left"
+          className="w-full mb-6 p-4 rounded-2xl bg-card border border-border/30 hover:border-primary/30 transition-colors text-left min-h-[44px]"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -269,18 +228,22 @@ export default function AudioLibrary() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground">
-                {language === "de" ? "Schlafmodus" : "Sleep Mode"}
+                {t("audio.sleepMode")}
               </p>
               <p className="text-xs text-muted-foreground">
-                {language === "de" ? `${sleepTimer} Min Timer · Minimales UI` : `${sleepTimer} min timer · Minimal UI`}
+                {`${sleepTimerMinutes} min · ${t("audio.minimalUI")}`}
               </p>
             </div>
             <div className="flex items-center gap-2">
               {[10, 15, 30].map(m => (
                 <button
                   key={m}
-                  onClick={(e) => { e.stopPropagation(); setSleepTimer(m); }}
-                  className={`px-2 py-1 rounded-lg text-xs ${sleepTimer === m ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                  onClick={(e) => { e.stopPropagation(); setSleepTimerMinutes(m); }}
+                  className={`px-2 py-1 rounded-lg text-xs min-h-[32px] min-w-[32px] ${
+                    sleepTimerMinutes === m
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
                 >
                   {m}m
                 </button>
@@ -294,22 +257,26 @@ export default function AudioLibrary() {
           {audioSessions.map((session, i) => {
             const title = language === "de" ? session.titleDe : session.titleEn;
             const desc = language === "de" ? session.descDe : session.descEn;
-            const isPlaying = playing === session.id;
+            const isActive = player.activeSessionId === session.id;
+            const isPlaying = isActive && player.state === "playing";
+            const isLoading = isActive && player.state === "loading";
+            const isPaused = isActive && player.state === "paused";
 
             return (
               <motion.div
                 key={session.id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
                 <button
                   onClick={() => handlePlaySession(session)}
-                  className={`w-full text-left p-4 rounded-2xl border transition-colors ${
-                    isPlaying
+                  disabled={!player.isOnline && !isActive}
+                  className={`w-full text-left p-4 rounded-2xl border transition-colors min-h-[44px] ${
+                    isActive
                       ? "bg-primary/5 border-primary/30"
                       : "bg-card border-border/30 hover:border-border/60"
-                  }`}
+                  } disabled:opacity-50`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-xl">
@@ -325,10 +292,12 @@ export default function AudioLibrary() {
                       </div>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      {isGenerating && isPlaying ? (
+                      {isLoading ? (
                         <Loader2 className="w-5 h-5 text-primary animate-spin" />
                       ) : isPlaying ? (
                         <Pause className="w-5 h-5 text-primary" />
+                      ) : isPaused ? (
+                        <Play className="w-5 h-5 text-primary ml-0.5" />
                       ) : (
                         <Play className="w-5 h-5 text-primary ml-0.5" />
                       )}

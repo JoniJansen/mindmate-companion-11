@@ -149,11 +149,33 @@ export function usePersonalization() {
     return result.slice(0, 3);
   }, [recentMoodAvg, stressCount, personalization.focusAreas]);
 
+  // Audio suggestions based on mood/focus/time
+  const audioSuggestion = useMemo<{ sessionId: string; reason: "sleep" | "stress" } | null>(() => {
+    const hour = new Date().getHours();
+    const isNight = hour >= 20 || hour < 6;
+
+    // Sleep suggestion: focus on sleep OR low mood at night
+    if (
+      (personalization.focusAreas.includes("sleep") && isNight) ||
+      (recentMoodAvg !== null && recentMoodAvg < 2.5 && isNight)
+    ) {
+      return { sessionId: "sleep-wind-down", reason: "sleep" };
+    }
+
+    // Stress suggestion: 3+ stressed check-ins
+    if (stressCount >= 3) {
+      return { sessionId: "stress-release", reason: "stress" };
+    }
+
+    return null;
+  }, [personalization.focusAreas, recentMoodAvg, stressCount]);
+
   return {
     personalization,
     recentMoodAvg,
     stressCount,
     suggestions,
+    audioSuggestion,
     isLoading,
   };
 }
