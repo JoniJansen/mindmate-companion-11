@@ -173,19 +173,70 @@ export default function Chat() {
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   useEffect(() => { scrollToBottom(); }, [messages]);
 
-  // Initial greeting
+  // Initial greeting - personalized based on onboarding
   useEffect(() => {
     const initialMessage = localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
     const savedLang = preferences.current.language || language;
+    
+    const getPersonalizedGreeting = (): string => {
+      try {
+        const stored = localStorage.getItem("soulvay-personalization");
+        if (!stored) return "";
+        const p = JSON.parse(stored);
+        const focus = (p.focusAreas || [])[0];
+        if (!focus) return "";
+        
+        const greetings: Record<string, { en: string; de: string }> = {
+          stress: {
+            en: "I noticed you'd like to work on stress.\nI'm here whenever things feel heavy.",
+            de: "Ich habe gesehen, dass Stress dich beschäftigt.\nIch bin hier, wenn es sich schwer anfühlt.",
+          },
+          anxiety: {
+            en: "Anxiety can feel overwhelming.\nLet's take it one step at a time, together.",
+            de: "Angst kann überwältigend sein.\nLass uns das gemeinsam angehen, Schritt für Schritt.",
+          },
+          sleep: {
+            en: "Better sleep starts with a calmer mind.\nI'm here to help you unwind.",
+            de: "Besserer Schlaf beginnt mit einem ruhigeren Geist.\nIch bin hier, um dir beim Abschalten zu helfen.",
+          },
+          relationships: {
+            en: "Relationships shape how we feel.\nLet's explore what's on your mind.",
+            de: "Beziehungen prägen, wie wir uns fühlen.\nLass uns erkunden, was dich beschäftigt.",
+          },
+          selfworth: {
+            en: "You're already taking a brave step.\nLet's discover your strengths together.",
+            de: "Du machst schon einen mutigen Schritt.\nLass uns gemeinsam deine Stärken entdecken.",
+          },
+          motivation: {
+            en: "Finding motivation starts with understanding yourself.\nI'm here to help you explore.",
+            de: "Motivation zu finden beginnt damit, sich selbst zu verstehen.\nIch bin hier, um dir dabei zu helfen.",
+          },
+          grief: {
+            en: "Grief has its own pace.\nI'm here to listen, whenever you're ready.",
+            de: "Trauer hat ihr eigenes Tempo.\nIch bin hier, um zuzuhören, wann immer du bereit bist.",
+          },
+        };
+        
+        return greetings[focus]?.[savedLang as "en" | "de"] || "";
+      } catch { return ""; }
+    };
     
     const init = async () => {
       if (initialMessage) {
         localStorage.removeItem('mindmate-initial-message');
         handleSend(initialMessage);
       } else {
-        const staticGreeting = savedLang === "de"
-          ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
-          : "Hello. I'm Soulvay, and\nI'm here to listen.\n\nTake your time – share what's on your mind.";
+        const personalLine = getPersonalizedGreeting();
+        const baseGreeting = savedLang === "de"
+          ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu."
+          : "Hello. I'm Soulvay, and\nI'm here to listen.";
+        const closingLine = savedLang === "de"
+          ? "Nimm dir Zeit – teile, was dich bewegt."
+          : "Take your time – share what's on your mind.";
+        
+        const staticGreeting = personalLine
+          ? `${baseGreeting}\n\n${personalLine}`
+          : `${baseGreeting}\n\n${closingLine}`;
         
         setMessages([{ id: "greeting", content: staticGreeting, role: "assistant", timestamp: new Date() }]);
         
@@ -223,6 +274,22 @@ export default function Chat() {
   }) => {
     try {
       const modePrompt = getModeSystemPrompt(chatMode, language as "en" | "de");
+      
+      // Add personalization context if available
+      let personalizationContext = "";
+      try {
+        const stored = localStorage.getItem("soulvay-personalization");
+        if (stored) {
+          const p = JSON.parse(stored);
+          if (p.focusAreas?.length) {
+            personalizationContext = `\nUser's focus areas: ${p.focusAreas.join(", ")}. Keep these in mind when responding.`;
+          }
+          if (p.personalGoal) {
+            personalizationContext += `\nUser's personal goal: "${p.personalGoal}". Reference this gently when relevant.`;
+          }
+        }
+      } catch {}
+      
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -231,7 +298,7 @@ export default function Chat() {
         },
         body: JSON.stringify({
           messages,
-          preferences: { ...preferences.current, modePrompt },
+          preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
         }),
         signal,
       });
