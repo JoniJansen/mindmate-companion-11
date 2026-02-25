@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
-import { X, Sparkles, TrendingUp, ArrowRight, ChevronRight } from "lucide-react";
+import { X, Sparkles, TrendingUp, ArrowRight, ChevronRight, Copy, Share2, Check } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useToast } from "@/hooks/use-toast";
 
 interface ParsedSummary {
   summary: string;
@@ -58,6 +60,8 @@ interface AISummaryDetailProps {
 
 export function AISummaryDetail({ content, createdAt, onClose }: AISummaryDetailProps) {
   const { t, language } = useTranslation();
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
   const parsed = parseSummaryContent(content);
 
   const formatDate = (dateString: string) => {
@@ -65,6 +69,62 @@ export function AISummaryDetail({ content, createdAt, onClose }: AISummaryDetail
     return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
       weekday: "long", day: "numeric", month: "long", year: "numeric",
     });
+  };
+
+  const getPlainText = () => {
+    const lines: string[] = [];
+    lines.push(language === "de" ? "📋 KI-Zusammenfassung" : "📋 AI Summary");
+    lines.push(formatDate(createdAt));
+    lines.push("");
+    if (parsed.summary) {
+      lines.push(parsed.summary);
+      lines.push("");
+    }
+    if (parsed.themes.length > 0) {
+      lines.push(language === "de" ? "🏷️ Themen:" : "🏷️ Themes:");
+      parsed.themes.forEach(t => lines.push(`  • ${t}`));
+      lines.push("");
+    }
+    if (parsed.moodJourney) {
+      lines.push(`${parsed.moodStart} → ${parsed.moodEnd}`);
+      lines.push(parsed.moodJourney);
+      lines.push("");
+    }
+    if (parsed.nextStep) {
+      lines.push(language === "de" ? "➡️ Nächster Schritt:" : "➡️ Next Step:");
+      lines.push(parsed.nextStep);
+    }
+    return lines.join("\n");
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(getPlainText());
+      setCopied(true);
+      toast({ title: language === "de" ? "Kopiert!" : "Copied!" });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({ title: t("common.error"), variant: "destructive" });
+    }
+  };
+
+  const handleShare = async () => {
+    const text = getPlainText();
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: language === "de" ? "KI-Zusammenfassung" : "AI Summary",
+          text,
+        });
+      } catch (e: any) {
+        if (e.name !== "AbortError") {
+          // Fallback to copy
+          handleCopy();
+        }
+      }
+    } else {
+      handleCopy();
+    }
   };
 
   return (
@@ -169,6 +229,20 @@ export function AISummaryDetail({ content, createdAt, onClose }: AISummaryDetail
               </div>
             </section>
           )}
+
+          {/* Share/Export Actions */}
+          <div className="flex gap-3 pt-2">
+            <Button variant="outline" className="flex-1 gap-2" onClick={handleCopy}>
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied 
+                ? (language === "de" ? "Kopiert" : "Copied") 
+                : (language === "de" ? "Text kopieren" : "Copy text")}
+            </Button>
+            <Button variant="outline" className="flex-1 gap-2" onClick={handleShare}>
+              <Share2 className="w-4 h-4" />
+              {language === "de" ? "Teilen" : "Share"}
+            </Button>
+          </div>
         </div>
       </div>
     </motion.div>
