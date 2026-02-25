@@ -767,12 +767,10 @@ export default function Settings() {
                   </div>
                   <div className="text-left">
                     <p className="font-medium text-foreground">
-                      {language === "de" ? "Avatar-Stil" : "Avatar Style"}
+                      {t("settings.avatarStyle")}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {language === "de" 
-                        ? avatarStyleOptions.find(o => o.value === voiceSettings.avatarStyle)?.labelDe
-                        : avatarStyleOptions.find(o => o.value === voiceSettings.avatarStyle)?.label}
+                      {avatarStyleOptions.find(o => o.value === voiceSettings.avatarStyle)?.[language === "de" ? "labelDe" : "label"]}
                     </p>
                   </div>
                 </div>
@@ -836,10 +834,10 @@ export default function Settings() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">
-                      {language === "de" ? "Unterstützung & Ressourcen" : "Support & Resources"}
+                      {t("settings.supportResources")}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {language === "de" ? "Krisenressourcen immer erreichbar" : "Crisis resources always available"}
+                      {t("settings.crisisAlways")}
                     </p>
                   </div>
                 </div>
@@ -899,10 +897,10 @@ export default function Settings() {
                     </div>
                     <div>
                       <p className="font-medium text-foreground">
-                        {language === "de" ? "App installieren" : "Install App"}
+                        {t("settings.installApp")}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {language === "de" ? "Zum Startbildschirm hinzufügen" : "Add to home screen"}
+                        {t("settings.addToHome")}
                       </p>
                     </div>
                   </div>
@@ -923,10 +921,10 @@ export default function Settings() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">
-                      {language === "de" ? "Tour neu starten" : "Restart Tour"}
+                      {t("settings.restartTour")}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {language === "de" ? "App-Einführung wiederholen" : "Repeat app introduction"}
+                      {t("settings.repeatIntro")}
                     </p>
                   </div>
                 </div>
@@ -948,10 +946,10 @@ export default function Settings() {
                     </div>
                     <div>
                       <p className="font-medium text-foreground">
-                        {language === "de" ? "Admin-Bereich" : "Admin Panel"}
+                        {t("settings.adminPanel")}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {language === "de" ? "Nutzer & Abos verwalten" : "Manage users & subscriptions"}
+                        {t("settings.manageUsers")}
                       </p>
                     </div>
                   </div>
@@ -969,7 +967,7 @@ export default function Settings() {
           transition={{ delay: 0.25 }}
         >
           <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
-            {language === "de" ? "Konto" : "Account"}
+            {t("settings.account")}
           </h2>
           
           {/* Account Settings Component */}
@@ -990,10 +988,10 @@ export default function Settings() {
                       </div>
                       <div>
                         <p className="font-medium text-destructive">
-                          {language === "de" ? "Abmelden" : "Log out"}
+                          {t("settings.logOut")}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {language === "de" ? "Sitzung beenden" : "End your session"}
+                          {t("settings.endSession")}
                         </p>
                       </div>
                     </div>
@@ -1003,26 +1001,22 @@ export default function Settings() {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    {language === "de" ? "Abmelden?" : "Log out?"}
+                    {t("settings.logOutConfirm")}
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    {language === "de" 
-                      ? "Du kannst dich jederzeit wieder anmelden. Deine Daten bleiben sicher gespeichert." 
-                      : "You can log back in anytime. Your data will remain safely stored."}
+                    {t("settings.logOutDesc")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>
-                    {language === "de" ? "Abbrechen" : "Cancel"}
+                    {t("common.cancel")}
                   </AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={handleLogout}
                     disabled={isLoggingOut}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    {isLoggingOut 
-                      ? (language === "de" ? "Wird abgemeldet..." : "Logging out...") 
-                      : (language === "de" ? "Abmelden" : "Log out")}
+                    {isLoggingOut ? t("settings.loggingOut") : t("settings.logOut")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -1037,7 +1031,7 @@ export default function Settings() {
           transition={{ delay: 0.3 }}
         >
           <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
-            {language === "de" ? "Rechtliches & Info" : "Legal & Info"}
+            {t("settings.legalInfo")}
           </h2>
           <div className="space-y-2">
             {/* Cookie Settings */}
@@ -1050,8 +1044,8 @@ export default function Settings() {
                   <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                     <Cookie className="w-5 h-5 text-muted-foreground" />
                   </div>
-                  <span className="font-medium text-foreground">
-                    {language === "de" ? "Cookie-Einstellungen" : "Cookie Settings"}
+                   <span className="font-medium text-foreground">
+                    {t("settings.cookieSettings")}
                   </span>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -1065,7 +1059,7 @@ export default function Settings() {
                 className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
               >
                 <span className="text-sm font-medium text-foreground">
-                  {language === "de" ? "Datenschutz" : "Privacy Policy"}
+                  {t("settings.privacyPolicy")}
                 </span>
               </button>
               <button
@@ -1073,7 +1067,7 @@ export default function Settings() {
                 className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
               >
                 <span className="text-sm font-medium text-foreground">
-                  {language === "de" ? "AGB" : "Terms of Use"}
+                  {t("settings.termsOfUse")}
                 </span>
               </button>
               <button
@@ -1081,7 +1075,7 @@ export default function Settings() {
                 className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
               >
                 <span className="text-sm font-medium text-foreground">
-                  {language === "de" ? "Impressum" : "Legal Notice"}
+                  {t("settings.legalNotice")}
                 </span>
               </button>
               <button
@@ -1095,7 +1089,7 @@ export default function Settings() {
                 className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
               >
                 <span className="text-sm font-medium text-foreground">
-                  {language === "de" ? "Widerruf" : "Withdrawal"}
+                  {t("settings.withdrawal")}
                 </span>
               </button>
               <button
@@ -1103,7 +1097,7 @@ export default function Settings() {
                 className="p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
               >
                 <span className="text-sm font-medium text-foreground">
-                  {language === "de" ? "Über uns" : "About"}
+                  {t("settings.aboutUs")}
                 </span>
               </button>
               <button
@@ -1111,7 +1105,7 @@ export default function Settings() {
                 className="col-span-2 p-3 bg-card rounded-xl border border-border/40 text-left hover:bg-muted/30 transition-colors"
               >
                 <span className="text-sm font-medium text-foreground">
-                  {language === "de" ? "Kontakt" : "Contact"}
+                  {t("settings.contact")}
                 </span>
               </button>
             </div>

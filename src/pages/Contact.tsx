@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
 import { CalmCard } from "@/components/shared/CalmCard";
+import { StandalonePage } from "@/components/layout/StandalonePage";
 
 export default function Contact() {
   const navigate = useNavigate();
@@ -151,6 +152,7 @@ export default function Contact() {
   };
 
   return (
+    <StandalonePage>
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 py-8 safe-top">
         {/* Header */}
@@ -345,5 +347,6 @@ export default function Contact() {
         )}
       </div>
     </div>
+    </StandalonePage>
   );
 }

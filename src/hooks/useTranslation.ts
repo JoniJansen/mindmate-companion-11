@@ -467,6 +467,72 @@ export const translations: Translations = {
   "settings.upgradeSuccess": { en: "Your upgrade was successful.", de: "Dein Upgrade war erfolgreich." },
   "settings.checkoutCanceled": { en: "Checkout canceled", de: "Checkout abgebrochen" },
   "settings.upgradeAnytime": { en: "You can upgrade anytime.", de: "Du kannst jederzeit upgraden." },
+
+  // Settings UI - Support section
+  "settings.supportResources": { en: "Support & Resources", de: "Unterstützung & Ressourcen" },
+  "settings.crisisAlways": { en: "Crisis resources always available", de: "Krisenressourcen immer erreichbar" },
+  "settings.installApp": { en: "Install App", de: "App installieren" },
+  "settings.addToHome": { en: "Add to home screen", de: "Zum Startbildschirm hinzufügen" },
+  "settings.restartTour": { en: "Restart Tour", de: "Tour neu starten" },
+  "settings.repeatIntro": { en: "Repeat app introduction", de: "App-Einführung wiederholen" },
+  "settings.adminPanel": { en: "Admin Panel", de: "Admin-Bereich" },
+  "settings.manageUsers": { en: "Manage users & subscriptions", de: "Nutzer & Abos verwalten" },
+
+  // Settings UI - Account section
+  "settings.account": { en: "Account", de: "Konto" },
+  "settings.logOut": { en: "Log out", de: "Abmelden" },
+  "settings.endSession": { en: "End your session", de: "Sitzung beenden" },
+  "settings.logOutConfirm": { en: "Log out?", de: "Abmelden?" },
+  "settings.logOutDesc": { en: "You can log back in anytime. Your data will remain safely stored.", de: "Du kannst dich jederzeit wieder anmelden. Deine Daten bleiben sicher gespeichert." },
+  "settings.loggingOut": { en: "Logging out...", de: "Wird abgemeldet..." },
+
+  // Settings UI - Legal section
+  "settings.legalInfo": { en: "Legal & Info", de: "Rechtliches & Info" },
+  "settings.cookieSettings": { en: "Cookie Settings", de: "Cookie-Einstellungen" },
+  "settings.privacyPolicy": { en: "Privacy Policy", de: "Datenschutz" },
+  "settings.termsOfUse": { en: "Terms of Use", de: "AGB" },
+  "settings.legalNotice": { en: "Legal Notice", de: "Impressum" },
+  "settings.withdrawal": { en: "Withdrawal", de: "Widerruf" },
+  "settings.aboutUs": { en: "About", de: "Über uns" },
+  "settings.contact": { en: "Contact", de: "Kontakt" },
+
+  // Settings UI - Voice
+  "settings.avatarStyle": { en: "Avatar Style", de: "Avatar-Stil" },
+
+  // Auth page
+  "auth.back": { en: "Back", de: "Zurück" },
+  "auth.welcomeBack": { en: "Welcome back", de: "Willkommen zurück" },
+  "auth.signInContinue": { en: "Sign in to continue your journey", de: "Melde dich an, um fortzufahren" },
+  "auth.signIn": { en: "Sign in", de: "Anmelden" },
+  "auth.noAccount": { en: "Don't have an account?", de: "Noch kein Konto?" },
+  "auth.signUp": { en: "Sign up", de: "Registrieren" },
+  "auth.createAccount": { en: "Create your account", de: "Erstelle dein Konto" },
+  "auth.startJourney": { en: "Start your mental wellness journey", de: "Starte deine Reise zu mehr Wohlbefinden" },
+  "auth.keepSafe": { en: "Keep your reflections safe and synced across devices.", de: "Speichere deine Gedanken sicher und synchronisiere sie geräteübergreifend." },
+  "auth.createAccountBtn": { en: "Create account", de: "Konto erstellen" },
+  "auth.hasAccount": { en: "Already have an account?", de: "Bereits ein Konto?" },
+  "auth.resetPassword": { en: "Reset password", de: "Passwort zurücksetzen" },
+  "auth.resetSubtitle": { en: "We'll send you a reset link", de: "Wir senden dir einen Reset-Link" },
+  "auth.sendResetLink": { en: "Send reset link", de: "Link senden" },
+  "auth.rememberPassword": { en: "Remember your password?", de: "Passwort doch bekannt?" },
+  "auth.yourName": { en: "Your name (optional)", de: "Dein Name (optional)" },
+  "auth.yourNamePlaceholder": { en: "Your name", de: "Dein Name" },
+  "auth.password": { en: "Password", de: "Passwort" },
+  "auth.forgot": { en: "Forgot?", de: "Vergessen?" },
+  "auth.secureEncrypted": { en: "Secure & encrypted", de: "Sicher & verschlüsselt" },
+  "auth.welcomeBackToast": { en: "Welcome back!", de: "Willkommen zurück!" },
+  "auth.nowLoggedIn": { en: "You are now logged in.", de: "Du bist jetzt eingeloggt." },
+  "auth.accountCreated": { en: "Account created!", de: "Konto erstellt!" },
+  "auth.welcomeToSoulvay": { en: "Welcome to Soulvay!", de: "Willkommen bei Soulvay!" },
+  "auth.emailSent": { en: "Email sent", de: "E-Mail gesendet" },
+  "auth.checkInbox": { en: "Check your inbox for the reset link.", de: "Überprüfe dein Postfach für den Link zum Zurücksetzen." },
+  "auth.reviewLogin": { en: "Review / Demo Login", de: "Review / Demo Login" },
+  "auth.reviewPurpose": { en: "For App Store Review and testing purposes", de: "Für App Store Review und Testzwecke" },
+
+  // FAQ page
+  "faq.stillQuestions": { en: "Still have questions?", de: "Noch Fragen?" },
+  "faq.happyToHelp": { en: "We're happy to help!", de: "Wir helfen dir gerne weiter!" },
+  "faq.contactUs": { en: "Contact Us", de: "Kontakt aufnehmen" },
 };
 
 // Exercise translations
