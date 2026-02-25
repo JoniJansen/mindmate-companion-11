@@ -1,5 +1,4 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import Stripe from "https://esm.sh/stripe@17.7.0?target=deno&no-check";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 import { requireUser } from "../_shared/auth.ts";
 
@@ -8,13 +7,30 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Native fetch wrapper for Stripe API (avoids Deno.core.runMicrotasks crash)
+async function stripeRequest(path: string, params: Record<string, string>, stripeKey: string) {
+  const res = await fetch(`https://api.stripe.com/v1${path}`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${stripeKey}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams(params).toString(),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error?.message || `Stripe API error: ${res.status}`);
+  }
+  return res.json();
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // JWT auth - get user_id from token, not from body
+    // JWT auth
     let userId: string;
     try {
       const { user } = await requireUser(req);
@@ -27,17 +43,14 @@ Deno.serve(async (req) => {
     const { planType, successUrl, cancelUrl } = await req.json();
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) {
-      throw new Error("Stripe secret key not configured");
-    }
+    if (!stripeKey) throw new Error("Stripe secret key not configured");
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2024-11-20.acacia" });
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Check if customer already exists
-    let existingSub = await supabase
+    const existingSub = await supabase
       .from("subscriptions")
       .select("stripe_customer_id")
       .eq("user_id", userId)
@@ -46,9 +59,9 @@ Deno.serve(async (req) => {
     let customerId = existingSub.data?.stripe_customer_id;
 
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        metadata: { user_id: userId },
-      });
+      const customer = await stripeRequest("/customers", {
+        "metadata[user_id]": userId,
+      }, stripeKey);
       customerId = customer.id;
 
       await supabase.from("subscriptions").upsert({
@@ -59,41 +72,45 @@ Deno.serve(async (req) => {
       });
     }
 
-    const priceConfig = planType === "yearly" 
-      ? { unit_amount: 7900, interval: "year" as const, trial_days: 0 }
-      : { unit_amount: 999, interval: "month" as const, trial_days: 7 };
+    const isYearly = planType === "yearly";
+    const unitAmount = isYearly ? "7900" : "999";
+    const interval = isYearly ? "year" : "month";
+    const trialDays = isYearly ? 0 : 7;
+    const description = isYearly
+      ? "Jährliches Abo - Spare 2 Monate!"
+      : "Monatliches Abo – 7 Tage kostenlos testen";
 
-    const checkoutSession = await stripe.checkout.sessions.create({
-      customer: customerId,
-      mode: "subscription",
-      payment_method_types: ["card", "paypal"],
-      allow_promotion_codes: true,
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: "Soulvay Plus",
-              description: planType === "yearly" 
-                ? "Jährliches Abo - Spare 2 Monate!" 
-                : "Monatliches Abo – 7 Tage kostenlos testen",
-            },
-            unit_amount: priceConfig.unit_amount,
-            recurring: { interval: priceConfig.interval },
-          },
-          quantity: 1,
-        },
-      ],
-      subscription_data: priceConfig.trial_days > 0 
-        ? { trial_period_days: priceConfig.trial_days }
-        : undefined,
-      success_url: successUrl || `${req.headers.get("origin")}/settings?success=true`,
-      cancel_url: cancelUrl || `${req.headers.get("origin")}/settings?canceled=true`,
-      metadata: { user_id: userId, plan_type: planType },
-    });
+    const origin = req.headers.get("origin") || "https://soulvay.com";
+    const finalSuccessUrl = successUrl || `${origin}/settings?success=true`;
+    const finalCancelUrl = cancelUrl || `${origin}/settings?canceled=true`;
+
+    // Build checkout session params
+    const params: Record<string, string> = {
+      "customer": customerId!,
+      "mode": "subscription",
+      "payment_method_types[0]": "card",
+      "payment_method_types[1]": "paypal",
+      "allow_promotion_codes": "true",
+      "line_items[0][price_data][currency]": "eur",
+      "line_items[0][price_data][product_data][name]": "Soulvay Plus",
+      "line_items[0][price_data][product_data][description]": description,
+      "line_items[0][price_data][unit_amount]": unitAmount,
+      "line_items[0][price_data][recurring][interval]": interval,
+      "line_items[0][quantity]": "1",
+      "success_url": finalSuccessUrl,
+      "cancel_url": finalCancelUrl,
+      "metadata[user_id]": userId,
+      "metadata[plan_type]": planType,
+    };
+
+    if (trialDays > 0) {
+      params["subscription_data[trial_period_days]"] = String(trialDays);
+    }
+
+    const session = await stripeRequest("/checkout/sessions", params, stripeKey);
 
     return new Response(
-      JSON.stringify({ url: checkoutSession.url }),
+      JSON.stringify({ url: session.url }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
