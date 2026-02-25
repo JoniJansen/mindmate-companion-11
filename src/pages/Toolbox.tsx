@@ -127,13 +127,13 @@ export default function Toolbox() {
                   <div className="flex items-start gap-3">
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                        isCompleted ? "bg-primary/20" : "bg-calm/20"
+                        isCompleted ? "bg-primary/20" : "bg-primary/10"
                       }`}
                     >
                       {isCompleted ? (
                         <CheckCircle2 className="w-6 h-6 text-primary" />
                       ) : (
-                        <Icon className="w-6 h-6 text-calm" />
+                        <Icon className="w-6 h-6 text-primary" />
                       )}
                     </div>
 
