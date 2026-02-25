@@ -8,6 +8,7 @@ import { TabHint } from "@/components/shared/TabHint";
 import { JournalEditor } from "@/components/journal/JournalEditor";
 import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
 import { AISummaryCard } from "@/components/journal/AISummaryCard";
+import { AISummaryDetail } from "@/components/journal/AISummaryDetail";
 import { JournalPrompts } from "@/components/journal/JournalPrompts";
 import { AIReflectionPanel } from "@/components/journal/AIReflectionPanel";
 import { useAuth } from "@/hooks/useAuth";
@@ -54,6 +55,8 @@ export default function Journal() {
   const [weeklyRecap, setWeeklyRecap] = useState<WeeklyRecap | null>(null);
   const [isLoadingRecap, setIsLoadingRecap] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [summaryDetail, setSummaryDetail] = useState<JournalEntry | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { t, language } = useTranslation();
@@ -310,7 +313,12 @@ export default function Journal() {
 
   const filteredEntries = entries.filter((e) => {
     const matchesSearch = e.content.toLowerCase().includes(searchQuery.toLowerCase()) || e.title?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+    const matchesSource = sourceFilter === "all" 
+      || (sourceFilter === "free" && (!e.source || e.source === "free" || e.source === "manual"))
+      || (sourceFilter === "chat" && e.source === "chat")
+      || (sourceFilter === "summary" && e.source === "chat-summary")
+      || (sourceFilter === "guided" && e.source === "guided");
+    return matchesSearch && matchesSource;
   });
 
   // Write mode
@@ -437,6 +445,29 @@ export default function Journal() {
           </div>
         </div>
 
+        {/* Source Filter Chips */}
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+          {[
+            { key: "all", label: language === "de" ? "Alle" : "All" },
+            { key: "free", label: language === "de" ? "Frei" : "Free" },
+            { key: "chat", label: "Chat" },
+            { key: "summary", label: language === "de" ? "KI-Zusammenfassung" : "AI Summary" },
+            { key: "guided", label: language === "de" ? "Geführt" : "Guided" },
+          ].map(f => (
+            <button
+              key={f.key}
+              onClick={() => setSourceFilter(f.key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                sourceFilter === f.key
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
         {/* Guided Prompts */}
         <JournalPrompts onSelectPrompt={handleSelectPrompt} />
 
@@ -475,7 +506,7 @@ export default function Journal() {
                     content={entry.content}
                     createdAt={entry.created_at}
                     index={index}
-                    onClick={() => { setSelectedEntry(entry); setDraftContent(entry.content); setSelectedTags(entry.tags || []); setIsEditorOpen(true); }}
+                    onClick={() => setSummaryDetail(entry)}
                   />
                 ) : (
                   <JournalEntryCard
@@ -505,6 +536,17 @@ export default function Journal() {
             initialMood={selectedEntry.mood || ""}
             onSave={handleSaveEntry}
             onClose={() => { setIsEditorOpen(false); setSelectedEntry(null); setSelectedTags([]); }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* AI Summary Detail View */}
+      <AnimatePresence>
+        {summaryDetail && (
+          <AISummaryDetail
+            content={summaryDetail.content}
+            createdAt={summaryDetail.created_at}
+            onClose={() => setSummaryDetail(null)}
           />
         )}
       </AnimatePresence>
