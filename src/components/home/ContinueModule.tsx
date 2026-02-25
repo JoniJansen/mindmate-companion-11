@@ -6,16 +6,17 @@ import { useLastState } from "@/hooks/useLastState";
 import { getExerciseById } from "@/data/exercises";
 import { topics } from "@/data/topics";
 
+const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+const prefersReducedMotion = typeof window !== "undefined"
+  && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
 export function ContinueModule() {
   const { t, language, getExerciseDisplay, getTopicDisplay } = useTranslation();
   const navigate = useNavigate();
   const { lastExercise, lastTopic, journalDraft, hasAnyContinuation, clearPart } = useLastState();
 
-  if (!hasAnyContinuation) return null;
-
-  const prefersReducedMotion = typeof window !== "undefined"
-    && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
+  // Validate and build cards
   const cards: {
     key: string;
     icon: typeof Play;
@@ -25,57 +26,75 @@ export function ContinueModule() {
     onClear: () => void;
   }[] = [];
 
-  // Exercise card
+  // Exercise card — validate existence
   if (lastExercise && !lastExercise.completedAt) {
     const exercise = getExerciseById(lastExercise.id);
-    const display = exercise ? getExerciseDisplay(exercise.id, {
-      title: exercise.title,
-      description: exercise.description,
-    }) : null;
-    cards.push({
-      key: "exercise",
-      icon: Play,
-      title: t("home.continueExercise"),
-      subtitle: display?.title || t("home.continueExerciseDesc"),
-      onClick: () => navigate("/toolbox", { state: { startExercise: lastExercise.id } }),
-      onClear: () => clearPart("lastExercise"),
-    });
+    if (exercise) {
+      const display = getExerciseDisplay(exercise.id, {
+        title: exercise.title,
+        description: exercise.description,
+      });
+      cards.push({
+        key: "exercise",
+        icon: Play,
+        title: t("home.continueExercise"),
+        subtitle: display?.title || t("home.continueExerciseDesc"),
+        onClick: () => navigate("/toolbox", { state: { startExercise: lastExercise.id } }),
+        onClear: () => clearPart("lastExercise"),
+      });
+    } else {
+      // Invalid exercise id — auto-clear
+      clearPart("lastExercise");
+    }
   }
 
-  // Topic card
+  // Topic card — validate topic + step index
   if (lastTopic) {
     const topic = topics.find(tp => tp.id === lastTopic.topicId);
-    const display = topic ? getTopicDisplay(topic.id, {
-      title: topic.title,
-      description: topic.description,
-    }) : null;
-    const stepLabel = lastTopic.stepIndex !== undefined
-      ? ` · ${t("common.step")} ${(lastTopic.stepIndex || 0) + 1}`
-      : "";
-    cards.push({
-      key: "topic",
-      icon: Map,
-      title: t("home.continueTopic"),
-      subtitle: (display?.title || t("home.continueTopicDesc")) + stepLabel,
-      onClick: () => navigate("/topics", { state: { openTopic: lastTopic.topicId } }),
-      onClear: () => clearPart("lastTopic"),
-    });
+    if (topic) {
+      const display = getTopicDisplay(topic.id, {
+        title: topic.title,
+        description: topic.description,
+      });
+      // Validate step index
+      const safeStepIndex = (lastTopic.stepIndex !== undefined && lastTopic.stepIndex < topic.steps.length)
+        ? lastTopic.stepIndex
+        : 0;
+      const stepLabel = ` · ${t("common.step")} ${safeStepIndex + 1}`;
+      cards.push({
+        key: "topic",
+        icon: Map,
+        title: t("home.continueTopic"),
+        subtitle: (display?.title || t("home.continueTopicDesc")) + stepLabel,
+        onClick: () => navigate("/topics", { state: { openTopic: lastTopic.topicId } }),
+        onClear: () => clearPart("lastTopic"),
+      });
+    } else {
+      // Invalid topic — auto-clear
+      clearPart("lastTopic");
+    }
   }
 
-  // Journal draft card
+  // Journal draft card — validate age
   if (journalDraft?.hasContent) {
-    const ago = journalDraft.updatedAt
-      ? formatRelativeTime(journalDraft.updatedAt, language)
-      : "";
-    cards.push({
-      key: "journal",
-      icon: BookOpen,
-      title: t("home.continueJournalDraft"),
-      subtitle: ago ? `${t("home.lastEdited")} ${ago}` : t("home.continueJournalDraft"),
-      onClick: () => navigate("/journal", { state: { resumeDraft: true } }),
-      onClear: () => clearPart("journalDraft"),
-    });
+    const age = Date.now() - (journalDraft.updatedAt || 0);
+    if (age > DRAFT_MAX_AGE_MS || !journalDraft.updatedAt) {
+      // Too old — auto-clear
+      clearPart("journalDraft");
+    } else {
+      const ago = formatRelativeTime(journalDraft.updatedAt, language);
+      cards.push({
+        key: "journal",
+        icon: BookOpen,
+        title: t("home.continueJournalDraft"),
+        subtitle: ago ? `${t("home.lastEdited")} ${ago}` : t("home.continueJournalDraft"),
+        onClick: () => navigate("/journal", { state: { resumeDraft: true } }),
+        onClear: () => clearPart("journalDraft"),
+      });
+    }
   }
+
+  if (cards.length === 0) return null;
 
   return (
     <motion.div
@@ -100,7 +119,7 @@ export function ContinueModule() {
           >
             <button
               onClick={card.onClick}
-              className="w-full text-left rounded-2xl p-4 border bg-card border-border/30 hover:border-primary/30 transition-colors"
+              className="w-full text-left rounded-2xl p-4 border bg-card border-border/30 hover:border-primary/30 transition-colors min-h-[44px]"
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -115,7 +134,7 @@ export function ContinueModule() {
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); card.onClear(); }}
-              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-muted"
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-muted min-h-[28px] min-w-[28px]"
               aria-label={t("common.clear")}
             >
               <X className="w-3 h-3 text-muted-foreground" />
@@ -137,10 +156,12 @@ function formatRelativeTime(ts: number, lang: string): string {
     if (mins < 1) return "gerade eben";
     if (mins < 60) return `vor ${mins} Min`;
     if (hours < 24) return `vor ${hours} Std`;
+    if (days === 1) return "vor 1 Tag";
     return `vor ${days} Tagen`;
   }
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m ago`;
   if (hours < 24) return `${hours}h ago`;
+  if (days === 1) return "1 day ago";
   return `${days}d ago`;
 }

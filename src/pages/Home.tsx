@@ -37,7 +37,7 @@ export default function Home() {
   const { toast } = useToast();
   const streak = useStreak();
   const { logActivity } = useActivityLog();
-  const { suggestions } = usePersonalization();
+  const { suggestions, audioSuggestion } = usePersonalization();
   const [showMilestone, setShowMilestone] = useState(true);
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
@@ -377,6 +377,34 @@ export default function Home() {
           suggestions={suggestions}
           onStartExercise={(exercise) => navigate("/toolbox", { state: { startExercise: exercise.id } })}
         />
+
+        {/* Audio Suggestion */}
+        {audioSuggestion && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="mb-4"
+          >
+            <button
+              onClick={() => navigate("/audio")}
+              className="w-full text-left rounded-2xl p-4 border bg-card border-primary/20 hover:border-primary/30 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-lg">
+                  {audioSuggestion.reason === "sleep" ? "🌙" : "🧘"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">
+                    {t(audioSuggestion.reason === "sleep" ? "audio.sleepRecommended" : "audio.stressRecommended")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{t("audio.whyRecommended")}</p>
+                </div>
+                <Headphones className="w-4 h-4 text-primary shrink-0" />
+              </div>
+            </button>
+          </motion.div>
+        )}
 
         {/* Recent Thoughts */}
         <motion.div

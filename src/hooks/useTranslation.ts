@@ -477,6 +477,20 @@ export const translations: Translations = {
   "journal.sentimentTagPrompt": { en: "Would you like to tag this?", de: "Möchtest du das markieren?" },
   "journal.sentimentJustSuggestion": { en: "Just a suggestion — you decide.", de: "Das ist nur ein Vorschlag — du entscheidest." },
 
+  // Audio Library
+  "audio.title": { en: "Audio Library", de: "Audio-Bibliothek" },
+  "audio.subtitle": { en: "Guided sessions for inner peace", de: "Geführte Sessions für innere Ruhe" },
+  "audio.premiumRequired": { en: "Premium feature — Upgrade for access", de: "Premium-Funktion — Upgrade für Zugang" },
+  "audio.sleepMode": { en: "Sleep Mode", de: "Schlafmodus" },
+  "audio.minimalUI": { en: "Minimal UI", de: "Minimales UI" },
+  "audio.sleepWell": { en: "Sleep well", de: "Schlaf gut" },
+  "audio.playing": { en: "Playing...", de: "Wird abgespielt..." },
+  "audio.exit": { en: "Exit", de: "Beenden" },
+  "audio.sleepEnded": { en: "Sleep mode ended. Good night.", de: "Schlafmodus beendet. Gute Nacht." },
+  "audio.whyRecommended": { en: "Based on your recent check-ins", de: "Basierend auf deinen letzten Check-ins" },
+  "audio.sleepRecommended": { en: "Wind down for tonight", de: "Komm heute Abend zur Ruhe" },
+  "audio.stressRecommended": { en: "You seem tense — try this", de: "Du wirkst angespannt — probier das" },
+
   // Streak & Progress
   "streak.day": { en: "day", de: "Tag" },
   "streak.days": { en: "days", de: "Tage" },
