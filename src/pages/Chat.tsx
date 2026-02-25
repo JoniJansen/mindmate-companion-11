@@ -173,8 +173,8 @@ export default function Chat() {
     { id: "grounding-54321", label: t("chat.exercise.grounding"), icon: Anchor },
   ];
 
-  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  useEffect(() => { scrollToBottom(); }, [messages]);
+  const scrollToBottom = useCallback(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), []);
+  useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
 
   // Initial greeting - personalized based on onboarding
   useEffect(() => {
@@ -294,7 +294,6 @@ export default function Chat() {
       } catch {}
       
       // Get user session token for authenticated request
-      const { supabase } = await import("@/integrations/supabase/client");
       const { data: { session } } = await supabase.auth.getSession();
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       
@@ -572,7 +571,7 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4" style={{ WebkitOverflowScrolling: 'touch', contain: 'layout style', willChange: 'scroll-position' }}>
         <div className="max-w-lg mx-auto space-y-3">
           {messages.map((message) => (
             <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>

@@ -50,7 +50,16 @@ const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const DevQA = lazy(() => import("@/pages/DevQA"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 min – avoid redundant refetches
+      gcTime: 10 * 60 * 1000,   // 10 min garbage-collection window
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Initialize theme from localStorage
 function ThemeInitializer() {
