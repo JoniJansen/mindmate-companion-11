@@ -474,7 +474,7 @@ export default function Chat() {
 
   const handleCalmExercise = (exerciseId: string) => { navigate("/toolbox", { state: { startExercise: exerciseId } }); };
 
-  const handleUpgrade = () => { setShowUpgradePrompt(false); navigate("/settings", { state: { scrollTo: "premium" } }); };
+  const handleUpgrade = () => { setShowUpgradePrompt(false); navigate("/upgrade"); };
 
   const BOTTOM_NAV_HEIGHT = 56;
   
@@ -532,6 +532,13 @@ export default function Chat() {
 
       <ChatDisclaimer />
       <MessageLimitIndicator messagesRemaining={messagesRemaining} dailyLimit={dailyMessageLimit} isPremium={isPremium} />
+
+      {/* Persistent upgrade banner for free users */}
+      {!isPremium && (
+        <div className="shrink-0 px-4 py-2">
+          <UpgradePrompt reason="general" variant="banner" onUpgrade={() => navigate("/upgrade")} />
+        </div>
+      )}
 
       {/* Voice Avatar */}
       <AnimatePresence>
