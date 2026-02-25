@@ -60,6 +60,36 @@ export default function Journal() {
   const navigate = useNavigate();
   const { logActivity } = useActivityLog();
 
+  // Non-blocking sentiment analysis after save
+  const runSentimentAnalysis = async (content: string) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "sentiment",
+          entries: [{ content }],
+        }),
+      });
+      const data = await response.json();
+      if (data.reflection) {
+        try {
+          const sentiment = JSON.parse(data.reflection);
+          if (sentiment.brief) {
+            toast({
+              title: t("journal.sentimentInsight"),
+              description: sentiment.brief,
+            });
+          }
+        } catch {
+          // Sentiment response wasn't valid JSON — ignore
+        }
+      }
+    } catch {
+      // Silent fail — sentiment is non-critical
+    }
+  };
+
   const speechLang = language === "de" ? "de-DE" : "en-US";
   const { isListening, fullTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition(speechLang, { continuous: true });
 
@@ -143,6 +173,12 @@ export default function Journal() {
       });
 
       logActivity("journal_entry");
+
+      // Non-blocking sentiment analysis for new entries
+      if (!selectedEntry?.id && entry.content.length > 30) {
+        runSentimentAnalysis(entry.content);
+      }
+
       setViewMode("list");
       setIsEditorOpen(false);
       setDraftContent("");

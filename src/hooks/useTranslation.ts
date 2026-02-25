@@ -458,6 +458,12 @@ export const translations: Translations = {
   "home.thoughtSaved": { en: "Thought saved", de: "Gedanke gespeichert" },
   "home.thoughtSavedDesc": { en: "Your thought has been saved to the timeline.", de: "Dein Gedanke wurde in der Timeline gespeichert." },
   "home.saveFailed": { en: "Could not save thought.", de: "Konnte nicht gespeichert werden." },
+  "home.forYou": { en: "For you", de: "Für dich" },
+  "home.lastExercise": { en: "Continue exercise", de: "Übung fortsetzen" },
+
+  // Sentiment
+  "journal.sentimentSuggestion": { en: "AI suggests tagging as", de: "KI schlägt vor zu taggen als" },
+  "journal.sentimentInsight": { en: "Insight", de: "Einblick" },
 
   // Streak & Progress
   "streak.day": { en: "day", de: "Tag" },

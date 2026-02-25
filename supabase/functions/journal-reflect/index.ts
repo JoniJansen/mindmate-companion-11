@@ -74,6 +74,22 @@ Your role:
 Keep responses brief and inviting.`;
 
       userPrompt = `Help reflect on this journal entry:\n\n${entries[0]?.content || ''}`;
+    } else if (type === "sentiment") {
+      // Phase 2: Sentiment analysis for journal entries
+      systemPrompt = `You are a sentiment analysis assistant for a mental health journaling app.
+
+Analyze the journal entry and return ONLY a JSON object with:
+- "sentiment": one of "positive", "neutral", "negative", "mixed"
+- "score": a number from 1 (very negative) to 5 (very positive)
+- "suggestedTags": array of 1-3 suggested emotion tags from this list ONLY: ["anxious", "sad", "angry", "stressed", "calm", "grateful", "hopeful", "overwhelmed"]
+- "brief": a one-sentence validating observation (warm, non-clinical)
+
+Example output:
+{"sentiment":"mixed","score":2.5,"suggestedTags":["stressed","overwhelmed"],"brief":"It sounds like you're carrying a lot right now."}
+
+IMPORTANT: Return ONLY the JSON object. No other text.`;
+
+      userPrompt = `Analyze this journal entry:\n\n${entries[0]?.content || ''}`;
     } else if (type === "emotional-timeline") {
       systemPrompt = `You are a gentle, supportive companion helping someone notice emotional patterns over time. 
 
