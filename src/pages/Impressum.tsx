@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Building2, Mail, Phone, Globe, Scale, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { StandalonePage } from "@/components/layout/StandalonePage";
 import { useEffect, useState } from "react";
 
 export default function Impressum() {
@@ -85,6 +86,7 @@ export default function Impressum() {
   const t = texts[language];
 
   return (
+    <StandalonePage>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -220,5 +222,6 @@ export default function Impressum() {
         </motion.div>
       </main>
     </div>
+    </StandalonePage>
   );
 }

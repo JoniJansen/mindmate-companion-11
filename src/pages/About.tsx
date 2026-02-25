@@ -3,6 +3,7 @@ import { ArrowLeft, Heart, Shield, Brain, Sparkles, Users, Target } from "lucide
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { StandalonePage } from "@/components/layout/StandalonePage";
 
 export default function About() {
   const navigate = useNavigate();
@@ -104,6 +105,7 @@ export default function About() {
   const t = content[language];
 
   return (
+    <StandalonePage>
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 safe-top">
         {/* Header */}
@@ -221,5 +223,6 @@ export default function About() {
         </div>
       </div>
     </div>
+    </StandalonePage>
   );
 }

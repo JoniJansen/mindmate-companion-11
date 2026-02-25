@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { StandalonePage } from "@/components/layout/StandalonePage";
 
 interface CrisisLine {
   name: string;
@@ -143,6 +144,7 @@ export default function Safety() {
   const emergencyNumber = language === "de" ? "112" : "911";
 
   return (
+    <StandalonePage>
     <div className="min-h-screen min-h-[100dvh] bg-background">
       <PageHeader 
         title={t("safety.title")} 
@@ -333,5 +335,6 @@ export default function Safety() {
         </motion.div>
       </div>
     </div>
+    </StandalonePage>
   );
 }

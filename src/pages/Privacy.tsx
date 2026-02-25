@@ -3,6 +3,7 @@ import { ArrowLeft, Shield, Lock, Eye, Trash2, Download, Bell } from "lucide-rea
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { StandalonePage } from "@/components/layout/StandalonePage";
 
 export default function Privacy() {
   const navigate = useNavigate();
@@ -180,6 +181,7 @@ Die weitere Nutzung von Soulvay nach Änderungen gilt als Akzeptanz der aktualis
   const t = content[language];
 
   return (
+    <StandalonePage>
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 safe-top">
         {/* Header */}
@@ -247,5 +249,6 @@ Die weitere Nutzung von Soulvay nach Änderungen gilt als Akzeptanz der aktualis
         </motion.section>
       </div>
     </div>
+    </StandalonePage>
   );
 }

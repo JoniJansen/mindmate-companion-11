@@ -3,6 +3,7 @@ import { ArrowLeft, RotateCcw, AlertCircle, FileText, Calendar } from "lucide-re
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { StandalonePage } from "@/components/layout/StandalonePage";
 
 export default function Cancellation() {
   const navigate = useNavigate();
@@ -186,6 +187,7 @@ Datum: _______________
   const t = content[language];
 
   return (
+    <StandalonePage>
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 safe-top">
         {/* Header */}
@@ -250,5 +252,6 @@ Datum: _______________
         </motion.section>
       </div>
     </div>
+    </StandalonePage>
   );
 }

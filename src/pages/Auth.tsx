@@ -19,7 +19,7 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { signIn, signUp, resetPassword, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { isDark, setMode: setThemeMode } = useTheme();
 
   // Check if coming from onboarding
@@ -46,15 +46,12 @@ export default function Auth() {
     setIsReviewLoading(true);
     
     try {
-      // Normalize credentials
       const reviewEmail = REVIEW_CREDENTIALS.email.trim().toLowerCase();
       const reviewPassword = REVIEW_CREDENTIALS.password;
       
       console.log("[Review Login] Attempting login for:", reviewEmail);
       
       await signIn(reviewEmail, reviewPassword);
-      
-      // Activate review mode for premium bypass
       activateReviewMode();
       
       toast({
@@ -62,15 +59,12 @@ export default function Auth() {
         description: "Welcome! All premium features are unlocked.",
       });
       
-      // Navigate to review instructions
       navigate("/review-instructions", { replace: true });
     } catch (error: any) {
       console.error("[Review Login] Error:", error);
       
-      // Provide detailed error message for debugging
       let errorMessage = error.message || "Unknown error";
       
-      // Common error translations
       if (errorMessage.includes("Invalid login credentials")) {
         errorMessage = "Review account not found. Please contact support: service@soulvay.com";
       } else if (errorMessage.includes("Email not confirmed")) {
@@ -94,13 +88,11 @@ export default function Auth() {
     setIsLoading(true);
 
     try {
-      // Normalize email input
       const normalizedEmail = email.trim().toLowerCase();
       
       if (authMode === "login") {
         await signIn(normalizedEmail, password);
         
-        // Check if this is the review account
         if (isReviewAccount(normalizedEmail)) {
           activateReviewMode();
           toast({
@@ -112,31 +104,27 @@ export default function Auth() {
         }
         
         toast({
-          title: language === "de" ? "Willkommen zurück!" : "Welcome back!",
-          description: language === "de" ? "Du bist jetzt eingeloggt." : "You are now logged in.",
+          title: t("auth.welcomeBackToast"),
+          description: t("auth.nowLoggedIn"),
         });
       } else if (authMode === "signup") {
         await signUp(normalizedEmail, password, displayName);
         toast({
-          title: language === "de" ? "Konto erstellt!" : "Account created!",
-          description: language === "de" 
-            ? "Willkommen bei Soulvay!" 
-            : "Welcome to Soulvay!",
+          title: t("auth.accountCreated"),
+          description: t("auth.welcomeToSoulvay"),
         });
       } else if (authMode === "forgot-password") {
         await resetPassword(normalizedEmail);
         toast({
-          title: language === "de" ? "E-Mail gesendet" : "Email sent",
-          description: language === "de" 
-            ? "Überprüfe dein Postfach für den Link zum Zurücksetzen." 
-            : "Check your inbox for the reset link.",
+          title: t("auth.emailSent"),
+          description: t("auth.checkInbox"),
         });
         setAuthMode("login");
       }
     } catch (error: any) {
       console.error("[Auth] Error:", error);
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: t("common.error"),
         description: error.message,
         variant: "destructive",
       });
@@ -145,38 +133,31 @@ export default function Auth() {
     }
   };
 
-  const texts = {
+  const modeTexts = {
     login: {
-      title: { en: "Welcome back", de: "Willkommen zurück" },
-      subtitle: { en: "Sign in to continue your journey", de: "Melde dich an, um fortzufahren" },
-      button: { en: "Sign in", de: "Anmelden" },
-      switch: { en: "Don't have an account?", de: "Noch kein Konto?" },
-      switchAction: { en: "Sign up", de: "Registrieren" },
+      title: t("auth.welcomeBack"),
+      subtitle: t("auth.signInContinue"),
+      button: t("auth.signIn"),
+      switchText: t("auth.noAccount"),
+      switchAction: t("auth.signUp"),
     },
     signup: {
-      title: { en: "Create your account", de: "Erstelle dein Konto" },
-      subtitle: { 
-        en: fromOnboarding 
-          ? "Keep your reflections safe and synced across devices." 
-          : "Start your mental wellness journey",
-        de: fromOnboarding 
-          ? "Speichere deine Gedanken sicher und synchronisiere sie geräteübergreifend." 
-          : "Starte deine Reise zu mehr Wohlbefinden",
-      },
-      button: { en: "Create account", de: "Konto erstellen" },
-      switch: { en: "Already have an account?", de: "Bereits ein Konto?" },
-      switchAction: { en: "Sign in", de: "Anmelden" },
+      title: t("auth.createAccount"),
+      subtitle: fromOnboarding ? t("auth.keepSafe") : t("auth.startJourney"),
+      button: t("auth.createAccountBtn"),
+      switchText: t("auth.hasAccount"),
+      switchAction: t("auth.signIn"),
     },
     "forgot-password": {
-      title: { en: "Reset password", de: "Passwort zurücksetzen" },
-      subtitle: { en: "We'll send you a reset link", de: "Wir senden dir einen Reset-Link" },
-      button: { en: "Send reset link", de: "Link senden" },
-      switch: { en: "Remember your password?", de: "Passwort doch bekannt?" },
-      switchAction: { en: "Sign in", de: "Anmelden" },
+      title: t("auth.resetPassword"),
+      subtitle: t("auth.resetSubtitle"),
+      button: t("auth.sendResetLink"),
+      switchText: t("auth.rememberPassword"),
+      switchAction: t("auth.signIn"),
     },
   };
 
-  const t = texts[authMode];
+  const currentTexts = modeTexts[authMode];
 
   if (authLoading) {
     return (
@@ -191,18 +172,17 @@ export default function Auth() {
       {/* Header */}
       <div className="p-4 flex items-center justify-between">
         {fromOnboarding ? (
-          <div className="w-10" /> // Spacer - don't show back on post-onboarding
+          <div className="w-10" />
         ) : (
           <button
             onClick={() => navigate("/landing")}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm">{language === "de" ? "Zurück" : "Back"}</span>
+            <span className="text-sm">{t("auth.back")}</span>
           </button>
         )}
         
-        {/* Dark Mode Toggle */}
         <button
           onClick={() => setThemeMode(isDark ? "light" : "dark")}
           className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
@@ -229,17 +209,13 @@ export default function Auth() {
         >
           {/* Logo & Title */}
           <div className="text-center space-y-4">
-            {/* Modern circular logo with soft glow */}
             <motion.div 
               className="relative mx-auto w-24 h-24"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
             >
-              {/* Outer glow ring */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 via-primary/10 to-transparent blur-xl" />
-              
-              {/* Main logo container */}
               <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-xl shadow-primary/15 ring-1 ring-primary/10">
                 <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center">
                   <img 
@@ -253,18 +229,17 @@ export default function Auth() {
             
             <div className="space-y-1.5">
               <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-                {language === "de" ? t.title.de : t.title.en}
+                {currentTexts.title}
               </h1>
               <p className="text-muted-foreground text-sm">
-                {language === "de" ? t.subtitle.de : t.subtitle.en}
+                {currentTexts.subtitle}
               </p>
               
-              {/* Trust badge for post-onboarding users */}
               {fromOnboarding && authMode === "signup" && (
                 <div className="flex items-center justify-center gap-2 mt-3 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/10">
                   <Shield className="w-3.5 h-3.5 text-primary" />
                   <span className="text-xs text-muted-foreground">
-                    {language === "de" ? "Sicher & verschlüsselt" : "Secure & encrypted"}
+                    {t("auth.secureEncrypted")}
                   </span>
                 </div>
               )}
@@ -276,14 +251,14 @@ export default function Auth() {
             {authMode === "signup" && (
               <div className="space-y-2">
                 <Label htmlFor="displayName">
-                  {language === "de" ? "Dein Name (optional)" : "Your name (optional)"}
+                  {t("auth.yourName")}
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     id="displayName"
                     type="text"
-                    placeholder={language === "de" ? "Dein Name" : "Your name"}
+                    placeholder={t("auth.yourNamePlaceholder")}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     className="pl-10"
@@ -312,7 +287,7 @@ export default function Auth() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">
-                    {language === "de" ? "Passwort" : "Password"}
+                    {t("auth.password")}
                   </Label>
                   {authMode === "login" && (
                     <button
@@ -320,7 +295,7 @@ export default function Auth() {
                       onClick={() => setAuthMode("forgot-password")}
                       className="text-xs text-primary hover:underline"
                     >
-                      {language === "de" ? "Vergessen?" : "Forgot?"}
+                      {t("auth.forgot")}
                     </button>
                   )}
                 </div>
@@ -351,7 +326,7 @@ export default function Auth() {
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                language === "de" ? t.button.de : t.button.en
+                currentTexts.button
               )}
             </Button>
           </form>
@@ -359,17 +334,17 @@ export default function Auth() {
           {/* Switch Mode */}
           <div className="text-center text-sm">
             <span className="text-muted-foreground">
-              {language === "de" ? t.switch.de : t.switch.en}{" "}
+              {currentTexts.switchText}{" "}
             </span>
             <button
               onClick={() => setAuthMode(authMode === "login" ? "signup" : "login")}
               className="text-primary hover:underline font-medium"
             >
-              {language === "de" ? t.switchAction.de : t.switchAction.en}
+              {currentTexts.switchAction}
             </button>
           </div>
 
-          {/* Review/Demo Login Button - Always visible for Apple Review */}
+          {/* Review/Demo Login Button */}
           {authMode === "login" && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -389,12 +364,10 @@ export default function Auth() {
                 ) : (
                   <Star className="w-5 h-5 mr-2" />
                 )}
-                {language === "de" ? "Review / Demo Login" : "Review / Demo Login"}
+                {t("auth.reviewLogin")}
               </Button>
               <p className="text-xs text-center text-muted-foreground mt-2">
-                {language === "de" 
-                  ? "Für App Store Review und Testzwecke" 
-                  : "For App Store Review and testing purposes"}
+                {t("auth.reviewPurpose")}
               </p>
             </motion.div>
           )}

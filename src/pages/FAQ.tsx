@@ -3,6 +3,7 @@ import { ArrowLeft, HelpCircle, Shield, CreditCard, Smartphone, Bot, Heart, Chev
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { StandalonePage } from "@/components/layout/StandalonePage";
 import {
   Accordion,
   AccordionContent,
@@ -18,7 +19,7 @@ interface FAQCategory {
 
 export default function FAQ() {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
 
   const content = {
     en: {
@@ -263,9 +264,10 @@ export default function FAQ() {
     }
   };
 
-  const t = content[language];
+  const localT = content[language];
 
   return (
+    <StandalonePage>
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 safe-top">
         {/* Header */}
@@ -279,14 +281,14 @@ export default function FAQ() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{t.title}</h1>
-            <p className="text-sm text-muted-foreground">{t.subtitle}</p>
+            <h1 className="text-2xl font-bold text-foreground">{localT.title}</h1>
+            <p className="text-sm text-muted-foreground">{localT.subtitle}</p>
           </div>
         </div>
 
         {/* FAQ Categories */}
         <div className="space-y-6">
-          {t.categories.map((category, categoryIndex) => (
+          {localT.categories.map((category, categoryIndex) => (
             <motion.section
               key={category.title}
               initial={{ opacity: 0, y: 20 }}
@@ -326,21 +328,20 @@ export default function FAQ() {
         >
           <HelpCircle className="w-8 h-8 text-primary mx-auto mb-3" />
           <h3 className="font-semibold text-foreground mb-2">
-            {language === "de" ? "Noch Fragen?" : "Still have questions?"}
+            {t("faq.stillQuestions")}
           </h3>
           <p className="text-muted-foreground text-sm mb-4">
-            {language === "de" 
-              ? "Wir helfen dir gerne weiter!"
-              : "We're happy to help!"}
+            {t("faq.happyToHelp")}
           </p>
           <a
             href="mailto:service@soulvay.com"
             className="inline-flex items-center justify-center px-6 py-2 bg-primary text-primary-foreground rounded-full font-medium text-sm hover:bg-primary/90 transition-colors"
           >
-            {language === "de" ? "Kontakt aufnehmen" : "Contact Us"}
+            {t("faq.contactUs")}
           </a>
         </motion.div>
       </div>
     </div>
+    </StandalonePage>
   );
 }

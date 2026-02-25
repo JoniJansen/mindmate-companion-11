@@ -3,6 +3,7 @@ import { ArrowLeft, FileText, AlertTriangle, CreditCard, Scale, Ban, RefreshCw }
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { StandalonePage } from "@/components/layout/StandalonePage";
 
 export default function Terms() {
   const navigate = useNavigate();
@@ -182,6 +183,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
   const t = content[language];
 
   return (
+    <StandalonePage>
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 safe-top">
         {/* Header */}
@@ -259,5 +261,6 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
         </motion.section>
       </div>
     </div>
+    </StandalonePage>
   );
 }
