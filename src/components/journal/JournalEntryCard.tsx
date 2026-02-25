@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Calendar, Lock, ChevronRight, MessageSquare } from "lucide-react";
+import { Calendar, ChevronRight, MessageSquare } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -14,17 +14,6 @@ interface JournalEntryCardProps {
   index: number;
 }
 
-const formatDate = (dateString: string, language: "en" | "de" = "en") => {
-  const date = new Date(dateString);
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  if (date.toDateString() === today.toDateString()) return language === "de" ? "Heute" : "Today";
-  if (date.toDateString() === yesterday.toDateString()) return language === "de" ? "Gestern" : "Yesterday";
-  return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: "short", day: "numeric" });
-};
-
 export function JournalEntryCard({ 
   title, 
   content, 
@@ -34,9 +23,20 @@ export function JournalEntryCard({
   onClick, 
   index 
 }: JournalEntryCardProps) {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const isFromChat = source === 'chat';
   const preview = content.length > 100 ? content.substring(0, 100) + "..." : content;
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) return t("journal.today");
+    if (date.toDateString() === yesterday.toDateString()) return t("journal.yesterday");
+    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: "short", day: "numeric" });
+  };
 
   return (
     <motion.div
@@ -50,7 +50,6 @@ export function JournalEntryCard({
         onClick={onClick}
       >
         <div className="flex items-start gap-3">
-          {/* Mood emoji or chat icon */}
           <div className="w-11 h-11 rounded-xl bg-muted/60 flex items-center justify-center text-lg shrink-0 border border-border/30">
             {isFromChat ? (
               <MessageSquare className="w-5 h-5 text-muted-foreground" />
@@ -59,15 +58,14 @@ export function JournalEntryCard({
             )}
           </div>
 
-          {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-medium text-foreground truncate leading-tight">
-                {title || (language === "de" ? "Ohne Titel" : "Untitled Entry")}
+                {title || t("journal.untitled")}
               </h3>
               {isFromChat && (
                 <span className="text-[11px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
-                  {language === "de" ? "Chat" : "Chat"}
+                  {t("journal.fromChat")}
                 </span>
               )}
             </div>
@@ -76,11 +74,10 @@ export function JournalEntryCard({
             </p>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
               <Calendar className="w-3.5 h-3.5" />
-              <span className="font-medium">{formatDate(createdAt, language as "en" | "de")}</span>
+              <span className="font-medium">{formatDate(createdAt)}</span>
             </div>
           </div>
 
-          {/* Arrow */}
           <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0 mt-1" />
         </div>
       </CalmCard>

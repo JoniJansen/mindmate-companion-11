@@ -112,6 +112,23 @@ export const translations: Translations = {
   "journal.aiReflection": { en: "AI Reflection", de: "KI-Reflexion" },
   "journal.analyzingEntries": { en: "Reflecting on your entries...", de: "Analysiere deine Einträge..." },
 
+  // Journal additional keys
+  "journal.needMoreEntries": { en: "Need more entries", de: "Mehr Einträge nötig" },
+  "journal.writeAtLeast3Entries": { en: "Write at least 3 entries.", de: "Schreibe mindestens 3 Einträge." },
+  "journal.yourWeeklyRecap": { en: "Your Weekly Recap", de: "Dein Wochenrückblick" },
+  "journal.weeklyRecap": { en: "Weekly Recap", de: "Wochenrückblick" },
+  "journal.observedPatterns": { en: "Observed patterns", de: "Beobachtete Muster" },
+  "journal.suggestion": { en: "Suggestion", de: "Vorschlag" },
+  "journal.refresh": { en: "Refresh", de: "Aktualisieren" },
+  "journal.generate": { en: "Generate", de: "Erstellen" },
+  "journal.discoverPatternsInEntries": { en: "Discover patterns in your entries.", de: "Entdecke Muster in deinen Einträgen." },
+  "journal.yourEntries": { en: "Your entries", de: "Deine Einträge" },
+  "journal.noEntriesFound": { en: "No entries found", de: "Keine Einträge gefunden" },
+  "journal.untitled": { en: "Untitled Entry", de: "Ohne Titel" },
+  "journal.fromChat": { en: "Chat", de: "Chat" },
+  "journal.discoverPatterns": { en: "Discover Patterns", de: "Muster entdecken" },
+  "journal.continue": { en: "Continue", de: "Weiter" },
+
   // Journal prompts
   "journal.prompt1": { en: "What small moment brought you peace today?", de: "Welcher kleine Moment hat dir heute Frieden gebracht?" },
   "journal.prompt2": { en: "What are you grateful for right now?", de: "Wofür bist du gerade dankbar?" },
@@ -119,7 +136,7 @@ export const translations: Translations = {
   "journal.prompt4": { en: "How are you really feeling today?", de: "Wie fühlst du dich heute wirklich?" },
   "journal.prompt5": { en: "What would make tomorrow better?", de: "Was würde morgen besser machen?" },
   
-  // Journal tags
+  // Journal tags (stable IDs for DB storage)
   "journal.tag.anxious": { en: "Anxious", de: "Ängstlich" },
   "journal.tag.sad": { en: "Sad", de: "Traurig" },
   "journal.tag.angry": { en: "Angry", de: "Wütend" },
@@ -134,6 +151,48 @@ export const translations: Translations = {
   "journal.tag.health": { en: "Health", de: "Gesundheit" },
   "journal.tag.selfworth": { en: "Self-worth", de: "Selbstwert" },
   "journal.tag.future": { en: "Future", de: "Zukunft" },
+
+  // Mood page
+  "mood.title": { en: "Mood", de: "Stimmung" },
+  "mood.subtitle": { en: "How are you feeling right now?", de: "Wie geht es dir gerade?" },
+  "mood.checkedInToday": { en: "Checked in today ✓", de: "Heute eingecheckt ✓" },
+  "mood.howDoYouFeel": { en: "How do you feel?", de: "Wie fühlst du dich?" },
+  "mood.canUpdate": { en: "You can update", de: "Du kannst aktualisieren" },
+  "mood.whatDescribesYou": { en: "What describes you now?", de: "Was beschreibt dich gerade?" },
+  "mood.optional": { en: "optional", de: "optional" },
+  "mood.addNote": { en: "Want to add anything?", de: "Möchtest du etwas hinzufügen?" },
+  "mood.saving": { en: "Saving...", de: "Speichern..." },
+  "mood.saved": { en: "Mood saved", de: "Stimmung gespeichert" },
+  "mood.savedDesc": { en: "Your check-in has been saved.", de: "Dein Check-in wurde gespeichert." },
+  "mood.yourTrend": { en: "Your Trend", de: "Dein Verlauf" },
+  "mood.average": { en: "Avg", de: "Ø" },
+  "mood.exploreDifficultDays": { en: "Explore difficult days", de: "Schwierige Tage erkunden" },
+  "mood.daysWithLowMood": { en: "days with low mood", de: "Tage mit niedriger Stimmung" },
+  "mood.wantToTalk": { en: "Want to talk about it?", de: "Darüber sprechen?" },
+  "mood.startConversation": { en: "Start a conversation about how you feel", de: "Starte ein Gespräch über deine Gefühle" },
+  "mood.noCheckins": { en: "No check-ins in this period yet", de: "Noch keine Check-ins in diesem Zeitraum" },
+  "mood.filter7d": { en: "7 days", de: "7 Tage" },
+  "mood.filter30d": { en: "30 days", de: "30 Tage" },
+  "mood.filter90d": { en: "90 days", de: "90 Tage" },
+
+  // Feeling tags (stable IDs for DB storage)
+  "feeling.anxious": { en: "Anxious", de: "Ängstlich" },
+  "feeling.stressed": { en: "Stressed", de: "Gestresst" },
+  "feeling.overwhelmed": { en: "Overwhelmed", de: "Überfordert" },
+  "feeling.sad": { en: "Sad", de: "Traurig" },
+  "feeling.lonely": { en: "Lonely", de: "Einsam" },
+  "feeling.frustrated": { en: "Frustrated", de: "Frustriert" },
+  "feeling.grateful": { en: "Grateful", de: "Dankbar" },
+  "feeling.hopeful": { en: "Hopeful", de: "Hoffnungsvoll" },
+  "feeling.calm": { en: "Calm", de: "Ruhig" },
+  "feeling.tired": { en: "Tired", de: "Müde" },
+  "feeling.motivated": { en: "Motivated", de: "Motiviert" },
+  "feeling.content": { en: "Content", de: "Zufrieden" },
+
+  // Common additional
+  "common.delete": { en: "Delete", de: "Löschen" },
+  "common.retry": { en: "Retry", de: "Erneut versuchen" },
+  "common.offline": { en: "You are offline", de: "Du bist offline" },
 
   // Toolbox page
   "toolbox.title": { en: "Toolbox", de: "Werkzeugkasten" },

@@ -1,54 +1,24 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "@/hooks/useTranslation";
+import { FEELING_TAG_IDS, getFeelingI18nKey } from "@/lib/tagUtils";
 
 interface FeelingTagsProps {
   selected: string[];
-  onToggle: (feeling: string) => void;
-  language?: "en" | "de";
+  onToggle: (feelingId: string) => void;
 }
 
-const feelings = {
-  en: [
-    "Anxious",
-    "Stressed",
-    "Overwhelmed",
-    "Sad",
-    "Lonely",
-    "Frustrated",
-    "Grateful",
-    "Hopeful",
-    "Calm",
-    "Tired",
-    "Motivated",
-    "Content",
-  ],
-  de: [
-    "Ängstlich",
-    "Gestresst",
-    "Überfordert",
-    "Traurig",
-    "Einsam",
-    "Frustriert",
-    "Dankbar",
-    "Hoffnungsvoll",
-    "Ruhig",
-    "Müde",
-    "Motiviert",
-    "Zufrieden",
-  ],
-};
-
-export function FeelingTags({ selected, onToggle, language = "en" }: FeelingTagsProps) {
-  const feelingList = feelings[language] || feelings.en;
+export function FeelingTags({ selected, onToggle }: FeelingTagsProps) {
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-wrap gap-2">
-      {feelingList.map((feeling) => {
-        const isSelected = selected.includes(feeling);
+      {FEELING_TAG_IDS.map((feelingId) => {
+        const isSelected = selected.includes(feelingId);
 
         return (
           <motion.button
-            key={feeling}
-            onClick={() => onToggle(feeling)}
+            key={feelingId}
+            onClick={() => onToggle(feelingId)}
             className={`px-3.5 py-1.5 rounded-xl text-[13px] font-medium transition-all duration-200 ${
               isSelected
                 ? "bg-primary text-primary-foreground shadow-soft"
@@ -57,7 +27,7 @@ export function FeelingTags({ selected, onToggle, language = "en" }: FeelingTags
             whileTap={{ scale: 0.97 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
-            {feeling}
+            {t(getFeelingI18nKey(feelingId))}
           </motion.button>
         );
       })}
