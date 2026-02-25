@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toStableTagIds } from "@/lib/tagUtils";
+import { useActivityLog } from "@/hooks/useActivityLog";
 
 interface MoodCheckin {
   id: string;
@@ -39,6 +40,7 @@ export default function Mood() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { logActivity } = useActivityLog();
 
   useEffect(() => {
     if (user) loadCheckins();
@@ -153,6 +155,7 @@ export default function Mood() {
       });
 
       setHasSavedToday(true);
+      logActivity("mood_checkin");
       loadCheckins();
     } catch (error) {
       console.error("Error saving:", error);

@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNavigate } from "react-router-dom";
 import { ALL_JOURNAL_TAG_IDS, JOURNAL_EMOTION_TAG_IDS, JOURNAL_TOPIC_TAG_IDS, getTagI18nKey, toStableTagIds } from "@/lib/tagUtils";
+import { useActivityLog } from "@/hooks/useActivityLog";
 
 interface JournalEntry {
   id: string;
@@ -57,6 +58,7 @@ export default function Journal() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { logActivity } = useActivityLog();
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
   const { isListening, fullTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition(speechLang, { continuous: true });
@@ -140,6 +142,7 @@ export default function Journal() {
         description: t("journal.entrySaved"),
       });
 
+      logActivity("journal_entry");
       setViewMode("list");
       setIsEditorOpen(false);
       setDraftContent("");
