@@ -423,6 +423,7 @@ export const translations: Translations = {
   "voice.notSupported": { en: "Voice input is not available", de: "Spracheingabe ist nicht verfügbar" },
   "voice.tryChrome": { en: "Voice features require microphone access in your device settings", de: "Sprachfunktionen benötigen Mikrofonzugriff in deinen Geräteeinstellungen" },
   "voice.speaking": { en: "Soulvay speaking...", de: "Soulvay spricht..." },
+  "voice.loading": { en: "Loading voice...", de: "Stimme wird geladen..." },
   "voice.listeningStatus": { en: "Listening...", de: "Ich höre zu..." },
 
   // Premium
