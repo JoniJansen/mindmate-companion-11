@@ -148,9 +148,9 @@ export function DevDebugPanel() {
       {/* Toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-20 right-3 z-[999] w-10 h-10 rounded-full bg-card border border-border shadow-elevated flex items-center justify-center"
+        className="fixed top-3 left-3 z-[999] w-8 h-8 rounded-full bg-card/80 border border-border shadow-elevated flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity"
       >
-        <Bug className="w-4 h-4 text-muted-foreground" />
+        <Bug className="w-3.5 h-3.5 text-muted-foreground" />
       </button>
 
       <AnimatePresence>
@@ -159,7 +159,7 @@ export function DevDebugPanel() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-32 right-3 z-[999] w-72 bg-card border border-border rounded-xl shadow-elevated p-3 text-xs space-y-2 max-h-[60vh] overflow-y-auto"
+            className="fixed top-12 left-3 z-[999] w-72 bg-card border border-border rounded-xl shadow-elevated p-3 text-xs space-y-2 max-h-[60vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center">
               <span className="font-semibold text-foreground">🔧 Dev Debug</span>

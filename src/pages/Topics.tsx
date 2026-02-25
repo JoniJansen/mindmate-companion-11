@@ -242,6 +242,7 @@ export default function Topics() {
     description: topic.description,
     longDescription: topic.longDescription,
     steps: topic.steps.map(s => ({ title: s.title, description: s.description })),
+    learn: topic.learn,
   });
 
   const filteredTopics = topics.filter((topic) => {
@@ -322,7 +323,7 @@ export default function Topics() {
                   <p className="text-sm text-muted-foreground leading-relaxed">{display.longDescription}</p>
                 </CalmCard>
 
-                {selectedTopic.learn.map((section, i) => (
+                {(display.learn.length > 0 ? display.learn : selectedTopic.learn).map((section, i) => (
                   <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
                     <CalmCard variant="elevated" className="space-y-3">
                       <h3 className="font-semibold text-foreground flex items-center gap-2">
