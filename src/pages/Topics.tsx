@@ -7,7 +7,8 @@ import { TabHint } from "@/components/shared/TabHint";
 import { Button } from "@/components/ui/button";
 import { topics, Topic } from "@/data/topics";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useLastState } from "@/hooks/useLastState";
 
 interface TopicProgress {
   [topicId: string]: {
@@ -23,6 +24,18 @@ export default function Topics() {
 
   const { language, t, getTopicDisplay } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setLastTopic } = useLastState();
+
+  // Handle navigation state (open specific topic)
+  useEffect(() => {
+    const openTopicId = location.state?.openTopic;
+    if (openTopicId) {
+      const topic = topics.find(tp => tp.id === openTopicId);
+      if (topic) setSelectedTopic(topic);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Load progress
   useEffect(() => {
@@ -56,8 +69,13 @@ export default function Topics() {
     return Math.round((completed / totalSteps) * 100);
   };
 
-  const handleStepAction = (topic: Topic, step: typeof topic.steps[0]) => {
+  const handleStepAction = (topic: Topic, step: typeof topic.steps[0], stepIndex: number) => {
     saveProgress(topic.id, step.id);
+    // Track for continue module
+    const nextStepIndex = stepIndex + 1 < topic.steps.length ? stepIndex + 1 : undefined;
+    if (nextStepIndex !== undefined) {
+      setLastTopic({ topicId: topic.id, stepIndex: nextStepIndex });
+    }
 
     switch (step.type) {
       case "chat":
@@ -95,6 +113,8 @@ export default function Topics() {
 
   // Topic detail view
   if (selectedTopic) {
+    // Track topic for continue module
+    setLastTopic({ topicId: selectedTopic.id, stepIndex: 0 });
     const topicProgress = getTopicProgress(
       selectedTopic.id,
       selectedTopic.steps.length
@@ -184,7 +204,7 @@ export default function Topics() {
                     className={`cursor-pointer transition-all ${
                       isCompleted ? "opacity-75" : "hover:bg-muted/50"
                     }`}
-                    onClick={() => handleStepAction(selectedTopic, step)}
+                    onClick={() => handleStepAction(selectedTopic, step, index)}
                   >
                     <div className="flex items-start gap-3">
                       <div

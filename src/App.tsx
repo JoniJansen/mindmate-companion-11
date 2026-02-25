@@ -42,6 +42,7 @@ import About from "@/pages/About";
 import Admin from "@/pages/Admin";
 import DeleteAccount from "@/pages/DeleteAccount";
 import NotFound from "@/pages/NotFound";
+import AudioLibrary from "@/pages/AudioLibrary";
 import ReviewInstructions from "@/pages/ReviewInstructions";
 import ReviewStatus from "@/pages/ReviewStatus";
 
@@ -176,6 +177,7 @@ const App = () => (
                 <Route path="/settings" element={<OnboardingGuard><Settings /></OnboardingGuard>} />
                 <Route path="/install" element={<Install />} />
                 <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
+                <Route path="/audio" element={<OnboardingGuard><AudioLibrary /></OnboardingGuard>} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/impressum" element={<Impressum />} />

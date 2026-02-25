@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2 } from "lucide-react";
+import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2, Headphones } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -15,7 +15,7 @@ import { StreakMilestone } from "@/components/streak/StreakMilestone";
 import { WeeklyProgress } from "@/components/streak/WeeklyProgress";
 import { usePersonalization } from "@/hooks/usePersonalization";
 import { AdaptiveSuggestions } from "@/components/home/AdaptiveSuggestions";
-
+import { ContinueModule } from "@/components/home/ContinueModule";
 interface RecentThought {
   id: string;
   content: string;
@@ -320,33 +320,38 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="grid grid-cols-2 gap-3 mb-6"
+          className="grid grid-cols-3 gap-3 mb-6"
         >
           <Button
             variant="outline"
-            className="h-auto py-4 px-4 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
+            className="h-auto py-4 px-3 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
             onClick={() => navigate("/chat")}
           >
             <MessageCircle className="w-5 h-5 text-primary" />
-            <span className="font-medium text-foreground">
+            <span className="font-medium text-foreground text-xs">
               {t("home.talkToMe")}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {t("home.innerDialogue")}
             </span>
           </Button>
           
           <Button
             variant="outline"
-            className="h-auto py-4 px-4 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
+            className="h-auto py-4 px-3 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
             onClick={() => navigate("/timeline")}
           >
             <Calendar className="w-5 h-5 text-primary" />
-            <span className="font-medium text-foreground">
+            <span className="font-medium text-foreground text-xs">
               {t("home.myTimeline")}
             </span>
-            <span className="text-xs text-muted-foreground">
-              {t("home.thoughtsPatterns")}
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto py-4 px-3 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
+            onClick={() => navigate("/audio")}
+          >
+            <Headphones className="w-5 h-5 text-primary" />
+            <span className="font-medium text-foreground text-xs">
+              {language === "de" ? "Audio" : "Audio"}
             </span>
           </Button>
         </motion.div>
@@ -363,6 +368,9 @@ export default function Home() {
             currentStreak={streak.currentStreak}
           />
         )}
+
+        {/* Continue Module */}
+        <ContinueModule />
 
         {/* Adaptive Suggestions */}
         <AdaptiveSuggestions
