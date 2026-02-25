@@ -5,11 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 
-// Layout
+// Layout & Providers
 import { AppLayout } from "@/components/layout/AppLayout";
 import { OnboardingGuard } from "@/components/routing/OnboardingGuard";
 import { CookieConsent } from "@/components/gdpr/CookieConsent";
 import { TourProvider } from "@/components/tour/TourProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 // Hooks
 import { usePremium } from "@/hooks/usePremium";
@@ -135,73 +137,77 @@ function DelayedCookieConsent() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ThemeInitializer />
-      <SubscriptionRestoreInitializer />
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <TourProvider>
-          <DelayedCookieConsent />
-          <Routes>
-            {/* Root - intelligent redirect */}
-            <Route path="/" element={<RootRedirect />} />
-            
-            {/* Landing Page - marketing/info */}
-            <Route path="/landing" element={<Landing />} />
-            
-            {/* Auth */}
-            <Route path="/auth" element={<Auth />} />
-            
-            {/* Onboarding - accessible without auth */}
-            <Route path="/welcome" element={<Onboarding />} />
-            
-            {/* Main app with bottom navigation - Protected with OnboardingGuard */}
-            <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/journal" element={<Journal />} />
-              <Route path="/topics" element={<Topics />} />
-              <Route path="/mood" element={<Mood />} />
-              <Route path="/toolbox" element={<Toolbox />} />
-            </Route>
-            
-            {/* Standalone protected pages */}
-            <Route path="/summary" element={<OnboardingGuard><Summary /></OnboardingGuard>} />
-            <Route path="/safety" element={<Safety />} />
-            <Route path="/settings" element={<OnboardingGuard><Settings /></OnboardingGuard>} />
-            <Route path="/install" element={<Install />} />
-            <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/impressum" element={<Impressum />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/cancellation" element={<Cancellation />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/delete-account" element={<DeleteAccount />} />
-            <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
-            
-            {/* Review Mode Pages - accessible without OnboardingGuard for Apple Review */}
-            <Route path="/review-instructions" element={<ReviewInstructions />} />
-            <Route path="/review-status" element={<ReviewStatus />} />
-            
-            {/* DEV-ONLY: Device QA screen */}
-            {import.meta.env.DEV && (
-              <Route path="/dev-qa" element={
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" /></div>}>
-                  <OnboardingGuard><DevQA /></OnboardingGuard>
-                </Suspense>
-              } />
-            )}
-            
-            {/* Catch-all */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </TourProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <ThemeInitializer />
+          <SubscriptionRestoreInitializer />
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <TourProvider>
+              <DelayedCookieConsent />
+              <Routes>
+                {/* Root - intelligent redirect */}
+                <Route path="/" element={<RootRedirect />} />
+                
+                {/* Landing Page - marketing/info */}
+                <Route path="/landing" element={<Landing />} />
+                
+                {/* Auth */}
+                <Route path="/auth" element={<Auth />} />
+                
+                {/* Onboarding - accessible without auth */}
+                <Route path="/welcome" element={<Onboarding />} />
+                
+                {/* Main app with bottom navigation - Protected with OnboardingGuard */}
+                <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/journal" element={<Journal />} />
+                  <Route path="/topics" element={<Topics />} />
+                  <Route path="/mood" element={<Mood />} />
+                  <Route path="/toolbox" element={<Toolbox />} />
+                </Route>
+                
+                {/* Standalone protected pages */}
+                <Route path="/summary" element={<OnboardingGuard><Summary /></OnboardingGuard>} />
+                <Route path="/safety" element={<Safety />} />
+                <Route path="/settings" element={<OnboardingGuard><Settings /></OnboardingGuard>} />
+                <Route path="/install" element={<Install />} />
+                <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/impressum" element={<Impressum />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/cancellation" element={<Cancellation />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/delete-account" element={<DeleteAccount />} />
+                <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
+                
+                {/* Review Mode Pages - accessible without OnboardingGuard for Apple Review */}
+                <Route path="/review-instructions" element={<ReviewInstructions />} />
+                <Route path="/review-status" element={<ReviewStatus />} />
+                
+                {/* DEV-ONLY: Device QA screen */}
+                {import.meta.env.DEV && (
+                  <Route path="/dev-qa" element={
+                    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" /></div>}>
+                      <OnboardingGuard><DevQA /></OnboardingGuard>
+                    </Suspense>
+                  } />
+                )}
+                
+                {/* Catch-all */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </TourProvider>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

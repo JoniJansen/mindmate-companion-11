@@ -283,7 +283,7 @@ export default function Upgrade() {
                 </span>
               )}
               {plan.trial && (
-                <span className="absolute -top-2 left-3 bg-emerald-500 dark:bg-emerald-600 text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                <span className="absolute -top-2 left-3 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
                   {plan.trial}
                 </span>
               )}
