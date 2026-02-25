@@ -13,8 +13,8 @@ interface ExerciseCardProps {
 }
 
 const colorMap: Record<string, string> = {
-  calm: "bg-calm/10 text-calm",
-  gentle: "bg-gentle/10 text-gentle",
+  calm: "bg-primary/10 text-primary",
+  gentle: "bg-primary/10 text-primary",
   primary: "bg-primary/10 text-primary",
   accent: "bg-accent/10 text-accent",
 };

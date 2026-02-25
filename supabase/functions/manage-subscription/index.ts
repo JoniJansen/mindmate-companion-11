@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import { requireUser } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,12 +14,17 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId, sessionId, action } = await req.json();
-    const userIdentifier = userId || sessionId;
-    
-    if (!userIdentifier) {
-      throw new Error("User ID is required");
+    // JWT auth - get user_id from token
+    let userId: string;
+    try {
+      const { user } = await requireUser(req);
+      userId = user.id;
+    } catch (authError) {
+      if (authError instanceof Response) return authError;
+      throw authError;
     }
+
+    const { action } = await req.json();
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
@@ -30,11 +36,8 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get subscription info
-    let sub = await supabase.from("subscriptions").select("*").eq("user_id", userIdentifier).maybeSingle();
-    if (!sub.data) {
-      sub = await supabase.from("subscriptions").select("*").eq("user_session_id", userIdentifier).maybeSingle();
-    }
+    // Get subscription using user_id from JWT
+    const sub = await supabase.from("subscriptions").select("*").eq("user_id", userId).maybeSingle();
 
     if (!sub.data) {
       return new Response(JSON.stringify({ status: "inactive", isPremium: false }), 
@@ -77,6 +80,7 @@ Deno.serve(async (req) => {
         throw new Error("Invalid action");
     }
   } catch (error) {
+    if (error instanceof Response) return error;
     console.error("Error:", error);
     return new Response(JSON.stringify({ error: error.message }), 
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });

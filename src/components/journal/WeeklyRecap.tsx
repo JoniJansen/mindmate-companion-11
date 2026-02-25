@@ -109,7 +109,7 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
                       {recap.themes.slice(0, 4).map((theme) => (
                         <span
                           key={theme}
-                          className="px-2 py-0.5 bg-gentle/20 text-gentle-foreground rounded-full text-xs"
+                          className="px-2 py-0.5 bg-primary/20 text-primary-foreground rounded-full text-xs"
                         >
                           {theme}
                         </span>

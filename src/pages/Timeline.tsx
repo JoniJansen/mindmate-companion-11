@@ -320,10 +320,10 @@ export default function Timeline() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-gentle-soft rounded-2xl p-4"
+                className="bg-primary-soft rounded-2xl p-4"
               >
                 <div className="flex items-start gap-3">
-                  <Sparkles className="w-4 h-4 text-gentle mt-0.5 flex-shrink-0" />
+                  <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="text-sm text-foreground leading-relaxed">
                       {aiInsight}

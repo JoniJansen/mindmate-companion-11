@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bug, X, Trash2, Database, WifiOff, AlertTriangle, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,27 +8,18 @@ import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { supabase } from "@/integrations/supabase/client";
 
 export function DevDebugPanel() {
+  // ALL hooks unconditionally at the top — no early returns before hooks
   const [isOpen, setIsOpen] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
   const [monkeyRunning, setMonkeyRunning] = useState(false);
   const [monkeyErrors, setMonkeyErrors] = useState<string[]>([]);
+  const [simulateOffline, setSimulateOffline] = useState(false);
   const monkeyRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const monkeyErrorHandler = useRef<((e: ErrorEvent) => void) | null>(null);
 
   const { language } = useTranslation();
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
-
-  // Only render in dev
-  if (import.meta.env.PROD) return null;
-
-  const prefs = (() => {
-    try { return JSON.parse(localStorage.getItem("mindmate-preferences") || "{}"); } catch { return {}; }
-  })();
-
-  const route = window.location.pathname;
-  const theme = prefs.theme || "light";
-  const accent = prefs.accentColor || "default";
-  const onboardingDone = localStorage.getItem("mindmate-onboarding-done") === "true";
 
   // Listen for unhandled errors
   useEffect(() => {
@@ -46,12 +37,22 @@ export function DevDebugPanel() {
     };
   }, []);
 
-  const clearStorage = () => {
+  // Cleanup monkey test on unmount
+  useEffect(() => {
+    return () => {
+      if (monkeyRef.current) clearInterval(monkeyRef.current);
+      if (monkeyErrorHandler.current) {
+        window.removeEventListener("error", monkeyErrorHandler.current);
+      }
+    };
+  }, []);
+
+  const clearStorage = useCallback(() => {
     localStorage.clear();
     window.location.reload();
-  };
+  }, []);
 
-  const seedDemoData = async () => {
+  const seedDemoData = useCallback(async () => {
     if (!user) return;
     const moods = [1, 2, 3, 4, 5, 3, 4];
     const entries = [
@@ -64,23 +65,38 @@ export function DevDebugPanel() {
       const date = new Date();
       date.setDate(date.getDate() - i);
       await supabase.from("mood_checkins").insert({
-        user_id: user.id, user_session_id: user.id,
-        mood_value: moods[i], feelings: ["calm", "grateful"],
+        user_id: user.id,
+        user_session_id: user.id,
+        mood_value: moods[i],
+        feelings: ["calm", "grateful"],
         created_at: date.toISOString(),
       } as any);
     }
 
     for (const content of entries) {
       await supabase.from("journal_entries").insert({
-        user_id: user.id, user_session_id: user.id,
-        content, source: "free", tags: ["calm"],
+        user_id: user.id,
+        user_session_id: user.id,
+        content,
+        source: "free",
+        tags: ["calm"],
       } as any);
     }
 
     alert("Demo data seeded!");
-  };
+  }, [user]);
 
-  const startMonkey = () => {
+  const stopMonkey = useCallback(() => {
+    if (monkeyRef.current) clearInterval(monkeyRef.current);
+    monkeyRef.current = null;
+    setMonkeyRunning(false);
+    if (monkeyErrorHandler.current) {
+      window.removeEventListener("error", monkeyErrorHandler.current);
+      monkeyErrorHandler.current = null;
+    }
+  }, []);
+
+  const startMonkey = useCallback(() => {
     if (monkeyRunning) { stopMonkey(); return; }
     setMonkeyRunning(true);
     setMonkeyErrors([]);
@@ -90,6 +106,7 @@ export function DevDebugPanel() {
     const errHandler = (e: ErrorEvent) => {
       setMonkeyErrors(prev => [...prev, e.message]);
     };
+    monkeyErrorHandler.current = errHandler;
     window.addEventListener("error", errHandler);
 
     monkeyRef.current = setInterval(() => {
@@ -108,14 +125,23 @@ export function DevDebugPanel() {
         try { btn.click(); } catch {}
       }
     }, 2000);
-  };
+  }, [monkeyRunning, stopMonkey]);
 
-  const stopMonkey = () => {
-    if (monkeyRef.current) clearInterval(monkeyRef.current);
-    monkeyRef.current = null;
-    setMonkeyRunning(false);
-    window.removeEventListener("error", () => {});
-  };
+  // Conditional rendering AFTER all hooks
+  if (import.meta.env.PROD) return null;
+
+  const prefs = (() => {
+    try { return JSON.parse(localStorage.getItem("mindmate-preferences") || "{}"); } catch { return {}; }
+  })();
+
+  const route = window.location.pathname;
+  const theme = (() => {
+    try { return JSON.parse(localStorage.getItem("mindmate-theme") || "{}").mode || "light"; } catch { return "light"; }
+  })();
+  const accent = (() => {
+    try { return JSON.parse(localStorage.getItem("mindmate-theme") || "{}").accentColor || "default"; } catch { return "default"; }
+  })();
+  const onboardingDone = localStorage.getItem("mindmate-onboarding-done") === "true";
 
   return (
     <>
@@ -148,7 +174,7 @@ export function DevDebugPanel() {
               <p><strong>Theme:</strong> {theme}</p>
               <p><strong>Accent:</strong> {accent}</p>
               <p className="flex items-center gap-1">
-                <strong>Network:</strong> {isOnline ? "✅ Online" : <><WifiOff className="w-3 h-3 text-destructive" /> Offline</>}
+                <strong>Network:</strong> {(isOnline && !simulateOffline) ? "✅ Online" : <><WifiOff className="w-3 h-3 text-destructive" /> Offline</>}
               </p>
               {lastError && (
                 <p className="text-destructive flex items-center gap-1">
@@ -163,6 +189,13 @@ export function DevDebugPanel() {
               </Button>
               <Button variant="outline" size="sm" className="text-xs h-7 gap-1" onClick={seedDemoData} disabled={!user}>
                 <Database className="w-3 h-3" /> Seed Data
+              </Button>
+              <Button 
+                variant={simulateOffline ? "destructive" : "outline"} 
+                size="sm" className="text-xs h-7 gap-1" 
+                onClick={() => setSimulateOffline(!simulateOffline)}
+              >
+                <WifiOff className="w-3 h-3" /> {simulateOffline ? "Go Online" : "Sim Offline"}
               </Button>
               <Button 
                 variant={monkeyRunning ? "destructive" : "outline"} 

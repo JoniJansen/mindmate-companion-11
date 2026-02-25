@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requireUser } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,6 +17,14 @@ serve(async (req) => {
   }
 
   try {
+    // JWT auth
+    try {
+      await requireUser(req);
+    } catch (authError) {
+      if (authError instanceof Response) return authError;
+      throw authError;
+    }
+
     const { messages } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -105,15 +114,12 @@ Respond ONLY with valid JSON, no markdown or additional text.`;
       throw new Error("No content in response");
     }
 
-    // Parse the JSON response
     let summary;
     try {
-      // Remove any markdown code blocks if present
       const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       summary = JSON.parse(cleanContent);
     } catch (parseError) {
       console.error("Failed to parse summary JSON:", parseError, "Content:", content);
-      // Return a fallback summary
       summary = {
         summary: "Thank you for sharing with me today. Our conversation touched on important topics.",
         emotionalThemes: ["reflection", "self-awareness"],

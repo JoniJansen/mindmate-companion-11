@@ -845,7 +845,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
                   {is2FAEnabled ? t.twoFactorEnabled : t.twoFactorDisabled}
                 </p>
               </div>
-              <div className={`w-2 h-2 rounded-full ${is2FAEnabled ? "bg-green-500" : "bg-muted-foreground/30"}`} />
+              <div className={`w-2 h-2 rounded-full ${is2FAEnabled ? "bg-primary" : "bg-muted-foreground/30"}`} />
             </div>
           </CalmCard>
         </DialogTrigger>
@@ -857,9 +857,9 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           
           {is2FAEnabled ? (
             <div className="space-y-4 py-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                <Shield className="w-5 h-5 text-green-600" />
-                <p className="text-sm font-medium text-green-700 dark:text-green-400">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <Shield className="w-5 h-5 text-primary" />
+                <p className="text-sm font-medium text-primary">
                   {t.twoFactorEnabled}
                 </p>
               </div>
@@ -933,8 +933,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
             className="cursor-pointer hover:shadow-card transition-shadow"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-calm/10 flex items-center justify-center">
-                <Key className="w-5 h-5 text-calm" />
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Key className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
                 <p className="font-medium text-foreground">{t.changePassword}</p>
@@ -1004,8 +1004,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         onClick={handleSendPasswordResetEmail}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gentle/10 flex items-center justify-center">
-            <Send className="w-5 h-5 text-gentle" />
+           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Send className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
             <p className="font-medium text-foreground">{t.resetPassword}</p>
@@ -1045,8 +1045,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
             className="cursor-pointer hover:shadow-card transition-shadow"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-calm/10 flex items-center justify-center">
-                <Download className="w-5 h-5 text-calm" />
+               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Download className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
                 <p className="font-medium text-foreground">{t.exportData}</p>
@@ -1077,11 +1077,11 @@ export function AccountSettings({ language }: AccountSettingsProps) {
                     <p className="text-xs text-muted-foreground">{t.journalEntries}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-background">
-                    <p className="text-xl font-semibold text-calm">{exportStats.mood}</p>
+                    <p className="text-xl font-semibold text-primary">{exportStats.mood}</p>
                     <p className="text-xs text-muted-foreground">{t.moodCheckins}</p>
                   </div>
                   <div className="p-2 rounded-lg bg-background">
-                    <p className="text-xl font-semibold text-gentle">{exportStats.recaps}</p>
+                    <p className="text-xl font-semibold text-primary">{exportStats.recaps}</p>
                     <p className="text-xs text-muted-foreground">{t.weeklyRecaps}</p>
                   </div>
                 </div>

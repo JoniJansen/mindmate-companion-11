@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
 import { OfflineBanner } from "@/components/system/OfflineBanner";
+import { DevDebugPanel } from "@/components/dev/DevDebugPanel";
 
 // Fixed bottom nav height - must match BottomNav component
 const BOTTOM_NAV_HEIGHT = 56; // Compact: 56px nav content
@@ -42,6 +43,9 @@ export function AppLayout() {
       
       {/* Bottom nav - fixed, never scroll */}
       {!shouldHideNav && <BottomNav />}
+      
+      {/* Dev debug panel - only in dev builds */}
+      {import.meta.env.DEV && <DevDebugPanel />}
     </div>
   );
 }

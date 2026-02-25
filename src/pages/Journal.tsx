@@ -267,7 +267,7 @@ export default function Journal() {
         </div>
 
         {selectedPrompt && (
-          <div className="mb-4 p-3 bg-gentle/10 rounded-xl border border-gentle/20">
+          <div className="mb-4 p-3 bg-primary/10 rounded-xl border border-primary/20">
             <p className="text-xs text-muted-foreground mb-1">{t("journal.yourPrompt")}</p>
             <p className="text-sm font-medium text-foreground">{selectedPrompt}</p>
           </div>

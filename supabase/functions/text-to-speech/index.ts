@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requireUser } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,12 +7,19 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // JWT auth
+    try {
+      await requireUser(req);
+    } catch (authError) {
+      if (authError instanceof Response) return authError;
+      throw authError;
+    }
+
     const { text, voiceId, language, speed = 1.0 } = await req.json();
 
     if (!text || text.trim().length === 0) {
@@ -21,7 +29,6 @@ serve(async (req) => {
       );
     }
 
-    // Try both secret names (connector uses _1 suffix)
     const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY_1") || Deno.env.get("ELEVENLABS_API_KEY");
     if (!ELEVENLABS_API_KEY) {
       console.error("ELEVENLABS_API_KEY is not configured");
@@ -31,18 +38,16 @@ serve(async (req) => {
       );
     }
 
-    // Default voice ID if not provided (Sarah - female, multilingual)
     const selectedVoiceId = voiceId || "EXAVITQu4vr4xnSDxMaL";
 
-    // Clean text for better speech - remove markdown, URLs, etc.
     const cleanedText = text
-      .replace(/\*\*([^*]+)\*\*/g, "$1") // Remove bold
-      .replace(/\*([^*]+)\*/g, "$1") // Remove italic
-      .replace(/`([^`]+)`/g, "$1") // Remove code
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Links: keep text
-      .replace(/https?:\/\/[^\s]+/g, "") // Remove URLs
-      .replace(/[#>]/g, "") // Remove markdown symbols
-      .replace(/[-]{2,}/g, "") // Remove multiple dashes
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/https?:\/\/[^\s]+/g, "")
+      .replace(/[#>]/g, "")
+      .replace(/[-]{2,}/g, "")
       .trim();
 
     if (!cleanedText) {
@@ -52,7 +57,6 @@ serve(async (req) => {
       );
     }
 
-    // Truncate very long text to avoid excessive API usage
     const maxLength = 2000;
     const truncatedText = cleanedText.length > maxLength 
       ? cleanedText.substring(0, maxLength) + "..." 
@@ -60,7 +64,6 @@ serve(async (req) => {
 
     console.log(`TTS request: voice=${selectedVoiceId}, lang=${language}, speed=${speed}, chars=${truncatedText.length}`);
 
-    // Call ElevenLabs TTS API
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}?output_format=mp3_44100_128`,
       {

@@ -95,8 +95,8 @@ export function JournalPrompts({ onSelectPrompt }: JournalPromptsProps) {
             transition={{ delay: index * 0.1 }}
           >
             <CalmCard
-              variant="gentle"
-              className="cursor-pointer hover:bg-gentle/10 transition-colors group"
+              variant="accent"
+              className="cursor-pointer hover:bg-primary/10 transition-colors group"
               onClick={() => onSelectPrompt(item.prompt)}
             >
               <div className="flex items-center justify-between">

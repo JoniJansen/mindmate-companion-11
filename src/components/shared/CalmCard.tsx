@@ -18,8 +18,8 @@ export const CalmCard = React.forwardRef<HTMLDivElement, CalmCardProps>(
       default: "bg-card border border-border/50 shadow-soft",
       elevated: "bg-card border border-border/40 shadow-card",
       accent: "bg-accent-soft/50 border border-accent/12",
-      gentle: "bg-gentle-soft/50 border border-gentle/12",
-      calm: "bg-calm-soft/50 border border-calm/12",
+      gentle: "bg-primary-soft/50 border border-primary/12",
+      calm: "bg-primary-soft/50 border border-primary/12",
     };
 
     const hoverStyles = onClick ? "cursor-pointer hover:shadow-card hover:border-border/60 active:scale-[0.99]" : "";

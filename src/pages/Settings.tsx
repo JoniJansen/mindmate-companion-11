@@ -327,8 +327,8 @@ export default function Settings() {
               className="w-full flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-calm-soft flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-calm" />
+                <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5 text-primary" />
                 </div>
                 <div className="text-left">
                   <p className="font-medium text-foreground">{t("settings.conversationTone")}</p>
@@ -382,8 +382,8 @@ export default function Settings() {
                   className="w-full flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gentle-soft flex items-center justify-center">
-                      <User className="w-5 h-5 text-gentle" />
+                    <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
                     </div>
                     <div className="text-left">
                       <p className="font-medium text-foreground">{t("settings.addressForm")}</p>
@@ -564,8 +564,8 @@ export default function Settings() {
             <CalmCard variant="elevated">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gentle-soft flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-gentle" />
+                   <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <p className="font-medium text-foreground">{t("settings.innerDialogue")}</p>
@@ -648,8 +648,8 @@ export default function Settings() {
                 className="w-full flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-calm-soft flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-calm" />
+                   <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-primary" />
                   </div>
                   <div className="text-left">
                     <p className="font-medium text-foreground">{t("voice.speed")}</p>
@@ -697,8 +697,8 @@ export default function Settings() {
                 className="w-full flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gentle-soft flex items-center justify-center">
-                    <Globe className="w-5 h-5 text-gentle" />
+                   <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+                    <Globe className="w-5 h-5 text-primary" />
                   </div>
                   <div className="text-left">
                     <p className="font-medium text-foreground">{t("voice.language")}</p>
