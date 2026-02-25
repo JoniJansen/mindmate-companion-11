@@ -162,6 +162,7 @@ const App = () => (
                 
                 {/* Onboarding - accessible without auth */}
                 <Route path="/welcome" element={<Onboarding />} />
+                <Route path="/onboarding" element={<Onboarding />} />
                 
                 {/* Main app with bottom navigation - Protected with OnboardingGuard */}
                 <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
