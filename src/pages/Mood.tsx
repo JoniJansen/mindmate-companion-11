@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, ChevronRight, TrendingUp, Calendar, Filter, BookOpen } from "lucide-react";
+import { Check, ChevronRight, TrendingUp, Calendar, BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { TabHint } from "@/components/shared/TabHint";
 import { Button } from "@/components/ui/button";
-import { MoodSelector, getMoodEmoji, getMoodLabel } from "@/components/mood/MoodSelector";
+import { MoodSelector, getMoodEmoji } from "@/components/mood/MoodSelector";
 import { FeelingTags } from "@/components/mood/FeelingTags";
 import { MoodChart } from "@/components/mood/MoodChart";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { toStableTagIds } from "@/lib/tagUtils";
 
 interface MoodCheckin {
   id: string;
@@ -34,7 +35,7 @@ export default function Mood() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("7d");
   const [isLoading, setIsLoading] = useState(true);
 
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ export default function Mood() {
       const mapped = (data || []).map(d => ({
         id: d.id,
         mood_value: d.mood_value,
-        feelings: d.feelings || [],
+        feelings: toStableTagIds(d.feelings || []),
         note: d.note,
         created_at: d.created_at,
       }));
@@ -81,14 +82,13 @@ export default function Mood() {
       }
     } catch (error) {
       console.error("Error loading checkins:", error);
-      // Fallback to localStorage
       const stored = localStorage.getItem("mindmate-moods");
       if (stored) {
         const localData = JSON.parse(stored);
         setCheckins(localData.map((d: any) => ({
           id: d.id || Date.now().toString(),
           mood_value: d.mood,
-          feelings: d.feelings || [],
+          feelings: toStableTagIds(d.feelings || []),
           note: d.note || null,
           created_at: d.created_at,
         })));
@@ -103,7 +103,6 @@ export default function Mood() {
     setIsSaving(true);
 
     try {
-      // Remove today's existing checkin if updating
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -118,29 +117,26 @@ export default function Mood() {
         await supabase.from("mood_checkins").delete().eq("id", existing.id);
       }
 
-      // Insert new checkin
       const { error } = await supabase.from("mood_checkins").insert({
         user_id: user.id,
-        user_session_id: user.id, // Legacy field for compatibility
+        user_session_id: user.id,
         mood_value: selectedMood,
-        feelings: selectedFeelings,
+        feelings: selectedFeelings, // Stable IDs
         note: note.trim() || null,
       } as any);
 
       if (error) throw error;
 
-      // Also save to journal if there's a note
       if (note.trim()) {
         await supabase.from("journal_entries").insert({
           user_id: user.id,
-          user_session_id: user.id, // Legacy field for compatibility
+          user_session_id: user.id,
           content: note,
           mood: getMoodEmoji(selectedMood),
           source: "mood-checkin",
         } as any);
       }
 
-      // Sync to localStorage as backup
       const localData = checkins.filter(c => new Date(c.created_at).toDateString() !== new Date().toDateString());
       localData.unshift({
         id: Date.now().toString(),
@@ -152,15 +148,15 @@ export default function Mood() {
       localStorage.setItem("mindmate-moods", JSON.stringify(localData.slice(0, 90)));
 
       toast({
-        title: language === "de" ? "Stimmung gespeichert" : "Mood saved",
-        description: language === "de" ? "Dein Check-in wurde gespeichert." : "Your check-in has been saved.",
+        title: t("mood.saved"),
+        description: t("mood.savedDesc"),
       });
 
       setHasSavedToday(true);
       loadCheckins();
     } catch (error) {
       console.error("Error saving:", error);
-      toast({ title: language === "de" ? "Fehler" : "Error", variant: "destructive" });
+      toast({ title: t("common.error"), variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -174,35 +170,33 @@ export default function Mood() {
 
   const lowMoodDays = checkins.filter(c => c.mood_value <= 2);
 
-  const timeFilterLabels = {
-    "7d": language === "de" ? "7 Tage" : "7 days",
-    "30d": language === "de" ? "30 Tage" : "30 days",
-    "90d": language === "de" ? "90 Tage" : "90 days",
+  const timeFilterKeys: Record<TimeFilter, string> = {
+    "7d": "mood.filter7d",
+    "30d": "mood.filter30d",
+    "90d": "mood.filter90d",
   };
 
   return (
     <div className="flex flex-col h-full bg-background">
       <PageHeader
-        title={language === "de" ? "Stimmung" : "Mood"}
-        subtitle={language === "de" ? "Wie geht es dir gerade?" : "How are you feeling right now?"}
+        title={t("mood.title")}
+        subtitle={t("mood.subtitle")}
       />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
         <div className="max-w-lg mx-auto space-y-5">
-          {/* First-visit hint */}
           <TabHint tabId="mood" />
+
           {/* Today's Check-in */}
           <CalmCard variant="calm" animate={false}>
             <div className="space-y-5">
               <div className="text-center">
                 <h2 className="font-medium text-foreground mb-1">
-                  {hasSavedToday
-                    ? (language === "de" ? "Heute eingecheckt ✓" : "Checked in today ✓")
-                    : (language === "de" ? "Wie fühlst du dich?" : "How do you feel?")}
+                  {hasSavedToday ? t("mood.checkedInToday") : t("mood.howDoYouFeel")}
                 </h2>
                 {hasSavedToday && (
                   <p className="text-sm text-muted-foreground">
-                    {language === "de" ? "Du kannst aktualisieren" : "You can update"}
+                    {t("mood.canUpdate")}
                   </p>
                 )}
               </div>
@@ -213,26 +207,25 @@ export default function Mood() {
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      {language === "de" ? "Was beschreibt dich gerade?" : "What describes you now?"} <span className="opacity-50">({language === "de" ? "optional" : "optional"})</span>
+                      {t("mood.whatDescribesYou")} <span className="opacity-50">({t("mood.optional")})</span>
                     </p>
                     <FeelingTags
                       selected={selectedFeelings}
                       onToggle={(f) => setSelectedFeelings(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])}
-                      language={language as "en" | "de"}
                     />
                   </div>
 
                   <textarea
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    placeholder={language === "de" ? "Möchtest du etwas hinzufügen?" : "Want to add anything?"}
+                    placeholder={t("mood.addNote")}
                     className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                     rows={2}
                   />
 
                   <Button onClick={handleSave} disabled={isSaving} className="w-full gap-2">
                     <Check className="w-4 h-4" />
-                    {isSaving ? (language === "de" ? "Speichern..." : "Saving...") : (language === "de" ? "Speichern" : "Save")}
+                    {isSaving ? t("mood.saving") : t("common.save")}
                   </Button>
                 </div>
               )}
@@ -249,7 +242,7 @@ export default function Mood() {
                 onClick={() => setTimeFilter(filter)}
                 className="flex-1"
               >
-                {timeFilterLabels[filter]}
+                {t(timeFilterKeys[filter])}
               </Button>
             ))}
           </div>
@@ -261,11 +254,11 @@ export default function Mood() {
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium text-foreground flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-primary" />
-                    {language === "de" ? "Dein Verlauf" : "Your Trend"}
+                    {t("mood.yourTrend")}
                   </h3>
                   {averageMood && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>{language === "de" ? "Ø" : "Avg"}:</span>
+                      <span>{t("mood.average")}:</span>
                       <span className="font-medium">{getMoodEmoji(Math.round(averageMood))}</span>
                       <span>{averageMood.toFixed(1)}</span>
                     </div>
@@ -277,7 +270,7 @@ export default function Mood() {
             </CalmCard>
           )}
 
-          {/* Low Mood Days - Link to Journal */}
+          {/* Low Mood Days */}
           {lowMoodDays.length > 0 && (
             <CalmCard variant="gentle" animate={false} className="cursor-pointer" onClick={() => navigate("/journal")}>
               <div className="flex items-center justify-between">
@@ -287,10 +280,10 @@ export default function Mood() {
                   </div>
                   <div>
                     <h3 className="font-medium text-foreground">
-                      {language === "de" ? "Schwierige Tage erkunden" : "Explore difficult days"}
+                      {t("mood.exploreDifficultDays")}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {lowMoodDays.length} {language === "de" ? "Tage mit niedriger Stimmung" : "days with low mood"}
+                      {lowMoodDays.length} {t("mood.daysWithLowMood")}
                     </p>
                   </div>
                 </div>
@@ -304,10 +297,10 @@ export default function Mood() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-medium text-foreground">
-                  {language === "de" ? "Darüber sprechen?" : "Want to talk about it?"}
+                  {t("mood.wantToTalk")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {language === "de" ? "Starte ein Gespräch über deine Gefühle" : "Start a conversation about how you feel"}
+                  {t("mood.startConversation")}
                 </p>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -319,7 +312,7 @@ export default function Mood() {
             <CalmCard variant="gentle" animate={false} className="text-center py-8">
               <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
               <p className="text-muted-foreground">
-                {language === "de" ? "Noch keine Check-ins in diesem Zeitraum" : "No check-ins in this period yet"}
+                {t("mood.noCheckins")}
               </p>
             </CalmCard>
           )}

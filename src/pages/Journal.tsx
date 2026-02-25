@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNavigate } from "react-router-dom";
+import { ALL_JOURNAL_TAG_IDS, JOURNAL_EMOTION_TAG_IDS, JOURNAL_TOPIC_TAG_IDS, getTagI18nKey, toStableTagIds } from "@/lib/tagUtils";
 
 interface JournalEntry {
   id: string;
@@ -52,21 +53,13 @@ export default function Journal() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
   const { isListening, fullTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition(speechLang, { continuous: true });
-
-  const emotionTags = language === "de"
-    ? ["Ängstlich", "Traurig", "Wütend", "Gestresst", "Ruhig", "Dankbar", "Hoffnungsvoll", "Überfordert"]
-    : ["Anxious", "Sad", "Angry", "Stressed", "Calm", "Grateful", "Hopeful", "Overwhelmed"];
-
-  const topicTags = language === "de"
-    ? ["Arbeit", "Beziehungen", "Familie", "Gesundheit", "Selbstwert", "Zukunft"]
-    : ["Work", "Relationships", "Family", "Health", "Self-worth", "Future"];
 
   useEffect(() => {
     if (user) loadEntries();
@@ -92,7 +85,7 @@ export default function Journal() {
       try {
         const parsed = JSON.parse(cached);
         const cacheAge = Date.now() - new Date(parsed.created_at).getTime();
-        if (cacheAge < 24 * 60 * 60 * 1000) setWeeklyRecap(parsed); // 24h cache
+        if (cacheAge < 24 * 60 * 60 * 1000) setWeeklyRecap(parsed);
       } catch {}
     }
   }, []);
@@ -107,7 +100,11 @@ export default function Journal() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setEntries((data || []).map(e => ({ ...e, tags: e.tags || [], prompt_id: e.prompt_id || null })));
+      setEntries((data || []).map(e => ({
+        ...e,
+        tags: toStableTagIds(e.tags || []),
+        prompt_id: e.prompt_id || null,
+      })));
     } catch (error) {
       console.error("Error loading entries:", error);
     } finally {
@@ -123,7 +120,7 @@ export default function Journal() {
         title: entry.title || null,
         content: entry.content,
         mood: entry.mood || null,
-        tags: selectedTags,
+        tags: selectedTags, // Already stable IDs
         prompt_id: selectedPrompt,
       };
 
@@ -132,15 +129,15 @@ export default function Journal() {
       } else {
         await supabase.from("journal_entries").insert({
           user_id: user.id,
-          user_session_id: user.id, // Legacy compatibility
+          user_session_id: user.id,
           source: selectedPrompt ? "guided" : "free",
           ...payload,
         } as any);
       }
 
       toast({
-        title: language === "de" ? "Gespeichert" : "Saved",
-        description: language === "de" ? "Dein Eintrag wurde gespeichert." : "Your entry has been saved.",
+        title: t("journal.saved"),
+        description: t("journal.entrySaved"),
       });
 
       setViewMode("list");
@@ -152,13 +149,16 @@ export default function Journal() {
       loadEntries();
     } catch (error) {
       console.error("Error saving entry:", error);
-      toast({ title: language === "de" ? "Fehler" : "Error", variant: "destructive" });
+      toast({ title: t("common.error"), variant: "destructive" });
     }
   };
 
   const handleGetPatterns = async () => {
     if (entries.length < 3) {
-      toast({ title: language === "de" ? "Mehr Einträge nötig" : "Need more entries", description: language === "de" ? "Schreibe mindestens 3 Einträge." : "Write at least 3 entries." });
+      toast({
+        title: t("journal.needMoreEntries"),
+        description: t("journal.writeAtLeast3Entries"),
+      });
       return;
     }
 
@@ -180,7 +180,7 @@ export default function Journal() {
       setAiReflection(data.reflection);
     } catch (error) {
       console.error("Error:", error);
-      toast({ title: language === "de" ? "Fehler" : "Error", variant: "destructive" });
+      toast({ title: t("common.error"), variant: "destructive" });
       setShowReflection(false);
     } finally {
       setIsReflecting(false);
@@ -189,14 +189,13 @@ export default function Journal() {
 
   const handleGenerateWeeklyRecap = async () => {
     if (entries.length < 3) {
-      toast({ title: language === "de" ? "Mehr Einträge nötig" : "Need more entries" });
+      toast({ title: t("journal.needMoreEntries") });
       return;
     }
 
     setIsLoadingRecap(true);
 
     try {
-      // Get mood checkins from localStorage (will be migrated to Supabase)
       const moodStored = localStorage.getItem("mindmate-moods");
       const moodCheckins = moodStored ? JSON.parse(moodStored) : [];
 
@@ -218,11 +217,10 @@ export default function Journal() {
       setWeeklyRecap(recap);
       localStorage.setItem("mindmate-weekly-recap", JSON.stringify(recap));
 
-      // Save to Supabase
       if (user) {
         await supabase.from("weekly_recaps").insert({
           user_id: user.id,
-          user_session_id: user.id, // Legacy compatibility
+          user_session_id: user.id,
           time_range: "7d",
           patterns: data.patterns,
           potential_needs: data.potential_needs,
@@ -233,7 +231,7 @@ export default function Journal() {
 
     } catch (error) {
       console.error("Error:", error);
-      toast({ title: language === "de" ? "Fehler" : "Error", variant: "destructive" });
+      toast({ title: t("common.error"), variant: "destructive" });
     } finally {
       setIsLoadingRecap(false);
     }
@@ -246,8 +244,8 @@ export default function Journal() {
     setTimeout(() => textareaRef.current?.focus(), 100);
   };
 
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+  const toggleTag = (tagId: string) => {
+    setSelectedTags(prev => prev.includes(tagId) ? prev.filter(t => t !== tagId) : [...prev, tagId]);
   };
 
   const filteredEntries = entries.filter((e) => {
@@ -261,16 +259,16 @@ export default function Journal() {
       <div className="min-h-screen bg-background pb-24 px-4 md:px-6 lg:px-8 py-6 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
         <div className="flex justify-between mb-6">
           <Button variant="ghost" size="sm" onClick={() => { setViewMode("list"); setDraftContent(""); setSelectedPrompt(null); setSelectedTags([]); }}>
-            <X className="w-4 h-4 mr-1" />{language === "de" ? "Abbrechen" : "Cancel"}
+            <X className="w-4 h-4 mr-1" />{t("common.cancel")}
           </Button>
           <Button size="sm" disabled={!draftContent.trim()} onClick={() => setIsEditorOpen(true)}>
-            {language === "de" ? "Weiter" : "Continue"}
+            {t("journal.continue")}
           </Button>
         </div>
 
         {selectedPrompt && (
           <div className="mb-4 p-3 bg-gentle/10 rounded-xl border border-gentle/20">
-            <p className="text-xs text-muted-foreground mb-1">{language === "de" ? "Deine Frage:" : "Your prompt:"}</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("journal.yourPrompt")}</p>
             <p className="text-sm font-medium text-foreground">{selectedPrompt}</p>
           </div>
         )}
@@ -279,18 +277,18 @@ export default function Journal() {
           ref={textareaRef}
           value={draftContent}
           onChange={(e) => setDraftContent(e.target.value)}
-          placeholder={language === "de" ? "Was beschäftigt dich?" : "What's on your mind?"}
+          placeholder={t("journal.whatsOnMind")}
           className="w-full min-h-[200px] bg-transparent text-lg leading-relaxed focus:outline-none resize-none"
           autoFocus
         />
 
-        {/* Tags */}
+        {/* Tags — render stable IDs via t() */}
         <div className="mt-6 space-y-3">
-          <p className="text-sm text-muted-foreground flex items-center gap-2"><Tag className="w-4 h-4" />{language === "de" ? "Tags (optional)" : "Tags (optional)"}</p>
+          <p className="text-sm text-muted-foreground flex items-center gap-2"><Tag className="w-4 h-4" />{t("journal.tagsOptional")}</p>
           <div className="flex flex-wrap gap-2">
-            {[...emotionTags, ...topicTags].map(tag => (
-              <button key={tag} onClick={() => toggleTag(tag)} className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}>
-                {tag}
+            {ALL_JOURNAL_TAG_IDS.map(tagId => (
+              <button key={tagId} onClick={() => toggleTag(tagId)} className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedTags.includes(tagId) ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}>
+                {t(getTagI18nKey(tagId))}
               </button>
             ))}
           </div>
@@ -316,7 +314,7 @@ export default function Journal() {
   // List mode
   return (
     <div className="flex flex-col h-full bg-background">
-      <PageHeader title={language === "de" ? "Tagebuch" : "Journal"} subtitle={language === "de" ? "Deine Gedanken, dein Raum" : "Your thoughts, your space"} />
+      <PageHeader title={t("journal.title")} subtitle={t("journal.subtitle")} />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-5 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full space-y-5">
         {/* First-visit hint */}
@@ -332,10 +330,10 @@ export default function Journal() {
                 <div className="flex-1">
                   {weeklyRecap ? (
                     <div className="space-y-3">
-                      <h3 className="font-medium">{language === "de" ? "Dein Wochenrückblick" : "Your Weekly Recap"}</h3>
+                      <h3 className="font-medium">{t("journal.yourWeeklyRecap")}</h3>
                       {weeklyRecap.patterns.length > 0 && (
                         <div>
-                          <p className="text-xs text-muted-foreground mb-1">{language === "de" ? "Beobachtete Muster" : "Observed patterns"}</p>
+                          <p className="text-xs text-muted-foreground mb-1">{t("journal.observedPatterns")}</p>
                           <ul className="text-sm space-y-1">
                             {weeklyRecap.patterns.slice(0, 3).map((p, i) => <li key={i} className="text-muted-foreground">• {p}</li>)}
                           </ul>
@@ -343,22 +341,22 @@ export default function Journal() {
                       )}
                       {weeklyRecap.suggested_next_step && (
                         <div className="p-2 bg-muted/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground mb-1">{language === "de" ? "Vorschlag" : "Suggestion"}</p>
+                          <p className="text-xs text-muted-foreground mb-1">{t("journal.suggestion")}</p>
                           <p className="text-sm">{weeklyRecap.suggested_next_step}</p>
                         </div>
                       )}
                       <Button variant="ghost" size="sm" onClick={handleGenerateWeeklyRecap} disabled={isLoadingRecap}>
                         {isLoadingRecap ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <TrendingUp className="w-4 h-4 mr-2" />}
-                        {language === "de" ? "Aktualisieren" : "Refresh"}
+                        {t("journal.refresh")}
                       </Button>
                     </div>
                   ) : (
                     <div>
-                      <h3 className="font-medium mb-1">{language === "de" ? "Wochenrückblick" : "Weekly Recap"}</h3>
-                      <p className="text-sm text-muted-foreground mb-3">{language === "de" ? "Entdecke Muster in deinen Einträgen." : "Discover patterns in your entries."}</p>
+                      <h3 className="font-medium mb-1">{t("journal.weeklyRecap")}</h3>
+                      <p className="text-sm text-muted-foreground mb-3">{t("journal.discoverPatternsInEntries")}</p>
                       <Button size="sm" onClick={handleGenerateWeeklyRecap} disabled={isLoadingRecap}>
                         {isLoadingRecap ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
-                        {language === "de" ? "Erstellen" : "Generate"}
+                        {t("journal.generate")}
                       </Button>
                     </div>
                   )}
@@ -371,11 +369,11 @@ export default function Journal() {
         {/* Quick Actions */}
         <div className="flex gap-3">
           <Button onClick={() => { setSelectedEntry(null); setViewMode("write"); }} className="flex-1 gap-2">
-            <Plus className="w-4 h-4" />{language === "de" ? "Freier Eintrag" : "Free Entry"}
+            <Plus className="w-4 h-4" />{t("journal.newEntry")}
           </Button>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input type="text" placeholder={language === "de" ? "Suchen..." : "Search..."} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-muted/50 border border-border/50 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            <input type="text" placeholder={t("journal.searchPlaceholder")} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-muted/50 border border-border/50 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
           </div>
         </div>
 
@@ -392,20 +390,20 @@ export default function Journal() {
         {/* Pattern Discovery Button */}
         {entries.length >= 3 && !showReflection && (
           <Button variant="ghost" size="sm" onClick={handleGetPatterns} className="w-full text-muted-foreground" disabled={isReflecting}>
-            <Sparkles className="w-4 h-4 mr-2" />{language === "de" ? "Muster entdecken" : "Discover Patterns"}
+            <Sparkles className="w-4 h-4 mr-2" />{t("journal.discoverPatterns")}
           </Button>
         )}
 
-        {/* Entries - grid on larger screens */}
+        {/* Entries */}
         <div className="space-y-3 md:space-y-0">
-          <h2 className="text-sm font-medium text-muted-foreground mb-3">{language === "de" ? "Deine Einträge" : "Your entries"}</h2>
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">{t("journal.yourEntries")}</h2>
 
           {isLoading ? (
             <CalmCard variant="gentle" className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></CalmCard>
           ) : filteredEntries.length === 0 ? (
             <CalmCard variant="gentle" className="text-center py-8">
               <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">{searchQuery ? (language === "de" ? "Keine Einträge gefunden" : "No entries found") : (language === "de" ? "Beginne mit deinem ersten Eintrag" : "Start with your first entry")}</p>
+              <p className="text-muted-foreground">{searchQuery ? t("journal.noEntriesFound") : t("journal.noEntries")}</p>
             </CalmCard>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
