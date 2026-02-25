@@ -10,6 +10,18 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  build: {
+    target: "es2020",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          ui: ["framer-motion", "recharts"],
+          supabase: ["@supabase/supabase-js"],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
@@ -17,11 +29,11 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "logo.png"],
       manifest: {
-        name: "MindMate – Dein psychologischer Begleiter",
-        short_name: "MindMate",
-        description: "KI-gestützter psychologischer Begleiter für mentale Gesundheit",
-        theme_color: "#4db6ac",
-        background_color: "#0f172a",
+        name: "Soulvay – Dein psychologischer Begleiter",
+        short_name: "Soulvay",
+        description: "Dein ruhiger, moderner KI-Begleiter für mentale Gesundheit. Chatte, journale, tracke deine Stimmung und entdecke hilfreiche Übungen.",
+        theme_color: "#2d5a3d",
+        background_color: "#faf9f6",
         display: "standalone",
         orientation: "portrait",
         start_url: "/",

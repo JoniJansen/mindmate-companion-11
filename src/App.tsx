@@ -18,36 +18,36 @@ import { usePremium } from "@/hooks/usePremium";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
 
-// Pages
-import Landing from "@/pages/Landing";
+// Critical pages (eagerly loaded for instant navigation)
 import Chat from "@/pages/Chat";
-import Journal from "@/pages/Journal";
-import Topics from "@/pages/Topics";
-import Mood from "@/pages/Mood";
-import Toolbox from "@/pages/Toolbox";
-import Onboarding from "@/pages/Onboarding";
-import Settings from "@/pages/Settings";
-import Safety from "@/pages/Safety";
-import Summary from "@/pages/Summary";
-import Install from "@/pages/Install";
-import Upgrade from "@/pages/Upgrade";
 import Auth from "@/pages/Auth";
-import Privacy from "@/pages/Privacy";
-import Terms from "@/pages/Terms";
-import Impressum from "@/pages/Impressum";
-import FAQ from "@/pages/FAQ";
-import Cancellation from "@/pages/Cancellation";
-import Contact from "@/pages/Contact";
-import About from "@/pages/About";
-import Admin from "@/pages/Admin";
-import DeleteAccount from "@/pages/DeleteAccount";
-import NotFound from "@/pages/NotFound";
-import AudioLibrary from "@/pages/AudioLibrary";
-import Timeline from "@/pages/Timeline";
-import ReviewInstructions from "@/pages/ReviewInstructions";
-import ReviewStatus from "@/pages/ReviewStatus";
+import Onboarding from "@/pages/Onboarding";
 
-// DEV-ONLY: Device QA screen (lazy load to exclude from prod bundle)
+// Lazy-loaded pages (code-split for faster initial load)
+const Landing = lazy(() => import("@/pages/Landing"));
+const Journal = lazy(() => import("@/pages/Journal"));
+const Topics = lazy(() => import("@/pages/Topics"));
+const Mood = lazy(() => import("@/pages/Mood"));
+const Toolbox = lazy(() => import("@/pages/Toolbox"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const Safety = lazy(() => import("@/pages/Safety"));
+const Summary = lazy(() => import("@/pages/Summary"));
+const Install = lazy(() => import("@/pages/Install"));
+const Upgrade = lazy(() => import("@/pages/Upgrade"));
+const Privacy = lazy(() => import("@/pages/Privacy"));
+const Terms = lazy(() => import("@/pages/Terms"));
+const Impressum = lazy(() => import("@/pages/Impressum"));
+const FAQ = lazy(() => import("@/pages/FAQ"));
+const Cancellation = lazy(() => import("@/pages/Cancellation"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const About = lazy(() => import("@/pages/About"));
+const Admin = lazy(() => import("@/pages/Admin"));
+const DeleteAccount = lazy(() => import("@/pages/DeleteAccount"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const AudioLibrary = lazy(() => import("@/pages/AudioLibrary"));
+const Timeline = lazy(() => import("@/pages/Timeline"));
+const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
+const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const DevQA = lazy(() => import("@/pages/DevQA"));
 
 const queryClient = new QueryClient();
@@ -138,6 +138,13 @@ function DelayedCookieConsent() {
   return <CookieConsent />;
 }
 
+// Shared loading fallback for lazy routes
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -150,63 +157,61 @@ const App = () => (
           <BrowserRouter>
             <TourProvider>
               <DelayedCookieConsent />
-              <Routes>
-                {/* Root - intelligent redirect */}
-                <Route path="/" element={<RootRedirect />} />
-                
-                {/* Landing Page - marketing/info */}
-                <Route path="/landing" element={<Landing />} />
-                
-                {/* Auth */}
-                <Route path="/auth" element={<Auth />} />
-                
-                {/* Onboarding - accessible without auth */}
-                <Route path="/welcome" element={<Onboarding />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                
-                {/* Main app with bottom navigation - Protected with OnboardingGuard */}
-                <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
-                  <Route path="/chat" element={<Chat />} />
-                  <Route path="/journal" element={<Journal />} />
-                  <Route path="/topics" element={<Topics />} />
-                  <Route path="/mood" element={<Mood />} />
-                  <Route path="/toolbox" element={<Toolbox />} />
-                </Route>
-                
-                {/* Standalone protected pages */}
-                <Route path="/summary" element={<OnboardingGuard><Summary /></OnboardingGuard>} />
-                <Route path="/safety" element={<Safety />} />
-                <Route path="/settings" element={<OnboardingGuard><Settings /></OnboardingGuard>} />
-                <Route path="/install" element={<Install />} />
-                <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
-                <Route path="/audio" element={<OnboardingGuard><AudioLibrary /></OnboardingGuard>} />
-                <Route path="/timeline" element={<OnboardingGuard><Timeline /></OnboardingGuard>} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/impressum" element={<Impressum />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/cancellation" element={<Cancellation />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/delete-account" element={<DeleteAccount />} />
-                <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
-                
-                {/* Review Mode Pages - accessible without OnboardingGuard for Apple Review */}
-                <Route path="/review-instructions" element={<ReviewInstructions />} />
-                <Route path="/review-status" element={<ReviewStatus />} />
-                
-                {/* DEV-ONLY: Device QA screen */}
-                {import.meta.env.DEV && (
-                  <Route path="/dev-qa" element={
-                    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" /></div>}>
-                      <OnboardingGuard><DevQA /></OnboardingGuard>
-                    </Suspense>
-                  } />
-                )}
-                
-                {/* Catch-all */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  {/* Root - intelligent redirect */}
+                  <Route path="/" element={<RootRedirect />} />
+                  
+                  {/* Landing Page - marketing/info */}
+                  <Route path="/landing" element={<Landing />} />
+                  
+                  {/* Auth */}
+                  <Route path="/auth" element={<Auth />} />
+                  
+                  {/* Onboarding - accessible without auth */}
+                  <Route path="/welcome" element={<Onboarding />} />
+                  <Route path="/onboarding" element={<Onboarding />} />
+                  
+                  {/* Main app with bottom navigation - Protected with OnboardingGuard */}
+                  <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
+                    <Route path="/chat" element={<Chat />} />
+                    <Route path="/journal" element={<Journal />} />
+                    <Route path="/topics" element={<Topics />} />
+                    <Route path="/mood" element={<Mood />} />
+                    <Route path="/toolbox" element={<Toolbox />} />
+                  </Route>
+                  
+                  {/* Standalone protected pages */}
+                  <Route path="/summary" element={<OnboardingGuard><Summary /></OnboardingGuard>} />
+                  <Route path="/safety" element={<Safety />} />
+                  <Route path="/settings" element={<OnboardingGuard><Settings /></OnboardingGuard>} />
+                  <Route path="/install" element={<Install />} />
+                  <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
+                  <Route path="/audio" element={<OnboardingGuard><AudioLibrary /></OnboardingGuard>} />
+                  <Route path="/timeline" element={<OnboardingGuard><Timeline /></OnboardingGuard>} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/impressum" element={<Impressum />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/cancellation" element={<Cancellation />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/delete-account" element={<DeleteAccount />} />
+                  <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
+                  
+                  {/* Review Mode Pages */}
+                  <Route path="/review-instructions" element={<ReviewInstructions />} />
+                  <Route path="/review-status" element={<ReviewStatus />} />
+                  
+                  {/* DEV-ONLY */}
+                  {import.meta.env.DEV && (
+                    <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
+                  )}
+                  
+                  {/* Catch-all */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </TourProvider>
           </BrowserRouter>
         </AuthProvider>
