@@ -60,7 +60,7 @@ export default function Journal() {
   const navigate = useNavigate();
   const { logActivity } = useActivityLog();
 
-  // Non-blocking sentiment analysis after save
+  // Non-blocking sentiment analysis after save — never diagnoses, opt-in tags only
   const runSentimentAnalysis = async (content: string) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`, {
@@ -71,6 +71,7 @@ export default function Journal() {
           entries: [{ content }],
         }),
       });
+      if (!response.ok) return; // Silent on HTTP errors
       const data = await response.json();
       if (data.reflection) {
         try {
@@ -78,7 +79,7 @@ export default function Journal() {
           if (sentiment.brief) {
             toast({
               title: t("journal.sentimentInsight"),
-              description: sentiment.brief,
+              description: `${sentiment.brief}\n${t("journal.sentimentJustSuggestion")}`,
             });
           }
         } catch {
@@ -86,7 +87,7 @@ export default function Journal() {
         }
       }
     } catch {
-      // Silent fail — sentiment is non-critical
+      // Silent fail — sentiment is non-critical, never disrupts user
     }
   };
 

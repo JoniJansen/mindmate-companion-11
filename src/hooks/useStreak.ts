@@ -63,8 +63,9 @@ export function useStreak(): StreakData {
       const activeDatesSet = new Set(rows.map(r => r.activity_date));
       const activeDates = Array.from(activeDatesSet).sort().reverse(); // newest first
 
-      // Today check
-      const today = new Date().toISOString().split("T")[0];
+      // Today check — use local device date
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
       const todayActive = activeDatesSet.has(today);
       setIsActiveToday(todayActive);
 

@@ -461,9 +461,13 @@ export const translations: Translations = {
   "home.forYou": { en: "For you", de: "Für dich" },
   "home.lastExercise": { en: "Continue exercise", de: "Übung fortsetzen" },
 
-  // Sentiment
+   // Sentiment
   "journal.sentimentSuggestion": { en: "AI suggests tagging as", de: "KI schlägt vor zu taggen als" },
   "journal.sentimentInsight": { en: "Insight", de: "Einblick" },
+  "journal.sentimentTagPrompt": { en: "Would you like to tag this?", de: "Möchtest du das markieren?" },
+  "journal.sentimentJustSuggestion": { en: "Just a suggestion — you decide.", de: "Das ist nur ein Vorschlag — du entscheidest." },
+  "home.startHere": { en: "Start here", de: "Starte hier" },
+  "home.startHereDesc": { en: "Check in with your mood or write a thought.", de: "Checke deine Stimmung ein oder schreibe einen Gedanken." },
 
   // Streak & Progress
   "streak.day": { en: "day", de: "Tag" },

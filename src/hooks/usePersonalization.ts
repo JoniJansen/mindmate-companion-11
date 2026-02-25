@@ -38,13 +38,31 @@ export function usePersonalization() {
   const [stressCount, setStressCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Read personalization from localStorage
+  // Read personalization from localStorage with versioning + safe defaults
   const personalization = useMemo<PersonalizationData>(() => {
+    const defaults: PersonalizationData = {
+      focusAreas: [],
+      reflectionFrequency: "3x_week",
+      personalGoal: "",
+    };
     try {
       const stored = localStorage.getItem("soulvay-personalization");
-      if (stored) return JSON.parse(stored);
-    } catch {}
-    return { focusAreas: [], reflectionFrequency: "", personalGoal: "" };
+      if (!stored) return defaults;
+      const parsed = JSON.parse(stored);
+      // Migrate old format without schemaVersion
+      if (!parsed.schemaVersion) {
+        const migrated = {
+          ...defaults,
+          ...parsed,
+          schemaVersion: 1,
+        };
+        localStorage.setItem("soulvay-personalization", JSON.stringify(migrated));
+        return migrated;
+      }
+      return { ...defaults, ...parsed };
+    } catch {
+      return defaults;
+    }
   }, []);
 
   // Fetch recent mood data

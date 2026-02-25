@@ -25,7 +25,36 @@ export function AdaptiveSuggestions({ suggestions, onStartExercise }: AdaptiveSu
   const { language, t, getExerciseDisplay } = useTranslation();
   const navigate = useNavigate();
 
-  if (suggestions.length === 0) return null;
+  // If no personalized suggestions, show "Start here" fallback
+  if (suggestions.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="space-y-2"
+      >
+        <div className="flex items-center gap-2 mb-1">
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
+          <span className="text-xs font-medium text-muted-foreground">
+            {t("home.forYou")}
+          </span>
+        </div>
+        <button
+          onClick={() => navigate("/mood")}
+          className="w-full text-left rounded-2xl p-4 border bg-card border-border/30 hover:border-border/60 transition-colors"
+        >
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-foreground">{t("home.startHere")}</p>
+              <p className="text-xs text-muted-foreground">{t("home.startHereDesc")}</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+          </div>
+        </button>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
