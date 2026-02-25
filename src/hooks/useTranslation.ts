@@ -459,6 +459,20 @@ export const translations: Translations = {
   "home.thoughtSavedDesc": { en: "Your thought has been saved to the timeline.", de: "Dein Gedanke wurde in der Timeline gespeichert." },
   "home.saveFailed": { en: "Could not save thought.", de: "Konnte nicht gespeichert werden." },
 
+  // Streak & Progress
+  "streak.day": { en: "day", de: "Tag" },
+  "streak.days": { en: "days", de: "Tage" },
+  "streak.weeklyProgress": { en: "Your Week", de: "Deine Woche" },
+  "streak.vsLastWeek": { en: "vs last week", de: "vs letzte Woche" },
+  "streak.daysActive": { en: "days active", de: "Tage aktiv" },
+  "streak.streak": { en: "streak", de: "Streak" },
+  "streak.moodCheckins": { en: "Mood", de: "Stimmung" },
+  "streak.journalEntries": { en: "Journal", de: "Tagebuch" },
+  "streak.exercises": { en: "Exercises", de: "Übungen" },
+  "streak.chatSessions": { en: "Chats", de: "Chats" },
+  "streak.startToday": { en: "Start your day — check in, write, or chat.", de: "Starte deinen Tag — checke ein, schreib oder chatte." },
+  "streak.validatingMessage": { en: "You showed up {days} days this week. That matters.", de: "Du warst diese Woche {days} Tage für dich da. Das zählt." },
+
   // Settings toasts
   "settings.tourReset": { en: "Tour reset", de: "Tour zurückgesetzt" },
   "settings.tourResetDesc": { en: "The app tour will start on your next chat visit.", de: "Die App-Einführung startet beim nächsten Chat-Besuch." },

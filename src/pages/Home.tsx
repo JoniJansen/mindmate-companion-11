@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,11 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useStreak } from "@/hooks/useStreak";
+import { useActivityLog } from "@/hooks/useActivityLog";
+import { StreakCounter } from "@/components/streak/StreakCounter";
+import { StreakMilestone } from "@/components/streak/StreakMilestone";
+import { WeeklyProgress } from "@/components/streak/WeeklyProgress";
 
 interface RecentThought {
   id: string;
@@ -28,6 +33,9 @@ export default function Home() {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const streak = useStreak();
+  const { logActivity } = useActivityLog();
+  const [showMilestone, setShowMilestone] = useState(true);
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
   
@@ -114,6 +122,7 @@ export default function Home() {
       
       setInputValue("");
       resetTranscript();
+      logActivity("journal_entry");
       
       // Reload recent thoughts
       const { data } = await supabase
@@ -182,13 +191,20 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="px-6 pt-8 pb-4 safe-top">
-        <motion.h1 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-2xl font-semibold text-foreground"
-        >
-          {greeting()}
-        </motion.h1>
+        <div className="flex items-center justify-between">
+          <motion.h1 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-2xl font-semibold text-foreground"
+          >
+            {greeting()}
+          </motion.h1>
+          <StreakCounter
+            currentStreak={streak.currentStreak}
+            isActiveToday={streak.isActiveToday}
+            isLoading={streak.isLoading}
+          />
+        </div>
         <motion.p 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -198,6 +214,14 @@ export default function Home() {
           {t("home.howAreYou")}
         </motion.p>
       </div>
+
+      {/* Streak Milestone Celebration */}
+      {streak.milestoneReached && showMilestone && (
+        <StreakMilestone
+          milestone={streak.milestoneReached}
+          onDismiss={() => setShowMilestone(false)}
+        />
+      )}
 
       {/* Main Content */}
       <div className="flex-1 px-6 pb-6">
@@ -323,6 +347,19 @@ export default function Home() {
             </span>
           </Button>
         </motion.div>
+
+        {/* Weekly Progress Dashboard */}
+        {!streak.isLoading && (
+          <WeeklyProgress
+            activeDays={streak.weeklyStats.activeDays}
+            moodCheckins={streak.weeklyStats.moodCheckins}
+            journalEntries={streak.weeklyStats.journalEntries}
+            exercisesCompleted={streak.weeklyStats.exercisesCompleted}
+            chatSessions={streak.weeklyStats.chatSessions}
+            lastWeekActiveDays={streak.lastWeekActiveDays}
+            currentStreak={streak.currentStreak}
+          />
+        )}
 
         {/* Recent Thoughts */}
         <motion.div

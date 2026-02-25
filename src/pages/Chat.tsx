@@ -23,6 +23,7 @@ import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/ch
 import { ChatDisclaimer } from "@/components/chat/ChatDisclaimer";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
+import { useActivityLog } from "@/hooks/useActivityLog";
 
 interface Message {
   id: string;
@@ -72,6 +73,8 @@ export default function Chat() {
   const { t, language } = useTranslation();
   const preferences = useRef<Preferences>(getPreferences());
   const { isOnline } = useNetworkStatus();
+  const { logActivity } = useActivityLog();
+  const chatMessageCountRef = useRef(0);
 
   // Premium state
   const { 
@@ -306,6 +309,11 @@ export default function Chat() {
       setMessages((prev) => [...prev, userMessage]);
       incrementMessageCount();
       setLastUserMessage(content.trim());
+      chatMessageCountRef.current += 1;
+      // Log chat session activity after 3+ user messages
+      if (chatMessageCountRef.current >= 3) {
+        logActivity("chat_session");
+      }
     }
     setInputValue("");
     setPendingTranscript("");

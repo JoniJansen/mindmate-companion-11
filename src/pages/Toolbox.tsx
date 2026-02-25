@@ -10,6 +10,7 @@ import { ExercisePlayer } from "@/components/toolbox/ExercisePlayer";
 import { exercises, Exercise, getExerciseById } from "@/data/exercises";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
+import { useActivityLog } from "@/hooks/useActivityLog";
 
 const categories = [
   { id: "all", labelEn: "All", labelDe: "Alle" },
@@ -31,6 +32,7 @@ export default function Toolbox() {
 
   const { language, getExerciseDisplay, t } = useTranslation();
   const { toast } = useToast();
+  const { logActivity } = useActivityLog();
 
   // Handle auto-start from navigation (e.g., Calm mode exercises)
   useEffect(() => {
@@ -58,6 +60,8 @@ export default function Toolbox() {
       title: t("toolbox.exerciseCompleted"),
       description: t("toolbox.greatJob"),
     });
+
+    logActivity("exercise_completed");
   };
 
   const filteredExercises =
