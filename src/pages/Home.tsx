@@ -100,7 +100,7 @@ export default function Home() {
         .from('journal_entries')
         .insert({
           user_id: user.id,
-          user_session_id: user.id, // Legacy field for compatibility
+          user_session_id: user.id,
           content: inputValue.trim(),
           source: 'voice-dump',
         });
@@ -108,8 +108,8 @@ export default function Home() {
       if (error) throw error;
       
       toast({
-        title: language === "de" ? "Gedanke gespeichert" : "Thought saved",
-        description: language === "de" ? "Dein Gedanke wurde in der Timeline gespeichert." : "Your thought has been saved to the timeline.",
+        title: t("home.thoughtSaved"),
+        description: t("home.thoughtSavedDesc"),
       });
       
       setInputValue("");
@@ -127,8 +127,8 @@ export default function Home() {
     } catch (error) {
       console.error('Error saving thought:', error);
       toast({
-        title: language === "de" ? "Fehler" : "Error",
-        description: language === "de" ? "Konnte nicht gespeichert werden." : "Could not save thought.",
+        title: t("common.error"),
+        description: t("home.saveFailed"),
         variant: "destructive",
       });
     } finally {
@@ -138,7 +138,6 @@ export default function Home() {
 
   const handleTalkToSoulvay = () => {
     if (inputValue.trim()) {
-      // Pass the thought to chat
       localStorage.setItem('mindmate-initial-message', inputValue.trim());
     }
     navigate("/chat");
@@ -174,15 +173,9 @@ export default function Home() {
 
   const greeting = () => {
     const hour = new Date().getHours();
-    if (language === "de") {
-      if (hour < 12) return "Guten Morgen";
-      if (hour < 18) return "Guten Tag";
-      return "Guten Abend";
-    } else {
-      if (hour < 12) return "Good morning";
-      if (hour < 18) return "Good afternoon";
-      return "Good evening";
-    }
+    if (hour < 12) return t("home.greetingMorning");
+    if (hour < 18) return t("home.greetingAfternoon");
+    return t("home.greetingEvening");
   };
 
   return (
@@ -202,13 +195,13 @@ export default function Home() {
           transition={{ delay: 0.1 }}
           className="text-muted-foreground mt-1"
         >
-          {language === "de" ? "Wie geht es dir?" : "How are you?"}
+          {t("home.howAreYou")}
         </motion.p>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 px-6 pb-6">
-        {/* Voice/Text Input Area - THE PRIMARY FEATURE */}
+        {/* Voice/Text Input Area */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -231,7 +224,7 @@ export default function Home() {
                     transition={{ duration: 1, repeat: Infinity }}
                   />
                   <span className="text-sm text-muted-foreground">
-                    {language === "de" ? "Ich höre zu..." : "Listening..."}
+                    {t("home.listening")}
                   </span>
                 </motion.div>
               )}
@@ -243,9 +236,7 @@ export default function Home() {
                 ref={textareaRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder={language === "de" 
-                  ? "Was geht dir durch den Kopf? Schreib oder sprich einfach drauf los..." 
-                  : "What's on your mind? Just type or talk..."}
+                placeholder={t("home.inputPlaceholder")}
                 className="w-full bg-transparent resize-none text-foreground placeholder:text-muted-foreground focus:outline-none min-h-[100px] text-base leading-relaxed"
                 rows={3}
               />
@@ -253,7 +244,6 @@ export default function Home() {
             
             {/* Actions */}
             <div className="px-4 pb-4 flex items-center justify-between">
-              {/* Voice Button */}
               {isSpeechSupported && (
                 <Button
                   variant={isRecording ? "default" : "ghost"}
@@ -270,7 +260,6 @@ export default function Home() {
               )}
               
               <div className="flex gap-2">
-                {/* Save to Timeline */}
                 <Button
                   variant="outline"
                   onClick={handleSaveThought}
@@ -280,25 +269,22 @@ export default function Home() {
                   {isSaving ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : null}
-                  {language === "de" ? "Speichern" : "Save"}
+                  {t("home.save")}
                 </Button>
                 
-                {/* Talk to Soulvay */}
                 <Button
                   onClick={handleTalkToSoulvay}
                   className="rounded-xl gap-2"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  {language === "de" ? "Reden" : "Talk"}
+                  {t("home.talk")}
                 </Button>
               </div>
             </div>
           </div>
           
           <p className="text-xs text-muted-foreground text-center mt-3">
-            {language === "de" 
-              ? "Lade deine Gedanken ab. Kein Ziel nötig." 
-              : "Unload your thoughts. No goal needed."}
+            {t("home.unloadThoughts")}
           </p>
         </motion.div>
 
@@ -316,10 +302,10 @@ export default function Home() {
           >
             <MessageCircle className="w-5 h-5 text-primary" />
             <span className="font-medium text-foreground">
-              {language === "de" ? "Mit mir reden" : "Talk to me"}
+              {t("home.talkToMe")}
             </span>
             <span className="text-xs text-muted-foreground">
-              {language === "de" ? "Innerer Dialog" : "Inner dialogue"}
+              {t("home.innerDialogue")}
             </span>
           </Button>
           
@@ -328,12 +314,12 @@ export default function Home() {
             className="h-auto py-4 px-4 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
             onClick={() => navigate("/timeline")}
           >
-            <Calendar className="w-5 h-5 text-calm" />
+            <Calendar className="w-5 h-5 text-primary" />
             <span className="font-medium text-foreground">
-              {language === "de" ? "Meine Timeline" : "My Timeline"}
+              {t("home.myTimeline")}
             </span>
             <span className="text-xs text-muted-foreground">
-              {language === "de" ? "Gedanken & Muster" : "Thoughts & patterns"}
+              {t("home.thoughtsPatterns")}
             </span>
           </Button>
         </motion.div>
@@ -346,7 +332,7 @@ export default function Home() {
         >
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-medium text-muted-foreground">
-              {language === "de" ? "Letzte Gedanken" : "Recent thoughts"}
+              {t("home.recentThoughts")}
             </h2>
             {recentThoughts.length > 0 && (
               <Button
@@ -355,7 +341,7 @@ export default function Home() {
                 className="text-muted-foreground h-auto py-1"
                 onClick={() => navigate("/timeline")}
               >
-                {language === "de" ? "Alle" : "All"}
+                {t("home.all")}
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             )}
@@ -368,9 +354,7 @@ export default function Home() {
           ) : recentThoughts.length === 0 ? (
             <div className="bg-muted/30 rounded-2xl p-6 text-center">
               <p className="text-muted-foreground text-sm">
-                {language === "de" 
-                  ? "Noch keine Gedanken. Lade einfach ab, was dir durch den Kopf geht." 
-                  : "No thoughts yet. Just unload what's on your mind."}
+                {t("home.noThoughts")}
               </p>
             </div>
           ) : (

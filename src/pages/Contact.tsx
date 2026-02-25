@@ -185,8 +185,8 @@ export default function Contact() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-12"
           >
-            <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-500" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-primary" />
             </div>
             <h2 className="text-xl font-semibold text-foreground mb-2">{t.success.title}</h2>
             <p className="text-muted-foreground mb-6">{t.success.description}</p>

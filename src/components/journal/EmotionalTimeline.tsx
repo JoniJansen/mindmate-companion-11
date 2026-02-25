@@ -47,8 +47,8 @@ export function EmotionalTimeline({
             </button>
             
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-full bg-gentle-soft flex items-center justify-center">
-                <Clock className="w-4 h-4 text-gentle" />
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Clock className="w-4 h-4 text-primary" />
               </div>
               <h3 className="font-medium text-foreground">{t("timeline.title")}</h3>
             </div>
@@ -66,11 +66,11 @@ export function EmotionalTimeline({
             className="w-full flex items-center justify-between group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gentle-soft flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 {isLoading ? (
-                  <Loader2 className="w-5 h-5 text-gentle animate-spin" />
+                  <Loader2 className="w-5 h-5 text-primary animate-spin" />
                 ) : (
-                  <Clock className="w-5 h-5 text-gentle" />
+                  <Clock className="w-5 h-5 text-primary" />
                 )}
               </div>
               <div className="text-left">
