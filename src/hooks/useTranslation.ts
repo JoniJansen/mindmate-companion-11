@@ -174,6 +174,8 @@ export const translations: Translations = {
   "mood.filter7d": { en: "7 days", de: "7 Tage" },
   "mood.filter30d": { en: "30 days", de: "30 Tage" },
   "mood.filter90d": { en: "90 days", de: "90 Tage" },
+  "mood.heatmapTitle": { en: "90-Day Overview", de: "90-Tage-Übersicht" },
+  "mood.insightsTitle": { en: "Your Patterns", de: "Deine Muster" },
 
   // Feeling tags (stable IDs for DB storage)
   "feeling.anxious": { en: "Anxious", de: "Ängstlich" },

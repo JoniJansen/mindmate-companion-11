@@ -43,6 +43,7 @@ import Admin from "@/pages/Admin";
 import DeleteAccount from "@/pages/DeleteAccount";
 import NotFound from "@/pages/NotFound";
 import AudioLibrary from "@/pages/AudioLibrary";
+import Timeline from "@/pages/Timeline";
 import ReviewInstructions from "@/pages/ReviewInstructions";
 import ReviewStatus from "@/pages/ReviewStatus";
 
@@ -178,6 +179,7 @@ const App = () => (
                 <Route path="/install" element={<Install />} />
                 <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
                 <Route path="/audio" element={<OnboardingGuard><AudioLibrary /></OnboardingGuard>} />
+                <Route path="/timeline" element={<OnboardingGuard><Timeline /></OnboardingGuard>} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/impressum" element={<Impressum />} />

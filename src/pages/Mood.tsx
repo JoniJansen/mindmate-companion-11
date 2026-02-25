@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { MoodSelector, getMoodEmoji } from "@/components/mood/MoodSelector";
 import { FeelingTags } from "@/components/mood/FeelingTags";
 import { MoodChart } from "@/components/mood/MoodChart";
+import { MoodHeatmap } from "@/components/mood/MoodHeatmap";
+import { MoodInsights } from "@/components/mood/MoodInsights";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -309,6 +311,34 @@ export default function Mood() {
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </div>
           </CalmCard>
+
+          {/* 90-Day Heatmap */}
+          {checkins.length >= 3 && (
+            <CalmCard variant="gentle" animate={false}>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  <h3 className="font-medium text-foreground">
+                    {t("mood.heatmapTitle")}
+                  </h3>
+                </div>
+                <MoodHeatmap checkins={checkins} weeks={13} />
+              </div>
+            </CalmCard>
+          )}
+
+          {/* Insights */}
+          {checkins.length >= 5 && (
+            <CalmCard variant="gentle" animate={false}>
+              <div className="space-y-3">
+                <h3 className="font-medium text-foreground flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-primary" />
+                  {t("mood.insightsTitle")}
+                </h3>
+                <MoodInsights checkins={checkins} />
+              </div>
+            </CalmCard>
+          )}
 
           {/* Empty State */}
           {!isLoading && checkins.length === 0 && (
