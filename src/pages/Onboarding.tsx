@@ -104,11 +104,16 @@ const translations = {
 
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState<Step>("welcome");
-  const [state, setState] = useState<OnboardingState>({
-    language: "en",
-    tone: "gentle",
-    addressForm: "du",
-    disclaimerAccepted: false,
+  const [state, setState] = useState<OnboardingState>(() => {
+    // Auto-detect browser language — German users see German by default
+    const browserLang = navigator.language?.toLowerCase() || "";
+    const detectedLang: Language = browserLang.startsWith("de") ? "de" : "en";
+    return {
+      language: detectedLang,
+      tone: "gentle",
+      addressForm: "du",
+      disclaimerAccepted: false,
+    };
   });
   const navigate = useNavigate();
   const { isDark, setMode: setThemeMode } = useTheme();
