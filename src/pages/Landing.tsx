@@ -266,6 +266,31 @@ export default function Landing() {
               {t.hero.secondary}
             </Button>
           </motion.div>
+
+          {/* Store Badges */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="flex items-center justify-center gap-4 mt-8"
+          >
+            <a
+              href="https://apps.apple.com/app/soulvay"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-11 hover:opacity-80 transition-opacity"
+            >
+              <img src="/badges/app-store.svg" alt="Download on the App Store" className="h-full" />
+            </a>
+            <a
+              href="https://play.google.com/store/apps/details?id=com.soulvay.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-11 hover:opacity-80 transition-opacity"
+            >
+              <img src="/badges/google-play.svg" alt="Get it on Google Play" className="h-full" />
+            </a>
+          </motion.div>
         </div>
       </section>
 
@@ -400,21 +425,33 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="py-8 border-t border-border/40">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full overflow-hidden">
-              <img src={logoImage} alt="Soulvay" className="w-full h-full object-cover" />
+        <div className="max-w-6xl mx-auto px-4 flex flex-col items-center gap-6">
+          <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full overflow-hidden">
+                <img src={logoImage} alt="Soulvay" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-sm text-muted-foreground">{t.footer.tagline}</span>
             </div>
-            <span className="text-sm text-muted-foreground">{t.footer.tagline}</span>
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 md:gap-6 text-sm text-muted-foreground">
+              <button onClick={() => navigate("/privacy")} className="hover:text-foreground transition-colors">{t.footer.privacy}</button>
+              <button onClick={() => navigate("/terms")} className="hover:text-foreground transition-colors">{t.footer.terms}</button>
+              <button onClick={() => navigate("/impressum")} className="hover:text-foreground transition-colors">{t.footer.impressum}</button>
+              <button onClick={() => navigate("/faq")} className="hover:text-foreground transition-colors">FAQ</button>
+              <button onClick={() => navigate("/about")} className="hover:text-foreground transition-colors">{language === "de" ? "Über uns" : "About"}</button>
+              <button onClick={() => navigate("/contact")} className="hover:text-foreground transition-colors">{t.footer.contact}</button>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 md:gap-6 text-sm text-muted-foreground">
-            <button onClick={() => navigate("/privacy")} className="hover:text-foreground transition-colors">{t.footer.privacy}</button>
-            <button onClick={() => navigate("/terms")} className="hover:text-foreground transition-colors">{t.footer.terms}</button>
-            <button onClick={() => navigate("/impressum")} className="hover:text-foreground transition-colors">{t.footer.impressum}</button>
-            <button onClick={() => navigate("/faq")} className="hover:text-foreground transition-colors">FAQ</button>
-            <button onClick={() => navigate("/about")} className="hover:text-foreground transition-colors">{language === "de" ? "Über uns" : "About"}</button>
-            <button onClick={() => navigate("/contact")} className="hover:text-foreground transition-colors">{t.footer.contact}</button>
+          {/* Store Badges */}
+          <div className="flex items-center gap-4">
+            <a href="https://apps.apple.com/app/soulvay" target="_blank" rel="noopener noreferrer" className="h-9 hover:opacity-80 transition-opacity">
+              <img src="/badges/app-store.svg" alt="Download on the App Store" className="h-full" />
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=com.soulvay.app" target="_blank" rel="noopener noreferrer" className="h-9 hover:opacity-80 transition-opacity">
+              <img src="/badges/google-play.svg" alt="Get it on Google Play" className="h-full" />
+            </a>
           </div>
+          <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Soulvay. All rights reserved.</p>
         </div>
       </footer>
     </div>
