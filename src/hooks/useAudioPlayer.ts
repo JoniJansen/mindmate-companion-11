@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNetworkStatus } from "./useNetworkStatus";
+import { supabase } from "@/integrations/supabase/client";
 
 export type AudioPlayerState = "idle" | "loading" | "playing" | "paused" | "error";
 
@@ -114,11 +115,15 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     const cached = getCachedUrl(cacheKey);
     if (cached) return cached;
 
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
     const response = await fetch(TTS_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ text, voiceId, speed }),
       signal,
