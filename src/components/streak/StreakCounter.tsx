@@ -13,14 +13,17 @@ export function StreakCounter({ currentStreak, isActiveToday, isLoading }: Strea
 
   if (isLoading || currentStreak === 0) return null;
 
+  const prefersReducedMotion = typeof window !== "undefined"
+    && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
+      initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20"
     >
       <motion.div
-        animate={isActiveToday ? { scale: [1, 1.2, 1] } : {}}
+        animate={isActiveToday && !prefersReducedMotion ? { scale: [1, 1.2, 1] } : {}}
         transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
       >
         <Flame className={`w-4 h-4 ${isActiveToday ? "text-primary" : "text-muted-foreground"}`} />

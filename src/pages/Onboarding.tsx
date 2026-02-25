@@ -187,10 +187,11 @@ export default function Onboarding() {
       disclaimerAccepted: state.disclaimerAccepted,
     }));
 
-    // Save personalization data separately
+    // Save personalization data separately (versioned)
     localStorage.setItem("soulvay-personalization", JSON.stringify({
+      schemaVersion: 1,
       focusAreas: state.focusAreas,
-      reflectionFrequency: state.reflectionFrequency,
+      reflectionFrequency: state.reflectionFrequency || "3x_week",
       personalGoal: state.personalGoal,
     }));
 
