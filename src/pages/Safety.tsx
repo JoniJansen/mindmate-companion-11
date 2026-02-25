@@ -286,7 +286,7 @@ export default function Safety() {
         >
           <CalmCard variant="gentle">
             <div className="text-center py-2">
-              <Heart className="w-8 h-8 text-gentle mx-auto mb-3" />
+              <Heart className="w-8 h-8 text-primary mx-auto mb-3" />
               <h3 className="font-semibold text-foreground mb-2">
                 {t("safety.okToAskForHelp")}
               </h3>

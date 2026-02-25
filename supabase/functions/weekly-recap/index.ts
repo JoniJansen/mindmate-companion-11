@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requireUser } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,6 +33,14 @@ serve(async (req) => {
   }
 
   try {
+    // JWT auth
+    try {
+      await requireUser(req);
+    } catch (authError) {
+      if (authError instanceof Response) return authError;
+      throw authError;
+    }
+
     const { mood_checkins, journal_entries, time_range, language } = await req.json() as RequestBody;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -39,15 +48,12 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Combine data for analysis
     const moodSummary = mood_checkins.length > 0
-      ? `Mood check-ins (${mood_checkins.length} entries):
-${mood_checkins.map(m => `- ${new Date(m.created_at).toLocaleDateString()}: Mood ${m.mood_value}/5, Feelings: ${m.feelings.join(", ") || "none noted"}${m.note ? `, Note: "${m.note}"` : ""}`).join("\n")}`
+      ? `Mood check-ins (${mood_checkins.length} entries):\n${mood_checkins.map(m => `- ${new Date(m.created_at).toLocaleDateString()}: Mood ${m.mood_value}/5, Feelings: ${m.feelings.join(", ") || "none noted"}${m.note ? `, Note: "${m.note}"` : ""}`).join("\n")}`
       : "No mood check-ins available.";
 
     const journalSummary = journal_entries.length > 0
-      ? `Journal entries (${journal_entries.length} entries):
-${journal_entries.map(e => `- ${new Date(e.created_at).toLocaleDateString()}${e.title ? ` "${e.title}"` : ""}: "${e.content.substring(0, 200)}..."`).join("\n")}`
+      ? `Journal entries (${journal_entries.length} entries):\n${journal_entries.map(e => `- ${new Date(e.created_at).toLocaleDateString()}${e.title ? ` "${e.title}"` : ""}: "${e.content.substring(0, 200)}..."`).join("\n")}`
       : "No journal entries available.";
 
     const timeRangeText = time_range === "7d" ? "the last 7 days" : time_range === "14d" ? "the last 14 days" : "the last 30 days";
@@ -68,19 +74,6 @@ STRIKTE REGELN:
 - NIEMALS klinische Begriffe oder Diagnosen
 - KEINE medizinischen Ratschläge
 - Bei besorgniserregenden Mustern sanft erwähnen, dass professionelle Unterstützung hilfreich sein könnte
-
-MUSTER BESCHREIBEN (gut):
-- "Ein Faden von [Thema] zieht sich durch deine Reflexionen"
-- "Arbeit scheint mehr emotionalen Raum als üblich eingenommen zu haben"
-- "Du hast [Thema] mehrmals erwähnt—es scheint präsent für dich"
-
-BEDÜRFNISSE FORMULIEREN (gut):
-- "Vielleicht würde etwas Raum zum Atmen gut tun"
-- "Es könnte ein Bedürfnis nach klareren Grenzen geben"
-
-NÄCHSTE SCHRITTE VORSCHLAGEN (gut):
-- "Wenn du magst, könnte die [Übung] etwas Erdung bieten"
-- "Kein Druck, aber [Vorschlag] ist da, wenn du es willst"
 
 Antworte IMMER im folgenden JSON-Format:
 {
@@ -105,19 +98,6 @@ STRICT RULES:
 - NO medical advice
 - If data shows concerning patterns, gently mention that professional support might be helpful
 
-DESCRIBING PATTERNS (good):
-- "There's a thread of [theme] running through your reflections"
-- "Work seems to have taken up more emotional space than usual"
-- "You mentioned [topic] several times—it seems present for you"
-
-PHRASING NEEDS (good):
-- "Some space to breathe might feel good"
-- "There may be a need for clearer boundaries somewhere"
-
-SUGGESTING NEXT STEPS (good):
-- "If you feel like it, the [exercise] might offer some grounding"
-- "No pressure, but [suggestion] is there if you want it"
-
 ALWAYS respond in the following JSON format:
 {
   "patterns": ["Observation 1", "Observation 2", "Observation 3"],
@@ -127,22 +107,10 @@ ALWAYS respond in the following JSON format:
 }`;
 
     const userPrompt = language === "de"
-      ? `Analysiere die folgenden Daten aus ${timeRangeText} und erstelle einen sanften Wochenrückblick:
+      ? `Analysiere die folgenden Daten aus ${timeRangeText} und erstelle einen sanften Wochenrückblick:\n\n${moodSummary}\n\n${journalSummary}`
+      : `Analyze the following data from ${timeRangeText} and create a gentle weekly recap:\n\n${moodSummary}\n\n${journalSummary}`;
 
-${moodSummary}
-
-${journalSummary}
-
-Erstelle 3-5 beobachtete Muster (neutral formuliert), 2 mögliche Bedürfnisse (nicht-präskriptiv), 1 vorgeschlagenen nächsten Schritt (Toolbox-Übung oder Thema-Pfad), und 3-6 Zusammenfassungspunkte.`
-      : `Analyze the following data from ${timeRangeText} and create a gentle weekly recap:
-
-${moodSummary}
-
-${journalSummary}
-
-Create 3-5 observed patterns (neutrally phrased), 2 potential needs (non-prescriptive), 1 suggested next step (Toolbox exercise or Topic path), and 3-6 summary bullets.`;
-
-    console.log("Generating weekly recap for", time_range, "with", mood_checkins.length, "moods and", journal_entries.length, "entries");
+    console.log("Generating weekly recap for", time_range);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -190,12 +158,10 @@ Create 3-5 observed patterns (neutrally phrased), 2 potential needs (non-prescri
       throw new Error("No content in response");
     }
 
-    // Parse JSON response
     let recap;
     try {
       recap = JSON.parse(content);
     } catch {
-      // Try to extract JSON from markdown code blocks
       const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         recap = JSON.parse(jsonMatch[1] || jsonMatch[0]);

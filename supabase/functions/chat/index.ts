@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requireUser } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -270,6 +271,16 @@ serve(async (req) => {
   }
 
   try {
+    // JWT auth: extract user from token
+    let userId: string;
+    try {
+      const { user } = await requireUser(req);
+      userId = user.id;
+    } catch (authError) {
+      if (authError instanceof Response) return authError;
+      throw authError;
+    }
+
     const { messages, preferences } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -288,7 +299,7 @@ serve(async (req) => {
     const isCrisis = detectCrisis(messages || []);
     const systemPrompt = buildSystemPrompt(userPreferences, isCrisis);
 
-    console.log("Chat request received with", messages?.length || 0, "messages");
+    console.log(`Chat request from user ${userId} with ${messages?.length || 0} messages`);
     console.log("Preferences:", userPreferences);
     if (isCrisis) {
       console.log("CRISIS DETECTED - Using crisis response protocol");
