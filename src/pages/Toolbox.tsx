@@ -11,6 +11,7 @@ import { exercises, Exercise, getExerciseById } from "@/data/exercises";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
 import { useActivityLog } from "@/hooks/useActivityLog";
+import { useLastState } from "@/hooks/useLastState";
 
 const categories = [
   { id: "all", labelEn: "All", labelDe: "Alle" },
@@ -33,6 +34,7 @@ export default function Toolbox() {
   const { language, getExerciseDisplay, t } = useTranslation();
   const { toast } = useToast();
   const { logActivity } = useActivityLog();
+  const { setLastExercise } = useLastState();
 
   // Handle auto-start from navigation (e.g., Calm mode exercises)
   useEffect(() => {
@@ -56,12 +58,20 @@ export default function Toolbox() {
       JSON.stringify([...newCompleted])
     );
 
+    // Mark completed in last state
+    setLastExercise({ id: exerciseId, completedAt: Date.now() });
+
     toast({
       title: t("toolbox.exerciseCompleted"),
       description: t("toolbox.greatJob"),
     });
 
     logActivity("exercise_completed");
+  };
+
+  const handleStartExercise = (exercise: Exercise) => {
+    setLastExercise({ id: exercise.id, step: 0 });
+    setSelectedExercise(exercise);
   };
 
   const filteredExercises =
@@ -166,7 +176,7 @@ export default function Toolbox() {
                     <Button
                       size="sm"
                       variant="calm"
-                      onClick={() => setSelectedExercise(exercise)}
+                      onClick={() => handleStartExercise(exercise)}
                     >
                       <Play className="w-4 h-4" />
                     </Button>
@@ -236,7 +246,7 @@ export default function Toolbox() {
                       className="w-full mt-4"
                       onClick={() => {
                         setInfoExercise(null);
-                        setSelectedExercise(infoExercise);
+                        handleStartExercise(infoExercise);
                       }}
                     >
                       <Play className="w-4 h-4 mr-2" />

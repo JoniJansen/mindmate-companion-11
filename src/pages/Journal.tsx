@@ -14,9 +14,10 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ALL_JOURNAL_TAG_IDS, JOURNAL_EMOTION_TAG_IDS, JOURNAL_TOPIC_TAG_IDS, getTagI18nKey, toStableTagIds } from "@/lib/tagUtils";
 import { useActivityLog } from "@/hooks/useActivityLog";
+import { useLastState } from "@/hooks/useLastState";
 
 interface JournalEntry {
   id: string;
@@ -58,7 +59,24 @@ export default function Journal() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const { logActivity } = useActivityLog();
+  const { setJournalDraft, clearPart } = useLastState();
+
+  // Track draft state for continue module
+  useEffect(() => {
+    if (viewMode === "write" && draftContent.trim().length > 10) {
+      setJournalDraft({ updatedAt: Date.now(), hasContent: true });
+    }
+  }, [draftContent, viewMode]);
+
+  // Resume draft from home navigation
+  useEffect(() => {
+    if (location.state?.resumeDraft) {
+      setViewMode("write");
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Non-blocking sentiment analysis after save — never diagnoses, opt-in tags only
   const runSentimentAnalysis = async (content: string) => {
@@ -186,6 +204,7 @@ export default function Journal() {
       setSelectedPrompt(null);
       setSelectedTags([]);
       setSelectedEntry(null);
+      clearPart("journalDraft"); // Clear draft from continue module
       loadEntries();
     } catch (error) {
       console.error("Error saving entry:", error);
