@@ -111,10 +111,15 @@ export default function Topics() {
     return title.includes(query) || description.includes(query);
   });
 
+  // Track topic for continue module
+  useEffect(() => {
+    if (selectedTopic) {
+      setLastTopic({ topicId: selectedTopic.id, stepIndex: 0 });
+    }
+  }, [selectedTopic?.id]);
+
   // Topic detail view
   if (selectedTopic) {
-    // Track topic for continue module
-    setLastTopic({ topicId: selectedTopic.id, stepIndex: 0 });
     const topicProgress = getTopicProgress(
       selectedTopic.id,
       selectedTopic.steps.length
