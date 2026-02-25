@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Volume2, Brain, Heart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,12 +12,12 @@ interface UpgradePromptProps {
   variant?: "inline" | "modal" | "banner";
 }
 
-export function UpgradePrompt({ 
+export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(function UpgradePrompt({ 
   reason = "general", 
   onUpgrade, 
   onDismiss,
   variant = "inline" 
-}: UpgradePromptProps) {
+}, ref) {
   const navigate = useNavigate();
   const { language } = useTranslation();
 
@@ -202,4 +203,4 @@ export function UpgradePrompt({
       </div>
     </motion.div>
   );
-}
+});
