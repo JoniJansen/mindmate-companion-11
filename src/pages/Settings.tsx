@@ -190,9 +190,14 @@ export default function Settings() {
     setPreferences(updated);
     localStorage.setItem("mindmate-preferences", JSON.stringify(updated));
     
+    // Use target language for toast when switching language, since t() still uses the old value
+    const targetLang = key === "language" ? (value as string) : language;
+    const savedTitle = targetLang === "de" ? "Einstellungen gespeichert" : "Settings saved";
+    const savedDesc = targetLang === "de" ? "Deine Einstellungen wurden aktualisiert." : "Your preferences have been updated.";
+    
     toast({
-      title: t("settings.saved"),
-      description: t("settings.preferencesUpdated"),
+      title: savedTitle,
+      description: savedDesc,
     });
   };
 
