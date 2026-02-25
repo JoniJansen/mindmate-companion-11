@@ -182,7 +182,7 @@ export default function Topics() {
                   <CalmCard
                     variant={isCompleted ? "calm" : "gentle"}
                     className={`cursor-pointer transition-all ${
-                      isCompleted ? "opacity-75" : "hover:bg-gentle/10"
+                      isCompleted ? "opacity-75" : "hover:bg-muted/50"
                     }`}
                     onClick={() => handleStepAction(selectedTopic, step)}
                   >
@@ -237,12 +237,8 @@ export default function Topics() {
   return (
     <div className="flex flex-col h-full bg-background">
       <PageHeader
-        title={language === "de" ? "Themen" : "Topics"}
-        subtitle={
-          language === "de"
-            ? "Strukturierte Reflexionspfade"
-            : "Structured reflection paths"
-        }
+        title={t("topics.title")}
+        subtitle={t("topics.structuredPaths")}
       />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
@@ -255,7 +251,7 @@ export default function Topics() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder={language === "de" ? "Thema suchen..." : "Search topics..."}
+              placeholder={t("topics.searchTopics")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-muted/30 border border-border/50 rounded-xl pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/40"
@@ -278,7 +274,7 @@ export default function Topics() {
               >
                 <CalmCard
                   variant="gentle"
-                  className="cursor-pointer hover:bg-gentle/10 transition-colors"
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
                   onClick={() => setSelectedTopic(topic)}
                 >
                   <div className="flex items-center gap-4">

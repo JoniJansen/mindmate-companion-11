@@ -193,6 +193,44 @@ export const translations: Translations = {
   "common.delete": { en: "Delete", de: "Löschen" },
   "common.retry": { en: "Retry", de: "Erneut versuchen" },
   "common.offline": { en: "You are offline", de: "Du bist offline" },
+  "common.offlineBody": { en: "Check your connection", de: "Prüfe deine Verbindung" },
+  "common.continue": { en: "Continue", de: "Weiter" },
+
+  // Error messages
+  "error.unauthorized": { en: "Session expired", de: "Sitzung abgelaufen" },
+  "error.unauthorizedBody": { en: "Please sign in again.", de: "Bitte melde dich erneut an." },
+  "error.reauth": { en: "Sign in", de: "Anmelden" },
+  "error.rateLimited": { en: "Please wait", de: "Bitte warten" },
+  "error.rateLimitedBody": { en: "Too many requests. Try again in a moment.", de: "Zu viele Anfragen. Versuche es gleich nochmal." },
+  "error.server": { en: "Server error", de: "Serverfehler" },
+  "error.serverBody": { en: "Something went wrong. Please try again.", de: "Etwas ist schiefgelaufen. Bitte versuche es erneut." },
+  "error.unexpected": { en: "Unexpected error", de: "Unerwarteter Fehler" },
+  "error.unexpectedBody": { en: "Something went wrong. Please try again.", de: "Etwas ist schiefgelaufen. Bitte versuche es erneut." },
+  "error.network": { en: "Connection failed", de: "Verbindung fehlgeschlagen" },
+  "error.networkBody": { en: "Check your internet connection and try again.", de: "Prüfe deine Internetverbindung und versuche es erneut." },
+
+  // Chat additional
+  "chat.streamError": { en: "Connection interrupted", de: "Verbindung unterbrochen" },
+  "chat.streamErrorBody": { en: "The response was interrupted.", de: "Die Antwort wurde unterbrochen." },
+  "chat.retryMessage": { en: "Retry", de: "Erneut versuchen" },
+  "chat.continueMessage": { en: "Continue", de: "Fortsetzen" },
+  "chat.howToStart": { en: "How would you like to start?", de: "Wie möchtest du starten?" },
+  "chat.summary": { en: "Summary", de: "Zusammenfassung" },
+  "chat.crisisHelp2": { en: "Crisis Help", de: "Krisenhilfe" },
+  "chat.voiceModeActive": { en: "Voice mode active", de: "Sprachmodus aktiv" },
+  "chat.startVoiceMode": { en: "Start voice mode", de: "Sprachmodus starten" },
+  "chat.voiceConversationsPlus": { en: "Voice conversations – Plus", de: "Sprachgespräche – Plus" },
+  "chat.aiSpeaksAuto": { en: "AI speaks automatically", de: "KI spricht automatisch" },
+  "chat.textOnly": { en: "Text only", de: "Nur Text" },
+  "chat.voiceOutputPlus": { en: "Voice output – Plus", de: "Sprachausgabe – Plus" },
+  "chat.stopRecording": { en: "Stop recording", de: "Aufnahme stoppen" },
+  "chat.voiceInput": { en: "Voice input", de: "Spracheingabe" },
+  "chat.voiceInputPlus": { en: "Voice input – Plus", de: "Spracheingabe – Plus" },
+  "chat.crisisResources": { en: "Crisis resources", de: "Krisenressourcen" },
+
+  // Topics additional
+  "topics.searchTopics": { en: "Search topics...", de: "Thema suchen..." },
+  "topics.structuredPaths": { en: "Structured reflection paths", de: "Strukturierte Reflexionspfade" },
 
   // Toolbox page
   "toolbox.title": { en: "Toolbox", de: "Werkzeugkasten" },

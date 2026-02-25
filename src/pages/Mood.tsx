@@ -275,8 +275,8 @@ export default function Mood() {
             <CalmCard variant="gentle" animate={false} className="cursor-pointer" onClick={() => navigate("/journal")}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gentle/20 flex items-center justify-center">
-                    <BookOpen className="w-5 h-5 text-gentle" />
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-medium text-foreground">

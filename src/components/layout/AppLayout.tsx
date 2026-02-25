@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
+import { OfflineBanner } from "@/components/system/OfflineBanner";
 
 // Fixed bottom nav height - must match BottomNav component
 const BOTTOM_NAV_HEIGHT = 56; // Compact: 56px nav content
@@ -23,16 +24,16 @@ export function AppLayout() {
         left: 0,
         right: 0,
         bottom: 0,
-        // IMPORTANT: Safe-area top is handled by PageHeader ONLY to avoid double padding
-        // If nav is hidden, add safe area at bottom; otherwise nav handles it
         paddingBottom: shouldHideNav ? 'env(safe-area-inset-bottom, 0px)' : '0px'
       }}
     >
-      {/* Main content area - THIS is the scroll container */}
+      {/* Global offline banner */}
+      <OfflineBanner />
+
+      {/* Main content area */}
       <main 
         className={`flex-1 min-h-0 ${!shouldHideNav && !isChat ? 'scroll-container' : ''}`}
         style={!shouldHideNav && !isChat ? { 
-          // Reserve space for bottom nav + safe area
           paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))` 
         } : (shouldHideNav ? { overflowY: 'auto' } : {})}
       >

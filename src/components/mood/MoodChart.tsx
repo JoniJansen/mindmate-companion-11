@@ -57,7 +57,7 @@ export function MoodChart({ data, showLabels = true }: MoodChartProps) {
                   day.value
                     ? isToday
                       ? "bg-primary shadow-soft"
-                      : "bg-calm/50"
+                      : "bg-primary/30"
                     : "bg-muted/25 border border-border/30"
                 }`}
                 initial={{ height: 0 }}
