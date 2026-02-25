@@ -122,8 +122,8 @@ function RootRedirect() {
     return <Navigate to="/auth" replace />;
   }
   
-  // New user - go to welcome/onboarding
-  return <Navigate to="/welcome" replace />;
+  // New user - show landing page
+  return <Navigate to="/landing" replace />;
 }
 
 // Cookie consent wrapper - delays until after onboarding
