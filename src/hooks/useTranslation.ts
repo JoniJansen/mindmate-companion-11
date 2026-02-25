@@ -457,6 +457,16 @@ export const translations: Translations = {
   "home.thoughtSaved": { en: "Thought saved", de: "Gedanke gespeichert" },
   "home.thoughtSavedDesc": { en: "Your thought has been saved to the timeline.", de: "Dein Gedanke wurde in der Timeline gespeichert." },
   "home.saveFailed": { en: "Could not save thought.", de: "Konnte nicht gespeichert werden." },
+
+  // Settings toasts
+  "settings.tourReset": { en: "Tour reset", de: "Tour zurückgesetzt" },
+  "settings.tourResetDesc": { en: "The app tour will start on your next chat visit.", de: "Die App-Einführung startet beim nächsten Chat-Besuch." },
+  "settings.loggedOut": { en: "Logged out successfully", de: "Erfolgreich abgemeldet" },
+  "settings.logoutError": { en: "Error logging out", de: "Fehler beim Abmelden" },
+  "settings.welcomePlus": { en: "Welcome to Soulvay Plus!", de: "Willkommen bei Soulvay Plus!" },
+  "settings.upgradeSuccess": { en: "Your upgrade was successful.", de: "Dein Upgrade war erfolgreich." },
+  "settings.checkoutCanceled": { en: "Checkout canceled", de: "Checkout abgebrochen" },
+  "settings.upgradeAnytime": { en: "You can upgrade anytime.", de: "Du kannst jederzeit upgraden." },
 };
 
 // Exercise translations

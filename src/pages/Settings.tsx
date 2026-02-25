@@ -93,10 +93,8 @@ export default function Settings() {
     // Also clear tab hints so they show again
     localStorage.removeItem("mindmate_tab_hints_seen");
     toast({
-      title: language === "de" ? "Tour zurückgesetzt" : "Tour reset",
-      description: language === "de" 
-        ? "Die App-Einführung startet beim nächsten Chat-Besuch." 
-        : "The app tour will start on your next chat visit.",
+      title: t("settings.tourReset"),
+      description: t("settings.tourResetDesc"),
     });
     navigate("/chat");
   };
@@ -106,12 +104,12 @@ export default function Settings() {
     try {
       await signOut();
       toast({
-        title: language === "de" ? "Erfolgreich abgemeldet" : "Logged out successfully",
+        title: t("settings.loggedOut"),
       });
       navigate("/auth", { replace: true });
     } catch (error: any) {
       toast({
-        title: language === "de" ? "Fehler beim Abmelden" : "Error logging out",
+        title: t("settings.logoutError"),
         description: error.message,
         variant: "destructive",
       });
@@ -124,18 +122,14 @@ export default function Settings() {
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast({
-        title: language === "de" ? "Willkommen bei Soulvay Plus!" : "Welcome to Soulvay Plus!",
-        description: language === "de" 
-          ? "Dein Upgrade war erfolgreich." 
-          : "Your upgrade was successful.",
+        title: t("settings.welcomePlus"),
+        description: t("settings.upgradeSuccess"),
       });
       checkSubscriptionStatus();
     } else if (searchParams.get("canceled") === "true") {
       toast({
-        title: language === "de" ? "Checkout abgebrochen" : "Checkout canceled",
-        description: language === "de" 
-          ? "Du kannst jederzeit upgraden." 
-          : "You can upgrade anytime.",
+        title: t("settings.checkoutCanceled"),
+        description: t("settings.upgradeAnytime"),
       });
     }
   }, [searchParams, toast, language, checkSubscriptionStatus]);
