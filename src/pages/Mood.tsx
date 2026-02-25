@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Check, ChevronRight, TrendingUp, Calendar, BookOpen } from "lucide-react";
+import { Check, ChevronRight, TrendingUp, Calendar, BookOpen, Users } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { TabHint } from "@/components/shared/TabHint";
@@ -10,6 +10,7 @@ import { FeelingTags } from "@/components/mood/FeelingTags";
 import { MoodChart } from "@/components/mood/MoodChart";
 import { MoodHeatmap } from "@/components/mood/MoodHeatmap";
 import { MoodInsights } from "@/components/mood/MoodInsights";
+import { CommunityInsights } from "@/components/mood/CommunityInsights";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -340,7 +341,18 @@ export default function Mood() {
             </CalmCard>
           )}
 
-          {/* Empty State */}
+          {/* Community Insights (Social Proof) */}
+          {checkins.length >= 3 && (
+            <CalmCard variant="gentle" animate={false}>
+              <div className="space-y-3">
+                <h3 className="font-medium text-foreground flex items-center gap-2">
+                  <Users className="w-4 h-4 text-primary" />
+                  {t("mood.communityTitle")}
+                </h3>
+                <CommunityInsights checkins={checkins} />
+              </div>
+            </CalmCard>
+          )}
           {!isLoading && checkins.length === 0 && (
             <CalmCard variant="gentle" animate={false} className="text-center py-8">
               <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
