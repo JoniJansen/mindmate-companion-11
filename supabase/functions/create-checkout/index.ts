@@ -90,7 +90,6 @@ Deno.serve(async (req) => {
       "mode": "subscription",
       "payment_method_types[0]": "card",
       "payment_method_types[1]": "paypal",
-      "payment_method_types[2]": "sepa_debit",
       "allow_promotion_codes": "true",
       "line_items[0][price_data][currency]": "eur",
       "line_items[0][price_data][product_data][name]": "Soulvay Plus",
