@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ChevronRight, CheckCircle2, Clock, BookOpen, GraduationCap, StickyNote, MessageCircle, Save, Send, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -245,13 +245,13 @@ export default function Topics() {
     learn: topic.learn,
   });
 
-  const filteredTopics = topics.filter((topic) => {
+  const filteredTopics = useMemo(() => topics.filter((topic) => {
     const display = getDisplay(topic);
     const title = display.title.toLowerCase();
     const description = display.description.toLowerCase();
     const query = searchQuery.toLowerCase();
     return title.includes(query) || description.includes(query);
-  });
+  }), [searchQuery, getDisplay]);
 
   // Track topic for continue module
   useEffect(() => {
