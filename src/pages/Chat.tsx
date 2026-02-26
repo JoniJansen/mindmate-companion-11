@@ -78,6 +78,8 @@ export default function Chat() {
   const { isOnline } = useNetworkStatus();
   const { logActivity } = useActivityLog();
   const chatMessageCountRef = useRef(0);
+  const streamChunkBufferRef = useRef("");
+  const streamFlushFrameRef = useRef<number | null>(null);
 
   // Premium state
   const { 
@@ -112,6 +114,10 @@ export default function Chat() {
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
+      if (streamFlushFrameRef.current !== null) {
+        cancelAnimationFrame(streamFlushFrameRef.current);
+      }
+      streamChunkBufferRef.current = "";
     };
   }, []);
 
@@ -173,8 +179,13 @@ export default function Chat() {
     { id: "grounding-54321", label: t("chat.exercise.grounding"), icon: Anchor },
   ];
 
-  const scrollToBottom = useCallback(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), []);
-  useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "auto") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom(isLoading ? "auto" : "smooth");
+  }, [messages, isLoading, scrollToBottom]);
 
   // Initial greeting - personalized based on onboarding
   useEffect(() => {
@@ -260,13 +271,36 @@ export default function Chat() {
 
   const upsertAssistant = useCallback((nextChunk: string) => {
     setMessages((prev) => {
-      const last = prev[prev.length - 1];
+      const lastIndex = prev.length - 1;
+      const last = prev[lastIndex];
+
       if (last?.role === "assistant" && !last.isError) {
-        return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: m.content + nextChunk } : m);
+        const updated = [...prev];
+        updated[lastIndex] = { ...last, content: last.content + nextChunk };
+        return updated;
       }
+
       return [...prev, { id: Date.now().toString(), content: nextChunk, role: "assistant", timestamp: new Date() }];
     });
   }, []);
+
+  const flushBufferedAssistant = useCallback(() => {
+    if (!streamChunkBufferRef.current) return;
+    upsertAssistant(streamChunkBufferRef.current);
+    streamChunkBufferRef.current = "";
+  }, [upsertAssistant]);
+
+  const enqueueAssistantChunk = useCallback((chunk: string) => {
+    if (!chunk) return;
+    streamChunkBufferRef.current += chunk;
+
+    if (streamFlushFrameRef.current !== null) return;
+
+    streamFlushFrameRef.current = requestAnimationFrame(() => {
+      streamFlushFrameRef.current = null;
+      flushBufferedAssistant();
+    });
+  }, [flushBufferedAssistant]);
 
   const streamChat = async ({ messages, onDelta, onDone, onError, signal }: {
     messages: { role: "user" | "assistant"; content: string }[];
@@ -396,6 +430,12 @@ export default function Chat() {
     setShowActions(false);
     setIsLoading(true);
 
+    streamChunkBufferRef.current = "";
+    if (streamFlushFrameRef.current !== null) {
+      cancelAnimationFrame(streamFlushFrameRef.current);
+      streamFlushFrameRef.current = null;
+    }
+
     const chatMessages = [...messages, ...(isSystemAction ? [] : [userMessage])].map((m) => ({ role: m.role, content: m.content }));
     const messagesForAI = isSystemAction ? [...chatMessages, { role: "user" as const, content }] : chatMessages;
 
@@ -404,8 +444,13 @@ export default function Chat() {
     await streamChat({
       messages: messagesForAI,
       signal: controller.signal,
-      onDelta: (chunk) => { upsertAssistant(chunk); },
+      onDelta: (chunk) => { enqueueAssistantChunk(chunk); },
       onDone: (fullResponse) => {
+        if (streamFlushFrameRef.current !== null) {
+          cancelAnimationFrame(streamFlushFrameRef.current);
+          streamFlushFrameRef.current = null;
+        }
+        flushBufferedAssistant();
         setIsLoading(false);
         abortControllerRef.current = null;
         if (canUseVoice && (voiceModeEnabled || voiceSettings.autoPlayReplies) && fullResponse && !isListening) {
@@ -415,6 +460,11 @@ export default function Chat() {
         }
       },
       onError: (errorMsg) => {
+        if (streamFlushFrameRef.current !== null) {
+          cancelAnimationFrame(streamFlushFrameRef.current);
+          streamFlushFrameRef.current = null;
+        }
+        flushBufferedAssistant();
         setIsLoading(false);
         abortControllerRef.current = null;
         // Add error message card
@@ -427,7 +477,7 @@ export default function Chat() {
         }]);
       },
     });
-  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, upsertAssistant, canSendMessage, incrementMessageCount, canUseVoice, t, isOnline]);
+  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, upsertAssistant, enqueueAssistantChunk, flushBufferedAssistant, canSendMessage, incrementMessageCount, canUseVoice, t, isOnline]);
 
   const handleRetry = () => {
     // Remove the error message and retry last user message
