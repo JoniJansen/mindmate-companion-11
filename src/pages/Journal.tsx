@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Search, Sparkles, TrendingUp, Loader2, Mic, MicOff, X, Calendar, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -152,7 +152,8 @@ export default function Journal() {
         .from("journal_entries")
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(200);
 
       if (error) throw error;
       setEntries((data || []).map(e => ({
@@ -311,7 +312,7 @@ export default function Journal() {
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(t => t !== tagId) : [...prev, tagId]);
   };
 
-  const filteredEntries = entries.filter((e) => {
+  const filteredEntries = useMemo(() => entries.filter((e) => {
     const matchesSearch = e.content.toLowerCase().includes(searchQuery.toLowerCase()) || e.title?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSource = sourceFilter === "all" 
       || (sourceFilter === "free" && (!e.source || e.source === "free" || e.source === "manual"))
@@ -319,7 +320,7 @@ export default function Journal() {
       || (sourceFilter === "summary" && e.source === "chat-summary")
       || (sourceFilter === "guided" && e.source === "guided");
     return matchesSearch && matchesSource;
-  });
+  }), [entries, searchQuery, sourceFilter]);
 
   // Write mode
   if (viewMode === "write") {
