@@ -161,10 +161,17 @@ export function usePremium() {
     }
   }, [user, isCheckingSubscription, state, isRevenueCatAvailable, checkEntitlements]);
 
-  // Check subscription on mount and when user changes
+  // Check subscription on mount, when user changes, and every 5 minutes
   useEffect(() => {
     if (user && isLoaded) {
       checkSubscriptionStatus();
+
+      // Auto-refresh every 5 minutes to catch delayed webhooks
+      const interval = setInterval(() => {
+        checkSubscriptionStatus();
+      }, 5 * 60 * 1000);
+
+      return () => clearInterval(interval);
     }
   }, [user, isLoaded]);
 
