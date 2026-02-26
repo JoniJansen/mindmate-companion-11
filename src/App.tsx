@@ -48,6 +48,7 @@ const AudioLibrary = lazy(() => import("@/pages/AudioLibrary"));
 const Timeline = lazy(() => import("@/pages/Timeline"));
 const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const DevQA = lazy(() => import("@/pages/DevQA"));
 
 const queryClient = new QueryClient({
@@ -211,6 +212,7 @@ const App = () => (
                   {/* Review Mode Pages */}
                   <Route path="/review-instructions" element={<ReviewInstructions />} />
                   <Route path="/review-status" element={<ReviewStatus />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                   
                   {/* DEV-ONLY */}
                   {import.meta.env.DEV && (
