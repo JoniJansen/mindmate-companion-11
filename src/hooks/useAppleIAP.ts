@@ -151,13 +151,8 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
   // Verify receipt with backend
   const verifyReceipt = useCallback(async (receiptData: string): Promise<boolean> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
       const { data, error } = await supabase.functions.invoke('verify-apple-receipt', {
-        body: { receiptData, userId: user.id },
+        body: { receiptData },
       });
 
       if (error) throw error;

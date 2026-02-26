@@ -6,16 +6,16 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Review accounts configuration
+// Review accounts configuration - credentials loaded from environment
 const REVIEW_ACCOUNTS = [
   {
-    email: "apple-review@mindmate.de",
-    password: "MindMate2026Review!",
+    email: Deno.env.get("REVIEW_ACCOUNT_APPLE_EMAIL") || "",
+    password: Deno.env.get("REVIEW_ACCOUNT_APPLE_PASSWORD") || "",
     displayName: "Apple Reviewer",
   },
   {
-    email: "google-review@mindmate.de",
-    password: "MindMate2026Review!",
+    email: Deno.env.get("REVIEW_ACCOUNT_GOOGLE_EMAIL") || "",
+    password: Deno.env.get("REVIEW_ACCOUNT_GOOGLE_PASSWORD") || "",
     displayName: "Google Reviewer",
   },
 ];
