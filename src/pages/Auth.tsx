@@ -344,8 +344,8 @@ export default function Auth() {
             </button>
           </div>
 
-          {/* Review/Demo Login Button */}
-          {authMode === "login" && (
+          {/* Review/Demo Login Button - only visible in dev or for review URLs */}
+          {authMode === "login" && (import.meta.env.DEV || window.location.hostname.includes('lovable')) && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
