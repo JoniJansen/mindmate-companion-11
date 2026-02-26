@@ -36,6 +36,8 @@ export default function Topics() {
   const [topicChatInput, setTopicChatInput] = useState("");
   const [topicChatLoading, setTopicChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const topicStreamBufferRef = useRef("");
+  const topicStreamFrameRef = useRef<number | null>(null);
 
   const { language, t, getTopicDisplay } = useTranslation();
   const navigate = useNavigate();
@@ -112,6 +114,42 @@ export default function Topics() {
     }
   };
 
+  const flushTopicBuffer = useCallback(() => {
+    if (!topicStreamBufferRef.current) return;
+    const chunk = topicStreamBufferRef.current;
+    topicStreamBufferRef.current = "";
+    setTopicChatMessages(prev => {
+      const lastIndex = prev.length - 1;
+      const last = prev[lastIndex];
+      if (last?.role === "assistant") {
+        const updated = [...prev];
+        updated[lastIndex] = { ...last, content: last.content + chunk };
+        return updated;
+      }
+      return [...prev, { role: "assistant", content: chunk }];
+    });
+  }, []);
+
+  const enqueueTopicChunk = useCallback((chunk: string) => {
+    if (!chunk) return;
+    topicStreamBufferRef.current += chunk;
+    if (topicStreamFrameRef.current !== null) return;
+    topicStreamFrameRef.current = requestAnimationFrame(() => {
+      topicStreamFrameRef.current = null;
+      flushTopicBuffer();
+    });
+  }, [flushTopicBuffer]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (topicStreamFrameRef.current !== null) {
+        cancelAnimationFrame(topicStreamFrameRef.current);
+      }
+      topicStreamBufferRef.current = "";
+    };
+  }, []);
+
   const sendTopicChat = useCallback(async () => {
     if (!topicChatInput.trim() || topicChatLoading || !selectedTopic) return;
     const userMsg = { role: "user" as const, content: topicChatInput.trim() };
@@ -119,6 +157,7 @@ export default function Topics() {
     setTopicChatMessages(newMessages);
     setTopicChatInput("");
     setTopicChatLoading(true);
+    topicStreamBufferRef.current = "";
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -151,7 +190,6 @@ export default function Topics() {
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let textBuffer = "";
-      let fullResponse = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -168,27 +206,24 @@ export default function Topics() {
           try {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              fullResponse += content;
-              setTopicChatMessages(prev => {
-                const last = prev[prev.length - 1];
-                if (last?.role === "assistant") {
-                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: m.content + content } : m);
-                }
-                return [...prev, { role: "assistant", content }];
-              });
-            }
+            if (content) enqueueTopicChunk(content);
           } catch {
             textBuffer = line + "\n" + textBuffer;
             break;
           }
         }
       }
+      // Final flush
+      if (topicStreamFrameRef.current !== null) {
+        cancelAnimationFrame(topicStreamFrameRef.current);
+        topicStreamFrameRef.current = null;
+      }
+      flushTopicBuffer();
     } catch {
       setTopicChatMessages(prev => [...prev, { role: "assistant", content: language === "de" ? "Entschuldigung, es gab einen Fehler. Bitte versuche es erneut." : "Sorry, something went wrong. Please try again." }]);
     }
     setTopicChatLoading(false);
-  }, [topicChatInput, topicChatLoading, selectedTopic, topicChatMessages, language, getTopicDisplay]);
+  }, [topicChatInput, topicChatLoading, selectedTopic, topicChatMessages, language, getTopicDisplay, enqueueTopicChunk, flushTopicBuffer]);
 
   const saveProgress = (topicId: string, stepId: number) => {
     const newProgress = {
