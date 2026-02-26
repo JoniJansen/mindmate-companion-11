@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import { requireUser } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -59,10 +60,14 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { receiptData, userId } = await req.json();
+    // Authenticate user from JWT - userId derived from token, not request body
+    const { user } = await requireUser(req);
+    const userId = user.id;
 
-    if (!receiptData || !userId) {
-      throw new Error("Receipt data and user ID are required");
+    const { receiptData } = await req.json();
+
+    if (!receiptData) {
+      throw new Error("Receipt data is required");
     }
 
     // First try production, if status 21007 it's a sandbox receipt
