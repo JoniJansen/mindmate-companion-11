@@ -2,6 +2,23 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell, ImageIcon } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { CalmCard } from "@/components/shared/CalmCard";
+
+// Bulletproof native detection – multiple signals to prevent camera crash (Apple Guideline 2.1)
+const isNativeApp = (): boolean => {
+  try {
+    // Primary check
+    if (Capacitor.isNativePlatform()) return true;
+    // Fallback: check platform string
+    const platform = Capacitor.getPlatform?.();
+    if (platform === 'ios' || platform === 'android') return true;
+    // Fallback: check global Capacitor object
+    if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.()) return true;
+  } catch {
+    // If Capacitor throws, check for native-only globals
+    if (typeof window !== 'undefined' && (window as any).webkit?.messageHandlers) return true;
+  }
+  return false;
+};
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -718,7 +735,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
               </AvatarFallback>
             </Avatar>
             {/* CRITICAL: Do NOT show upload button on iOS native - file input causes WKWebView crash on iPad (Guideline 2.1) */}
-            {!Capacitor.isNativePlatform() && (
+            {!isNativeApp() && (
               <>
                 <button
                   onClick={() => fileInputRef.current?.click()}
@@ -744,7 +761,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           <div className="flex-1">
             <p className="font-medium text-foreground">{t.changeAvatar}</p>
             <p className="text-sm text-muted-foreground">
-              {Capacitor.isNativePlatform() 
+              {isNativeApp() 
                 ? (language === "de" ? "Profilbild wird über die Web-Version geändert" : "Change profile picture via web version")
                 : (language === "de" ? "JPG, PNG oder GIF. Max 5MB" : "JPG, PNG or GIF. Max 5MB")
               }
