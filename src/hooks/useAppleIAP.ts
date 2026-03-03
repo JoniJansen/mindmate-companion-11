@@ -57,7 +57,7 @@ const getStoreKitPlugin = (): any | null => {
       return Capacitor.registerPlugin('StoreKit');
     }
   } catch (e) {
-    console.warn('StoreKit plugin not available:', e);
+    if (import.meta.env.DEV) console.warn('StoreKit plugin not available:', e);
   }
   return null;
 };
@@ -72,7 +72,7 @@ const StoreKitBridge = {
       const result = await plugin.isAvailable();
       return result?.available === true;
     } catch (e) {
-      console.warn('StoreKit availability check failed:', e);
+      if (import.meta.env.DEV) console.warn('StoreKit availability check failed:', e);
       return false;
     }
   },
@@ -84,7 +84,7 @@ const StoreKitBridge = {
       const result = await plugin.getProducts({ productIds });
       return result?.products || [];
     } catch (e) {
-      console.error('StoreKit: Failed to fetch products', e);
+      if (import.meta.env.DEV) console.error('StoreKit: Failed to fetch products', e);
       return [];
     }
   },
@@ -92,7 +92,7 @@ const StoreKitBridge = {
   purchaseProduct: async (productId: string): Promise<AppleTransaction | null> => {
     const plugin = getStoreKitPlugin();
     if (!plugin) {
-      console.error('StoreKit plugin not available for purchase');
+      if (import.meta.env.DEV) console.error('StoreKit plugin not available for purchase');
       return null;
     }
     try {
@@ -110,7 +110,7 @@ const StoreKitBridge = {
       }
       return null;
     } catch (e) {
-      console.error('StoreKit: Purchase failed', e);
+      if (import.meta.env.DEV) console.error('StoreKit: Purchase failed', e);
       throw e;
     }
   },
@@ -122,7 +122,7 @@ const StoreKitBridge = {
       const result = await plugin.restorePurchases();
       return result?.transactions || [];
     } catch (e) {
-      console.error('StoreKit: Restore failed', e);
+      if (import.meta.env.DEV) console.error('StoreKit: Restore failed', e);
       return [];
     }
   },
@@ -134,7 +134,7 @@ const StoreKitBridge = {
       const result = await plugin.restorePurchases();
       return result?.receiptData || null;
     } catch (e) {
-      console.error('StoreKit: Failed to get receipt', e);
+      if (import.meta.env.DEV) console.error('StoreKit: Failed to get receipt', e);
       return null;
     }
   },
@@ -163,7 +163,7 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
 
       return false;
     } catch (error) {
-      console.error('Receipt verification failed:', error);
+      if (import.meta.env.DEV) console.error('Receipt verification failed:', error);
       return false;
     }
   }, []);
@@ -197,7 +197,7 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
         }
       }
     } catch (error) {
-      console.error('Auto-restore failed:', error);
+      if (import.meta.env.DEV) console.error('Auto-restore failed:', error);
       // Silent failure - don't show toast on auto-restore
     }
   }, [isAvailable, verifyReceipt]);
@@ -251,7 +251,7 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
       
       return false;
     } catch (error) {
-      console.error('Purchase failed:', error);
+      if (import.meta.env.DEV) console.error('Purchase failed:', error);
       toast({
         title: 'Kauf fehlgeschlagen',
         description: 'Der Kauf konnte nicht abgeschlossen werden',
@@ -297,7 +297,7 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
       });
       return false;
     } catch (error) {
-      console.error('Restore failed:', error);
+      if (import.meta.env.DEV) console.error('Restore failed:', error);
       toast({
         title: 'Fehler',
         description: 'Käufe konnten nicht wiederhergestellt werden',

@@ -63,7 +63,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
       try {
         setProgress(JSON.parse(stored));
       } catch (e) {
-        console.error("Error parsing progress:", e);
+        if (import.meta.env.DEV) console.error("Error parsing progress:", e);
       }
     }
   }, []);

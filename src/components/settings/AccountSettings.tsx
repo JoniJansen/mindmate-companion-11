@@ -284,7 +284,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           }
         }
       } catch (e) {
-        console.warn("Could not check 2FA status:", e);
+        if (import.meta.env.DEV) console.warn("Could not check 2FA status:", e);
       }
     };
     check2FAStatus();
@@ -323,7 +323,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           recaps: recapCount.count || 0,
         });
       } catch (e) {
-        console.warn("Could not fetch export stats:", e);
+        if (import.meta.env.DEV) console.warn("Could not fetch export stats:", e);
       }
     };
     fetchExportStats();
@@ -487,7 +487,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       refreshProfile();
       toast({ title: t.avatarUpdated });
     } catch (error: any) {
-      console.error('Avatar upload error:', error);
+      if (import.meta.env.DEV) console.error('Avatar upload error:', error);
       toast({
         title: language === "de" ? "Fehler beim Hochladen" : "Upload failed",
         description: error.message || (language === "de" ? "Bitte versuche es erneut" : "Please try again"),

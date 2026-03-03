@@ -109,7 +109,7 @@ export default function Summary() {
       const data = await response.json();
       setSummaryData(data);
     } catch (error) {
-      console.error("Summary error:", error);
+      if (import.meta.env.DEV) console.error("Summary error:", error);
       toast({
         title: t("summary.couldntGenerate"),
         description: t("summary.tryAgain"),

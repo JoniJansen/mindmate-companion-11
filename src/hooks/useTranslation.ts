@@ -1104,7 +1104,7 @@ export function useTranslation() {
   const t = (key: string): string => {
     const translation = translations[key];
     if (!translation) {
-      console.warn(`Missing translation for key: ${key}`);
+      if (import.meta.env.DEV) console.warn(`Missing translation for key: ${key}`);
       return key;
     }
     return translation[language] || translation.en;

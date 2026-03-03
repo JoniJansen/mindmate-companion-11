@@ -44,12 +44,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
 
       if (error) {
-        console.warn("Failed to fetch profile:", error);
+        if (import.meta.env.DEV) console.warn("Failed to fetch profile:", error);
         return;
       }
       setProfile(data);
     } catch (e) {
-      console.warn("Failed to fetch profile:", e);
+      if (import.meta.env.DEV) console.warn("Failed to fetch profile:", e);
     }
   }, []);
 
