@@ -5,8 +5,10 @@ import { useVoiceSettings } from "@/hooks/useVoiceSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { usePremium } from "@/hooks/usePremium";
+import { useNetworkSimulator, type NetworkSimMode } from "@/hooks/useNetworkSimulator";
+import { useEntitlementSimulator, type SimulatedEntitlement } from "@/hooks/useEntitlementSimulator";
 import { CalmCard } from "@/components/shared/CalmCard";
-import { Copy, Check, Mic, MicOff } from "lucide-react";
+import { Copy, Check, Mic, MicOff, Wifi, WifiOff, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navigate } from "react-router-dom";
 
@@ -16,12 +18,30 @@ interface DiagEntry {
   status?: "ok" | "warn" | "error";
 }
 
+const NETWORK_MODES: { value: NetworkSimMode; label: string; icon: string }[] = [
+  { value: "real", label: "Real", icon: "🌐" },
+  { value: "offline", label: "Offline", icon: "📴" },
+  { value: "slow", label: "Slow", icon: "🐌" },
+];
+
+const ENTITLEMENT_MODES: { value: SimulatedEntitlement; label: string; icon: string }[] = [
+  { value: "real", label: "Real", icon: "🔄" },
+  { value: "free", label: "Free", icon: "🆓" },
+  { value: "trial", label: "Trial", icon: "⏳" },
+  { value: "active", label: "Active", icon: "✅" },
+  { value: "cancelled", label: "Cancelled", icon: "❌" },
+  { value: "expired", label: "Expired", icon: "⏰" },
+  { value: "grace", label: "Grace", icon: "⚠️" },
+];
+
 export default function Diagnostics() {
   const { t, language } = useTranslation();
   const { settings, getVoiceId, getEffectiveLanguage } = useVoiceSettings();
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
-  const { isPremium } = usePremium();
+  const { isPremium, subscriptionStatus, planType } = usePremium();
+  const networkSim = useNetworkSimulator();
+  const entitlementSim = useEntitlementSimulator();
   const [micStatus, setMicStatus] = useState<string>("checking...");
   const [copied, setCopied] = useState(false);
   const [safeAreas, setSafeAreas] = useState({ top: "0", bottom: "0", left: "0", right: "0" });
@@ -84,6 +104,8 @@ export default function Diagnostics() {
     { label: "Mic Permission", value: micStatus, status: micStatus === "granted" ? "ok" : micStatus === "denied" ? "error" : "warn" },
     { label: "Network", value: isOnline ? "Online" : "Offline", status: isOnline ? "ok" : "error" },
     { label: "Premium", value: isPremium ? "Active" : "Free", status: isPremium ? "ok" : "warn" },
+    { label: "Plan Type", value: planType || "none" },
+    { label: "Sub Status", value: subscriptionStatus || "none" },
     { label: "User ID", value: user?.id?.slice(0, 8) + "..." || "not logged in" },
     { label: "Platform", value: navigator.userAgent.includes("iPhone") ? "iOS" : navigator.userAgent.includes("Android") ? "Android" : "Web" },
     { label: "Screen", value: `${window.innerWidth}×${window.innerHeight} (${window.devicePixelRatio}x)` },
@@ -99,7 +121,6 @@ export default function Diagnostics() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
 
   const statusDot = (s?: "ok" | "warn" | "error") => {
     if (!s) return null;
@@ -118,6 +139,68 @@ export default function Diagnostics() {
             {copied ? t("diagnostics.copied") : t("diagnostics.copyAll")}
           </Button>
         </div>
+
+        {/* Network Simulator */}
+        {networkSim && (
+          <CalmCard>
+            <div className="flex items-center gap-2 mb-3">
+              {isOnline ? <Wifi className="w-4 h-4 text-green-500" /> : <WifiOff className="w-4 h-4 text-destructive" />}
+              <h3 className="font-medium text-foreground">Network Simulator</h3>
+              <span className="text-xs text-muted-foreground ml-auto">DEV ONLY</span>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {NETWORK_MODES.map((m) => (
+                <button
+                  key={m.value}
+                  onClick={() => networkSim.setMode(m.value)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    networkSim.mode === m.value
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {m.icon} {m.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {networkSim.mode === "real" && "Using real network status"}
+              {networkSim.mode === "offline" && "⚡ Simulating offline — banner should appear above, chat input disabled"}
+              {networkSim.mode === "slow" && "⚡ Simulating slow network — requests may timeout"}
+            </p>
+          </CalmCard>
+        )}
+
+        {/* Entitlement Simulator */}
+        {entitlementSim && (
+          <CalmCard>
+            <div className="flex items-center gap-2 mb-3">
+              <Crown className="w-4 h-4 text-yellow-500" />
+              <h3 className="font-medium text-foreground">Entitlement Simulator</h3>
+              <span className="text-xs text-muted-foreground ml-auto">DEV ONLY</span>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {ENTITLEMENT_MODES.map((m) => (
+                <button
+                  key={m.value}
+                  onClick={() => entitlementSim.setEntitlement(m.value)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    entitlementSim.entitlement === m.value
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {m.icon} {m.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Current: <span className="font-medium">{isPremium ? "Premium" : "Free"}</span>
+              {planType && ` · ${planType}`}
+              {subscriptionStatus && ` · ${subscriptionStatus}`}
+            </p>
+          </CalmCard>
+        )}
 
         <CalmCard>
           <div className="divide-y divide-border/30">
