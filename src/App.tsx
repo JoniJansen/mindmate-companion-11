@@ -155,7 +155,7 @@ const PageLoader = () => (
   </div>
 );
 
-const App = forwardRef<HTMLDivElement>(function App(_props, _ref) { return (
+const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -232,6 +232,6 @@ const App = forwardRef<HTMLDivElement>(function App(_props, _ref) { return (
       </TooltipProvider>
     </QueryClientProvider>
   </ErrorBoundary>
-); });
+);
 
 export default App;
