@@ -144,7 +144,7 @@ export function usePushNotifications() {
       }
       return false;
     } catch (error) {
-      console.error("Error requesting notification permission:", error);
+      if (import.meta.env.DEV) console.error("Error requesting notification permission:", error);
       return false;
     }
   }, [isSupported]);
@@ -164,7 +164,7 @@ export function usePushNotifications() {
         ...options,
       });
     } catch (error) {
-      console.error("Error showing notification:", error);
+      if (import.meta.env.DEV) console.error("Error showing notification:", error);
     }
   }, [isSupported, permissionStatus]);
 

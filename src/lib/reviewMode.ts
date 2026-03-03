@@ -54,7 +54,7 @@ export const activateReviewMode = (): void => {
       subscriptionStatus: "active",
     }));
   } catch {
-    console.warn("Failed to activate review mode");
+    if (import.meta.env.DEV) console.warn("Failed to activate review mode");
   }
 };
 
@@ -63,7 +63,7 @@ export const deactivateReviewMode = (): void => {
   try {
     localStorage.removeItem("mindmate_review_mode");
   } catch {
-    console.warn("Failed to deactivate review mode");
+    if (import.meta.env.DEV) console.warn("Failed to deactivate review mode");
   }
 };
 

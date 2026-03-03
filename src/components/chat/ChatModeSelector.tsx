@@ -76,7 +76,7 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
           const isClipped = buttonRect.right > containerRect.right + 4;
           const isPartiallyHidden = buttonRect.left + buttonRect.width * 0.5 > containerRect.right;
           
-          if (isClipped && el.scrollLeft === 0) {
+          if (isClipped && el.scrollLeft === 0 && import.meta.env.DEV) {
             console.warn(
               `[ChatModeSelector] Last tab "${lastButton.textContent}" may be clipped at rest. ` +
               `Container: ${containerRect.width}px, Content needs: ${el.scrollWidth}px. ` +
