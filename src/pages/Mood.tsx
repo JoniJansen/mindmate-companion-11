@@ -289,7 +289,7 @@ export default function Mood() {
                       {t("mood.exploreDifficultDays")}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {lowMoodDays.length} {t("mood.daysWithLowMood")}
+                      {lowMoodDays.length} {lowMoodDays.length === 1 ? t("mood.dayWithLowMood") : t("mood.daysWithLowMood")}
                     </p>
                   </div>
                 </div>

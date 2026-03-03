@@ -23,6 +23,20 @@ export default function Landing() {
   const { isDark, setMode: setThemeMode } = useTheme();
   const [language, setLanguage] = useState<"en" | "de">("en");
 
+  // Detect native app to hide store badges
+  const isNativeBuild = (() => {
+    try {
+      if (typeof (window as any).Capacitor !== 'undefined') {
+        const cap = (window as any).Capacitor;
+        if (cap.isNativePlatform?.()) return true;
+        const p = cap.getPlatform?.();
+        if (p === 'ios' || p === 'android') return true;
+      }
+      if (typeof window !== 'undefined' && (window as any).webkit?.messageHandlers) return true;
+    } catch {}
+    return false;
+  })();
+
   const content = {
     en: {
       hero: {
@@ -267,30 +281,32 @@ export default function Landing() {
             </Button>
           </motion.div>
 
-          {/* Store Badges */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="flex items-center justify-center gap-4 mt-8"
-          >
-            <a
-              href="https://apps.apple.com/app/soulvay"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-11 hover:opacity-80 transition-opacity"
+          {/* Store Badges - hidden on native apps */}
+          {!isNativeBuild && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="flex items-center justify-center gap-4 mt-8"
             >
-              <img src="/badges/app-store.svg" alt="Download on the App Store" className="h-full" />
-            </a>
-            <a
-              href="https://play.google.com/store/apps/details?id=com.soulvay.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-11 hover:opacity-80 transition-opacity"
-            >
-              <img src="/badges/google-play.svg" alt="Get it on Google Play" className="h-full" />
-            </a>
-          </motion.div>
+              <a
+                href="https://apps.apple.com/app/soulvay"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-11 hover:opacity-80 transition-opacity"
+              >
+                <img src="/badges/app-store.svg" alt="Download on the App Store" className="h-full" />
+              </a>
+              <a
+                href="https://play.google.com/store/apps/details?id=com.soulvay.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-11 hover:opacity-80 transition-opacity"
+              >
+                <img src="/badges/google-play.svg" alt="Get it on Google Play" className="h-full" />
+              </a>
+            </motion.div>
+          )}
         </div>
       </section>
 
