@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useOnboardingStatus, TabHintsSeen } from "@/hooks/useOnboardingStatus";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -30,7 +30,7 @@ const hintTexts: Record<keyof TabHintsSeen, { en: string; de: string }> = {
   },
 };
 
-export function TabHint({ tabId }: TabHintProps) {
+export const TabHint = forwardRef<HTMLDivElement, TabHintProps>(function TabHint({ tabId }, ref) {
   const { hasSeenTabHint, markTabHintSeen } = useOnboardingStatus();
   const { language } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
@@ -61,6 +61,7 @@ export function TabHint({ tabId }: TabHintProps) {
     <AnimatePresence>
       {isVisible && (
         <motion.div
+          ref={ref}
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
@@ -79,4 +80,4 @@ export function TabHint({ tabId }: TabHintProps) {
       )}
     </AnimatePresence>
   );
-}
+});

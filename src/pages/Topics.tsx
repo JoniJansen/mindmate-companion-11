@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ChevronRight, CheckCircle2, Clock, BookOpen, GraduationCap, StickyNote, MessageCircle, Save, Send, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -26,7 +26,7 @@ interface TopicNotes {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-export default function Topics() {
+const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [progress, setProgress] = useState<TopicProgress>({});
@@ -602,4 +602,6 @@ export default function Topics() {
       </div>
     </div>
   );
-}
+});
+
+export default Topics;

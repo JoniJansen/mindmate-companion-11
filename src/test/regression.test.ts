@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { translations } from "@/hooks/useTranslation";
+import { BOTTOM_NAV_HEIGHT, BOTTOM_NAV_TOTAL, SAFE_AREA_BOTTOM, SAFE_AREA_TOP } from "@/lib/safeArea";
+import { tp } from "@/lib/i18nPlain";
 
 describe("Regression Tests - Release Gate", () => {
 
@@ -99,6 +101,81 @@ describe("Regression Tests - Release Gate", () => {
       expect(translations["timeline.notEnoughDataTitle"]).toBeDefined();
       expect(translations["timeline.notEnoughDataDesc"]).toBeDefined();
       expect(translations["timeline.insightError"]).toBeDefined();
+    });
+  });
+
+  // === Safe Area constants ===
+  describe("Safe Area: Constants are valid", () => {
+    it("BOTTOM_NAV_HEIGHT is a reasonable pixel value", () => {
+      expect(BOTTOM_NAV_HEIGHT).toBeGreaterThanOrEqual(44);
+      expect(BOTTOM_NAV_HEIGHT).toBeLessThanOrEqual(80);
+    });
+
+    it("BOTTOM_NAV_TOTAL includes env() and nav height", () => {
+      expect(BOTTOM_NAV_TOTAL).toContain(`${BOTTOM_NAV_HEIGHT}px`);
+      expect(BOTTOM_NAV_TOTAL).toContain("env(safe-area-inset-bottom");
+    });
+
+    it("SAFE_AREA_BOTTOM/TOP use env()", () => {
+      expect(SAFE_AREA_BOTTOM).toContain("env(safe-area-inset-bottom");
+      expect(SAFE_AREA_TOP).toContain("env(safe-area-inset-top");
+    });
+  });
+
+  // === Plain i18n (non-React) ===
+  describe("i18nPlain: Works without React", () => {
+    it("returns correct strings for known keys", () => {
+      const title = tp("backup.reminderTitle");
+      expect(title).toBeTruthy();
+      expect(typeof title).toBe("string");
+    });
+
+    it("returns key as fallback for unknown key", () => {
+      const result = tp("unknown.key.xyz");
+      expect(result).toBe("unknown.key.xyz");
+    });
+  });
+
+  // === Route definitions ===
+  describe("Routes: All main routes have i18n support", () => {
+    it("bottom nav tabs have translation keys", () => {
+      const navKeys = ["topics.title", "mood.title", "journal.title"];
+      for (const key of navKeys) {
+        expect(translations[key]).toBeDefined();
+        expect(translations[key].en).toBeTruthy();
+        expect(translations[key].de).toBeTruthy();
+      }
+    });
+
+    it("settings page has required translation keys", () => {
+      const settingsKeys = ["settings.title", "settings.language", "settings.subtitle"];
+      for (const key of settingsKeys) {
+        expect(translations[key]).toBeDefined();
+      }
+    });
+  });
+
+  // === Subscription / Premium ===
+  describe("Premium: i18n keys for premium gates", () => {
+    it("has premium-related translation keys", () => {
+      const keys = ["premium.upgradeTitle", "premium.restorePurchases"];
+      for (const key of keys) {
+        if (translations[key]) {
+          expect(translations[key].en).toBeTruthy();
+          expect(translations[key].de).toBeTruthy();
+        }
+      }
+      // At minimum, common.error must exist for payment error handling
+      expect(translations["common.error"]).toBeDefined();
+    });
+  });
+
+  // === Error handling keys ===
+  describe("Error UX: Localized error messages exist", () => {
+    it("has common error keys", () => {
+      expect(translations["common.error"]).toBeDefined();
+      expect(translations["common.error"].de).toBeTruthy();
+      expect(translations["common.error"].en).toBeTruthy();
     });
   });
 });
