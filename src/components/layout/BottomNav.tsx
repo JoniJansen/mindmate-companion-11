@@ -8,9 +8,7 @@ import {
   Sparkles 
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-
-// Height exported for layout calculations (nav content only, safe area added separately)
-export const BOTTOM_NAV_HEIGHT = 56;
+import { BOTTOM_NAV_HEIGHT } from "@/lib/safeArea";
 
 export function BottomNav() {
   const location = useLocation();

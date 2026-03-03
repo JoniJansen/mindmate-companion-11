@@ -26,6 +26,7 @@ import { ChatDisclaimer } from "@/components/chat/ChatDisclaimer";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 import { useActivityLog } from "@/hooks/useActivityLog";
+import { fullScreenWithNav } from "@/lib/safeArea";
 
 interface Message {
   id: string;
@@ -551,12 +552,10 @@ export default function Chat() {
 
   const handleUpgrade = () => { setShowUpgradePrompt(false); navigate("/upgrade"); };
 
-  const BOTTOM_NAV_HEIGHT = 56;
-  
   return (
     <div 
       className="flex flex-col bg-background"
-      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))` }}
+      style={fullScreenWithNav()}
     >
       <PageHeader
         title={t("chat.title")}

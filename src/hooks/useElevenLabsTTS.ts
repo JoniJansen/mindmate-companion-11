@@ -47,7 +47,8 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
     voiceId: string,
     language: "en" | "de",
     speed: VoiceSpeed = 1.0,
-    messageId?: string
+    messageId?: string,
+    _retryCount = 0
   ) => {
     if (!text.trim()) return;
 
@@ -66,6 +67,10 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
         
+        // Timeout: 15s max for TTS request
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        
         const response = await fetch(TTS_URL, {
           method: "POST",
           headers: {
@@ -73,13 +78,11 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
             "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            text,
-            voiceId,
-            language,
-            speed,
-          }),
+          body: JSON.stringify({ text, voiceId, language, speed }),
+          signal: controller.signal,
         });
+        
+        clearTimeout(timeout);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -100,10 +103,18 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
           }
         }
         audioCache.set(cacheKey, audioUrl);
-    } catch (error) {
+      } catch (error: any) {
         if (import.meta.env.DEV) console.error("TTS error:", error);
         setIsLoading(false);
         setLoadingMessageId(null);
+        
+        // Retry once on timeout/network errors
+        if (_retryCount < 1 && (error.name === "AbortError" || error.message?.includes("fetch"))) {
+          if (import.meta.env.DEV) console.info("TTS retry attempt...");
+          setTimeout(() => speak(text, voiceId, language, speed, messageId, _retryCount + 1), 1000);
+          return;
+        }
+        
         onError?.(error instanceof Error ? error.message : "TTS failed");
         return;
       }

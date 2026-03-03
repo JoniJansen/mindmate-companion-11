@@ -66,7 +66,7 @@ export default function Home() {
         
         setRecentThoughts(data || []);
       } catch (error) {
-        console.error('Error loading recent thoughts:', error);
+        if (import.meta.env.DEV) console.error('Error loading recent thoughts:', error);
       } finally {
         setIsLoading(false);
       }
@@ -137,7 +137,7 @@ export default function Home() {
       
       setRecentThoughts(data || []);
     } catch (error) {
-      console.error('Error saving thought:', error);
+      if (import.meta.env.DEV) console.error('Error saving thought:', error);
       toast({
         title: t("common.error"),
         description: t("home.saveFailed"),

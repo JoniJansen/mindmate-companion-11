@@ -1,9 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
 import { OfflineBanner } from "@/components/system/OfflineBanner";
-
-// Fixed bottom nav height - must match BottomNav component
-const BOTTOM_NAV_HEIGHT = 56; // Compact: 56px nav content
+import { BOTTOM_NAV_HEIGHT } from "@/lib/safeArea";
 
 export function AppLayout() {
   const location = useLocation();
