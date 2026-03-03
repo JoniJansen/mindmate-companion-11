@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, lazy, Suspense, forwardRef } from "react";
+import { useEffect, lazy, Suspense } from "react";
 
 // Layout & Providers
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -64,7 +64,7 @@ const queryClient = new QueryClient({
 });
 
 // Initialize theme from localStorage
-const ThemeInitializer = forwardRef<HTMLDivElement>(function ThemeInitializer(_props, _ref) {
+function ThemeInitializer() {
   useEffect(() => {
     const root = document.documentElement;
     try {
@@ -93,9 +93,9 @@ const ThemeInitializer = forwardRef<HTMLDivElement>(function ThemeInitializer(_p
   }, []);
 
   return null;
-});
+}
 
-const SubscriptionRestoreInitializer = forwardRef<HTMLDivElement>(function SubscriptionRestoreInitializer(_props, _ref) {
+function SubscriptionRestoreInitializer() {
   const { isRevenueCatAvailable, restorePurchases, checkSubscriptionStatus } = usePremium();
 
   useEffect(() => {
@@ -107,7 +107,7 @@ const SubscriptionRestoreInitializer = forwardRef<HTMLDivElement>(function Subsc
   }, [isRevenueCatAvailable, checkSubscriptionStatus]);
 
   return null;
-});
+}
 
 // Root redirect handler - decides where to send users
 function RootRedirect() {
@@ -137,7 +137,7 @@ function RootRedirect() {
 }
 
 // Cookie consent wrapper - delays until after onboarding
-const DelayedCookieConsent = forwardRef<HTMLDivElement>(function DelayedCookieConsent(_props, _ref) {
+function DelayedCookieConsent() {
   const { hasCompletedOnboarding } = useOnboardingStatus();
   
   // Only show cookie consent after onboarding is complete
@@ -146,7 +146,7 @@ const DelayedCookieConsent = forwardRef<HTMLDivElement>(function DelayedCookieCo
   }
   
   return <CookieConsent />;
-});
+}
 
 // Shared loading fallback for lazy routes
 const PageLoader = () => (
@@ -155,8 +155,8 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => (
-  <ErrorBoundary>
+function AppContent() {
+  return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
@@ -231,6 +231,12 @@ const App = () => (
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
+  );
+}
+
+const App = () => (
+  <ErrorBoundary>
+    <AppContent />
   </ErrorBoundary>
 );
 

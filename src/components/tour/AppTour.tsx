@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppTour, tourSteps } from "@/hooks/useAppTour";
 import { useTranslation } from "@/hooks/useTranslation";
 
-export function AppTour() {
+export const AppTour = forwardRef<HTMLDivElement>(function AppTour(_props, _ref) {
   const { 
     isActive, 
     currentStep, 
@@ -196,4 +196,4 @@ export function AppTour() {
       </motion.div>
     </AnimatePresence>
   );
-}
+});
