@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,7 +17,7 @@ interface OnboardingGuardProps {
  * 
  * CRITICAL: This guard MUST block access until authentication is confirmed.
  */
-export function OnboardingGuard({ children }: OnboardingGuardProps) {
+export const OnboardingGuard = forwardRef<HTMLDivElement, OnboardingGuardProps>(function OnboardingGuard({ children }, _ref) {
   const { isAuthenticated, isLoading } = useAuth();
   const { hasCompletedOnboarding } = useOnboardingStatus();
   const location = useLocation();
@@ -47,4 +48,4 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
 
   // If not authenticated and haven't completed onboarding, redirect to welcome
   return <Navigate to="/welcome" replace />;
-}
+});

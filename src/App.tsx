@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense, forwardRef } from "react";
 
 // Layout & Providers
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -64,7 +64,7 @@ const queryClient = new QueryClient({
 });
 
 // Initialize theme from localStorage
-function ThemeInitializer() {
+const ThemeInitializer = forwardRef<HTMLDivElement>(function ThemeInitializer(_props, _ref) {
   useEffect(() => {
     const root = document.documentElement;
     try {
@@ -93,10 +93,9 @@ function ThemeInitializer() {
   }, []);
 
   return null;
-}
+});
 
-// RevenueCat subscription restore on app start
-function SubscriptionRestoreInitializer() {
+const SubscriptionRestoreInitializer = forwardRef<HTMLDivElement>(function SubscriptionRestoreInitializer(_props, _ref) {
   const { isRevenueCatAvailable, restorePurchases, checkSubscriptionStatus } = usePremium();
 
   useEffect(() => {
@@ -108,7 +107,7 @@ function SubscriptionRestoreInitializer() {
   }, [isRevenueCatAvailable, checkSubscriptionStatus]);
 
   return null;
-}
+});
 
 // Root redirect handler - decides where to send users
 function RootRedirect() {
@@ -138,7 +137,7 @@ function RootRedirect() {
 }
 
 // Cookie consent wrapper - delays until after onboarding
-function DelayedCookieConsent() {
+const DelayedCookieConsent = forwardRef<HTMLDivElement>(function DelayedCookieConsent(_props, _ref) {
   const { hasCompletedOnboarding } = useOnboardingStatus();
   
   // Only show cookie consent after onboarding is complete
@@ -147,7 +146,7 @@ function DelayedCookieConsent() {
   }
   
   return <CookieConsent />;
-}
+});
 
 // Shared loading fallback for lazy routes
 const PageLoader = () => (
@@ -156,7 +155,7 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => (
+const App = forwardRef<HTMLDivElement>(function App(_props, _ref) { return (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -233,6 +232,6 @@ const App = () => (
       </TooltipProvider>
     </QueryClientProvider>
   </ErrorBoundary>
-);
+); });
 
 export default App;
