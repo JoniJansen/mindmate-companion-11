@@ -663,7 +663,7 @@ export default function Chat() {
                 }`}>
                   <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   {message.role === "assistant" && (
-                    <div className="flex items-center gap-1 mt-1">
+                    <div className="flex items-center gap-1 mt-0.5">
                       <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
                       <button
                         onClick={async (e) => {
