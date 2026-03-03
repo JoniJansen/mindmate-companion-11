@@ -180,6 +180,7 @@ export default function Chat() {
   ];
 
   const isUserAtBottomRef = useRef(true);
+  const [showJumpToLatest, setShowJumpToLatest] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "auto") => {
@@ -191,7 +192,9 @@ export default function Chat() {
     const el = messagesContainerRef.current;
     if (!el) return;
     const threshold = 80;
-    isUserAtBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    isUserAtBottomRef.current = atBottom;
+    setShowJumpToLatest(!atBottom);
   }, []);
 
   useEffect(() => {
@@ -672,7 +675,7 @@ export default function Chat() {
                               user_id: user.id,
                               user_session_id: user.id,
                               content: message.content,
-                              title: language === "de" ? "Chat-Nachricht" : "Chat Message",
+                              title: t("chat.journalTitle.message"),
                               source: "chat",
                               tags: ["chat"],
                             } as any);
@@ -709,12 +712,12 @@ export default function Chat() {
         </div>
 
         {/* Jump to latest button */}
-        {!isUserAtBottomRef.current && messages.length > 5 && (
+        {showJumpToLatest && messages.length > 5 && (
           <button
-            onClick={() => { scrollToBottom("smooth"); isUserAtBottomRef.current = true; }}
+            onClick={() => { scrollToBottom("smooth"); isUserAtBottomRef.current = true; setShowJumpToLatest(false); }}
             className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-card border border-border/50 shadow-elevated text-sm text-muted-foreground hover:text-foreground transition-colors z-10"
           >
-            ↓ {language === "de" ? "Neueste" : "Latest"}
+            ↓ {t("chat.jumpToLatest")}
           </button>
         )}
       </div>
@@ -762,7 +765,7 @@ export default function Chat() {
                 await supabase.from("journal_entries").insert({
                   user_id: user.id, user_session_id: user.id,
                   content: chatContent,
-                  title: language === "de" ? "Chat-Gespräch" : "Chat Conversation",
+                  title: t("chat.journalTitle.conversation"),
                   source: "chat", tags: ["chat"],
                 } as any);
                 toast({ title: t("chat.savedToJournal"), description: t("chat.chatSavedDesc") });
@@ -790,22 +793,22 @@ export default function Chat() {
                 if (!resp.ok) throw new Error("Failed");
                 const summary = await resp.json();
                 const structuredContent = [
-                  `## ${language === "de" ? "Zusammenfassung" : "Summary"}`,
+                  `## ${t("chat.summarySection.summary")}`,
                   summary.summary || "",
                   "",
-                  `### ${language === "de" ? "Themen" : "Themes"}`,
-                  ...(summary.emotionalThemes || []).map((t: string) => `• ${t}`),
+                  `### ${t("chat.summarySection.themes")}`,
+                  ...(summary.emotionalThemes || []).map((th: string) => `• ${th}`),
                   "",
-                  `### ${language === "de" ? "Stimmungsverlauf" : "Mood Journey"}`,
+                  `### ${t("chat.summarySection.moodJourney")}`,
                   `${summary.moodProgression?.start || "💭"} → ${summary.moodProgression?.end || "🙂"} ${summary.moodProgression?.insight || ""}`,
                   "",
-                  `### ${language === "de" ? "Nächster Schritt" : "Next Step"}`,
+                  `### ${t("chat.summarySection.nextStep")}`,
                   summary.nextStep || "",
                 ].join("\n");
                 await supabase.from("journal_entries").insert({
                   user_id: user.id, user_session_id: user.id,
                   content: structuredContent,
-                  title: language === "de" ? "KI-Zusammenfassung" : "AI Summary",
+                  title: t("chat.journalTitle.summary"),
                   source: "chat-summary", tags: ["chat", "summary"],
                 } as any);
                 toast({ title: t("chat.savedToJournal"), description: t("chat.summarySavedDesc") });

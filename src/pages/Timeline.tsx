@@ -68,7 +68,7 @@ export default function Timeline() {
   const [showHeatmap, setShowHeatmap] = useState(false);
   
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -102,7 +102,7 @@ export default function Timeline() {
           }))
         );
       } catch (error) {
-        console.error('Error loading data:', error);
+        if (import.meta.env.DEV) console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -153,8 +153,8 @@ export default function Timeline() {
   const handleGenerateInsight = async () => {
     if (entries.length < 3) {
       toast({
-        title: language === "de" ? "Nicht genug Daten" : "Not enough data",
-        description: language === "de" ? "Schreibe mindestens 3 Gedanken für Muster-Erkennung." : "Write at least 3 thoughts for pattern recognition.",
+        title: t("timeline.notEnoughDataTitle"),
+        description: t("timeline.notEnoughDataDesc"),
       });
       return;
     }
@@ -172,8 +172,8 @@ export default function Timeline() {
       if (data.error) throw new Error(data.error);
       setAiInsight(data.reflection);
     } catch (error) {
-      console.error('Error generating insight:', error);
-      toast({ title: language === "de" ? "Fehler" : "Error", description: language === "de" ? "Konnte keine Muster erkennen." : "Could not generate patterns.", variant: "destructive" });
+      if (import.meta.env.DEV) console.error('Error generating insight:', error);
+      toast({ title: t("common.error"), description: t("timeline.insightError"), variant: "destructive" });
     } finally {
       setIsGeneratingInsight(false);
     }

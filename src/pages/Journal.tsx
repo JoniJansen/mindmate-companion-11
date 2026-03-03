@@ -162,7 +162,7 @@ export default function Journal() {
         prompt_id: e.prompt_id || null,
       })));
     } catch (error) {
-      console.error("Error loading entries:", error);
+      if (import.meta.env.DEV) console.error("Error loading entries:", error);
     } finally {
       setIsLoading(false);
     }
@@ -212,7 +212,7 @@ export default function Journal() {
       clearPart("journalDraft"); // Clear draft from continue module
       loadEntries();
     } catch (error) {
-      console.error("Error saving entry:", error);
+      if (import.meta.env.DEV) console.error("Error saving entry:", error);
       toast({ title: t("common.error"), variant: "destructive" });
     }
   };
@@ -243,7 +243,7 @@ export default function Journal() {
       if (data.error) throw new Error(data.error);
       setAiReflection(data.reflection);
     } catch (error) {
-      console.error("Error:", error);
+      if (import.meta.env.DEV) console.error("Error:", error);
       toast({ title: t("common.error"), variant: "destructive" });
       setShowReflection(false);
     } finally {
@@ -294,7 +294,7 @@ export default function Journal() {
       }
 
     } catch (error) {
-      console.error("Error:", error);
+      if (import.meta.env.DEV) console.error("Error:", error);
       toast({ title: t("common.error"), variant: "destructive" });
     } finally {
       setIsLoadingRecap(false);

@@ -78,7 +78,7 @@ export function usePremium() {
         }
       }
     } catch (e) {
-      console.warn("Failed to load premium state:", e);
+      if (import.meta.env.DEV) console.warn("Failed to load premium state:", e);
     }
     setIsLoaded(true);
   }, []);
@@ -139,7 +139,7 @@ export function usePremium() {
       });
 
       if (error) {
-        console.warn("Failed to check subscription:", error);
+        if (import.meta.env.DEV) console.warn("Failed to check subscription:", error);
         return;
       }
 
@@ -155,7 +155,7 @@ export function usePremium() {
         saveState(newState);
       }
     } catch (e) {
-      console.warn("Failed to check subscription status:", e);
+      if (import.meta.env.DEV) console.warn("Failed to check subscription status:", e);
     } finally {
       setIsCheckingSubscription(false);
     }
@@ -181,7 +181,7 @@ export function usePremium() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
     } catch (e) {
-      console.warn("Failed to save premium state:", e);
+      if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
     }
   }, []);
 
@@ -289,7 +289,7 @@ export function usePremium() {
 
     // For iOS, this shouldn't be called - use RevenueCat instead
     if (isRevenueCatAvailable) {
-      console.warn("createCheckoutSession called on iOS - should use RevenueCat");
+      if (import.meta.env.DEV) console.warn("createCheckoutSession called on iOS - should use RevenueCat");
       return;
     }
 

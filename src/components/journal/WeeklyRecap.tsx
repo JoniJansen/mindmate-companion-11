@@ -72,7 +72,7 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
         insight: data.insight || data.reflection || "",
       });
     } catch (error) {
-      console.error("Error generating recap:", error);
+      if (import.meta.env.DEV) console.error("Error generating recap:", error);
     } finally {
       setIsLoading(false);
     }

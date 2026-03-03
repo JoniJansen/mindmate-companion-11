@@ -8,6 +8,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Navigate } from "react-router-dom";
 
 interface DiagEntry {
   label: string;
@@ -16,7 +17,7 @@ interface DiagEntry {
 }
 
 export default function Diagnostics() {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { settings, getVoiceId, getEffectiveLanguage } = useVoiceSettings();
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
@@ -26,12 +27,10 @@ export default function Diagnostics() {
   const [safeAreas, setSafeAreas] = useState({ top: "0", bottom: "0", left: "0", right: "0" });
 
   useEffect(() => {
-    // Check mic permission
     navigator.permissions?.query({ name: "microphone" as PermissionName })
       .then(result => setMicStatus(result.state))
       .catch(() => setMicStatus("unavailable"));
 
-    // Read safe area insets
     const root = document.documentElement;
     const cs = getComputedStyle(root);
     setSafeAreas({
@@ -41,6 +40,11 @@ export default function Diagnostics() {
       right: cs.getPropertyValue("env(safe-area-inset-right)") || "0px",
     });
   }, []);
+
+  // Double guard: redirect in production
+  if (!import.meta.env.DEV) {
+    return <Navigate to="/chat" replace />;
+  }
 
   const effectiveLang = getEffectiveLanguage(language as "en" | "de");
   const voiceId = getVoiceId(language as "en" | "de");
@@ -63,7 +67,7 @@ export default function Diagnostics() {
     { label: "Safe Area Top", value: safeAreas.top || "0px" },
     { label: "Safe Area Bottom", value: safeAreas.bottom || "0px" },
     { label: "Dark Mode", value: document.documentElement.classList.contains("dark") ? "ON" : "OFF" },
-    { label: "Build", value: import.meta.env.DEV ? "Development" : "Production" },
+    { label: "Build", value: "Development" },
   ];
 
   const handleCopy = () => {
@@ -81,13 +85,13 @@ export default function Diagnostics() {
 
   return (
     <div className="fixed inset-0 bg-background overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: "touch" as any }}>
-      <PageHeader title="Diagnostics" subtitle="System status & debugging" showBack backTo="/settings" showSettings={false} />
+      <PageHeader title={t("diagnostics.title")} subtitle={t("diagnostics.subtitle")} showBack backTo="/settings" showSettings={false} />
       
       <div className="px-4 py-4 pb-24 max-w-lg mx-auto space-y-4">
         <div className="flex justify-end">
           <Button variant="outline" size="sm" onClick={handleCopy} className="gap-2">
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? "Copied" : "Copy All"}
+            {copied ? t("diagnostics.copied") : t("diagnostics.copyAll")}
           </Button>
         </div>
 
@@ -108,8 +112,8 @@ export default function Diagnostics() {
         </CalmCard>
 
         <CalmCard>
-          <h3 className="font-medium text-foreground mb-2">Error Log</h3>
-          <p className="text-sm text-muted-foreground">No recent errors captured.</p>
+          <h3 className="font-medium text-foreground mb-2">{t("diagnostics.errorLog")}</h3>
+          <p className="text-sm text-muted-foreground">{t("diagnostics.noErrors")}</p>
         </CalmCard>
       </div>
     </div>

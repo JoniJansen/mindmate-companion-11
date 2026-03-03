@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const { updatePassword } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,8 +21,6 @@ export default function ResetPassword() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isValidSession, setIsValidSession] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-
-  const isDE = language === "de";
 
   // Check for recovery session from URL hash
   useEffect(() => {
@@ -32,13 +30,12 @@ export default function ResetPassword() {
     const refreshToken = hashParams.get("refresh_token");
 
     if (type === "recovery" && accessToken) {
-      // Set the session from recovery tokens
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken || "",
       }).then(({ error }) => {
         if (error) {
-          console.error("Recovery session error:", error);
+          if (import.meta.env.DEV) console.error("Recovery session error:", error);
           setIsValidSession(false);
         } else {
           setIsValidSession(true);
@@ -46,7 +43,6 @@ export default function ResetPassword() {
         setIsChecking(false);
       });
     } else {
-      // Check if already logged in (e.g. via PKCE flow)
       supabase.auth.getSession().then(({ data: { session } }) => {
         setIsValidSession(!!session);
         setIsChecking(false);
@@ -59,8 +55,8 @@ export default function ResetPassword() {
 
     if (password.length < 6) {
       toast({
-        title: isDE ? "Passwort zu kurz" : "Password too short",
-        description: isDE ? "Mindestens 6 Zeichen erforderlich." : "At least 6 characters required.",
+        title: t("resetPassword.tooShort"),
+        description: t("resetPassword.minChars"),
         variant: "destructive",
       });
       return;
@@ -68,8 +64,8 @@ export default function ResetPassword() {
 
     if (password !== confirmPassword) {
       toast({
-        title: isDE ? "Passwörter stimmen nicht überein" : "Passwords don't match",
-        description: isDE ? "Bitte überprüfe deine Eingabe." : "Please check your input.",
+        title: t("resetPassword.mismatch"),
+        description: t("resetPassword.checkInput"),
         variant: "destructive",
       });
       return;
@@ -80,13 +76,13 @@ export default function ResetPassword() {
       await updatePassword(password);
       setIsSuccess(true);
       toast({
-        title: isDE ? "Passwort geändert" : "Password updated",
-        description: isDE ? "Du kannst dich jetzt mit deinem neuen Passwort anmelden." : "You can now sign in with your new password.",
+        title: t("resetPassword.success"),
+        description: t("resetPassword.successDesc"),
       });
       setTimeout(() => navigate("/", { replace: true }), 2000);
     } catch (error: any) {
       toast({
-        title: isDE ? "Fehler" : "Error",
+        title: t("common.error"),
         description: error.message,
         variant: "destructive",
       });
@@ -108,16 +104,14 @@ export default function ResetPassword() {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="max-w-sm text-center space-y-6">
           <h1 className="text-xl font-semibold text-foreground">
-            {isDE ? "Link abgelaufen" : "Link expired"}
+            {t("resetPassword.linkExpired")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isDE
-              ? "Dieser Link ist nicht mehr gültig. Bitte fordere einen neuen Link an."
-              : "This link is no longer valid. Please request a new one."}
+            {t("resetPassword.linkExpiredDesc")}
           </p>
           <Button onClick={() => navigate("/auth")} className="w-full">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {isDE ? "Zurück zum Login" : "Back to login"}
+            {t("resetPassword.backToLogin")}
           </Button>
         </div>
       </div>
@@ -132,10 +126,10 @@ export default function ResetPassword() {
             <Check className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-xl font-semibold text-foreground">
-            {isDE ? "Passwort geändert!" : "Password updated!"}
+            {t("resetPassword.successTitle")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isDE ? "Du wirst weitergeleitet..." : "Redirecting..."}
+            {t("resetPassword.redirecting")}
           </p>
         </div>
       </div>
@@ -154,17 +148,17 @@ export default function ResetPassword() {
             <Lock className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-2xl font-semibold text-foreground">
-            {isDE ? "Neues Passwort setzen" : "Set new password"}
+            {t("resetPassword.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isDE ? "Gib dein neues Passwort ein." : "Enter your new password."}
+            {t("resetPassword.subtitle")}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="password">
-              {isDE ? "Neues Passwort" : "New password"}
+              {t("resetPassword.newPassword")}
             </Label>
             <Input
               id="password"
@@ -179,7 +173,7 @@ export default function ResetPassword() {
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">
-              {isDE ? "Passwort bestätigen" : "Confirm password"}
+              {t("resetPassword.confirmPassword")}
             </Label>
             <Input
               id="confirmPassword"
@@ -196,7 +190,7 @@ export default function ResetPassword() {
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              isDE ? "Passwort ändern" : "Update password"
+              t("resetPassword.submit")
             )}
           </Button>
         </form>
