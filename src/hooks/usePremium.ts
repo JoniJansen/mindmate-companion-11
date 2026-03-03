@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { isReviewAccount, isReviewModeActive, activateReviewMode } from "@/lib/reviewMode";
 import { useRevenueCat, PREMIUM_ENTITLEMENT } from "./useRevenueCat";
+import { getSimulatedPremiumOverride } from "./useEntitlementSimulator";
 
 export interface PremiumState {
   isPremium: boolean;
@@ -320,8 +321,13 @@ export function usePremium() {
     saveState(newState);
   }, [state, saveState]);
 
-  // Compute final premium status (RevenueCat OR local state)
-  const finalIsPremium = state.isPremium || isRevenueCatPremium;
+  // DEV: entitlement simulator override
+  const simOverride = getSimulatedPremiumOverride();
+  
+  // Compute final premium status (Simulator > RevenueCat > local state)
+  const finalIsPremium = simOverride !== null ? simOverride.isPremium : (state.isPremium || isRevenueCatPremium);
+  const finalPlanType = simOverride !== null ? simOverride.planType : state.planType;
+  const finalSubscriptionStatus = simOverride !== null ? simOverride.subscriptionStatus : state.subscriptionStatus;
 
   // Feature flags
   const canUseVoice = finalIsPremium;
@@ -343,10 +349,10 @@ export function usePremium() {
     dailyMessagesUsed: state.dailyMessagesUsed,
     dailyMessageLimit: DAILY_MESSAGE_LIMIT,
     messagesRemaining,
-    planType: state.planType,
+    planType: finalPlanType,
     cancelAtPeriodEnd: state.cancelAtPeriodEnd,
     currentPeriodEnd: state.currentPeriodEnd,
-    subscriptionStatus: state.subscriptionStatus,
+    subscriptionStatus: finalSubscriptionStatus,
     
     // RevenueCat specific
     isRevenueCatAvailable,
