@@ -4,6 +4,7 @@ import { Exercise } from "@/data/exercises";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useVoiceSettings } from "@/hooks/useVoiceSettings";
+import { fullScreenOverlay } from "@/lib/safeArea";
 
 interface ExercisePlayerProps {
   exercise: Exercise;
@@ -121,7 +122,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Completion screen
   if (isComplete) {
     return (
-      <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+      <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={fullScreenOverlay()}>
         <div className="flex items-center justify-between p-3 border-b border-border">
           <button type="button" onClick={handleClose} className="p-2 hover:bg-muted rounded-lg">
             <X className="w-5 h-5" />
@@ -164,7 +165,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Exercise screen
   return (
-    <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={fullScreenOverlay()}>
       {/* Header */}
       <div className="flex items-center justify-between px-2 py-2 border-b border-border">
         {/* Close button - 44px tap target */}

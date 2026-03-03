@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { tp } from "@/lib/i18nPlain";
 
 const BACKUP_REMINDER_KEY = "mindmate-last-export";
 const BACKUP_REMINDER_INTERVAL_KEY = "mindmate-backup-interval";
@@ -71,15 +72,12 @@ export function useBackupReminder() {
   }, []);
 
   const showBackupNotification = (daysSince: number | null, intervalDays: number) => {
-    const language = localStorage.getItem("mindmate-preferences");
-    const isGerman = language?.includes('"language":"de"') ?? true;
-
-    const title = isGerman ? "Backup-Erinnerung" : "Backup Reminder";
+    const title = tp("backup.reminderTitle");
     const body = daysSince === null
-      ? (isGerman ? "Du hast noch nie ein Backup erstellt. Sichere deine Daten jetzt!" : "You've never created a backup. Secure your data now!")
-      : (isGerman 
-          ? `Dein letztes Backup ist ${daysSince} Tage her. Zeit für ein neues Backup!` 
-          : `Your last backup was ${daysSince} days ago. Time for a new backup!`);
+      ? tp("backup.neverExported")
+      : daysSince === 1
+        ? tp("backup.overdue1")
+        : tp("backup.overdue", { days: daysSince });
 
     try {
       const notification = new Notification(title, {
