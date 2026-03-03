@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useVoiceSettings } from "@/hooks/useVoiceSettings";
@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { usePremium } from "@/hooks/usePremium";
 import { CalmCard } from "@/components/shared/CalmCard";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navigate } from "react-router-dom";
 
@@ -25,6 +25,8 @@ export default function Diagnostics() {
   const [micStatus, setMicStatus] = useState<string>("checking...");
   const [copied, setCopied] = useState(false);
   const [safeAreas, setSafeAreas] = useState({ top: "0", bottom: "0", left: "0", right: "0" });
+  const [micTestState, setMicTestState] = useState<"idle" | "listening" | "done" | "error">("idle");
+  const [micTestResult, setMicTestResult] = useState<string>("");
 
   useEffect(() => {
     navigator.permissions?.query({ name: "microphone" as PermissionName })
@@ -40,6 +42,27 @@ export default function Diagnostics() {
       right: cs.getPropertyValue("env(safe-area-inset-right)") || "0px",
     });
   }, []);
+
+  const handleMicTest = useCallback(async () => {
+    if (micTestState === "listening") return;
+    setMicTestState("listening");
+    setMicTestResult("");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMicTestResult("✅ Microphone accessible");
+      setMicStatus("granted");
+      stream.getTracks().forEach(track => track.stop());
+      setMicTestState("done");
+    } catch (err: any) {
+      if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+        setMicTestResult("❌ Permission denied");
+        setMicStatus("denied");
+      } else {
+        setMicTestResult(`❌ Error: ${err.message || err.name}`);
+      }
+      setMicTestState("error");
+    }
+  }, [micTestState]);
 
   // Double guard: redirect in production
   if (!import.meta.env.DEV) {
@@ -77,6 +100,7 @@ export default function Diagnostics() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+
   const statusDot = (s?: "ok" | "warn" | "error") => {
     if (!s) return null;
     const colors = { ok: "bg-green-500", warn: "bg-yellow-500", error: "bg-red-500" };
@@ -108,6 +132,26 @@ export default function Diagnostics() {
                 </div>
               </div>
             ))}
+          </div>
+        </CalmCard>
+
+        {/* Mic Test */}
+        <CalmCard>
+          <h3 className="font-medium text-foreground mb-3">Mic Test</h3>
+          <div className="flex items-center gap-3">
+            <Button 
+              variant={micTestState === "listening" ? "destructive" : "outline"} 
+              size="sm" 
+              onClick={handleMicTest}
+              className="gap-2"
+              disabled={micTestState === "listening"}
+            >
+              {micTestState === "listening" ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              {micTestState === "listening" ? "Listening..." : "Test Microphone"}
+            </Button>
+            {micTestResult && (
+              <span className="text-sm text-muted-foreground">{micTestResult}</span>
+            )}
           </div>
         </CalmCard>
 
