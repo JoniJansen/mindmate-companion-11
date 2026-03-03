@@ -442,7 +442,7 @@ export default function Upgrade() {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                {language === "de" ? "Wird geladen..." : "Loading..."}
+                {language === "de" ? "Einen Moment..." : "One moment..."}
               </>
             ) : (
               <>
