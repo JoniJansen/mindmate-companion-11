@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, MicOff, Phone, FileText, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save } from "lucide-react";
+import { Send, Mic, MicOff, Phone, BookOpen, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -683,10 +683,10 @@ export default function Chat() {
                             toast({ title: t("common.error"), variant: "destructive" });
                           }
                         }}
-                        className="p-1.5 rounded-full hover:bg-muted/50 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                        className="p-1.5 rounded-full hover:bg-muted/50 text-muted-foreground/50 hover:text-muted-foreground transition-colors flex items-center justify-center"
                         title={t("chat.saveMessage")}
                       >
-                        <FileText className="w-3.5 h-3.5" />
+                        <BookOpen className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   )}
@@ -753,7 +753,7 @@ export default function Chat() {
         <div className="shrink-0 px-4 pb-2 bg-background">
           <div className="max-w-lg mx-auto flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" className="gap-2" onClick={handleSummary}>
-              <FileText className="w-4 h-4" />
+              <BookOpen className="w-4 h-4" />
               {t("chat.summary")}
               {!canUseSessionSummary && <Lock className="w-3 h-3 ml-1" />}
             </Button>
@@ -813,7 +813,7 @@ export default function Chat() {
                 toast({ title: t("chat.savedToJournal"), description: t("chat.summarySavedDesc") });
               } catch { toast({ title: t("common.error"), variant: "destructive" }); }
             }}>
-              <FileText className="w-4 h-4" />
+              <BookOpen className="w-4 h-4" />
               {t("chat.saveSummary")}
             </Button>
             <Button variant="ghost" size="sm" className="gap-2 text-destructive" onClick={() => navigate("/safety")}>
