@@ -54,8 +54,8 @@ export function useVoiceSettings() {
         const parsed = JSON.parse(stored);
         setSettings({ ...defaultSettings, ...parsed });
       }
-    } catch (e) {
-      console.warn("Failed to load voice settings:", e);
+    } catch {
+      // Failed to load voice settings – use defaults
     }
     setIsLoaded(true);
   }, []);
@@ -65,8 +65,8 @@ export function useVoiceSettings() {
     setSettings(newSettings);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
-    } catch (e) {
-      console.warn("Failed to save voice settings:", e);
+    } catch {
+      // localStorage unavailable
     }
   }, []);
 

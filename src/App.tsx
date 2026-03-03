@@ -50,6 +50,7 @@ const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const DevQA = lazy(() => import("@/pages/DevQA"));
+const Diagnostics = lazy(() => import("@/pages/Diagnostics"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -216,7 +217,10 @@ const App = () => (
                   
                   {/* DEV-ONLY */}
                   {import.meta.env.DEV && (
-                    <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
+                    <>
+                      <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
+                      <Route path="/diagnostics" element={<Diagnostics />} />
+                    </>
                   )}
                   
                   {/* Catch-all */}

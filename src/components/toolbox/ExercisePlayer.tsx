@@ -21,8 +21,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const { getVoiceId, speed } = useVoiceSettings();
   
   const { speak, stop, isSpeaking, isLoading } = useElevenLabsTTS({
-    onError: (err) => {
-      console.warn("Exercise TTS error:", err);
+    onError: () => {
       // Silently degrade - exercise still works without voice
     }
   });
@@ -212,7 +211,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
           {voiceEnabled && (isSpeaking || isLoading) && (
             <div className="flex items-center justify-center gap-2 mb-4 text-primary">
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Volume2 className="w-4 h-4 animate-pulse" />}
-              <span className="text-sm">{isLoading ? t("voice.loading") : t("voice.speaking")}</span>
+              <span className="text-sm">{isLoading ? (language === "de" ? "Einen Moment..." : "One moment...") : t("voice.speaking")}</span>
             </div>
           )}
 

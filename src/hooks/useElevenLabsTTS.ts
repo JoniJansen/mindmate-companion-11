@@ -84,8 +84,6 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           const errorMsg = errorData.error || "TTS request failed";
-          // Don't throw for auth errors - just log and fail gracefully
-          console.warn("TTS unavailable:", errorMsg);
           throw new Error(errorMsg);
         }
 
@@ -102,8 +100,8 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
           }
         }
         audioCache.set(cacheKey, audioUrl);
-      } catch (error) {
-        console.error("TTS error:", error);
+    } catch (error) {
+        if (import.meta.env.DEV) console.error("TTS error:", error);
         setIsLoading(false);
         setLoadingMessageId(null);
         onError?.(error instanceof Error ? error.message : "TTS failed");
@@ -140,7 +138,7 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
     try {
       await audio.play();
     } catch (error) {
-      console.error("Audio play error:", error);
+      if (import.meta.env.DEV) console.error("Audio play error:", error);
       setIsSpeaking(false);
       setLoadingMessageId(null);
       onError?.("Could not play audio");

@@ -95,7 +95,7 @@ export function useSpeechRecognition(
         if (event.error === "no-speech" || event.error === "aborted") {
           return;
         }
-        console.error("Speech recognition error:", event.error);
+        if (import.meta.env.DEV) console.error("Speech recognition error:", event.error);
         setError(event.error);
         setIsListening(false);
         shouldRestartRef.current = false;
@@ -148,8 +148,8 @@ export function useSpeechRecognition(
       shouldRestartRef.current = true;
       try {
         recognitionRef.current.start();
-      } catch (e) {
-        console.error("Error starting speech recognition:", e);
+      } catch {
+        if (import.meta.env.DEV) console.error("Error starting speech recognition");
         setError("Failed to start");
         shouldRestartRef.current = false;
       }
