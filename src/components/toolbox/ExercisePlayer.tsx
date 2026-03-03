@@ -47,12 +47,15 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Helper to get prompt from display
   const getPrompt = (index: number) => display.prompts[index % display.prompts.length] || "";
 
+  // Get effective language for TTS
+  const effectiveLang = (language === "de" ? "de" : "en") as "en" | "de";
+
   // Speak current step when it changes or when playing starts
   useEffect(() => {
     if (voiceEnabled) {
       const instruction = getStepInstruction(currentStep);
-      const voiceId = getVoiceId(language as "en" | "de");
-      speak(instruction, voiceId, language as "en" | "de", speed);
+      const voiceId = getVoiceId(effectiveLang);
+      speak(instruction, voiceId, effectiveLang, speed);
     }
   }, [currentStep, voiceEnabled]);
 
@@ -110,8 +113,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       stop();
     } else {
       const instruction = getStepInstruction(currentStep);
-      const voiceId = getVoiceId(language as "en" | "de");
-      speak(instruction, voiceId, language as "en" | "de", speed);
+      const voiceId = getVoiceId(effectiveLang);
+      speak(instruction, voiceId, effectiveLang, speed);
     }
     setVoiceEnabled(!voiceEnabled);
   };
@@ -119,7 +122,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Completion screen
   if (isComplete) {
     return (
-      <div className="fixed inset-0 bg-background z-[100] flex flex-col">
+      <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div className="flex items-center justify-between p-3 border-b border-border">
           <button type="button" onClick={handleClose} className="p-2 hover:bg-muted rounded-lg">
             <X className="w-5 h-5" />
@@ -162,7 +165,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Exercise screen
   return (
-    <div className="fixed inset-0 bg-background z-[100] flex flex-col">
+    <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* Header */}
       <div className="flex items-center justify-between px-2 py-2 border-b border-border">
         {/* Close button - 44px tap target */}

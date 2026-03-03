@@ -175,6 +175,7 @@ export const translations: Translations = {
   "mood.average": { en: "Avg", de: "Ø" },
   "mood.exploreDifficultDays": { en: "Explore difficult days", de: "Schwierige Tage erkunden" },
   "mood.daysWithLowMood": { en: "days with low mood", de: "Tage mit niedriger Stimmung" },
+  "mood.dayWithLowMood": { en: "day with low mood", de: "Tag mit niedriger Stimmung" },
   "mood.wantToTalk": { en: "Want to talk about it?", de: "Darüber sprechen?" },
   "mood.startConversation": { en: "Start a conversation about how you feel", de: "Starte ein Gespräch über deine Gefühle" },
   "mood.noCheckins": { en: "No check-ins in this period yet", de: "Noch keine Check-ins in diesem Zeitraum" },
