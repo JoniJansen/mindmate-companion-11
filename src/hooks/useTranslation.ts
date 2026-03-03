@@ -30,7 +30,7 @@ export const translations: Translations = {
   "common.done": { en: "Done", de: "Fertig" },
   "common.start": { en: "Start", de: "Starten" },
   "common.search": { en: "Search", de: "Suchen" },
-  "common.loading": { en: "Loading...", de: "Laden..." },
+  "common.loading": { en: "One moment...", de: "Einen Moment..." },
   "common.error": { en: "Error", de: "Fehler" },
   "common.share": { en: "Share", de: "Teilen" },
   "common.export": { en: "Export", de: "Exportieren" },
