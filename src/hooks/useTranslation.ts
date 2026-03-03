@@ -613,6 +613,73 @@ export const translations: Translations = {
   "faq.stillQuestions": { en: "Still have questions?", de: "Noch Fragen?" },
   "faq.happyToHelp": { en: "We're happy to help!", de: "Wir helfen dir gerne weiter!" },
   "faq.contactUs": { en: "Contact Us", de: "Kontakt aufnehmen" },
+
+  // Chat journal save titles
+  "chat.journalTitle.message": { en: "Chat Message", de: "Chat-Nachricht" },
+  "chat.journalTitle.conversation": { en: "Chat Conversation", de: "Chat-Gespräch" },
+  "chat.journalTitle.summary": { en: "AI Summary", de: "KI-Zusammenfassung" },
+  "chat.jumpToLatest": { en: "Latest", de: "Neueste" },
+  "chat.summarySection.summary": { en: "Summary", de: "Zusammenfassung" },
+  "chat.summarySection.themes": { en: "Themes", de: "Themen" },
+  "chat.summarySection.moodJourney": { en: "Mood Journey", de: "Stimmungsverlauf" },
+  "chat.summarySection.nextStep": { en: "Next Step", de: "Nächster Schritt" },
+
+  // Reset Password page
+  "resetPassword.title": { en: "Set new password", de: "Neues Passwort setzen" },
+  "resetPassword.subtitle": { en: "Enter your new password.", de: "Gib dein neues Passwort ein." },
+  "resetPassword.newPassword": { en: "New password", de: "Neues Passwort" },
+  "resetPassword.confirmPassword": { en: "Confirm password", de: "Passwort bestätigen" },
+  "resetPassword.submit": { en: "Update password", de: "Passwort ändern" },
+  "resetPassword.tooShort": { en: "Password too short", de: "Passwort zu kurz" },
+  "resetPassword.minChars": { en: "At least 6 characters required.", de: "Mindestens 6 Zeichen erforderlich." },
+  "resetPassword.mismatch": { en: "Passwords don't match", de: "Passwörter stimmen nicht überein" },
+  "resetPassword.checkInput": { en: "Please check your input.", de: "Bitte überprüfe deine Eingabe." },
+  "resetPassword.success": { en: "Password updated", de: "Passwort geändert" },
+  "resetPassword.successDesc": { en: "You can now sign in with your new password.", de: "Du kannst dich jetzt mit deinem neuen Passwort anmelden." },
+  "resetPassword.successTitle": { en: "Password updated!", de: "Passwort geändert!" },
+  "resetPassword.redirecting": { en: "Redirecting...", de: "Du wirst weitergeleitet..." },
+  "resetPassword.linkExpired": { en: "Link expired", de: "Link abgelaufen" },
+  "resetPassword.linkExpiredDesc": { en: "This link is no longer valid. Please request a new one.", de: "Dieser Link ist nicht mehr gültig. Bitte fordere einen neuen Link an." },
+  "resetPassword.backToLogin": { en: "Back to login", de: "Zurück zum Login" },
+
+  // RevenueCat / IAP
+  "iap.notAvailable": { en: "Not available", de: "Nicht verfügbar" },
+  "iap.onlyIOS": { en: "In-app purchases are only available in the iOS app", de: "In-App-Käufe sind nur in der iOS App verfügbar" },
+  "iap.activated": { en: "Subscription activated", de: "Abo aktiviert" },
+  "iap.activatedDesc": { en: "Your Soulvay Plus subscription is now active!", de: "Dein Soulvay Plus Abo ist jetzt aktiv!" },
+  "iap.purchaseFailed": { en: "Purchase failed", de: "Kauf fehlgeschlagen" },
+  "iap.purchaseFailedDesc": { en: "The purchase could not be completed", de: "Der Kauf konnte nicht abgeschlossen werden" },
+  "iap.restoreOnly": { en: "This feature is only available in the iOS app", de: "Diese Funktion ist nur in der iOS App verfügbar" },
+  "iap.restored": { en: "Purchases restored", de: "Käufe wiederhergestellt" },
+  "iap.restoredDesc": { en: "Your subscription has been restored successfully", de: "Dein Abo wurde erfolgreich wiederhergestellt" },
+  "iap.noPurchases": { en: "No purchases found", de: "Keine Käufe gefunden" },
+  "iap.noPurchasesDesc": { en: "No previous purchases were found", de: "Es wurden keine vorherigen Käufe gefunden" },
+  "iap.restoreFailed": { en: "Restore failed", de: "Wiederherstellung fehlgeschlagen" },
+  "iap.restoreFailedDesc": { en: "Purchases could not be restored", de: "Käufe konnten nicht wiederhergestellt werden" },
+
+  // Backup Reminder
+  "backup.reminder": { en: "Backup Reminder", de: "Backup-Erinnerung" },
+  "backup.neverCreated": { en: "You've never created a backup. Secure your data now!", de: "Du hast noch nie ein Backup erstellt. Sichere deine Daten jetzt!" },
+  "backup.overdue": { en: "Your last backup was {days} days ago. Time for a new backup!", de: "Dein letztes Backup ist {days} Tage her. Zeit für ein neues Backup!" },
+  "backup.notSupported": { en: "Notifications not supported", de: "Benachrichtigungen nicht unterstützt" },
+  "backup.notSupportedDesc": { en: "Your browser doesn't support notifications.", de: "Dein Browser unterstützt keine Benachrichtigungen." },
+  "backup.enabled": { en: "Notifications enabled", de: "Benachrichtigungen aktiviert" },
+  "backup.enabledDesc": { en: "You'll receive backup reminders.", de: "Du erhältst Backup-Erinnerungen." },
+  "backup.blocked": { en: "Notifications blocked", de: "Benachrichtigungen blockiert" },
+  "backup.blockedDesc": { en: "Please enable notifications in your browser settings.", de: "Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen." },
+
+  // Timeline
+  "timeline.notEnoughDataTitle": { en: "Not enough data", de: "Nicht genug Daten" },
+  "timeline.notEnoughDataDesc": { en: "Write at least 3 thoughts for pattern recognition.", de: "Schreibe mindestens 3 Gedanken für Muster-Erkennung." },
+  "timeline.insightError": { en: "Could not generate patterns.", de: "Konnte keine Muster erkennen." },
+
+  // Diagnostics
+  "diagnostics.title": { en: "Diagnostics", de: "Diagnose" },
+  "diagnostics.subtitle": { en: "System status & debugging", de: "Systemstatus & Debugging" },
+  "diagnostics.copyAll": { en: "Copy All", de: "Alles kopieren" },
+  "diagnostics.copied": { en: "Copied", de: "Kopiert" },
+  "diagnostics.errorLog": { en: "Error Log", de: "Fehlerprotokoll" },
+  "diagnostics.noErrors": { en: "No recent errors captured.", de: "Keine kürzlichen Fehler erfasst." },
 };
 
 // Exercise translations

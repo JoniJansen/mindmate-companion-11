@@ -86,7 +86,7 @@ export default function Mood() {
         setNote(todayCheckin.note || "");
       }
     } catch (error) {
-      console.error("Error loading checkins:", error);
+      if (import.meta.env.DEV) console.error("Error loading checkins:", error);
       const stored = localStorage.getItem("mindmate-moods");
       if (stored) {
         const localData = JSON.parse(stored);
@@ -161,7 +161,7 @@ export default function Mood() {
       logActivity("mood_checkin");
       loadCheckins();
     } catch (error) {
-      console.error("Error saving:", error);
+      if (import.meta.env.DEV) console.error("Error saving:", error);
       toast({ title: t("common.error"), variant: "destructive" });
     } finally {
       setIsSaving(false);

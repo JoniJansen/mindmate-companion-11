@@ -61,7 +61,7 @@ export default function Auth() {
       
       navigate("/review-instructions", { replace: true });
     } catch (error: any) {
-      console.error("[Review Login] Error:", error);
+      if (import.meta.env.DEV) console.error("[Review Login] Error:", error);
       
       let errorMessage = error.message || "Unknown error";
       
@@ -122,7 +122,7 @@ export default function Auth() {
         setAuthMode("login");
       }
     } catch (error: any) {
-      console.error("[Auth] Error:", error);
+      if (import.meta.env.DEV) console.error("[Auth] Error:", error);
       toast({
         title: t("common.error"),
         description: error.message,

@@ -96,7 +96,7 @@ export function useBackupReminder() {
         notification.close();
       };
     } catch (e) {
-      console.warn("Could not show notification:", e);
+      if (import.meta.env.DEV) console.warn("Could not show notification:", e);
     }
   };
 
@@ -129,7 +129,7 @@ export function useBackupReminder() {
         return false;
       }
     } catch (e) {
-      console.error("Error requesting notification permission:", e);
+      if (import.meta.env.DEV) console.error("Error requesting notification permission:", e);
       return false;
     }
   };
