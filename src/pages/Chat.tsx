@@ -179,12 +179,26 @@ export default function Chat() {
     { id: "grounding-54321", label: t("chat.exercise.grounding"), icon: Anchor },
   ];
 
+  const isUserAtBottomRef = useRef(true);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "auto") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
   }, []);
 
+  // Track whether user is at the bottom of the chat
+  const handleMessagesScroll = useCallback(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    const threshold = 80;
+    isUserAtBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+  }, []);
+
   useEffect(() => {
-    scrollToBottom(isLoading ? "auto" : "smooth");
+    // Only auto-scroll if user is at bottom
+    if (isUserAtBottomRef.current) {
+      scrollToBottom(isLoading ? "auto" : "smooth");
+    }
   }, [messages, isLoading, scrollToBottom]);
 
   // Initial greeting - personalized based on onboarding
@@ -390,7 +404,7 @@ export default function Chat() {
       onDone(fullResponse);
     } catch (error: any) {
       if (error.name === "AbortError") return; // Intentional abort
-      console.error("Stream error:", error);
+      if (import.meta.env.DEV) console.error("Stream error:", error);
       onError(t("chat.streamErrorBody"));
     }
   };
@@ -621,7 +635,7 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4" style={{ WebkitOverflowScrolling: 'touch', contain: 'layout style', willChange: 'scroll-position' }}>
+      <div ref={messagesContainerRef} onScroll={handleMessagesScroll} className="relative flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4" style={{ WebkitOverflowScrolling: 'touch', contain: 'layout style' }}>
         <div className="max-w-lg mx-auto space-y-3">
           {messages.map((message) => (
             <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -693,6 +707,16 @@ export default function Chat() {
 
           <div ref={messagesEndRef} />
         </div>
+
+        {/* Jump to latest button */}
+        {!isUserAtBottomRef.current && messages.length > 5 && (
+          <button
+            onClick={() => { scrollToBottom("smooth"); isUserAtBottomRef.current = true; }}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-card border border-border/50 shadow-elevated text-sm text-muted-foreground hover:text-foreground transition-colors z-10"
+          >
+            ↓ {language === "de" ? "Neueste" : "Latest"}
+          </button>
+        )}
       </div>
 
       {/* Calm Mode Exercises */}
