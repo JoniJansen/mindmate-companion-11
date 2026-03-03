@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, MicOff, Phone, BookOpen, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save } from "lucide-react";
+import { Send, Mic, MicOff, Phone, BookOpen, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save, HelpCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -743,6 +743,14 @@ export default function Chat() {
               {getQuickReplies().map((reply) => (
                 <Button key={reply} variant="outline" onClick={() => handleSend(reply)} className="text-[14px] min-h-[48px] justify-start px-4 text-left">{reply}</Button>
               ))}
+              <Button 
+                variant="outline" 
+                onClick={() => handleSend(language === "de" ? "Was kann ich alles in der App machen?" : "What can I do in this app?")} 
+                className="text-[14px] min-h-[48px] justify-start px-4 text-left gap-2.5 text-muted-foreground border-dashed"
+              >
+                <HelpCircle className="w-4 h-4 shrink-0" />
+                {language === "de" ? "Was kann ich in der App machen?" : "What can I do in this app?"}
+              </Button>
             </div>
           </div>
         </div>
