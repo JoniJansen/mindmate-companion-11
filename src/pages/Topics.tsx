@@ -310,8 +310,8 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
     ];
 
     return (
-      <div className="min-h-screen bg-background pb-24">
-        <div className="px-4 md:px-6 lg:px-8 py-6 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+      <div className="flex flex-col h-full bg-background">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-6 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
             <Button variant="ghost" size="sm" onClick={() => setSelectedTopic(null)} className="mb-3">

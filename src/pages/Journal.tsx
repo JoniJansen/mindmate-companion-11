@@ -344,7 +344,7 @@ export default function Journal() {
   // Write mode
   if (viewMode === "write") {
     return (
-      <div className="min-h-screen bg-background pb-24 px-4 md:px-6 lg:px-8 py-6 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+      <div className="flex flex-col h-full bg-background overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-6 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
         <div className="flex justify-between mb-6">
           <Button variant="ghost" size="sm" onClick={() => { setViewMode("list"); setDraftContent(""); setSelectedPrompt(null); setSelectedTags([]); }}>
             <X className="w-4 h-4 mr-1" />{t("common.cancel")}

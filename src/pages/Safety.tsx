@@ -312,23 +312,35 @@ export default function Safety() {
           <div className="space-y-3">
             {resources.map((resource) => {
               const Icon = resource.icon;
+              const resourceLinks: Record<string, string> = {
+                [t("resource.findTherapist")]: language === "de" ? "https://www.therapie.de/psyche/info/" : "https://www.psychologytoday.com/us/therapists",
+                [t("resource.understandingSigns")]: language === "de" ? "https://www.deutsche-depressionshilfe.de/" : "https://www.nimh.nih.gov/health/topics/depression",
+                [t("resource.selfCare")]: language === "de" ? "https://www.bzga.de/" : "https://www.mentalhealth.gov/",
+              };
+              const href = resourceLinks[resource.title] || "#";
               return (
-                <CalmCard 
+                <a 
                   key={resource.title}
-                  variant="default" 
-                  className="cursor-pointer hover:shadow-card transition-shadow"
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
-                      <Icon className="w-5 h-5 text-muted-foreground" />
+                  <CalmCard 
+                    variant="default" 
+                    className="cursor-pointer hover:shadow-card transition-shadow"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                        <Icon className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-foreground">{resource.title}</h3>
+                        <p className="text-sm text-muted-foreground">{resource.description}</p>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">{resource.title}</h3>
-                      <p className="text-sm text-muted-foreground">{resource.description}</p>
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
-                  </div>
-                </CalmCard>
+                  </CalmCard>
+                </a>
               );
             })}
           </div>
