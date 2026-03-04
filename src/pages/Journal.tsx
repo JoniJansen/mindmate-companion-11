@@ -85,9 +85,15 @@ export default function Journal() {
   // Non-blocking sentiment analysis after save — never diagnoses, opt-in tags only
   const runSentimentAnalysis = async (content: string) => {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
         body: JSON.stringify({
           type: "sentiment",
           entries: [{ content }],
@@ -230,9 +236,15 @@ export default function Journal() {
     setShowReflection(true);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
         body: JSON.stringify({
           type: "patterns",
           entries: entries.slice(0, 10).map(e => ({ date: e.created_at, title: e.title, content: e.content, mood: e.mood })),
@@ -263,9 +275,16 @@ export default function Journal() {
       const moodStored = localStorage.getItem("mindmate-moods");
       const moodCheckins = moodStored ? JSON.parse(moodStored) : [];
 
+      const { data: { session: recapSession } } = await supabase.auth.getSession();
+      const recapAuthToken = recapSession?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/weekly-recap`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${recapAuthToken}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
         body: JSON.stringify({
           mood_checkins: moodCheckins.slice(0, 14),
           journal_entries: entries.slice(0, 10).map(e => ({ content: e.content, mood: e.mood, title: e.title, created_at: e.created_at })),

@@ -145,22 +145,29 @@ export function usePremium() {
       }
 
       if (data) {
-        const newState: StoredState = {
-          ...state,
-          isPremium: data.isPremium || false,
-          planType: data.planType,
-          cancelAtPeriodEnd: data.cancelAtPeriodEnd,
-          currentPeriodEnd: data.currentPeriodEnd,
-          subscriptionStatus: data.status,
-        };
-        saveState(newState);
+        setState(prev => {
+          const newState: StoredState = {
+            ...prev,
+            isPremium: data.isPremium || false,
+            planType: data.planType,
+            cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+            currentPeriodEnd: data.currentPeriodEnd,
+            subscriptionStatus: data.status,
+          };
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+          } catch (e) {
+            if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
+          }
+          return newState;
+        });
       }
     } catch (e) {
       if (import.meta.env.DEV) console.warn("Failed to check subscription status:", e);
     } finally {
       setIsCheckingSubscription(false);
     }
-  }, [user, isCheckingSubscription, state, isRevenueCatAvailable, checkEntitlements]);
+  }, [user, isCheckingSubscription, isRevenueCatAvailable, checkEntitlements]);
 
   // Check subscription on mount, when user changes, and every 5 minutes
   useEffect(() => {
