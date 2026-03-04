@@ -195,16 +195,22 @@ export function usePremium() {
 
   // Increment message count (call after user sends a message)
   const incrementMessageCount = useCallback(() => {
-    if (state.isPremium) return; // Premium users have unlimited
-    
-    const today = getToday();
-    const newState: StoredState = {
-      ...state,
-      dailyMessagesUsed: state.dailyMessagesUsed + 1,
-      lastResetDate: today,
-    };
-    saveState(newState);
-  }, [state, saveState]);
+    setState(prev => {
+      if (prev.isPremium) return prev; // Premium users have unlimited
+      const today = getToday();
+      const newState: StoredState = {
+        ...prev,
+        dailyMessagesUsed: prev.dailyMessagesUsed + 1,
+        lastResetDate: today,
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
+      }
+      return newState;
+    });
+  }, []);
 
   // Check if user can send more messages
   const canSendMessage = useCallback((): boolean => {
