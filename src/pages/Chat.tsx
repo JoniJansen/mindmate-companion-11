@@ -905,7 +905,7 @@ export default function Chat() {
               <Button 
                 size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8" 
                 onClick={() => handleSend(inputValue)} 
-                disabled={!inputValue.trim() || isLoading || !canSendMessage() || !isOnline}
+                disabled={!inputValue.trim() || isLoading || (!canSendMessage() && !isPremium) || !isOnline}
               >
                 <Send className="w-4 h-4" />
               </Button>
