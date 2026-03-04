@@ -23,6 +23,7 @@ import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm
 import { MessagePlayButton } from "@/components/chat/MessagePlayButton";
 import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
 import { ChatDisclaimer } from "@/components/chat/ChatDisclaimer";
+import { ChatMessageContent } from "@/components/chat/ChatMessageContent";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 import { useActivityLog } from "@/hooks/useActivityLog";
@@ -661,7 +662,7 @@ export default function Chat() {
                     ? "bg-primary text-primary-foreground rounded-br-lg" 
                     : "bg-card border border-border/50 text-foreground rounded-bl-lg shadow-soft"
                 }`}>
-                  <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <ChatMessageContent content={message.content} isUser={message.role === "user"} />
                   {message.role === "assistant" && (
                     <div className="flex items-center gap-1 mt-0.5">
                       <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
