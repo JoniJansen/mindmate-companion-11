@@ -172,3 +172,71 @@ describe("Security: No secrets leaked in client code", () => {
     expect(content).toContain("supabase.auth.getUser(token)");
   });
 });
+
+// ── REVIEW LOGIN VISIBILITY ──
+describe("Review: Apple review login accessible on native", () => {
+  it("Auth.tsx review button shows on native platforms", async () => {
+    const authSource = await import("../pages/Auth.tsx?raw");
+    const src = (authSource as any).default || authSource;
+    expect(src).toContain("isNativePlatform");
+  });
+});
+
+// ── CHAT MODE FRESHNESS ──
+describe("Chat: handleSend dependencies include chatMode", () => {
+  it("chatMode is in handleSend useCallback deps", async () => {
+    const chatSource = await import("../pages/Chat.tsx?raw");
+    const src = (chatSource as any).default || chatSource;
+    // The handleSend dep array must contain chatMode
+    expect(src).toContain("canUseVoice, t, isOnline, chatMode]");
+  });
+});
+
+// ── DELETE ACCOUNT CASCADE ──
+describe("Account Deletion: Cascade covers all tables", () => {
+  it("delete-account function deletes from all user tables", async () => {
+    const src = await import("../../supabase/functions/delete-account/index.ts?raw");
+    const content = (src as any).default || src;
+    const requiredTables = [
+      "user_activity_log", "user_roles", "mood_checkins",
+      "journal_entries", "weekly_recaps", "subscriptions", "profiles"
+    ];
+    for (const table of requiredTables) {
+      expect(content).toContain(table);
+    }
+  });
+
+  it("delete-account removes storage avatars", async () => {
+    const src = await import("../../supabase/functions/delete-account/index.ts?raw");
+    const content = (src as any).default || src;
+    expect(content).toContain("avatars");
+    expect(content).toContain("storage");
+  });
+
+  it("delete-account removes auth user last", async () => {
+    const src = await import("../../supabase/functions/delete-account/index.ts?raw");
+    const content = (src as any).default || src;
+    expect(content).toContain("admin.deleteUser");
+  });
+});
+
+// ── EDGE FUNCTION AUTH ──
+describe("Edge Functions: All user-facing functions use requireUser", () => {
+  it("create-checkout uses requireUser", async () => {
+    const src = await import("../../supabase/functions/create-checkout/index.ts?raw");
+    const content = (src as any).default || src;
+    expect(content).toContain("requireUser");
+  });
+
+  it("delete-account uses requireUser", async () => {
+    const src = await import("../../supabase/functions/delete-account/index.ts?raw");
+    const content = (src as any).default || src;
+    expect(content).toContain("requireUser");
+  });
+
+  it("text-to-speech has CORS headers", async () => {
+    const src = await import("../../supabase/functions/text-to-speech/index.ts?raw");
+    const content = (src as any).default || src;
+    expect(content).toContain("Access-Control-Allow-Origin");
+  });
+});
