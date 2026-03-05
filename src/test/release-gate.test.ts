@@ -240,3 +240,26 @@ describe("Edge Functions: All user-facing functions use requireUser", () => {
     expect(content).toContain("Access-Control-Allow-Origin");
   });
 });
+
+// ── STRIPE SECRET SANITIZATION ──
+describe("Payments: Stripe secret sanitation and validation", () => {
+  it("create-checkout sanitizes STRIPE_SECRET_KEY whitespace", async () => {
+    const src = await import("../../supabase/functions/create-checkout/index.ts?raw");
+    const content = (src as any).default || src;
+    expect(content).toContain("replace(/\\s+/g, \"\")");
+    expect(content).toContain("startsWith(\"sk_\")");
+  });
+
+  it("manage-subscription sanitizes STRIPE_SECRET_KEY whitespace", async () => {
+    const src = await import("../../supabase/functions/manage-subscription/index.ts?raw");
+    const content = (src as any).default || src;
+    expect(content).toContain("replace(/\\s+/g, \"\")");
+    expect(content).toContain("startsWith(\"sk_\")");
+  });
+
+  it("create-checkout defaults unsupported planType to monthly", async () => {
+    const src = await import("../../supabase/functions/create-checkout/index.ts?raw");
+    const content = (src as any).default || src;
+    expect(content).toContain("const normalizedPlanType = planType === \"yearly\" ? \"yearly\" : \"monthly\"");
+  });
+});
