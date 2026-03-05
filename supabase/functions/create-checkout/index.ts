@@ -9,7 +9,10 @@ const corsHeaders = {
 
 // Native fetch wrapper for Stripe API (avoids Deno.core.runMicrotasks crash)
 function normalizeSecret(value: string | undefined): string {
-  return (value ?? "").replace(/\s+/g, "").trim();
+  let normalized = (value ?? "").trim();
+  normalized = normalized.replace(/^(["'`])(.*)\1$/, "$2").trim();
+  normalized = normalized.replace(/^Bearer\s+/i, "").trim();
+  return normalized.replace(/\s+/g, "");
 }
 
 async function stripeRequest(path: string, params: Record<string, string>, stripeKey: string) {
