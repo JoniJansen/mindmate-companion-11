@@ -7,6 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function normalizeSecret(value: string | undefined): string {
+  return (value ?? "").replace(/\s+/g, "").trim();
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -25,9 +29,12 @@ Deno.serve(async (req) => {
 
     const { action } = await req.json();
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")?.trim();
+    const stripeKey = normalizeSecret(Deno.env.get("STRIPE_SECRET_KEY"));
     if (!stripeKey) {
       throw new Error("Stripe secret key not configured");
+    }
+    if (!stripeKey.startsWith("sk_")) {
+      throw new Error("Invalid Stripe secret key format (expected sk_*)");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

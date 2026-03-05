@@ -8,6 +8,10 @@ const corsHeaders = {
 };
 
 // Native fetch wrapper for Stripe API (avoids Deno.core.runMicrotasks crash)
+function normalizeSecret(value: string | undefined): string {
+  return (value ?? "").replace(/\s+/g, "").trim();
+}
+
 async function stripeRequest(path: string, params: Record<string, string>, stripeKey: string) {
   const res = await fetch(`https://api.stripe.com/v1${path}`, {
     method: "POST",
@@ -42,8 +46,9 @@ Deno.serve(async (req) => {
 
     const { planType, successUrl, cancelUrl } = await req.json();
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")?.trim();
+    const stripeKey = normalizeSecret(Deno.env.get("STRIPE_SECRET_KEY"));
     if (!stripeKey) throw new Error("Stripe secret key not configured");
+    if (!stripeKey.startsWith("sk_")) throw new Error("Invalid Stripe secret key format (expected sk_*)");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -72,7 +77,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const isYearly = planType === "yearly";
+    const normalizedPlanType = planType === "yearly" ? "yearly" : "monthly";
+    const isYearly = normalizedPlanType === "yearly";
     const unitAmount = isYearly ? "7900" : "999";
     const interval = isYearly ? "year" : "month";
     const trialDays = isYearly ? 0 : 7;
@@ -100,7 +106,7 @@ Deno.serve(async (req) => {
       "success_url": finalSuccessUrl,
       "cancel_url": finalCancelUrl,
       "metadata[user_id]": userId,
-      "metadata[plan_type]": planType,
+      "metadata[plan_type]": normalizedPlanType,
     };
 
     if (trialDays > 0) {
