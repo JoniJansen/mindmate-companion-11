@@ -8,7 +8,10 @@ const corsHeaders = {
 };
 
 function normalizeSecret(value: string | undefined): string {
-  return (value ?? "").replace(/\s+/g, "").trim();
+  let normalized = (value ?? "").trim();
+  normalized = normalized.replace(/^(["'`])(.*)\1$/, "$2").trim();
+  normalized = normalized.replace(/^Bearer\s+/i, "").trim();
+  return normalized.replace(/\s+/g, "");
 }
 
 Deno.serve(async (req) => {
