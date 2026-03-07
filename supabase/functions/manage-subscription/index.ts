@@ -32,12 +32,14 @@ Deno.serve(async (req) => {
 
     const { action } = await req.json();
 
-    const stripeKey = normalizeSecret(Deno.env.get("STRIPE_SECRET_KEY"));
+    const rawKey = Deno.env.get("STRIPE_SECRET_KEY");
+    const stripeKey = normalizeSecret(rawKey);
+    console.log("STRIPE_SECRET_KEY debug: raw length=", rawKey?.length, "normalized length=", stripeKey.length, "first6=", stripeKey.substring(0, 6));
     if (!stripeKey) {
       throw new Error("Stripe secret key not configured");
     }
     if (!stripeKey.startsWith("sk_")) {
-      throw new Error("Invalid Stripe secret key format (expected sk_*)");
+      throw new Error(`Invalid Stripe secret key format (expected sk_*), got prefix: ${stripeKey.substring(0, 8)}...`);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
