@@ -87,19 +87,22 @@ export function useStreamingDisplay(
     dripTimerRef.current = null;
 
     if (wordQueueRef.current.length === 0) {
-      // Queue empty — if stream is done, nothing more to do
       return;
     }
 
-    // Determine how many words to emit this tick
     const queueLen = wordQueueRef.current.length;
     const isDraining = streamDoneRef.current;
+    const displayed = displayedLengthRef.current;
 
-    // Adaptive: emit more words per tick when queue is large or draining
+    // First-token acceleration: emit more words initially for perceived responsiveness
+    const isFirstBurst = displayed < 30;
+
     let wordsPerTick = 1;
     if (isDraining) {
-      // Drain faster: emit 2-4 words per tick
       wordsPerTick = Math.min(4, queueLen);
+    } else if (isFirstBurst) {
+      // Faster start: emit 2-3 words at once for the first ~30 chars
+      wordsPerTick = Math.min(3, queueLen);
     } else if (queueLen > speedUpThreshold * 2) {
       wordsPerTick = 3;
     } else if (queueLen > speedUpThreshold) {
