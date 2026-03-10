@@ -183,7 +183,7 @@ ALWAYS respond in the following JSON format:
   } catch (error) {
     console.error("Weekly recap error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "Request failed. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
