@@ -94,11 +94,12 @@ Deno.serve(async (req) => {
     const finalCancelUrl = cancelUrl || `${origin}/settings?canceled=true`;
 
     // Build checkout session params
+    // Do NOT specify payment_method_types — letting Stripe use automatic
+    // payment methods so Card, Apple Pay, Google Pay, PayPal, Link, Klarna,
+    // etc. appear based on device/browser/region eligibility.
     const params: Record<string, string> = {
       "customer": customerId!,
       "mode": "subscription",
-      "payment_method_types[0]": "card",
-      "payment_method_types[1]": "paypal",
       "allow_promotion_codes": "true",
       "line_items[0][price_data][currency]": "eur",
       "line_items[0][price_data][product_data][name]": "Soulvay Plus",
