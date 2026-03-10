@@ -486,7 +486,7 @@ export default function Journal() {
                       )}
 
                       {/* Patterns */}
-                      {weeklyRecap.patterns.length > 0 && (
+                      {Array.isArray(weeklyRecap.patterns) && weeklyRecap.patterns.length > 0 && (
                         <div>
                           <p className="text-xs font-medium text-muted-foreground mb-1.5">{t("journal.observedPatterns")}</p>
                           <ul className="space-y-1.5">
