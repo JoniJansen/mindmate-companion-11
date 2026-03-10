@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, Play, Pause, RotateCcw, Check, ChevronRight, Volume2, VolumeX, Loader2 } from "lucide-react";
 import { Exercise } from "@/data/exercises";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -20,6 +21,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isCurrentStepSpeaking, setIsCurrentStepSpeaking] = useState(false);
   const [isCurrentStepMinDurationMet, setIsCurrentStepMinDurationMet] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const { t, language, getExerciseDisplay } = useTranslation();
   const { getVoiceId, speed } = useVoiceSettings();
   
@@ -113,16 +115,21 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
           setIsCurrentStepMinDurationMet(true);
 
           if (!voiceEnabled || !isCurrentStepSpeakingRef.current) {
-            stop();
-            if (currentStepRef.current < totalStepsRef.current - 1) {
-              setCurrentStep(s => s + 1);
-              setStepProgress(0);
-              setIsCurrentStepMinDurationMet(false);
-            } else {
-              setIsComplete(true);
-              setIsPlaying(false);
-            }
-            return 0;
+            // Begin soft transition with a brief pause
+            setIsTransitioning(true);
+            setTimeout(() => {
+              stop();
+              if (currentStepRef.current < totalStepsRef.current - 1) {
+                setCurrentStep(s => s + 1);
+                setStepProgress(0);
+                setIsCurrentStepMinDurationMet(false);
+              } else {
+                setIsComplete(true);
+                setIsPlaying(false);
+              }
+              setIsTransitioning(false);
+            }, 800); // 800ms gentle pause between steps
+            return 100;
           }
 
           return 100;
@@ -136,18 +143,24 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   }, [isPlaying, step, isComplete, currentStep, stop, voiceEnabled]);
 
   useEffect(() => {
-    if (!isPlaying || isComplete || !stepProgress || !isCurrentStepMinDurationMet) return;
+    if (!isPlaying || isComplete || !stepProgress || !isCurrentStepMinDurationMet || isTransitioning) return;
     if (voiceEnabled && isCurrentStepSpeaking) return;
 
-    if (currentStep < totalSteps - 1) {
-      setCurrentStep((prev) => prev + 1);
-      setStepProgress(0);
-      setIsCurrentStepMinDurationMet(false);
-    } else {
-      setIsComplete(true);
-      setIsPlaying(false);
-    }
-  }, [isCurrentStepSpeaking, isCurrentStepMinDurationMet, isPlaying, isComplete, currentStep, totalSteps, voiceEnabled, stepProgress]);
+    // Soft pause before advancing
+    setIsTransitioning(true);
+    const timeout = setTimeout(() => {
+      if (currentStep < totalSteps - 1) {
+        setCurrentStep((prev) => prev + 1);
+        setStepProgress(0);
+        setIsCurrentStepMinDurationMet(false);
+      } else {
+        setIsComplete(true);
+        setIsPlaying(false);
+      }
+      setIsTransitioning(false);
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [isCurrentStepSpeaking, isCurrentStepMinDurationMet, isPlaying, isComplete, currentStep, totalSteps, voiceEnabled, stepProgress, isTransitioning]);
 
   const handleRestart = () => {
     setCurrentStep(0);
@@ -190,7 +203,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
         <div className="w-10" />
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex-1 flex flex-col items-center justify-center p-6"
+        >
           <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4">
             <Check className="w-8 h-8 text-primary" />
           </div>
@@ -217,7 +235,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
               {t("common.finish")}
             </button>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -259,7 +277,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       {/* Progress bar */}
       <div className="h-1 bg-muted">
         <div 
-          className="h-full bg-primary transition-all duration-200"
+          className="h-full bg-primary transition-all duration-700 ease-in-out"
           style={{ width: `${overallProgress}%` }}
         />
       </div>
@@ -268,18 +286,34 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-md mx-auto text-center">
           {/* Speaking/Loading indicator */}
-          {voiceEnabled && (isSpeaking || isLoading) && (
-            <div className="flex items-center justify-center gap-2 mb-4 text-primary">
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Volume2 className="w-4 h-4 animate-pulse" />}
-              <span className="text-sm">{isLoading ? (language === "de" ? "Einen Moment..." : "One moment...") : t("voice.speaking")}</span>
-            </div>
-          )}
+          <AnimatePresence>
+            {voiceEnabled && (isSpeaking || isLoading) && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="flex items-center justify-center gap-2 mb-4 text-primary"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Volume2 className="w-4 h-4 animate-pulse" />}
+                <span className="text-sm">{isLoading ? (language === "de" ? "Einen Moment..." : "One moment...") : t("voice.speaking")}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Breathing circle */}
           {exercise.category === 'breathing' && (
-            <div className={`w-24 h-24 rounded-full bg-primary/20 mx-auto mb-6 flex items-center justify-center transition-transform duration-1000 ${isPlaying ? 'scale-110' : 'scale-100'}`}>
-              <div className="w-12 h-12 rounded-full bg-primary/40" />
-            </div>
+            <motion.div
+              animate={{ scale: isPlaying ? [1, 1.15, 1] : 1 }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="w-24 h-24 rounded-full bg-primary/20 mx-auto mb-6 flex items-center justify-center"
+            >
+              <motion.div
+                animate={{ scale: isPlaying ? [1, 1.2, 1] : 1 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                className="w-12 h-12 rounded-full bg-primary/40"
+              />
+            </motion.div>
           )}
 
           {/* Step counter */}
@@ -287,31 +321,58 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
             {t("common.step")} {currentStep + 1} {t("common.of")} {totalSteps}
           </p>
 
-          {/* Instruction */}
-          <h2 className="text-lg font-medium text-foreground leading-relaxed mb-4">
-            {getStepInstruction(currentStep)}
-          </h2>
+          {/* Instruction — smooth crossfade */}
+          <div className="relative min-h-[4rem]">
+            <AnimatePresence mode="wait">
+              <motion.h2
+                key={currentStep}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="text-lg font-medium text-foreground leading-relaxed mb-4"
+              >
+                {getStepInstruction(currentStep)}
+              </motion.h2>
+            </AnimatePresence>
+          </div>
 
           {/* Step progress */}
-          {isPlaying && (
-            <div className="w-48 mx-auto mb-4">
-              <div className="h-1 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-primary/50 rounded-full transition-all"
-                  style={{ width: `${stepProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {isPlaying && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="w-48 mx-auto mb-4"
+              >
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-primary/50 rounded-full transition-all duration-300 ease-linear"
+                    style={{ width: `${stepProgress}%` }}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Prompts */}
           {exercise.prompts && exercise.prompts.length > 0 && (
-            <div className="mt-6 p-4 bg-muted/50 rounded-xl text-left">
-              <p className="text-xs text-muted-foreground mb-1">{t("common.helpfulPrompts")}:</p>
-              <p className="text-sm text-foreground italic">
-                {getPrompt(currentStep)}
-              </p>
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`prompt-${currentStep}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="mt-6 p-4 bg-muted/50 rounded-xl text-left"
+              >
+                <p className="text-xs text-muted-foreground mb-1">{t("common.helpfulPrompts")}:</p>
+                <p className="text-sm text-foreground italic">
+                  {getPrompt(currentStep)}
+                </p>
+              </motion.div>
+            </AnimatePresence>
           )}
         </div>
       </div>
