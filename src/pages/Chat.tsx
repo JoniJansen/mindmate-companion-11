@@ -796,7 +796,7 @@ export default function Chat() {
                     Authorization: `Bearer ${authToken}`,
                     apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
                   },
-                  body: JSON.stringify({ messages: chatMsgs }),
+                  body: JSON.stringify({ messages: chatMsgs, language }),
                 });
                 if (!resp.ok) throw new Error("Failed");
                 const summary = await resp.json();
