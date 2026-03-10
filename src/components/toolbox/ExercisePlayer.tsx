@@ -143,18 +143,24 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   }, [isPlaying, step, isComplete, currentStep, stop, voiceEnabled]);
 
   useEffect(() => {
-    if (!isPlaying || isComplete || !stepProgress || !isCurrentStepMinDurationMet) return;
+    if (!isPlaying || isComplete || !stepProgress || !isCurrentStepMinDurationMet || isTransitioning) return;
     if (voiceEnabled && isCurrentStepSpeaking) return;
 
-    if (currentStep < totalSteps - 1) {
-      setCurrentStep((prev) => prev + 1);
-      setStepProgress(0);
-      setIsCurrentStepMinDurationMet(false);
-    } else {
-      setIsComplete(true);
-      setIsPlaying(false);
-    }
-  }, [isCurrentStepSpeaking, isCurrentStepMinDurationMet, isPlaying, isComplete, currentStep, totalSteps, voiceEnabled, stepProgress]);
+    // Soft pause before advancing
+    setIsTransitioning(true);
+    const timeout = setTimeout(() => {
+      if (currentStep < totalSteps - 1) {
+        setCurrentStep((prev) => prev + 1);
+        setStepProgress(0);
+        setIsCurrentStepMinDurationMet(false);
+      } else {
+        setIsComplete(true);
+        setIsPlaying(false);
+      }
+      setIsTransitioning(false);
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [isCurrentStepSpeaking, isCurrentStepMinDurationMet, isPlaying, isComplete, currentStep, totalSteps, voiceEnabled, stepProgress, isTransitioning]);
 
   const handleRestart = () => {
     setCurrentStep(0);
