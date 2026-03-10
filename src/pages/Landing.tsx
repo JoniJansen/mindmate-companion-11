@@ -76,7 +76,7 @@ export default function Landing() {
           {
             icon: Shield,
             title: "Private & Safe",
-            description: "Your thoughts stay yours. End-to-end encrypted and secure.",
+            description: "Your thoughts stay yours. Privacy-focused and securely stored.",
           },
         ],
       },
