@@ -75,6 +75,7 @@ export default function Settings() {
   const { t, language } = useTranslation();
   const { mode, accentColor, setMode, setAccentColor, isDark } = useTheme();
   const { settings: voiceSettings, updateSetting: updateVoiceSetting } = useVoiceSettings();
+
   const { checkSubscriptionStatus } = usePremium();
   const { user, profile, signOut } = useAuth();
   const { isAdmin, checkAdminStatus } = useAdmin();
