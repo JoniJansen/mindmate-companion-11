@@ -165,7 +165,7 @@ function AppContent() {
           <SubscriptionRestoreInitializer />
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TourProvider>
               <DelayedCookieConsent />
               <Suspense fallback={<PageLoader />}>
