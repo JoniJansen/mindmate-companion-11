@@ -67,6 +67,44 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Get effective language for TTS
   const effectiveLang = (language === "de" ? "de" : "en") as "en" | "de";
 
+  const spokenNumberMap = {
+    de: {
+      "1": "eins",
+      "2": "zwei",
+      "3": "drei",
+      "4": "vier",
+      "5": "fünf",
+      "6": "sechs",
+      "7": "sieben",
+      "8": "acht",
+      "9": "neun",
+      "10": "zehn",
+    },
+    en: {
+      "1": "one",
+      "2": "two",
+      "3": "three",
+      "4": "four",
+      "5": "five",
+      "6": "six",
+      "7": "seven",
+      "8": "eight",
+      "9": "nine",
+      "10": "ten",
+    },
+  } as const;
+
+  const getStepSpeechText = (index: number) => {
+    const instruction = getStepInstruction(index);
+    const numberMap = spokenNumberMap[effectiveLang];
+
+    return instruction
+      .replace(/\b(10|[1-9])\b/g, (match) => numberMap[match as keyof typeof numberMap] || match)
+      .replace(/\.{3,}\s*(?=(one|two|three|four|five|six|seven|eight|nine|ten|eins|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn)\b)/gi, ". ")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  };
+
   // Speak current step when it changes (only ElevenLabs, no browser TTS)
   useEffect(() => {
     clearAdvanceTimeout();
