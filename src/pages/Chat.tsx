@@ -222,7 +222,20 @@ export default function Chat() {
     }
   }, [messages, isLoading, scrollToBottom]);
 
-  // Initial greeting - personalized based on onboarding
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0 && !isLoading) {
+      try {
+        const toSave: SerializedMessage[] = messages
+          .filter(m => !m.isError)
+          .slice(-CHAT_HISTORY_MAX_MESSAGES)
+          .map(m => ({ ...m, timestamp: m.timestamp.toISOString() }));
+        localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(toSave));
+      } catch {}
+    }
+  }, [messages, isLoading]);
+
+  // Initial greeting or restore from localStorage
   useEffect(() => {
     const initialMessage = localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
     const savedLang = preferences.current.language || language;
@@ -275,6 +288,23 @@ export default function Chat() {
         localStorage.removeItem('mindmate-initial-message');
         handleSend(initialMessage);
       } else {
+        // Try to restore previous conversation
+        try {
+          const stored = localStorage.getItem(CHAT_HISTORY_KEY);
+          if (stored) {
+            const parsed: SerializedMessage[] = JSON.parse(stored);
+            if (parsed.length > 1) { // More than just greeting = real conversation
+              const restored: Message[] = parsed.map(m => ({
+                ...m,
+                timestamp: new Date(m.timestamp),
+              }));
+              setMessages(restored);
+              return; // Skip greeting
+            }
+          }
+        } catch {}
+        
+        // No previous conversation – show greeting
         const personalLine = getPersonalizedGreeting();
         const baseGreeting = savedLang === "de"
           ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu."
