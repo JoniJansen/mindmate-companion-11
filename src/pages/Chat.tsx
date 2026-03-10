@@ -38,6 +38,17 @@ interface Message {
   isError?: boolean;
 }
 
+interface SerializedMessage {
+  id: string;
+  content: string;
+  role: "user" | "assistant";
+  timestamp: string;
+  isError?: boolean;
+}
+
+const CHAT_HISTORY_KEY = "soulvay-chat-history";
+const CHAT_HISTORY_MAX_MESSAGES = 100;
+
 interface Preferences {
   language: "en" | "de";
   tone: "gentle" | "neutral" | "structured";
