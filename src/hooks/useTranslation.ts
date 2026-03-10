@@ -133,7 +133,7 @@ export const translations: Translations = {
   "journal.filter.all": { en: "All", de: "Alle" },
   "journal.filter.free": { en: "Free", de: "Frei" },
   "journal.filter.chat": { en: "Chat", de: "Chat" },
-  "journal.filter.summary": { en: "AI Summary", de: "KI-Zusammenfassung" },
+  "journal.filter.summary": { en: "AI Summary", de: "KI-Zusammen\u00ADfassung" },
   "journal.filter.guided": { en: "Guided", de: "Geführt" },
 
   // Journal prompts
