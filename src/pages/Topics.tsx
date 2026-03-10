@@ -504,6 +504,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
             )}
           </AnimatePresence>
         </div>
+        </div>
       </div>
     );
   }
