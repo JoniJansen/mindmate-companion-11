@@ -23,10 +23,13 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
   const currentMessageIdRef = useRef<string | null>(null);
   // Generation counter to prevent stale fetches from playing
   const generationRef = useRef(0);
+  // AbortController to cancel in-flight fetch when a new speak() is called
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Cleanup audio on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
+      abortControllerRef.current?.abort();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -54,8 +57,9 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
   ) => {
     if (!text.trim()) return;
 
-    // Stop any current playback
+    // Stop any current playback and abort any in-flight request
     stop();
+    abortControllerRef.current?.abort();
 
     // Increment generation so any in-flight fetch from a previous call won't play
     const thisGeneration = ++generationRef.current;
@@ -72,8 +76,10 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
         
-        // Timeout: 15s max for TTS request
+        // Create new AbortController for this request
         const controller = new AbortController();
+        abortControllerRef.current = controller;
+        // Also abort on timeout
         const timeout = setTimeout(() => controller.abort(), 15000);
         
         const response = await fetch(TTS_URL, {
