@@ -17,7 +17,6 @@ serve(async (req) => {
   }
 
   try {
-    // JWT auth
     try {
       await requireUser(req);
     } catch (authError) {
@@ -25,7 +24,7 @@ serve(async (req) => {
       throw authError;
     }
 
-    const { messages } = await req.json();
+    const { messages, language = "en" } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -39,13 +38,38 @@ serve(async (req) => {
       );
     }
 
-    console.log("Generating summary for", messages.length, "messages");
+    console.log("Generating summary for", messages.length, "messages, language:", language);
 
     const conversationText = messages
       .map((m: Message) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
       .join("\n\n");
 
-    const systemPrompt = `You are a compassionate mental wellness assistant analyzing a conversation to create a helpful summary for the user.
+    const systemPrompt = language === "de"
+      ? `Du bist ein einfühlsamer Begleiter für mentales Wohlbefinden, der ein Gespräch analysiert und eine hilfreiche Zusammenfassung erstellt.
+
+Erstelle eine JSON-Antwort mit folgender Struktur:
+{
+  "summary": "Eine warme Zusammenfassung in 2-3 Sätzen darüber, was die Person geteilt und besprochen hat",
+  "emotionalThemes": ["Thema 1", "Thema 2", "Thema 3"],
+  "nextStep": "Ein kleiner, umsetzbarer und ermutigender nächster Schritt",
+  "moodProgression": {
+    "start": "Emoji für die Anfangsstimmung",
+    "end": "Emoji für die Endstimmung",
+    "insight": "Kurze Einschätzung zur Stimmungsveränderung"
+  }
+}
+
+Richtlinien:
+- Sei warm, mitfühlend und bestärkend
+- Identifiziere 2-4 emotionale Themen (z.B. "Stressbewältigung", "Selbstmitgefühl", "Grenzen setzen")
+- Der nächste Schritt sollte klein, machbar und konkret sein
+- Verwende passende Emojis für die Stimmung (😔😟😐🙂😊😌🥲💭)
+- Fokussiere dich auf die Erfahrung der Person, nicht auf die KI-Antworten
+- Halte alles prägnant und umsetzbar
+- Antworte KOMPLETT auf Deutsch
+
+Antworte NUR mit gültigem JSON, kein Markdown oder zusätzlicher Text.`
+      : `You are a compassionate mental wellness assistant analyzing a conversation to create a helpful summary for the user.
 
 Your task is to generate a JSON response with the following structure:
 {
@@ -79,8 +103,11 @@ Respond ONLY with valid JSON, no markdown or additional text.`;
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Please analyze this conversation and generate a summary:\n\n${conversationText}` },
+          { role: "user", content: language === "de"
+            ? `Bitte analysiere dieses Gespräch und erstelle eine Zusammenfassung auf Deutsch:\n\n${conversationText}`
+            : `Please analyze this conversation and generate a summary:\n\n${conversationText}` },
         ],
+        response_format: { type: "json_object" },
       }),
     });
 
@@ -90,19 +117,19 @@ Respond ONLY with valid JSON, no markdown or additional text.`;
       
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Please wait a moment and try again." }),
+          JSON.stringify({ error: language === "de" ? "Bitte warte einen Moment und versuche es erneut." : "Please wait a moment and try again." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Service temporarily unavailable." }),
+          JSON.stringify({ error: language === "de" ? "Dienst vorübergehend nicht verfügbar." : "Service temporarily unavailable." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       
       return new Response(
-        JSON.stringify({ error: "Failed to generate summary." }),
+        JSON.stringify({ error: language === "de" ? "Zusammenfassung konnte nicht erstellt werden." : "Failed to generate summary." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -120,7 +147,16 @@ Respond ONLY with valid JSON, no markdown or additional text.`;
       summary = JSON.parse(cleanContent);
     } catch (parseError) {
       console.error("Failed to parse summary JSON:", parseError, "Content:", content);
-      summary = {
+      summary = language === "de" ? {
+        summary: "Danke, dass du heute mit mir geteilt hast. Unser Gespräch hat wichtige Themen berührt.",
+        emotionalThemes: ["Reflexion", "Selbstwahrnehmung"],
+        nextStep: "Nimm dir einen Moment, um darüber nachzudenken, was dich aus unserem Gespräch am meisten berührt hat.",
+        moodProgression: {
+          start: "💭",
+          end: "🙂",
+          insight: "Du hast dir Zeit genommen, deine Gedanken und Gefühle zu erkunden."
+        }
+      } : {
         summary: "Thank you for sharing with me today. Our conversation touched on important topics.",
         emotionalThemes: ["reflection", "self-awareness"],
         nextStep: "Take a few moments to reflect on what resonated with you most from our chat.",
