@@ -59,6 +59,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
