@@ -202,6 +202,7 @@ function AppContent() {
                   <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
                   <Route path="/audio" element={<OnboardingGuard><AudioLibrary /></OnboardingGuard>} />
                   <Route path="/timeline" element={<OnboardingGuard><Timeline /></OnboardingGuard>} />
+                  <Route path="/chat-history" element={<OnboardingGuard><ChatHistory /></OnboardingGuard>} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/impressum" element={<Impressum />} />
