@@ -10,7 +10,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
-import { REVIEW_CREDENTIALS, activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
+import { activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
