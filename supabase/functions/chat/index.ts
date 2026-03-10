@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { requireUser } from "../_shared/auth.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,7 +43,7 @@ function detectCrisis(messages: { role: string; content: string }[]): boolean {
   return CRISIS_KEYWORDS.some(keyword => lowerContent.includes(keyword));
 }
 
-function buildSystemPrompt(preferences: Preferences, isCrisis: boolean): string {
+function buildSystemPrompt(preferences: Preferences, isCrisis: boolean, memoriesContext?: string): string {
   const languageInstruction = preferences.language === "de" 
     ? "Respond in German." 
     : "Respond in English.";
@@ -355,6 +356,11 @@ You MUST:
 When asked about your nature: "Ich bin Soulvay, ein digitaler Begleiter für emotionale Reflexion. Ich bin in psychologischen Grundlagen geschult und biete evidenzbasierte Unterstützung. Ich bin jedoch kein Therapeut. Bei klinischen Anliegen empfehle ich, einen qualifizierten Psychologen oder Psychotherapeuten zu konsultieren."
 
 ## PRIMARY GOAL
+## PERSONAL MEMORY (Use naturally when relevant)
+
+${memoriesContext ? `You have the following context about this user from previous conversations and journal entries. Use these naturally when relevant — for example: "Earlier you mentioned...", "I remember you said...". Do NOT list them or force them into the conversation. Only reference them when it genuinely adds depth.
+
+${memoriesContext}` : "No personal context available yet for this user."}
 
 Create a calm space where the user feels heard, understood, and able to explore their thoughts more deeply. You are not here to fix people. You are here to think with them.`;
 }
@@ -389,9 +395,30 @@ serve(async (req) => {
       innerDialogue: false,
     };
 
+    // Fetch user memories for personal context
+    let memoriesContext = "";
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      const { data: memories } = await supabase
+        .from("user_memories")
+        .select("memory_type, content")
+        .eq("user_id", userId)
+        .order("confidence_score", { ascending: false })
+        .limit(10);
+      
+      if (memories && memories.length > 0) {
+        memoriesContext = memories.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n");
+      }
+    } catch (memError) {
+      console.error("Failed to fetch memories:", memError);
+    }
+
     // Detect if this is a crisis situation
     const isCrisis = detectCrisis(messages || []);
-    const systemPrompt = buildSystemPrompt(userPreferences, isCrisis);
+    const systemPrompt = buildSystemPrompt(userPreferences, isCrisis, memoriesContext);
 
     console.log(`Chat request from user ${userId} with ${messages?.length || 0} messages`);
     console.log("Preferences:", userPreferences);
