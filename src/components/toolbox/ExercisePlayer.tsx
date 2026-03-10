@@ -18,6 +18,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [stepProgress, setStepProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [isCurrentStepSpeaking, setIsCurrentStepSpeaking] = useState(false);
+  const [isCurrentStepMinDurationMet, setIsCurrentStepMinDurationMet] = useState(false);
   const { t, language, getExerciseDisplay } = useTranslation();
   const { getVoiceId, speed } = useVoiceSettings();
   
