@@ -120,7 +120,8 @@ Deno.serve(async (req) => {
   } catch (error) {
     if (error instanceof Response) return error;
     console.error("Subscription error:", error);
-    return new Response(JSON.stringify({ error: "Request failed. Please try again." }), 
+    const message = error?.message || "Request failed. Please try again.";
+    return new Response(JSON.stringify({ error: message }), 
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
