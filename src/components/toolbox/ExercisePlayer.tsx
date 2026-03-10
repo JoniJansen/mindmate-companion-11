@@ -280,7 +280,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       {/* FIXED BOTTOM CONTROLS */}
       <div className="border-t border-border bg-background p-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
         <p className="text-xs text-muted-foreground text-center mb-3">
-          {voiceEnabled ? t("toolbox.autoProgress") : t("toolbox.tapToStart")}
+          {voiceEnabled ? t("toolbox.autoProgress") : t("toolbox.autoProgress")}
         </p>
         
         <div className="flex justify-center gap-4">
