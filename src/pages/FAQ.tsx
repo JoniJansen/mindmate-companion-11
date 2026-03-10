@@ -212,7 +212,7 @@ export default function FAQ() {
             },
             {
               q: "Kann ich den Ratschlägen der KI vertrauen?",
-              a: "Die KI bietet allgemeine Wellness-Unterstützung und reflektierende Impulse. Obwohl sie auf therapeutischen Prinzipien trainiert ist, kann sie keine Erkrankungen diagnostizieren oder medizinische Ratschläge geben. Konsultiere immer Fachleute bei gesundheitlichen Bedenken."
+              a: "Die KI bietet allgemeine Wellness-Unterstützung und reflektierende Impulse. Obwohl sie mit psychologischen Erkenntnissen gestaltet ist, kann sie keine Erkrankungen diagnostizieren oder medizinische Ratschläge geben. Konsultiere immer Fachleute bei gesundheitlichen Bedenken."
             },
             {
               q: "Was passiert, wenn ich etwas Ernstes teile?",
