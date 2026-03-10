@@ -80,7 +80,7 @@ export default function Timeline() {
     
     const loadData = async () => {
       try {
-        const [entriesRes, checkinsRes] = await Promise.all([
+        const [entriesRes, checkinsRes, insightsRes] = await Promise.all([
           supabase
             .from('journal_entries')
             .select('*')
@@ -92,6 +92,12 @@ export default function Timeline() {
             .eq('user_id', user.id)
             .gte('created_at', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
             .order('created_at', { ascending: false }),
+          supabase
+            .from('session_insights')
+            .select('id, insight_text, created_at')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(30) as any,
         ]);
         
         setEntries(entriesRes.data || []);
@@ -103,6 +109,7 @@ export default function Timeline() {
             created_at: c.created_at,
           }))
         );
+        setSessionInsights(insightsRes.data || []);
       } catch (error) {
         if (import.meta.env.DEV) console.error('Error loading data:', error);
       } finally {
