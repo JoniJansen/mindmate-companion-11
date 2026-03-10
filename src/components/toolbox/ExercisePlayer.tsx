@@ -58,12 +58,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Speak current step when it changes or when playing starts
   useEffect(() => {
-    if (voiceEnabled) {
+    if (voiceEnabled && language) {
       const instruction = getStepInstruction(currentStep);
       const voiceId = getVoiceId(effectiveLang);
       speak(instruction, voiceId, effectiveLang, speed);
     }
-  }, [currentStep, voiceEnabled]);
+  }, [currentStep, voiceEnabled, language]);
 
   // Handle next step
   const handleNextStep = () => {
