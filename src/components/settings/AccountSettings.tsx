@@ -284,6 +284,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
   const t = texts[language];
   const isNativeEnvironment = useMemo(() => isNativeApp(), []);
+  const avatarSignedUrl = useAvatarUrl(profile?.avatar_url);
 
   // Check 2FA status and backup reminder on mount
   useEffect(() => {
