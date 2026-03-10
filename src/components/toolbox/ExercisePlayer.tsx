@@ -249,7 +249,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     if (voiceEnabled) {
       stop();
     } else {
-      const instruction = getStepInstruction(currentStep);
+      const instruction = getStepSpeechText(currentStep);
       const voiceId = getVoiceId(effectiveLang);
       speak(instruction, voiceId, effectiveLang, speed);
     }
