@@ -365,7 +365,7 @@ ${memoriesContext}` : "No personal context available yet for this user."}
 Create a calm space where the user feels heard, understood, and able to explore their thoughts more deeply. You are not here to fix people. You are here to think with them.`;
 }
 
-
+serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -395,9 +395,30 @@ Create a calm space where the user feels heard, understood, and able to explore 
       innerDialogue: false,
     };
 
+    // Fetch user memories for personal context
+    let memoriesContext = "";
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      const { data: memories } = await supabase
+        .from("user_memories")
+        .select("memory_type, content")
+        .eq("user_id", userId)
+        .order("confidence_score", { ascending: false })
+        .limit(10);
+      
+      if (memories && memories.length > 0) {
+        memoriesContext = memories.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n");
+      }
+    } catch (memError) {
+      console.error("Failed to fetch memories:", memError);
+    }
+
     // Detect if this is a crisis situation
     const isCrisis = detectCrisis(messages || []);
-    const systemPrompt = buildSystemPrompt(userPreferences, isCrisis);
+    const systemPrompt = buildSystemPrompt(userPreferences, isCrisis, memoriesContext);
 
     console.log(`Chat request from user ${userId} with ${messages?.length || 0} messages`);
     console.log("Preferences:", userPreferences);
