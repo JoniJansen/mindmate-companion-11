@@ -855,11 +855,11 @@ export default function Chat() {
               ))}
               <Button 
                 variant="outline" 
-                onClick={() => handleSend(language === "de" ? "Was kann ich alles in der App machen?" : "What can I do in this app?")} 
+                onClick={() => handleSend(t("home.appExploreQuestion"))} 
                 className="text-[14px] min-h-[48px] justify-start px-4 text-left gap-2.5 text-muted-foreground border-dashed"
               >
                 <HelpCircle className="w-4 h-4 shrink-0" />
-                {language === "de" ? "Was kann ich in der App machen?" : "What can I do in this app?"}
+                {t("home.appExploreQuestion")}
               </Button>
             </div>
           </div>
