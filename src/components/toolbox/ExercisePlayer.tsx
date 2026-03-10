@@ -161,7 +161,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     if (!instruction) return;
 
     const voiceId = getVoiceId(effectiveLang);
-    speak(instruction, voiceId, effectiveLang, speed);
+    speak(instruction, voiceId, effectiveLang, exerciseVoiceSpeed);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep, voiceEnabled, language, isComplete]);
 
