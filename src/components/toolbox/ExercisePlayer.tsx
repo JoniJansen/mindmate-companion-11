@@ -56,14 +56,15 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Get effective language for TTS
   const effectiveLang = (language === "de" ? "de" : "en") as "en" | "de";
 
-  // Speak current step when it changes or when playing starts
+  // Speak current step when it changes (only ElevenLabs, no browser TTS)
   useEffect(() => {
     if (voiceEnabled && language) {
       const instruction = getStepInstruction(currentStep);
       const voiceId = getVoiceId(effectiveLang);
       speak(instruction, voiceId, effectiveLang, speed);
     }
-  }, [currentStep, voiceEnabled, language]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, voiceEnabled]);
 
   // Handle next step
   const handleNextStep = () => {
