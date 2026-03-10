@@ -102,6 +102,7 @@ Deno.serve(async (req) => {
       "allow_promotion_codes": "true",
       "line_items[0][price_data][currency]": "eur",
       "line_items[0][price_data][product_data][name]": "Soulvay Plus",
+      "custom_text[submit][message]": "Soulvay Plus – Dein persönlicher Begleiter",
       "line_items[0][price_data][product_data][description]": description,
       "line_items[0][price_data][unit_amount]": unitAmount,
       "line_items[0][price_data][recurring][interval]": interval,

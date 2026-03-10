@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
       case "cancel": {
-        if (!subData.stripe_subscription_id) throw new Error("No active subscription");
+        if (!subData.stripe_subscription_id) throw new Error("Kein aktives Stripe-Abo vorhanden. Bitte kontaktiere den Support.");
         await stripeRequest("POST", `/subscriptions/${subData.stripe_subscription_id}`, {
           cancel_at_period_end: "true",
         });
