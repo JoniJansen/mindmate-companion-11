@@ -208,7 +208,7 @@ export default function FAQ() {
             },
             {
               q: "Wie funktioniert die KI?",
-              a: "Soulvay verwendet fortschrittliche KI-Modelle, um einfühlsame, unterstützende Antworten basierend auf evidenzbasierten therapeutischen Techniken zu geben. Die KI lernt aus unserem Training, speichert aber niemals deine persönlichen Gespräche zu Trainingszwecken."
+              a: "Soulvay verwendet fortschrittliche KI-Modelle, um einfühlsame, unterstützende Antworten zu geben, die von psychologischen Prinzipien inspiriert sind. Die KI speichert deine persönlichen Gespräche nicht zu Trainingszwecken."
             },
             {
               q: "Kann ich den Ratschlägen der KI vertrauen?",
