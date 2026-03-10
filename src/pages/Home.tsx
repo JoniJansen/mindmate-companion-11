@@ -60,29 +60,33 @@ export default function Home() {
     resetTranscript
   } = useSpeechRecognition(speechLang, { continuous: true });
 
-  // Load recent thoughts
+  // Load recent thoughts + conversations
   useEffect(() => {
     if (!user) return;
     
-    const loadRecentThoughts = async () => {
+    const loadData = async () => {
       try {
-        const { data } = await supabase
-          .from('journal_entries')
-          .select('id, content, mood, created_at, source')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(3);
+        const [thoughtsRes, convs] = await Promise.all([
+          supabase
+            .from('journal_entries')
+            .select('id, content, mood, created_at, source')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(3),
+          loadRecentConversations(3),
+        ]);
         
-        setRecentThoughts(data || []);
+        setRecentThoughts(thoughtsRes.data || []);
+        setRecentConversations(convs);
       } catch (error) {
-        if (import.meta.env.DEV) console.error('Error loading recent thoughts:', error);
+        if (import.meta.env.DEV) console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
     };
     
-    loadRecentThoughts();
-  }, [user]);
+    loadData();
+  }, [user, loadRecentConversations]);
 
   // Update input from speech
   useEffect(() => {
