@@ -396,6 +396,52 @@ serve(async (req) => {
     }
 
     const { messages, preferences } = await req.json();
+
+    // --- Server-side daily message limit enforcement ---
+    const DAILY_LIMIT = 15;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check if user has an active premium subscription
+    const { data: subData } = await adminClient
+      .from("subscriptions")
+      .select("status")
+      .eq("user_id", userId)
+      .in("status", ["active", "trialing"])
+      .limit(1);
+
+    const isPremium = subData && subData.length > 0;
+
+    if (!isPremium) {
+      const today = new Date().toISOString().split("T")[0];
+
+      // Upsert to increment message count atomically
+      const { data: usageRow } = await adminClient
+        .from("daily_chat_usage")
+        .select("message_count")
+        .eq("user_id", userId)
+        .eq("usage_date", today)
+        .maybeSingle();
+
+      const currentCount = usageRow?.message_count ?? 0;
+
+      if (currentCount >= DAILY_LIMIT) {
+        return new Response(
+          JSON.stringify({ error: "Daily message limit reached. Upgrade to Premium for unlimited messages." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Increment counter
+      await adminClient
+        .from("daily_chat_usage")
+        .upsert(
+          { user_id: userId, usage_date: today, message_count: currentCount + 1 },
+          { onConflict: "user_id,usage_date" }
+        );
+    }
+    // --- End rate limit ---
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {

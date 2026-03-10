@@ -59,6 +59,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -283,6 +284,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
   const t = texts[language];
   const isNativeEnvironment = useMemo(() => isNativeApp(), []);
+  const avatarSignedUrl = useAvatarUrl(profile?.avatar_url);
 
   // Check 2FA status and backup reminder on mount
   useEffect(() => {
@@ -496,12 +498,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-
-      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
-      await updateProfile({ avatar_url: avatarUrl });
+      // Store just the file path - we'll generate signed URLs for display
+      await updateProfile({ avatar_url: filePath });
       refreshProfile();
       toast({ title: t.avatarUpdated });
     } catch (error: any) {
@@ -747,7 +745,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         <div className="flex items-center gap-4">
           <div className="relative">
             <Avatar className="w-16 h-16 border-2 border-primary/20">
-              <AvatarImage src={profile?.avatar_url || undefined} alt="Avatar" />
+              <AvatarImage src={avatarSignedUrl} alt="Avatar" />
               <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
                 {getInitials()}
               </AvatarFallback>
