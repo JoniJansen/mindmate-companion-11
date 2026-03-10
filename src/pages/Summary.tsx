@@ -104,7 +104,7 @@ export default function Summary() {
           Authorization: `Bearer ${authToken}`,
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages, language }),
       });
 
       if (!response.ok) {
