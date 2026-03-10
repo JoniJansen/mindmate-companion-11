@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Check, ChevronRight, TrendingUp, Calendar, BookOpen, Users } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ChevronRight, ChevronDown, TrendingUp, Calendar, BookOpen, Users } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { TabHint } from "@/components/shared/TabHint";

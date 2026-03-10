@@ -7,6 +7,7 @@ import { TabHint } from "@/components/shared/TabHint";
 import { Button } from "@/components/ui/button";
 import { topics, Topic } from "@/data/topics";
 import { useTranslation } from "@/hooks/useTranslation";
+import { topicExerciseTranslations } from "@/lib/topicExerciseTranslations";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLastState } from "@/hooks/useLastState";
 import { useAuth } from "@/hooks/useAuth";
