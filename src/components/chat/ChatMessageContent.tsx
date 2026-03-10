@@ -64,10 +64,11 @@ export function ChatMessageContent({ content, isUser }: ChatMessageContentProps)
   return <div className="space-y-0.5">{elements}</div>;
 }
 
-/** Render inline markdown: **bold** */
+/** Render inline markdown: **bold** and *italic* */
 function renderInline(text: string): React.ReactNode {
   const parts: React.ReactNode[] = [];
-  const regex = /\*\*(.+?)\*\*/g;
+  // Match **bold** first, then *italic* (single asterisks not preceded/followed by *)
+  const regex = /\*\*(.+?)\*\*|\*([^*]+?)\*/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let i = 0;
@@ -76,11 +77,21 @@ function renderInline(text: string): React.ReactNode {
     if (match.index > lastIndex) {
       parts.push(text.slice(lastIndex, match.index));
     }
-    parts.push(
-      <strong key={i++} className="font-semibold">
-        {match[1]}
-      </strong>
-    );
+    if (match[1]) {
+      // **bold**
+      parts.push(
+        <strong key={i++} className="font-semibold">
+          {match[1]}
+        </strong>
+      );
+    } else if (match[2]) {
+      // *italic*
+      parts.push(
+        <em key={i++} className="italic">
+          {match[2]}
+        </em>
+      );
+    }
     lastIndex = regex.lastIndex;
   }
 
