@@ -3,20 +3,32 @@ import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shie
 import { Capacitor } from "@capacitor/core";
 import { CalmCard } from "@/components/shared/CalmCard";
 
-// Bulletproof native detection – multiple signals to prevent camera crash (Apple Guideline 2.1)
+// Native detection for iOS/Android builds (must be fail-closed for Apple review safety)
 const isNativeApp = (): boolean => {
+  if (typeof window === "undefined") return false;
+
   try {
-    // Primary check
     if (Capacitor.isNativePlatform()) return true;
-    // Fallback: check platform string
-    const platform = Capacitor.getPlatform?.();
-    if (platform === 'ios' || platform === 'android') return true;
-    // Fallback: check global Capacitor object
-    if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.()) return true;
   } catch {
-    // If Capacitor throws, check for native-only globals
-    if (typeof window !== 'undefined' && (window as any).webkit?.messageHandlers) return true;
+    // Continue with fallbacks
   }
+
+  try {
+    const platform = Capacitor.getPlatform?.();
+    if (platform === "ios" || platform === "android") return true;
+  } catch {
+    // Continue with fallbacks
+  }
+
+  const runtimeCapacitor = (window as any).Capacitor;
+  if (runtimeCapacitor?.isNativePlatform?.()) return true;
+
+  const runtimePlatform = runtimeCapacitor?.getPlatform?.() || runtimeCapacitor?.platform;
+  if (runtimePlatform === "ios" || runtimePlatform === "android") return true;
+
+  const webkitMessageHandlers = (window as any).webkit?.messageHandlers;
+  if (webkitMessageHandlers) return true;
+
   return false;
 };
 import { Button } from "@/components/ui/button";
@@ -270,6 +282,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   };
 
   const t = texts[language];
+  const isNativeEnvironment = useMemo(() => isNativeApp(), []);
 
   // Check 2FA status and backup reminder on mount
   useEffect(() => {
@@ -445,6 +458,11 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isNativeEnvironment) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
@@ -735,10 +753,13 @@ export function AccountSettings({ language }: AccountSettingsProps) {
               </AvatarFallback>
             </Avatar>
             {/* CRITICAL: Do NOT show upload button on iOS native - file input causes WKWebView crash on iPad (Guideline 2.1) */}
-            {!isNativeApp() && (
+            {!isNativeEnvironment && (
               <>
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    if (isNativeEnvironment) return;
+                    fileInputRef.current?.click();
+                  }}
                   disabled={isUploadingAvatar}
                   className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
@@ -761,7 +782,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           <div className="flex-1">
             <p className="font-medium text-foreground">{t.changeAvatar}</p>
             <p className="text-sm text-muted-foreground">
-              {isNativeApp() 
+              {isNativeEnvironment
                 ? (language === "de" ? "Profilbild wird über die Web-Version geändert" : "Change profile picture via web version")
                 : (language === "de" ? "JPG, PNG oder GIF. Max 5MB" : "JPG, PNG or GIF. Max 5MB")
               }
