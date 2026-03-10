@@ -112,7 +112,7 @@ Deno.serve(async (req) => {
       "metadata[plan_type]": normalizedPlanType,
       "subscription_data[metadata][user_id]": userId,
       "subscription_data[metadata][plan_type]": normalizedPlanType,
-      "payment_intent_data[statement_descriptor]": "SOULVAY PLUS",
+      "subscription_data[description]": "Soulvay Plus",
     };
 
     if (trialDays > 0) {

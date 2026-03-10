@@ -6,6 +6,16 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import { usePremium } from "@/hooks/usePremium";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface SubscriptionSectionProps {
   onUpgradeClick?: () => void;
@@ -26,6 +36,17 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
   } = usePremium();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   const handleCancel = async () => {
     setIsLoading(true);
@@ -34,8 +55,8 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
       toast({
         title: language === "de" ? "Abo gekündigt" : "Subscription canceled",
         description: language === "de" 
-          ? "Dein Abo wird am Ende der Laufzeit beendet." 
-          : "Your subscription will end at the end of the billing period.",
+          ? `Dein Abo läuft noch bis zum ${formatDate(currentPeriodEnd)}. Bis dahin behältst du alle Plus-Funktionen.` 
+          : `Your subscription remains active until ${formatDate(currentPeriodEnd)}.`,
       });
     } catch (error) {
       toast({
@@ -45,6 +66,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
       });
     } finally {
       setIsLoading(false);
+      setShowCancelDialog(false);
     }
   };
 
@@ -55,7 +77,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
       toast({
         title: language === "de" ? "Abo reaktiviert" : "Subscription reactivated",
         description: language === "de" 
-          ? "Dein Abo bleibt aktiv." 
+          ? "Dein Abo bleibt aktiv. Schön, dass du bleibst!" 
           : "Your subscription will continue.",
       });
     } catch (error) {
@@ -83,102 +105,138 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
     }
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   if (isPremium) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
-          {language === "de" ? "Abonnement" : "Subscription"}
-        </h2>
-        <CalmCard variant="elevated">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Crown className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-foreground">Soulvay Plus</p>
-                  <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                    {planType === "yearly" 
-                      ? (language === "de" ? "Jährlich" : "Yearly") 
-                      : (language === "de" ? "Monatlich" : "Monthly")}
-                  </span>
+      <>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
+            {language === "de" ? "Abonnement" : "Subscription"}
+          </h2>
+          <CalmCard variant="elevated">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Crown className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {cancelAtPeriodEnd 
-                    ? (language === "de" 
-                        ? `Endet am ${formatDate(currentPeriodEnd)}` 
-                        : `Ends on ${formatDate(currentPeriodEnd)}`)
-                    : (language === "de" 
-                        ? `Nächste Zahlung: ${formatDate(currentPeriodEnd)}` 
-                        : `Next payment: ${formatDate(currentPeriodEnd)}`)}
-                </p>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-foreground">Soulvay Plus</p>
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                      {planType === "yearly" 
+                        ? (language === "de" ? "Jährlich" : "Yearly") 
+                        : (language === "de" ? "Monatlich" : "Monthly")}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {cancelAtPeriodEnd 
+                      ? (language === "de" 
+                          ? `Endet am ${formatDate(currentPeriodEnd)}` 
+                          : `Ends on ${formatDate(currentPeriodEnd)}`)
+                      : (language === "de" 
+                          ? `Nächste Zahlung: ${formatDate(currentPeriodEnd)}` 
+                          : `Next payment: ${formatDate(currentPeriodEnd)}`)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Active subscription info */}
+              {cancelAtPeriodEnd && (
+                <div className="p-3 rounded-xl bg-destructive/5 border border-destructive/10">
+                  <p className="text-sm text-foreground">
+                    {language === "de" 
+                      ? `Dein Abo wurde gekündigt. Du behältst alle Plus-Funktionen bis zum ${formatDate(currentPeriodEnd)}.`
+                      : `Your subscription has been canceled. You'll keep Plus features until ${formatDate(currentPeriodEnd)}.`}
+                  </p>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="space-y-2 pt-1">
+                {/* Billing portal - hide on native iOS/Android (Apple Guideline 3.1.1) */}
+                {!(window as any).Capacitor && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleManageBilling}
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <CreditCard className="w-4 h-4 mr-2" />
+                    )}
+                    {language === "de" ? "Zahlung verwalten" : "Manage billing"}
+                  </Button>
+                )}
+
+                {cancelAtPeriodEnd ? (
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    onClick={handleReactivate}
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                    {language === "de" ? "Abo reaktivieren" : "Reactivate subscription"}
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setShowCancelDialog(true)}
+                    disabled={isLoading}
+                    className="w-full text-muted-foreground hover:text-destructive"
+                  >
+                    {language === "de" ? "Abo kündigen" : "Cancel subscription"}
+                  </Button>
+                )}
               </div>
             </div>
+          </CalmCard>
+        </motion.div>
 
-            <div className="flex flex-wrap gap-2">
-              {/* Hide Stripe billing portal on native iOS/Android - Apple Guideline 3.1.1 */}
-              {!(window as any).Capacitor && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleManageBilling}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <CreditCard className="w-4 h-4 mr-2" />
-                  )}
-                  {language === "de" ? "Zahlung verwalten" : "Manage billing"}
-                </Button>
-              )}
-
-              {cancelAtPeriodEnd ? (
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  onClick={handleReactivate}
-                  disabled={isLoading}
-                >
-                  {language === "de" ? "Abo reaktivieren" : "Reactivate"}
-                </Button>
-              ) : (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleCancel}
-                  disabled={isLoading}
-                  className="text-muted-foreground"
-                >
-                  {language === "de" ? "Kündigen" : "Cancel"}
-                </Button>
-              )}
-            </div>
-
-            {cancelAtPeriodEnd && (
-              <p className="text-xs text-muted-foreground">
-                {language === "de" 
-                  ? "Du behältst Plus-Funktionen bis zum Ende der Laufzeit." 
-                  : "You'll keep Plus features until the end of your billing period."}
-              </p>
-            )}
-          </div>
-        </CalmCard>
-      </motion.div>
+        {/* Cancel confirmation dialog */}
+        <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {language === "de" ? "Abo wirklich kündigen?" : "Cancel subscription?"}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="space-y-2">
+                <p>
+                  {language === "de" 
+                    ? `Dein Abo wird zum Ende der aktuellen Laufzeit am ${formatDate(currentPeriodEnd)} beendet. Bis dahin behältst du alle Plus-Funktionen.`
+                    : `Your subscription will end on ${formatDate(currentPeriodEnd)}. You'll keep all Plus features until then.`}
+                </p>
+                <p className="font-medium">
+                  {language === "de"
+                    ? "Du verlierst dann: Unbegrenzte Gespräche, Sprachfunktion, Wochenrückblicke und mehr."
+                    : "You'll lose: Unlimited conversations, voice features, weekly recaps and more."}
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>
+                {language === "de" ? "Abo behalten" : "Keep subscription"}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleCancel}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                {language === "de" ? "Jetzt kündigen" : "Cancel now"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   }
 
