@@ -69,83 +69,185 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Get effective language for TTS
   const effectiveLang = (language === "de" ? "de" : "en") as "en" | "de";
 
-  const spokenNumberMap = {
-    de: {
-      "1": "eins",
-      "2": "zwei",
-      "3": "drei",
-      "4": "vier",
-      "5": "fünf",
-      "6": "sechs",
-      "7": "sieben",
-      "8": "acht",
-      "9": "neun",
-      "10": "zehn",
+  // Spoken overrides per exercise: no counting, just calm cues with enough silent time
+  const speechOverrides: Record<string, { en: string[]; de: string[] }> = {
+    "breathing-60": {
+      en: [
+        "Find a comfortable position. And when you're ready, gently close your eyes.",
+        "Now breathe in slowly through your nose, for a count of four. Take your time.",
+        "Hold your breath gently.",
+        "And breathe out slowly through your mouth, for a count of six. Nice and easy.",
+        "Breathe in again. Feel the calm entering your body.",
+        "Hold softly.",
+        "And exhale. Let the tension leave with the breath.",
+        "Once more, breathe in. Deep and slow.",
+        "Hold gently.",
+        "And exhale completely. Let everything go.",
+        "One last deep breath in.",
+        "Hold for a moment.",
+        "And release. Letting go completely.",
+        "Gently open your eyes. Notice how you feel.",
+      ],
+      de: [
+        "Finde eine bequeme Position. Und wenn du soweit bist, schließe sanft die Augen.",
+        "Atme jetzt langsam durch die Nase ein, für vier Zähler. Nimm dir Zeit.",
+        "Halte den Atem sanft.",
+        "Und atme langsam durch den Mund aus, für sechs Zähler. Ganz ruhig.",
+        "Atme wieder ein. Lass die Ruhe in deinen Körper kommen.",
+        "Halte noch einen Moment.",
+        "Und atme aus. Lass die Spannung mit dem Atem los.",
+        "Noch einmal einatmen. Tief und langsam.",
+        "Halte sanft.",
+        "Und atme vollständig aus. Lass alles los.",
+        "Ein letztes Mal tief einatmen.",
+        "Halte den Atem für einen Moment.",
+        "Und loslassen. Ganz loslassen.",
+        "Öffne langsam die Augen. Spüre nach, wie du dich jetzt fühlst.",
+      ],
     },
-    en: {
-      "1": "one",
-      "2": "two",
-      "3": "three",
-      "4": "four",
-      "5": "five",
-      "6": "six",
-      "7": "seven",
-      "8": "eight",
-      "9": "nine",
-      "10": "ten",
+    "thought-reframing": {
+      en: [
+        "Think of a situation that's been on your mind lately.",
+        "What thought comes up when you think about this situation?",
+        "How does this thought make you feel? Notice the intensity.",
+        "What evidence supports this thought? Take your time.",
+        "Now consider: what evidence goes against this thought?",
+        "Is there another way to look at this situation?",
+        "What would you tell a close friend who had this same thought?",
+        "Try to create a more balanced thought about this situation.",
+        "How do you feel now? Notice any shift.",
+        "Even small changes matter. Well done.",
+      ],
+      de: [
+        "Denke an eine Situation, die dich in letzter Zeit beschäftigt hat.",
+        "Welcher Gedanke kommt auf, wenn du an diese Situation denkst?",
+        "Wie fühlt sich dieser Gedanke an? Achte auf die Intensität.",
+        "Welche Hinweise sprechen für diesen Gedanken? Nimm dir Zeit.",
+        "Und jetzt: was spricht gegen diesen Gedanken?",
+        "Gibt es eine andere Sichtweise auf diese Situation?",
+        "Was würdest du einem guten Freund sagen, der diesen Gedanken hätte?",
+        "Versuche, einen ausgewogeneren Gedanken zu formulieren.",
+        "Wie fühlst du dich jetzt? Achte auf jede Veränderung.",
+        "Auch kleine Veränderungen zählen. Gut gemacht.",
+      ],
     },
-  } as const;
+    "journaling-prompts": {
+      en: [
+        "Find a quiet space, and something to write with.",
+        "Take a few deep breaths to center yourself.",
+        "Choose a prompt that resonates with you.",
+        "Now write freely, without editing or judging. Let the words flow.",
+        "Read what you've written, with compassion.",
+        "Underline any insights or patterns you notice.",
+        "Write one thing you want to remember from this.",
+      ],
+      de: [
+        "Finde einen ruhigen Ort und etwas zum Schreiben.",
+        "Nimm ein paar tiefe Atemzüge, um dich zu zentrieren.",
+        "Wähle eine Frage, die dich anspricht.",
+        "Schreibe jetzt frei, ohne zu bewerten oder zu korrigieren. Lass die Worte fließen.",
+        "Lies, was du geschrieben hast. Mit Mitgefühl.",
+        "Unterstreiche Erkenntnisse oder Muster, die dir auffallen.",
+        "Schreibe eine Sache auf, die du dir von heute merken möchtest.",
+      ],
+    },
+    "values-clarification": {
+      en: [
+        "Think of a time when you felt truly alive and fulfilled.",
+        "What was happening? What values were you honoring?",
+        "Now think of a time when you felt frustrated or off-track.",
+        "What value might have been compromised?",
+        "From the list below, choose your top ten values.",
+        "Now narrow it down to your top five.",
+        "Finally, identify your top three core values.",
+        "For each value, think of one way you can honor it this week.",
+        "Reflect: how aligned is your life with these values?",
+      ],
+      de: [
+        "Denke an einen Moment, in dem du dich wirklich lebendig und erfüllt gefühlt hast.",
+        "Was war los? Welche Werte hast du dabei gelebt?",
+        "Denke jetzt an eine Situation, in der du frustriert oder nicht im Einklang warst.",
+        "Welcher Wert könnte dabei zu kurz gekommen sein?",
+        "Wähle aus der Liste unten deine zehn wichtigsten Werte.",
+        "Reduziere sie jetzt auf deine fünf wichtigsten.",
+        "Und zum Schluss: bestimme deine drei Kernwerte.",
+        "Überlege dir für jeden Wert eine Möglichkeit, ihn diese Woche zu leben.",
+        "Reflektiere: wie sehr stimmt dein Leben mit diesen Werten überein?",
+      ],
+    },
+    "boundary-prep": {
+      en: [
+        "Think of a situation where you need to set a boundary.",
+        "What specifically is happening that doesn't feel okay?",
+        "How does this situation affect you? Emotionally, physically, or practically?",
+        "What do you need instead?",
+        "Try this format: When this happens, I feel this way, and I need this.",
+        "Practice saying it out loud, calmly and clearly.",
+        "Anticipate possible responses. How will you stay firm?",
+        "Remind yourself: setting boundaries is an act of self-respect.",
+        "Visualize the conversation going well.",
+        "Notice how it feels to advocate for yourself.",
+      ],
+      de: [
+        "Denke an eine Situation, in der du eine Grenze setzen musst.",
+        "Was genau passiert, das sich nicht richtig anfühlt?",
+        "Wie wirkt sich diese Situation auf dich aus? Emotional, körperlich oder praktisch?",
+        "Was brauchst du stattdessen?",
+        "Probiere dieses Format: Wenn das passiert, fühle ich mich so, und ich brauche das.",
+        "Übe es laut auszusprechen. Ruhig und klar.",
+        "Überlege, welche Reaktionen kommen könnten. Wie bleibst du standhaft?",
+        "Erinnere dich: Grenzen setzen ist ein Zeichen von Selbstachtung.",
+        "Stell dir vor, wie das Gespräch gut verläuft.",
+        "Spüre, wie es sich anfühlt, für dich selbst einzustehen.",
+      ],
+    },
+    "grounding-54321": {
+      en: [
+        "Take a slow, deep breath.",
+        "Look around and name five things you can see.",
+        "Take your time noticing colors, shapes, and textures.",
+        "Now notice four things you can touch.",
+        "Feel the textures, temperatures, and sensations.",
+        "Listen for three things you can hear.",
+        "Notice sounds near and far.",
+        "Notice two things you can smell.",
+        "And one thing you can taste.",
+        "Take another deep breath.",
+        "Notice how you feel now, grounded in this moment.",
+      ],
+      de: [
+        "Nimm einen langsamen, tiefen Atemzug.",
+        "Schau dich um und benenne fünf Dinge, die du sehen kannst.",
+        "Nimm dir Zeit, Farben, Formen und Texturen wahrzunehmen.",
+        "Bemerke jetzt vier Dinge, die du berühren kannst.",
+        "Spüre die Oberflächen, Temperaturen und Empfindungen.",
+        "Lausche auf drei Dinge, die du hören kannst.",
+        "Achte auf Geräusche nah und fern.",
+        "Nimm zwei Dinge wahr, die du riechen kannst.",
+        "Und eine Sache, die du schmecken kannst.",
+        "Nimm noch einen tiefen Atemzug.",
+        "Spüre, wie du dich jetzt fühlst. Geerdet in diesem Moment.",
+      ],
+    },
+  };
 
   const getStepSpeechText = (index: number) => {
-    const instruction = getStepInstruction(index).trim();
-
-    const breathingSpeechOverrides: Record<string, { en: string[]; de: string[] }> = {
-      "breathing-60": {
-        en: [
-          "Find a comfortable position. And when you're ready, gently close your eyes.",
-          "Breathe in slowly through your nose now ... soft and easy ... in ... two ... three ... four.",
-          "Hold the breath gently for a brief moment ... two.",
-          "Now breathe out slowly through your mouth ... long and easy ... out ... two ... three ... four ... five ... six.",
-          "Breathe in again ... and let calm move gently through your body.",
-          "Hold softly for a moment.",
-          "And exhale slowly ... releasing tension with the breath.",
-          "Take another slow breath in through your nose ... in ... two ... three ... four.",
-          "Hold gently for a brief moment.",
-          "And exhale completely ... slow and steady ... out ... two ... three ... four ... five ... six.",
-          "One more deep, slow breath in.",
-          "Hold it softly for a moment.",
-          "And release ... letting go completely.",
-          "Gently open your eyes ... and notice how you feel now.",
-        ],
-        de: [
-          "Finde eine bequeme Position. Und wenn du soweit bist, schließe sanft die Augen.",
-          "Atme jetzt langsam durch die Nase ein ... ganz weich und ruhig ... ein ... zwei ... drei ... vier.",
-          "Halte den Atem für einen kleinen Moment ganz sanft.",
-          "Und jetzt atme langsam durch den Mund aus ... lang und ruhig ... aus ... zwei ... drei ... vier ... fünf ... sechs.",
-          "Atme wieder ein ... und lass mit dem Atem Ruhe in deinen Körper kommen.",
-          "Halte den Atem noch einen kleinen Moment ganz weich.",
-          "Und atme langsam aus ... lass dabei die Spannung weiter los.",
-          "Nimm noch einen ruhigen Atemzug durch die Nase ... ein ... zwei ... drei ... vier.",
-          "Halte wieder ganz sanft für einen kurzen Moment.",
-          "Und atme vollständig aus ... langsam und gleichmäßig ... aus ... zwei ... drei ... vier ... fünf ... sechs.",
-          "Ein letztes Mal tief und ruhig einatmen.",
-          "Halte den Atem noch einen sanften Moment.",
-          "Und jetzt lösen ... ganz loslassen.",
-          "Öffne nun langsam die Augen ... und spüre kurz nach, wie du dich jetzt fühlst.",
-        ],
-      },
-    };
-
-    const override = breathingSpeechOverrides[exercise.id]?.[effectiveLang]?.[index];
+    const override = speechOverrides[exercise.id]?.[effectiveLang]?.[index];
     if (override) return override;
 
-    const numberMap = spokenNumberMap[effectiveLang];
-
+    // Generic fallback: spell out digits as words
+    const instruction = getStepInstruction(index).trim();
     return instruction
-      .replace(/\b(10|[1-9])\b/g, (match) => numberMap[match as keyof typeof numberMap] || match)
-      .replace(/\.{3,}\s*(?=(one|two|three|four|five|six|seven|eight|nine|ten|eins|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn)\b)/gi, ". ")
-      .replace(/\s{2,}/g, " ")
-      .trim();
+      .replace(/\b10\b/g, effectiveLang === "de" ? "zehn" : "ten")
+      .replace(/\b9\b/g, effectiveLang === "de" ? "neun" : "nine")
+      .replace(/\b8\b/g, effectiveLang === "de" ? "acht" : "eight")
+      .replace(/\b7\b/g, effectiveLang === "de" ? "sieben" : "seven")
+      .replace(/\b6\b/g, effectiveLang === "de" ? "sechs" : "six")
+      .replace(/\b5\b/g, effectiveLang === "de" ? "fünf" : "five")
+      .replace(/\b4\b/g, effectiveLang === "de" ? "vier" : "four")
+      .replace(/\b3\b/g, effectiveLang === "de" ? "drei" : "three")
+      .replace(/\b2\b/g, effectiveLang === "de" ? "zwei" : "two")
+      .replace(/\b1\b/g, effectiveLang === "de" ? "eins" : "one");
   };
 
   // Speak current step when it changes (only ElevenLabs, no browser TTS)
