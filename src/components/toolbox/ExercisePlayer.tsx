@@ -64,7 +64,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       speak(instruction, voiceId, effectiveLang, speed);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep, voiceEnabled]);
+  }, [currentStep, voiceEnabled, language]);
 
   // Handle next step
   const handleNextStep = () => {
