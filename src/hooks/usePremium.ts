@@ -147,8 +147,9 @@ export function usePremium() {
 
       if (error) {
         if (import.meta.env.DEV) console.warn("Failed to check subscription:", error);
-        // On error, don't grant premium – fail closed
-        setServerVerifiedPremium(false);
+        // On network/auth error, use cached state instead of forcing non-premium
+        const cached = state.isPremium && state.subscriptionStatus === "active";
+        setServerVerifiedPremium(cached || false);
         return;
       }
 
