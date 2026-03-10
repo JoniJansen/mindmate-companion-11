@@ -119,6 +119,9 @@ export function useStreamingDisplay(
       let interval: number;
       if (isDraining) {
         interval = drainInterval;
+      } else if (isFirstBurst) {
+        // Faster initial rendering for perceived responsiveness
+        interval = Math.round(baseInterval * 0.4);
       } else if (queueLen > speedUpThreshold * 2) {
         interval = minInterval;
       } else if (queueLen > speedUpThreshold) {
