@@ -92,7 +92,7 @@ export default function FAQ() {
             },
             {
               q: "Can I trust the AI's advice?",
-              a: "The AI provides general wellness support and reflective prompts. While it's trained on therapeutic principles, it cannot diagnose conditions or provide medical advice. Always consult professionals for health concerns."
+              a: "The AI provides general wellness support and reflective prompts. While it's designed with psychological insights in mind, it cannot diagnose conditions or provide medical advice. Always consult professionals for health concerns."
             },
             {
               q: "What happens if I share something serious?",
