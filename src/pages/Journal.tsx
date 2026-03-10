@@ -106,6 +106,7 @@ export default function Journal() {
         body: JSON.stringify({
           type: "sentiment",
           entries: [{ content }],
+          language,
         }),
       });
       if (!response.ok) return;
@@ -256,6 +257,7 @@ export default function Journal() {
         body: JSON.stringify({
           type: "patterns",
           entries: entries.slice(0, 10).map(e => ({ date: e.created_at, title: e.title, content: e.content, mood: e.mood })),
+          language,
         }),
       });
 
