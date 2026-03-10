@@ -657,7 +657,7 @@ export default function Chat() {
                     variant="ghost" size="icon" 
                     onClick={(e) => { e.stopPropagation(); handleNewConversation(); }} 
                     className="text-muted-foreground shrink-0"
-                    aria-label={language === "de" ? "Neues Gespräch" : "New conversation"}
+                    aria-label={t("chat.newConversation")}
                   >
                     <Plus className="w-5 h-5" />
                   </Button>
