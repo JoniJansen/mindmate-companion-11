@@ -21,6 +21,8 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
   const [loadingMessageId, setLoadingMessageId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentMessageIdRef = useRef<string | null>(null);
+  // Generation counter to prevent stale fetches from playing
+  const generationRef = useRef(0);
 
   // Cleanup audio on unmount
   useEffect(() => {
@@ -54,6 +56,9 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
 
     // Stop any current playback
     stop();
+
+    // Increment generation so any in-flight fetch from a previous call won't play
+    const thisGeneration = ++generationRef.current;
 
     // Check cache first
     const cacheKey = `${text}-${voiceId}-${language}-${speed}`;
@@ -122,6 +127,9 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
       setIsLoading(false);
       setLoadingMessageId(null);
     }
+
+    // If a newer speak() was called while we were fetching, abort
+    if (generationRef.current !== thisGeneration) return;
 
     // Play the audio
     const audio = new Audio(audioUrl);

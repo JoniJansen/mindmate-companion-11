@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Play, Pause, RotateCcw, Check, ChevronRight, Volume2, VolumeX, Loader2 } from "lucide-react";
 import { Exercise } from "@/data/exercises";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -14,7 +14,7 @@ interface ExercisePlayerProps {
 
 export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayerProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true); // Auto-start
   const [stepProgress, setStepProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -56,14 +56,15 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Get effective language for TTS
   const effectiveLang = (language === "de" ? "de" : "en") as "en" | "de";
 
-  // Speak current step when it changes or when playing starts
+  // Speak current step when it changes (only ElevenLabs, no browser TTS)
   useEffect(() => {
     if (voiceEnabled && language) {
       const instruction = getStepInstruction(currentStep);
       const voiceId = getVoiceId(effectiveLang);
       speak(instruction, voiceId, effectiveLang, speed);
     }
-  }, [currentStep, voiceEnabled, language]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, voiceEnabled]);
 
   // Handle next step
   const handleNextStep = () => {
@@ -77,7 +78,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }
   };
 
-  // Auto-progress when playing
+  // Auto-progress when playing — uses refs to avoid stale closures
+  const currentStepRef = useRef(currentStep);
+  currentStepRef.current = currentStep;
+  const totalStepsRef = useRef(totalSteps);
+  totalStepsRef.current = totalSteps;
+
   useEffect(() => {
     if (!isPlaying || isComplete || !step) return;
 
@@ -86,7 +92,15 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       setStepProgress(prev => {
         const increment = 100 / (stepDuration * 10);
         if (prev + increment >= 100) {
-          handleNextStep();
+          // Advance step via functional approach to avoid stale closure
+          stop();
+          if (currentStepRef.current < totalStepsRef.current - 1) {
+            setCurrentStep(s => s + 1);
+            setStepProgress(0);
+          } else {
+            setIsComplete(true);
+            setIsPlaying(false);
+          }
           return 0;
         }
         return prev + increment;
@@ -94,7 +108,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isPlaying, step, isComplete, currentStep]);
+  }, [isPlaying, step, isComplete, currentStep, stop]);
 
   const handleRestart = () => {
     setCurrentStep(0);
@@ -266,7 +280,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       {/* FIXED BOTTOM CONTROLS */}
       <div className="border-t border-border bg-background p-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
         <p className="text-xs text-muted-foreground text-center mb-3">
-          {voiceEnabled ? t("toolbox.autoProgress") : t("toolbox.tapToStart")}
+          {voiceEnabled ? t("toolbox.autoProgress") : t("toolbox.autoProgress")}
         </p>
         
         <div className="flex justify-center gap-4">
