@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Play, Pause, RotateCcw, Check, ChevronRight, Volume2, VolumeX, Loader2 } from "lucide-react";
 import { Exercise } from "@/data/exercises";
@@ -69,70 +69,96 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Speak current step when it changes (only ElevenLabs, no browser TTS)
   useEffect(() => {
+    clearAdvanceTimeout();
     setIsCurrentStepMinDurationMet(false);
     setIsCurrentStepSpeaking(false);
+    setIsTransitioning(false);
 
-    if (voiceEnabled && language) {
-      const instruction = getStepInstruction(currentStep);
-      const voiceId = getVoiceId(effectiveLang);
-      speak(instruction, voiceId, effectiveLang, speed);
-    }
+    if (!voiceEnabled || !language || isComplete) return;
+
+    const instruction = getStepInstruction(currentStep).trim();
+    if (!instruction) return;
+
+    const voiceId = getVoiceId(effectiveLang);
+    speak(instruction, voiceId, effectiveLang, speed);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep, voiceEnabled, language]);
+  }, [currentStep, voiceEnabled, language, isComplete]);
 
-  // Handle next step
-  const handleNextStep = () => {
-    stop(); // Stop current speech
-    setIsCurrentStepSpeaking(false);
-    setIsCurrentStepMinDurationMet(false);
-    if (currentStep < totalSteps - 1) {
-      setCurrentStep(currentStep + 1);
-      setStepProgress(0);
-    } else {
-      setIsComplete(true);
-      setIsPlaying(false);
-    }
-  };
-
-  // Auto-progress when playing — never cut off active speech
+  const advanceTimeoutRef = useRef<number | null>(null);
   const currentStepRef = useRef(currentStep);
   currentStepRef.current = currentStep;
   const totalStepsRef = useRef(totalSteps);
   totalStepsRef.current = totalSteps;
-  const isCurrentStepSpeakingRef = useRef(isCurrentStepSpeaking);
-  isCurrentStepSpeakingRef.current = isCurrentStepSpeaking;
 
+  const clearAdvanceTimeout = useCallback(() => {
+    if (advanceTimeoutRef.current !== null) {
+      window.clearTimeout(advanceTimeoutRef.current);
+      advanceTimeoutRef.current = null;
+    }
+  }, []);
+
+  const completeExercise = useCallback(() => {
+    clearAdvanceTimeout();
+    stop();
+    setIsCurrentStepSpeaking(false);
+    setIsCurrentStepMinDurationMet(false);
+    setIsTransitioning(false);
+    setIsComplete(true);
+    setIsPlaying(false);
+  }, [clearAdvanceTimeout, stop]);
+
+  const queueAdvance = useCallback((delay = 900) => {
+    clearAdvanceTimeout();
+    setIsTransitioning(true);
+
+    advanceTimeoutRef.current = window.setTimeout(() => {
+      if (currentStepRef.current >= totalStepsRef.current - 1) {
+        completeExercise();
+        return;
+      }
+
+      setCurrentStep((prev) => prev + 1);
+      setStepProgress(0);
+      setIsCurrentStepMinDurationMet(false);
+      setIsCurrentStepSpeaking(false);
+      setIsTransitioning(false);
+    }, delay);
+  }, [clearAdvanceTimeout, completeExercise]);
+
+  useEffect(() => {
+    return () => {
+      clearAdvanceTimeout();
+    };
+  }, [clearAdvanceTimeout]);
+
+  // Handle next step
+  const handleNextStep = () => {
+    stop();
+    setIsCurrentStepSpeaking(false);
+    setIsCurrentStepMinDurationMet(false);
+
+    if (currentStep >= totalSteps - 1) {
+      completeExercise();
+      return;
+    }
+
+    queueAdvance(450);
+  };
+
+  // Auto-progress after minimum duration; actual step change happens only once via queueAdvance
   useEffect(() => {
     if (!isPlaying || isComplete || !step) return;
 
     const stepDuration = step.duration || 10;
     const interval = setInterval(() => {
-      setStepProgress(prev => {
+      setStepProgress((prev) => {
+        if (prev >= 100) return 100;
+
         const increment = 100 / (stepDuration * 10);
         const nextProgress = Math.min(prev + increment, 100);
 
-        if (nextProgress >= 100) {
+        if (nextProgress >= 100 && prev < 100) {
           setIsCurrentStepMinDurationMet(true);
-
-          if (!voiceEnabled || !isCurrentStepSpeakingRef.current) {
-            // Begin soft transition with a brief pause
-            setIsTransitioning(true);
-            setTimeout(() => {
-              stop();
-              if (currentStepRef.current < totalStepsRef.current - 1) {
-                setCurrentStep(s => s + 1);
-                setStepProgress(0);
-                setIsCurrentStepMinDurationMet(false);
-              } else {
-                setIsComplete(true);
-                setIsPlaying(false);
-              }
-              setIsTransitioning(false);
-            }, 800); // 800ms gentle pause between steps
-            return 100;
-          }
-
-          return 100;
         }
 
         return nextProgress;
@@ -140,31 +166,32 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isPlaying, step, isComplete, currentStep, stop, voiceEnabled]);
+  }, [isPlaying, step, isComplete]);
 
   useEffect(() => {
-    if (!isPlaying || isComplete || !stepProgress || !isCurrentStepMinDurationMet || isTransitioning) return;
-    if (voiceEnabled && isCurrentStepSpeaking) return;
+    if (!isPlaying || isComplete || isTransitioning || !isCurrentStepMinDurationMet) return;
+    if (voiceEnabled && (isCurrentStepSpeaking || isLoading)) return;
 
-    // Soft pause before advancing
-    setIsTransitioning(true);
-    const timeout = setTimeout(() => {
-      if (currentStep < totalSteps - 1) {
-        setCurrentStep((prev) => prev + 1);
-        setStepProgress(0);
-        setIsCurrentStepMinDurationMet(false);
-      } else {
-        setIsComplete(true);
-        setIsPlaying(false);
-      }
-      setIsTransitioning(false);
-    }, 800);
-    return () => clearTimeout(timeout);
-  }, [isCurrentStepSpeaking, isCurrentStepMinDurationMet, isPlaying, isComplete, currentStep, totalSteps, voiceEnabled, stepProgress, isTransitioning]);
+    queueAdvance(900);
+  }, [
+    isCurrentStepMinDurationMet,
+    isCurrentStepSpeaking,
+    isLoading,
+    isPlaying,
+    isComplete,
+    isTransitioning,
+    voiceEnabled,
+    queueAdvance,
+  ]);
 
   const handleRestart = () => {
+    clearAdvanceTimeout();
+    stop();
     setCurrentStep(0);
     setStepProgress(0);
+    setIsCurrentStepMinDurationMet(false);
+    setIsCurrentStepSpeaking(false);
+    setIsTransitioning(false);
     setIsComplete(false);
     setIsPlaying(true);
   };

@@ -75,6 +75,7 @@ export default function Settings() {
   const { t, language } = useTranslation();
   const { mode, accentColor, setMode, setAccentColor, isDark } = useTheme();
   const { settings: voiceSettings, updateSetting: updateVoiceSetting } = useVoiceSettings();
+
   const { checkSubscriptionStatus } = usePremium();
   const { user, profile, signOut } = useAuth();
   const { isAdmin, checkAdminStatus } = useAdmin();
@@ -135,9 +136,13 @@ export default function Settings() {
   }, [searchParams, toast, language, checkSubscriptionStatus]);
 
   const voiceTypeOptions: { value: VoiceType; label: string; description: string }[] = [
-    { value: "female", label: t("voice.female"), description: language === "de" ? "Ruhig & warm" : "Calm & warm" },
-    { value: "male", label: t("voice.male"), description: language === "de" ? "Vertrauensvoll & klar" : "Trustworthy & clear" },
-    { value: "neutral", label: t("voice.neutral"), description: language === "de" ? "Sanft & ausgeglichen" : "Soft & balanced" },
+    { value: "female", label: language === "de" ? "Warm" : "Warm", description: language === "de" ? "Ruhig & vertraut" : "Calm & familiar" },
+    { value: "femaleSoft", label: language === "de" ? "Sanft" : "Soft", description: language === "de" ? "Besonders weich & beruhigend" : "Extra soft & soothing" },
+    { value: "femaleBright", label: language === "de" ? "Klar" : "Bright", description: language === "de" ? "Leicht & freundlich" : "Light & friendly" },
+    { value: "male", label: language === "de" ? "Klar" : "Clear", description: language === "de" ? "Vertrauensvoll & deutlich" : "Trustworthy & clear" },
+    { value: "maleDeep", label: language === "de" ? "Tief" : "Deep", description: language === "de" ? "Ruhig & tiefer" : "Lower & grounded" },
+    { value: "neutral", label: language === "de" ? "Neutral" : "Neutral", description: language === "de" ? "Sanft & ausgeglichen" : "Soft & balanced" },
+    { value: "neutralWarm", label: language === "de" ? "Warm neutral" : "Warm neutral", description: language === "de" ? "Ausgeglichen mit Wärme" : "Balanced with warmth" },
   ];
 
   const voiceSpeedOptions: { value: VoiceSpeed; label: string }[] = [
