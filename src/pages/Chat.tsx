@@ -670,12 +670,17 @@ export default function Chat() {
                         onClick={async (e) => {
                           e.stopPropagation();
                           if (!user) return;
+                          const customTitle = window.prompt(
+                            language === "de" ? "Titel für den Tagebucheintrag (optional):" : "Title for journal entry (optional):",
+                            language === "de" ? "Chat-Nachricht" : "Chat Message"
+                          );
+                          if (customTitle === null) return;
                           try {
                             await supabase.from("journal_entries").insert({
                               user_id: user.id,
                               user_session_id: user.id,
                               content: message.content,
-                              title: t("chat.journalTitle.message"),
+                              title: customTitle || t("chat.journalTitle.message"),
                               source: "chat",
                               tags: ["chat"],
                             } as any);
@@ -768,12 +773,17 @@ export default function Chat() {
             </Button>
             <Button variant="outline" size="sm" className="gap-2" onClick={async () => {
               if (!user) return;
+              const customTitle = window.prompt(
+                language === "de" ? "Titel für das Gespräch (optional):" : "Title for the conversation (optional):",
+                language === "de" ? "Chat-Gespräch" : "Chat Conversation"
+              );
+              if (customTitle === null) return;
               const chatContent = messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
               try {
                 await supabase.from("journal_entries").insert({
                   user_id: user.id, user_session_id: user.id,
                   content: chatContent,
-                  title: t("chat.journalTitle.conversation"),
+                  title: customTitle || t("chat.journalTitle.conversation"),
                   source: "chat", tags: ["chat"],
                 } as any);
                 toast({ title: t("chat.savedToJournal"), description: t("chat.chatSavedDesc") });
@@ -796,7 +806,7 @@ export default function Chat() {
                     Authorization: `Bearer ${authToken}`,
                     apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
                   },
-                  body: JSON.stringify({ messages: chatMsgs }),
+                  body: JSON.stringify({ messages: chatMsgs, language }),
                 });
                 if (!resp.ok) throw new Error("Failed");
                 const summary = await resp.json();

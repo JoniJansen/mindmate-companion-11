@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, Sparkles, TrendingUp, Loader2, Mic, MicOff, X, Calendar, Tag } from "lucide-react";
+import { Plus, Search, Sparkles, TrendingUp, Loader2, Mic, MicOff, X, Calendar as CalendarIcon, Tag, ChevronDown, ArrowUpDown, ListFilter } from "lucide-react";
+import { format, isSameDay, startOfDay, parseISO } from "date-fns";
+import { de, enUS } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { TabHint } from "@/components/shared/TabHint";
@@ -17,9 +21,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ALL_JOURNAL_TAG_IDS, JOURNAL_EMOTION_TAG_IDS, JOURNAL_TOPIC_TAG_IDS, getTagI18nKey, toStableTagIds } from "@/lib/tagUtils";
+import { ALL_JOURNAL_TAG_IDS, getTagI18nKey, toStableTagIds } from "@/lib/tagUtils";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { useLastState } from "@/hooks/useLastState";
+import { cn } from "@/lib/utils";
 
 interface JournalEntry {
   id: string;
@@ -57,6 +62,8 @@ export default function Journal() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [summaryDetail, setSummaryDetail] = useState<JournalEntry | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { t, language } = useTranslation();
@@ -66,6 +73,8 @@ export default function Journal() {
   const location = useLocation();
   const { logActivity } = useActivityLog();
   const { setJournalDraft, clearPart } = useLastState();
+
+  const dateLocale = language === "de" ? de : enUS;
 
   // Track draft state for continue module
   useEffect(() => {
@@ -82,7 +91,7 @@ export default function Journal() {
     }
   }, [location.state]);
 
-  // Non-blocking sentiment analysis after save — never diagnoses, opt-in tags only
+  // Non-blocking sentiment analysis after save
   const runSentimentAnalysis = async (content: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -99,7 +108,7 @@ export default function Journal() {
           entries: [{ content }],
         }),
       });
-      if (!response.ok) return; // Silent on HTTP errors
+      if (!response.ok) return;
       const data = await response.json();
       if (data.reflection) {
         try {
@@ -115,7 +124,7 @@ export default function Journal() {
         }
       }
     } catch {
-      // Silent fail — sentiment is non-critical, never disrupts user
+      // Silent fail
     }
   };
 
@@ -182,7 +191,7 @@ export default function Journal() {
         title: entry.title || null,
         content: entry.content,
         mood: entry.mood || null,
-        tags: selectedTags, // Already stable IDs
+        tags: selectedTags,
         prompt_id: selectedPrompt,
       };
 
@@ -204,7 +213,6 @@ export default function Journal() {
 
       logActivity("journal_entry");
 
-      // Non-blocking sentiment analysis for new entries
       if (!selectedEntry?.id && entry.content.length > 30) {
         runSentimentAnalysis(entry.content);
       }
@@ -215,7 +223,7 @@ export default function Journal() {
       setSelectedPrompt(null);
       setSelectedTags([]);
       setSelectedEntry(null);
-      clearPart("journalDraft"); // Clear draft from continue module
+      clearPart("journalDraft");
       loadEntries();
     } catch (error) {
       if (import.meta.env.DEV) console.error("Error saving entry:", error);
@@ -331,15 +339,64 @@ export default function Journal() {
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(t => t !== tagId) : [...prev, tagId]);
   };
 
-  const filteredEntries = useMemo(() => entries.filter((e) => {
-    const matchesSearch = e.content.toLowerCase().includes(searchQuery.toLowerCase()) || e.title?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSource = sourceFilter === "all" 
-      || (sourceFilter === "free" && (!e.source || e.source === "free" || e.source === "manual"))
-      || (sourceFilter === "chat" && e.source === "chat")
-      || (sourceFilter === "summary" && e.source === "chat-summary")
-      || (sourceFilter === "guided" && e.source === "guided");
-    return matchesSearch && matchesSource;
-  }), [entries, searchQuery, sourceFilter]);
+  // Dates that have entries (for calendar highlighting)
+  const entryDates = useMemo(() => {
+    const dates = new Set<string>();
+    entries.forEach(e => {
+      dates.add(format(parseISO(e.created_at), "yyyy-MM-dd"));
+    });
+    return dates;
+  }, [entries]);
+
+  const filteredEntries = useMemo(() => {
+    let filtered = entries.filter((e) => {
+      const matchesSearch = e.content.toLowerCase().includes(searchQuery.toLowerCase()) || e.title?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSource = sourceFilter === "all" 
+        || (sourceFilter === "free" && (!e.source || e.source === "free" || e.source === "manual"))
+        || (sourceFilter === "chat" && e.source === "chat")
+        || (sourceFilter === "summary" && e.source === "chat-summary")
+        || (sourceFilter === "guided" && e.source === "guided");
+      const matchesDate = !selectedDate || isSameDay(parseISO(e.created_at), selectedDate);
+      return matchesSearch && matchesSource && matchesDate;
+    });
+
+    if (sortOrder === "oldest") {
+      filtered = [...filtered].reverse();
+    }
+
+    return filtered;
+  }, [entries, searchQuery, sourceFilter, selectedDate, sortOrder]);
+
+  // Group entries by date for section headers
+  const groupedEntries = useMemo(() => {
+    const groups: { date: string; label: string; entries: JournalEntry[] }[] = [];
+    let currentDate = "";
+
+    for (const entry of filteredEntries) {
+      const entryDate = format(parseISO(entry.created_at), "yyyy-MM-dd");
+      if (entryDate !== currentDate) {
+        currentDate = entryDate;
+        const date = parseISO(entry.created_at);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        let label: string;
+        if (isSameDay(date, today)) {
+          label = t("journal.today");
+        } else if (isSameDay(date, yesterday)) {
+          label = t("journal.yesterday");
+        } else {
+          label = format(date, "EEEE, d. MMMM", { locale: dateLocale });
+        }
+
+        groups.push({ date: entryDate, label, entries: [] });
+      }
+      groups[groups.length - 1].entries.push(entry);
+    }
+
+    return groups;
+  }, [filteredEntries, language, t, dateLocale]);
 
   // Write mode
   if (viewMode === "write") {
@@ -370,7 +427,7 @@ export default function Journal() {
           autoFocus
         />
 
-        {/* Tags — render stable IDs via t() */}
+        {/* Tags */}
         <div className="mt-6 space-y-3">
           <p className="text-sm text-muted-foreground flex items-center gap-2"><Tag className="w-4 h-4" />{t("journal.tagsOptional")}</p>
           <div className="flex flex-wrap gap-2">
@@ -407,32 +464,67 @@ export default function Journal() {
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-5 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full space-y-5">
         {/* First-visit hint */}
         <TabHint tabId="journal" />
+
         {/* Weekly Recap Card */}
         {entries.length >= 3 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <CalmCard variant="calm">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Calendar className="w-5 h-5 text-primary" />
+                  <CalendarIcon className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1">
                   {weeklyRecap ? (
                     <div className="space-y-3">
-                      <h3 className="font-medium">{t("journal.yourWeeklyRecap")}</h3>
+                      <h3 className="font-semibold text-foreground">{t("journal.yourWeeklyRecap")}</h3>
+                      
+                      {/* Summary narrative */}
+                      {weeklyRecap.summary_bullets && weeklyRecap.summary_bullets.length > 0 && (
+                        <p className="text-sm text-foreground/80 leading-relaxed">
+                          {weeklyRecap.summary_bullets.join(" ")}
+                        </p>
+                      )}
+
+                      {/* Patterns */}
                       {weeklyRecap.patterns.length > 0 && (
                         <div>
-                          <p className="text-xs text-muted-foreground mb-1">{t("journal.observedPatterns")}</p>
-                          <ul className="text-sm space-y-1">
-                            {weeklyRecap.patterns.slice(0, 3).map((p, i) => <li key={i} className="text-muted-foreground">• {p}</li>)}
+                          <p className="text-xs font-medium text-muted-foreground mb-1.5">{t("journal.observedPatterns")}</p>
+                          <ul className="space-y-1.5">
+                            {weeklyRecap.patterns.slice(0, 4).map((p, i) => (
+                              <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
+                                <span className="text-primary mt-0.5">•</span>
+                                <span>{p}</span>
+                              </li>
+                            ))}
                           </ul>
                         </div>
                       )}
-                      {weeklyRecap.suggested_next_step && (
-                        <div className="p-2 bg-muted/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground mb-1">{t("journal.suggestion")}</p>
-                          <p className="text-sm">{weeklyRecap.suggested_next_step}</p>
+
+                      {/* Potential needs */}
+                      {weeklyRecap.potential_needs && weeklyRecap.potential_needs.length > 0 && (
+                        <div className="p-2.5 bg-accent/10 border border-accent/20 rounded-lg">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">
+                            {language === "de" ? "Mögliche Bedürfnisse" : "Possible needs"}
+                          </p>
+                          <ul className="space-y-1">
+                            {weeklyRecap.potential_needs.map((need, i) => (
+                              <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
+                                <span className="text-accent-foreground mt-0.5">💡</span>
+                                <span>{need}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       )}
+
+                      {/* Suggestion */}
+                      {weeklyRecap.suggested_next_step && (
+                        <div className="p-2.5 bg-primary/5 border border-primary/15 rounded-lg">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">{t("journal.suggestion")}</p>
+                          <p className="text-sm text-foreground/90">{weeklyRecap.suggested_next_step}</p>
+                        </div>
+                      )}
+
                       <Button variant="ghost" size="sm" onClick={handleGenerateWeeklyRecap} disabled={isLoadingRecap}>
                         {isLoadingRecap ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <TrendingUp className="w-4 h-4 mr-2" />}
                         {t("journal.refresh")}
@@ -465,27 +557,98 @@ export default function Journal() {
           </div>
         </div>
 
-        {/* Source Filter Chips */}
-        <div className="flex justify-center gap-2 pb-1">
-          {[
-            { key: "all", label: t("journal.filter.all") },
-            { key: "free", label: t("journal.filter.free") },
-            { key: "chat", label: t("journal.filter.chat") },
-            { key: "summary", label: t("journal.filter.summary") },
-            { key: "guided", label: t("journal.filter.guided") },
-          ].map(f => (
-            <button
-              key={f.key}
-              onClick={() => setSourceFilter(f.key)}
-              className={`px-2.5 py-1.5 rounded-full text-xs font-medium text-center transition-all ${
-                sourceFilter === f.key
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
-              }`}
+        {/* Filters row: Source chips + Calendar + Sort */}
+        <div className="space-y-3">
+          {/* Source Filter Chips */}
+          <div className="flex items-center gap-2">
+            <div className="flex gap-2 flex-1 overflow-x-auto no-scrollbar">
+              {[
+                { key: "all", label: t("journal.filter.all") },
+                { key: "free", label: t("journal.filter.free") },
+                { key: "chat", label: t("journal.filter.chat") },
+                { key: "summary", label: t("journal.filter.summary") },
+                { key: "guided", label: t("journal.filter.guided") },
+              ].map(f => (
+                <button
+                  key={f.key}
+                  onClick={() => setSourceFilter(f.key)}
+                  className={`px-2.5 py-1.5 rounded-full text-xs font-medium text-center transition-all whitespace-nowrap ${
+                    sourceFilter === f.key
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Calendar picker + Sort toggle */}
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "gap-2 text-xs",
+                    selectedDate && "bg-primary/10 border-primary/30 text-primary"
+                  )}
+                >
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                  {selectedDate
+                    ? format(selectedDate, "d. MMM", { locale: dateLocale })
+                    : (language === "de" ? "Datum" : "Date")}
+                  {selectedDate && (
+                    <X
+                      className="w-3 h-3 ml-1"
+                      onClick={(e) => { e.stopPropagation(); setSelectedDate(undefined); }}
+                    />
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  locale={dateLocale}
+                  className="p-3 pointer-events-auto"
+                  modifiers={{
+                    hasEntry: (date) => entryDates.has(format(date, "yyyy-MM-dd")),
+                  }}
+                  modifiersClassNames={{
+                    hasEntry: "bg-primary/15 font-semibold text-primary",
+                  }}
+                  disabled={(date) => date > new Date()}
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-xs text-muted-foreground"
+              onClick={() => setSortOrder(prev => prev === "newest" ? "oldest" : "newest")}
             >
-              {f.label}
-            </button>
-          ))}
+              <ArrowUpDown className="w-3.5 h-3.5" />
+              {sortOrder === "newest"
+                ? (language === "de" ? "Neueste" : "Newest")
+                : (language === "de" ? "Älteste" : "Oldest")}
+            </Button>
+
+            {(selectedDate || searchQuery || sourceFilter !== "all") && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-muted-foreground ml-auto"
+                onClick={() => { setSelectedDate(undefined); setSearchQuery(""); setSourceFilter("all"); }}
+              >
+                {language === "de" ? "Zurücksetzen" : "Reset"}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Guided Prompts */}
@@ -505,44 +668,53 @@ export default function Journal() {
           </Button>
         )}
 
-        {/* Entries */}
-        <div className="space-y-3 md:space-y-0">
-          <h2 className="text-sm font-medium text-muted-foreground mb-3">{t("journal.yourEntries")}</h2>
-
+        {/* Entries grouped by date */}
+        <div className="space-y-4">
           {isLoading ? (
             <CalmCard variant="gentle" className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></CalmCard>
           ) : filteredEntries.length === 0 ? (
             <CalmCard variant="gentle" className="text-center py-8">
               <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">{searchQuery ? t("journal.noEntriesFound") : t("journal.noEntries")}</p>
+              <p className="text-muted-foreground">
+                {selectedDate
+                  ? (language === "de" ? "Keine Einträge an diesem Tag" : "No entries on this day")
+                  : searchQuery ? t("journal.noEntriesFound") : t("journal.noEntries")}
+              </p>
             </CalmCard>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-              {filteredEntries.map((entry, index) => (
-                entry.source === "chat-summary" ? (
-                  <AISummaryCard
-                    key={entry.id}
-                    id={entry.id}
-                    content={entry.content}
-                    createdAt={entry.created_at}
-                    index={index}
-                    onClick={() => setSummaryDetail(entry)}
-                  />
-                ) : (
-                  <JournalEntryCard
-                    key={entry.id}
-                    id={entry.id}
-                    title={entry.title}
-                    content={entry.content}
-                    mood={entry.mood}
-                    source={entry.source}
-                    createdAt={entry.created_at}
-                    index={index}
-                    onClick={() => { setSelectedEntry(entry); setDraftContent(entry.content); setSelectedTags(entry.tags || []); setIsEditorOpen(true); }}
-                  />
-                )
-              ))}
-            </div>
+            groupedEntries.map((group) => (
+              <div key={group.date}>
+                <h3 className="text-xs font-medium text-muted-foreground mb-2 px-1 uppercase tracking-wide">
+                  {group.label}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                  {group.entries.map((entry, index) => (
+                    entry.source === "chat-summary" ? (
+                      <AISummaryCard
+                        key={entry.id}
+                        id={entry.id}
+                        content={entry.content}
+                        createdAt={entry.created_at}
+                        index={index}
+                        onClick={() => setSummaryDetail(entry)}
+                      />
+                    ) : (
+                      <JournalEntryCard
+                        key={entry.id}
+                        id={entry.id}
+                        title={entry.title}
+                        content={entry.content}
+                        mood={entry.mood}
+                        source={entry.source}
+                        createdAt={entry.created_at}
+                        index={index}
+                        onClick={() => { setSelectedEntry(entry); setDraftContent(entry.content); setSelectedTags(entry.tags || []); setIsEditorOpen(true); }}
+                      />
+                    )
+                  ))}
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
