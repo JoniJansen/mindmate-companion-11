@@ -58,7 +58,6 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.text();
-    const signature = req.headers.get("stripe-signature");
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")?.trim();
     if (!webhookSecret) {
       console.error("STRIPE_WEBHOOK_SECRET is not configured");
@@ -178,6 +177,5 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
-  }
   }
 });
