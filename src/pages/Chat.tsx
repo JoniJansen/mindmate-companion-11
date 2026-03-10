@@ -639,7 +639,6 @@ export default function Chat() {
                   {language === "de" ? "Neues Gespräch" : "New conversation"}
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
