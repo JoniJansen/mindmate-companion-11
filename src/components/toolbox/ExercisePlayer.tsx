@@ -272,7 +272,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       {/* Progress bar */}
       <div className="h-1 bg-muted">
         <div 
-          className="h-full bg-primary transition-all duration-200"
+          className="h-full bg-primary transition-all duration-700 ease-in-out"
           style={{ width: `${overallProgress}%` }}
         />
       </div>
