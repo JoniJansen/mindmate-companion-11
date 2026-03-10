@@ -153,7 +153,7 @@ export default function Upgrade() {
           body: {
             userId: user?.id || crypto.randomUUID(),
             planType: selectedPlan,
-            successUrl: `${window.location.origin}/upgrade?success=true`,
+            successUrl: `${window.location.origin}/settings?success=true`,
             cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
           },
         });
