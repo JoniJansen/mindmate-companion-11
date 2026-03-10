@@ -78,7 +78,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }
   };
 
-  // Auto-progress when playing
+  // Auto-progress when playing — uses refs to avoid stale closures
+  const currentStepRef = useRef(currentStep);
+  currentStepRef.current = currentStep;
+  const totalStepsRef = useRef(totalSteps);
+  totalStepsRef.current = totalSteps;
+
   useEffect(() => {
     if (!isPlaying || isComplete || !step) return;
 
@@ -87,7 +92,15 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       setStepProgress(prev => {
         const increment = 100 / (stepDuration * 10);
         if (prev + increment >= 100) {
-          handleNextStep();
+          // Advance step via functional approach to avoid stale closure
+          stop();
+          if (currentStepRef.current < totalStepsRef.current - 1) {
+            setCurrentStep(s => s + 1);
+            setStepProgress(0);
+          } else {
+            setIsComplete(true);
+            setIsPlaying(false);
+          }
           return 0;
         }
         return prev + increment;
@@ -95,7 +108,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isPlaying, step, isComplete, currentStep]);
+  }, [isPlaying, step, isComplete, currentStep, stop]);
 
   const handleRestart = () => {
     setCurrentStep(0);
