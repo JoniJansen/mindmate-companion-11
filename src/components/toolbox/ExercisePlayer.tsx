@@ -81,6 +81,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Handle next step
   const handleNextStep = () => {
     stop(); // Stop current speech
+    setIsCurrentStepSpeaking(false);
+    setIsCurrentStepMinDurationMet(false);
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
       setStepProgress(0);
