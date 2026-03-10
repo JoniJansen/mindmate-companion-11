@@ -26,9 +26,10 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
   // AbortController to cancel in-flight fetch when a new speak() is called
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Cleanup audio on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
+      abortControllerRef.current?.abort();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
