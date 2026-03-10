@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ExercisePlayer } from "@/components/toolbox/ExercisePlayer";
 import type { Exercise } from "@/data/exercises";
@@ -72,33 +72,33 @@ describe("ExercisePlayer progression", () => {
   });
 
   it("waits for speech to finish and advances one step at a time", () => {
-    render(<ExercisePlayer exercise={exercise} onClose={vi.fn()} onComplete={vi.fn()} />);
+    const view = render(<ExercisePlayer exercise={exercise} onClose={vi.fn()} onComplete={vi.fn()} />);
 
-    expect(screen.getByText("Step one")).toBeInTheDocument();
+    expect(view.getByText("Step one")).toBeInTheDocument();
     expect(speakMock).toHaveBeenCalledTimes(1);
 
     act(() => {
       vi.advanceTimersByTime(1400);
     });
-    expect(screen.getByText("Step one")).toBeInTheDocument();
+    expect(view.getByText("Step one")).toBeInTheDocument();
 
     act(() => {
       latestTtsOptions.onEnd?.();
       vi.advanceTimersByTime(950);
     });
-    expect(screen.getByText("Step two")).toBeInTheDocument();
+    expect(view.getByText("Step two")).toBeInTheDocument();
     expect(speakMock).toHaveBeenCalledTimes(2);
 
     act(() => {
       vi.advanceTimersByTime(2400);
     });
-    expect(screen.getByText("Step two")).toBeInTheDocument();
+    expect(view.getByText("Step two")).toBeInTheDocument();
 
     act(() => {
       latestTtsOptions.onEnd?.();
       vi.advanceTimersByTime(950);
     });
-    expect(screen.getByText("Step three")).toBeInTheDocument();
+    expect(view.getByText("Step three")).toBeInTheDocument();
     expect(speakMock).toHaveBeenCalledTimes(3);
   });
 });
