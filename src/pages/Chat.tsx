@@ -768,12 +768,17 @@ export default function Chat() {
             </Button>
             <Button variant="outline" size="sm" className="gap-2" onClick={async () => {
               if (!user) return;
+              const customTitle = window.prompt(
+                language === "de" ? "Titel für das Gespräch (optional):" : "Title for the conversation (optional):",
+                language === "de" ? "Chat-Gespräch" : "Chat Conversation"
+              );
+              if (customTitle === null) return;
               const chatContent = messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
               try {
                 await supabase.from("journal_entries").insert({
                   user_id: user.id, user_session_id: user.id,
                   content: chatContent,
-                  title: t("chat.journalTitle.conversation"),
+                  title: customTitle || t("chat.journalTitle.conversation"),
                   source: "chat", tags: ["chat"],
                 } as any);
                 toast({ title: t("chat.savedToJournal"), description: t("chat.chatSavedDesc") });
