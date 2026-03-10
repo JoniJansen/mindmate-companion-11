@@ -128,7 +128,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Completion screen
   if (isComplete) {
     return (
-      <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={fullScreenOverlay()}>
+      <div className="fixed inset-0 bg-background z-[200] flex flex-col" style={fullScreenOverlay()}>
         <div className="flex items-center justify-between p-3 border-b border-border">
           <button type="button" onClick={handleClose} className="p-2 hover:bg-muted rounded-lg">
             <X className="w-5 h-5" />
