@@ -670,12 +670,17 @@ export default function Chat() {
                         onClick={async (e) => {
                           e.stopPropagation();
                           if (!user) return;
+                          const customTitle = window.prompt(
+                            language === "de" ? "Titel für den Tagebucheintrag (optional):" : "Title for journal entry (optional):",
+                            language === "de" ? "Chat-Nachricht" : "Chat Message"
+                          );
+                          if (customTitle === null) return;
                           try {
                             await supabase.from("journal_entries").insert({
                               user_id: user.id,
                               user_session_id: user.id,
                               content: message.content,
-                              title: t("chat.journalTitle.message"),
+                              title: customTitle || t("chat.journalTitle.message"),
                               source: "chat",
                               tags: ["chat"],
                             } as any);
