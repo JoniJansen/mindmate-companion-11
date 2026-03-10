@@ -294,7 +294,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     } else {
       const instruction = getStepSpeechText(currentStep);
       const voiceId = getVoiceId(effectiveLang);
-      speak(instruction, voiceId, effectiveLang, speed);
+      speak(instruction, voiceId, effectiveLang, exerciseVoiceSpeed);
     }
     setVoiceEnabled(!voiceEnabled);
   };
