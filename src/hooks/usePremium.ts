@@ -188,10 +188,10 @@ export function usePremium() {
     if (user && isLoaded) {
       checkSubscriptionStatus();
 
-      // Auto-refresh every 5 minutes to catch delayed webhooks
+      // Auto-refresh every 15 minutes to catch delayed webhooks
       const interval = setInterval(() => {
         checkSubscriptionStatus();
-      }, 5 * 60 * 1000);
+      }, 15 * 60 * 1000);
 
       return () => clearInterval(interval);
     }
