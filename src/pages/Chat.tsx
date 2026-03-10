@@ -599,6 +599,18 @@ export default function Chat() {
 
   const handleUpgrade = () => { setShowUpgradePrompt(false); navigate("/upgrade"); };
 
+  const handleNewConversation = () => {
+    try { localStorage.removeItem(CHAT_HISTORY_KEY); } catch {}
+    setMessages([]);
+    chatMessageCountRef.current = 0;
+    // Trigger fresh greeting by reloading
+    const savedLang = preferences.current.language || language;
+    const baseGreeting = savedLang === "de"
+      ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
+      : "Hello. I'm Soulvay, and\nI'm here to listen.\n\nTake your time – share what's on your mind.";
+    setMessages([{ id: "greeting-" + Date.now(), content: baseGreeting, role: "assistant", timestamp: new Date() }]);
+  };
+
   return (
     <div 
       className="flex flex-col bg-background"
