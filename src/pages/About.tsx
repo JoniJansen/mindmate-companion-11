@@ -25,7 +25,7 @@ export default function About() {
         {
           icon: Shield,
           title: "Privacy First",
-          description: "Your thoughts are sacred. We use end-to-end encryption and never share your data.",
+          description: "Your thoughts are sacred. Your data is securely stored and we never share it.",
         },
         {
           icon: Heart,
