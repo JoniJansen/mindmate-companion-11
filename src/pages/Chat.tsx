@@ -628,6 +628,22 @@ export default function Chat() {
                 <TooltipTrigger asChild>
                   <Button 
                     variant="ghost" size="icon" 
+                    onClick={(e) => { e.stopPropagation(); handleNewConversation(); }} 
+                    className="text-muted-foreground shrink-0"
+                    aria-label={language === "de" ? "Neues Gespräch" : "New conversation"}
+                  >
+                    <Plus className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">
+                  {language === "de" ? "Neues Gespräch" : "New conversation"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" size="icon" 
                     onClick={(e) => { e.stopPropagation(); toggleVoiceMode(); }} 
                     className={`relative shrink-0 ${voiceModeEnabled && canUseVoice ? "text-primary" : "text-muted-foreground"}`}
                     aria-label={voiceModeEnabled ? t("chat.voiceModeActive") : t("chat.startVoiceMode")}
