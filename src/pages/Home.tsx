@@ -345,45 +345,19 @@ export default function Home() {
           </p>
         </motion.div>
 
-        {/* Memory Moment — contextual check-in */}
-        {memoryMoment && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.22 }}
-            className="mb-6"
-          >
-            <div className="rounded-2xl p-4 border bg-primary/5 border-primary/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Heart className="w-3.5 h-3.5 text-primary" />
-                 <span className="text-xs font-medium text-muted-foreground">
-                   {t("home.memoryMoment")}
-                 </span>
-               </div>
-               <p className="text-sm text-foreground/90 leading-relaxed mb-3">
-                 {t("home.memoryMomentIntro")} &ldquo;{memoryMoment.content}&rdquo; {t("home.memoryMomentQuestion")}
-               </p>
-               <div className="flex gap-2">
-                 <Button
-                   size="sm"
-                   variant="outline"
-                   className="rounded-xl gap-2"
-                   onClick={() => {
-                     startMomentConversation();
-                     const msg = `${t("home.memoryMomentMsg")} "${memoryMoment.content}". ${t("home.memoryMomentContinue")}`;
-                     localStorage.setItem('mindmate-initial-message', msg);
-                     navigate("/chat");
-                   }}
-                 >
-                   <MessageCircle className="w-3.5 h-3.5" />
-                   {t("home.talkAboutIt")}
-                 </Button>
-                 <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={dismissMoment}>
-                   {t("home.notNow")}
-                 </Button>
-               </div>
-            </div>
-          </motion.div>
+        {/* Companion Check-in — memory moment or insight-based */}
+        {memoryMoment && !companionCheckinDismissed && (
+          <CompanionCheckin
+            type="memory"
+            text={`${t("home.memoryMomentIntro")} "${memoryMoment.content}" ${t("home.memoryMomentQuestion")}`}
+            onTalkAboutIt={() => {
+              startMomentConversation();
+              const msg = `${t("home.memoryMomentMsg")} "${memoryMoment.content}". ${t("home.memoryMomentContinue")}`;
+              localStorage.setItem('mindmate-initial-message', msg);
+              navigate("/chat");
+            }}
+            onDismiss={() => { dismissMoment(); setCompanionCheckinDismissed(true); }}
+          />
         )}
 
         {/* Daily Reflection Prompt */}
@@ -415,46 +389,35 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Latest Session Insight */}
+        {/* Shareable Insight Card */}
         {latestInsight && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.28 }}
-            className="mb-6"
-          >
-            <div className="rounded-2xl p-4 border bg-card border-border/30">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-medium text-muted-foreground">{t("home.sessionInsight")}</span>
-              </div>
-              <p className="text-sm text-foreground/90 leading-relaxed">{latestInsight.insight_text}</p>
-            </div>
-          </motion.div>
+          <ShareableInsightCard
+            insightText={latestInsight.insight_text}
+            date={latestInsight.created_at}
+          />
         )}
 
-        {/* Emotional Patterns */}
-        {patterns.length > 0 && (
+        {/* Personal Growth Dashboard */}
+        {!streak.isLoading && (
+          <GrowthDashboard
+            patterns={patterns}
+            weeklyStats={streak.weeklyStats}
+            currentStreak={streak.currentStreak}
+            insightCount={insightCount}
+          />
+        )}
+
+        {/* Identity Message — when patterns exist */}
+        {patterns.length >= 2 && streak.currentStreak >= 3 && (
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.32 }}
+            transition={{ delay: 0.34 }}
             className="mb-6"
           >
-            <div className="rounded-2xl p-4 border bg-card border-border/30">
-              <div className="flex items-center gap-2 mb-3">
-                <TrendingUp className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-medium text-muted-foreground">{t("home.patterns")}</span>
-              </div>
-              <div className="space-y-2">
-                {patterns.slice(0, 3).map((pattern) => (
-                  <div key={pattern.id} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary/60 mt-1.5 shrink-0" />
-                    <p className="text-sm text-foreground/80 leading-relaxed">{pattern.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <p className="text-xs text-center text-muted-foreground/70 italic">
+              {t("growth.identityMessage")}
+            </p>
           </motion.div>
         )}
         <motion.div
