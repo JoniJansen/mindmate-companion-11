@@ -642,7 +642,7 @@ export default function Chat() {
                     variant="ghost" size="icon" 
                     onClick={(e) => { e.stopPropagation(); navigate("/chat-history"); }} 
                     className="text-muted-foreground shrink-0"
-                    aria-label={language === "de" ? "Verlauf" : "History"}
+                    aria-label={t("chat.conversationHistory")}
                   >
                     <History className="w-5 h-5" />
                   </Button>
