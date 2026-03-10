@@ -191,7 +191,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="bg-background flex flex-col">
       {/* Header */}
       <div className="px-6 pt-8 pb-4 safe-top">
         <div className="flex items-center justify-between">
