@@ -363,8 +363,9 @@ ${memoriesContext ? `You have the following context about this user from previou
 ${memoriesContext}` : "No personal context available yet for this user."}
 
 Create a calm space where the user feels heard, understood, and able to explore their thoughts more deeply. You are not here to fix people. You are here to think with them.`;
+}
 
-serve(async (req) => {
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
