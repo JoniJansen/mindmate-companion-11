@@ -499,7 +499,7 @@ export default function Home() {
           >
             <History className="w-5 h-5 text-primary" />
             <span className="font-medium text-foreground text-[11px]">
-              {language === "de" ? "Verlauf" : "History"}
+              {t("home.history")}
             </span>
           </Button>
         </motion.div>
