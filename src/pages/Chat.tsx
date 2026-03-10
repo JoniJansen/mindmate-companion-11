@@ -347,13 +347,14 @@ export default function Chat() {
 
   const upsertAssistant = useCallback((nextChunk: string) => {
     setMessages((prev) => {
-      const lastIndex = prev.length - 1;
-      const last = prev[lastIndex];
+      const last = prev[prev.length - 1];
 
       if (last?.role === "assistant" && !last.isError) {
-        const updated = [...prev];
-        updated[lastIndex] = { ...last, content: last.content + nextChunk };
-        return updated;
+        // Mutate-then-copy: only create one new object for the changed message
+        const newLast = { ...last, content: last.content + nextChunk };
+        const next = prev.slice(0, -1);
+        next.push(newLast);
+        return next;
       }
 
       return [...prev, { id: Date.now().toString(), content: nextChunk, role: "assistant", timestamp: new Date() }];
