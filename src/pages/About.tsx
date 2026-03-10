@@ -70,7 +70,7 @@ export default function About() {
         {
           icon: Shield,
           title: "Datenschutz zuerst",
-          description: "Deine Gedanken sind heilig. Wir verwenden Ende-zu-Ende-Verschlüsselung und teilen deine Daten niemals.",
+          description: "Deine Gedanken sind heilig. Deine Daten werden sicher gespeichert und niemals weitergegeben.",
         },
         {
           icon: Heart,
