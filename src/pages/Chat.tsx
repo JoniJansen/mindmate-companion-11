@@ -628,11 +628,19 @@ export default function Chat() {
           body: JSON.stringify({ content: conversationContent, source: "chat", language }),
         }).catch(() => {});
 
-        // Fire-and-forget: session insight (only for 8+ messages)
+        // Fire-and-forget: session insight (only for 6+ user messages)
         if (userMsgCount >= 6) {
           fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/session-insight`, {
             method: "POST", headers,
             body: JSON.stringify({ messages: chatMsgs, conversation_id: convId, language }),
+          }).catch(() => {});
+        }
+
+        // Fire-and-forget: detect emotional patterns (only for 8+ user messages)
+        if (userMsgCount >= 8) {
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/detect-patterns`, {
+            method: "POST", headers,
+            body: JSON.stringify({ language }),
           }).catch(() => {});
         }
       });
