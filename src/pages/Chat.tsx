@@ -138,9 +138,9 @@ export default function Chat() {
   }, [voice]);
 
   // Send message with voice TTS callback
-  const handleSend = useCallback((content: string) => {
+  const handleSend = useCallback(async (content: string) => {
     if (!content.trim()) return;
-    const result = composer.handleSend(content, false, undefined, handleStreamDone);
+    const result = await composer.handleSend(content, false, undefined, handleStreamDone);
     if (result === "upgrade_needed") {
       setUpgradeReason("messages");
       setShowUpgradePrompt(true);
