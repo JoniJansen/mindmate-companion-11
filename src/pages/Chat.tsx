@@ -84,8 +84,7 @@ export default function Chat() {
   const { isOnline } = useNetworkStatus();
   const { logActivity } = useActivityLog();
   const chatMessageCountRef = useRef(0);
-  const streamChunkBufferRef = useRef("");
-  const streamFlushFrameRef = useRef<number | null>(null);
+  const [isStreamingActive, setIsStreamingActive] = useState(false);
 
   // Chat persistence
   const {
