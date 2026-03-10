@@ -59,6 +59,7 @@ export default function Journal() {
   const [showReflection, setShowReflection] = useState(false);
   const [weeklyRecap, setWeeklyRecap] = useState<WeeklyRecap | null>(null);
   const [isLoadingRecap, setIsLoadingRecap] = useState(false);
+  const [recapCollapsed, setRecapCollapsed] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [summaryDetail, setSummaryDetail] = useState<JournalEntry | null>(null);
