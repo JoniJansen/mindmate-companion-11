@@ -27,6 +27,7 @@ import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { fullScreenWithNav } from "@/lib/safeArea";
+import { useStreamingDisplay } from "@/hooks/useStreamingDisplay";
 
 interface Message {
   id: string;
