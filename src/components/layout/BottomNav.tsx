@@ -18,7 +18,7 @@ export function BottomNav() {
     { 
       to: "/home", 
       icon: Home, 
-      label: language === "de" ? "Space" : "Space",
+      label: language === "de" ? "Zuhause" : "Home",
       tourId: "home",
     },
     { 
