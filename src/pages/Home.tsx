@@ -45,6 +45,9 @@ export default function Home() {
   const { prompt: dailyPrompt } = useDailyPrompt();
   const { latestInsight, patterns } = useInsightsAndPatterns();
   const [showMilestone, setShowMilestone] = useState(true);
+  const { moment: memoryMoment, dismiss: dismissMoment, startConversation: startMomentConversation } = useMemoryMoments();
+  const { loadRecentConversations } = useChatPersistence();
+  const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
   
