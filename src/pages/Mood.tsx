@@ -82,6 +82,7 @@ export default function Mood() {
       const todayCheckin = mapped.find(c => new Date(c.created_at).toDateString() === today);
       if (todayCheckin) {
         setHasSavedToday(true);
+        setCheckinCollapsed(true);
         setSelectedMood(todayCheckin.mood_value);
         setSelectedFeelings(todayCheckin.feelings);
         setNote(todayCheckin.note || "");
