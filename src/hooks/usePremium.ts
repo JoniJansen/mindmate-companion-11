@@ -46,6 +46,8 @@ export function usePremium() {
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
+  // Server-verified premium status – only this authorizes premium features
+  const [serverVerifiedPremium, setServerVerifiedPremium] = useState<boolean | null>(null);
   
   // RevenueCat integration for iOS
   const { 
@@ -57,7 +59,7 @@ export function usePremium() {
     checkEntitlements,
   } = useRevenueCat();
 
-  // Load state from localStorage and check for daily reset
+  // Load state from localStorage (cache only – NOT authoritative for premium)
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -84,17 +86,20 @@ export function usePremium() {
     setIsLoaded(true);
   }, []);
 
-  // Sync RevenueCat premium status to local state
+  // Sync RevenueCat premium status (RevenueCat SDK does its own server validation)
   useEffect(() => {
-    if (isRevenueCatPremium && !state.isPremium) {
-      if (import.meta.env.DEV) console.log("[Premium] RevenueCat premium detected, syncing to local state");
-      const newState: StoredState = {
-        ...state,
-        isPremium: true,
-        planType: "revenuecat",
-        subscriptionStatus: "active",
-      };
-      saveState(newState);
+    if (isRevenueCatPremium) {
+      setServerVerifiedPremium(true);
+      if (!state.isPremium) {
+        if (import.meta.env.DEV) console.log("[Premium] RevenueCat premium detected, syncing to local state");
+        const newState: StoredState = {
+          ...state,
+          isPremium: true,
+          planType: "revenuecat",
+          subscriptionStatus: "active",
+        };
+        saveState(newState);
+      }
     }
   }, [isRevenueCatPremium, state.isPremium]);
 
@@ -119,36 +124,42 @@ export function usePremium() {
     }
   }, [user, state.isPremium]);
 
-  // Check subscription status from backend
+  // Check subscription status from backend (source of truth)
   const checkSubscriptionStatus = useCallback(async () => {
     if (!user || isCheckingSubscription) return;
     
     setIsCheckingSubscription(true);
     try {
-      // First check RevenueCat if available
+      // First check RevenueCat if available (SDK does server-side validation)
       if (isRevenueCatAvailable) {
         const hasPremium = await checkEntitlements();
         if (hasPremium) {
+          setServerVerifiedPremium(true);
           setIsCheckingSubscription(false);
           return;
         }
       }
 
-      // Fallback to backend check
+      // Backend check via Edge Function (server-side Stripe validation)
       const { data, error } = await supabase.functions.invoke("manage-subscription", {
         body: { userId: user.id, action: "status" },
       });
 
       if (error) {
         if (import.meta.env.DEV) console.warn("Failed to check subscription:", error);
+        // On error, don't grant premium – fail closed
+        setServerVerifiedPremium(false);
         return;
       }
 
       if (data) {
+        const isPremiumFromServer = data.isPremium || false;
+        setServerVerifiedPremium(isPremiumFromServer);
+        
         setState(prev => {
           const newState: StoredState = {
             ...prev,
-            isPremium: data.isPremium || false,
+            isPremium: isPremiumFromServer,
             planType: data.planType,
             cancelAtPeriodEnd: data.cancelAtPeriodEnd,
             currentPeriodEnd: data.currentPeriodEnd,
@@ -161,9 +172,12 @@ export function usePremium() {
           }
           return newState;
         });
+      } else {
+        setServerVerifiedPremium(false);
       }
     } catch (e) {
       if (import.meta.env.DEV) console.warn("Failed to check subscription status:", e);
+      setServerVerifiedPremium(false);
     } finally {
       setIsCheckingSubscription(false);
     }
@@ -337,8 +351,15 @@ export function usePremium() {
   // DEV: entitlement simulator override
   const simOverride = getSimulatedPremiumOverride();
   
-  // Compute final premium status (Simulator > RevenueCat > local state)
-  const finalIsPremium = simOverride !== null ? simOverride.isPremium : (state.isPremium || isRevenueCatPremium);
+  // Compute final premium status:
+  // Priority: Simulator (DEV only) > Review mode > Server-verified > RevenueCat > cached localStorage
+  // In production, serverVerifiedPremium is the source of truth once loaded.
+  // localStorage is only used as a brief cache while the server check is in flight.
+  const isReviewModePremium = state.isReviewMode && state.isPremium;
+  const serverOrCachedPremium = serverVerifiedPremium !== null 
+    ? serverVerifiedPremium 
+    : (state.isPremium || isRevenueCatPremium); // cache fallback only before server responds
+  const finalIsPremium = simOverride !== null ? simOverride.isPremium : (isReviewModePremium || serverOrCachedPremium);
   const finalPlanType = simOverride !== null ? simOverride.planType : state.planType;
   const finalSubscriptionStatus = simOverride !== null ? simOverride.subscriptionStatus : state.subscriptionStatus;
 

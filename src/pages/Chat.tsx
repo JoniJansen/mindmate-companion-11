@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, MicOff, Phone, BookOpen, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save, HelpCircle } from "lucide-react";
+import { Send, Mic, MicOff, Phone, BookOpen, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save, HelpCircle, Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -37,6 +37,17 @@ interface Message {
   timestamp: Date;
   isError?: boolean;
 }
+
+interface SerializedMessage {
+  id: string;
+  content: string;
+  role: "user" | "assistant";
+  timestamp: string;
+  isError?: boolean;
+}
+
+const CHAT_HISTORY_KEY = "soulvay-chat-history";
+const CHAT_HISTORY_MAX_MESSAGES = 100;
 
 interface Preferences {
   language: "en" | "de";
@@ -211,7 +222,20 @@ export default function Chat() {
     }
   }, [messages, isLoading, scrollToBottom]);
 
-  // Initial greeting - personalized based on onboarding
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0 && !isLoading) {
+      try {
+        const toSave: SerializedMessage[] = messages
+          .filter(m => !m.isError)
+          .slice(-CHAT_HISTORY_MAX_MESSAGES)
+          .map(m => ({ ...m, timestamp: m.timestamp.toISOString() }));
+        localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(toSave));
+      } catch {}
+    }
+  }, [messages, isLoading]);
+
+  // Initial greeting or restore from localStorage
   useEffect(() => {
     const initialMessage = localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
     const savedLang = preferences.current.language || language;
@@ -264,6 +288,23 @@ export default function Chat() {
         localStorage.removeItem('mindmate-initial-message');
         handleSend(initialMessage);
       } else {
+        // Try to restore previous conversation
+        try {
+          const stored = localStorage.getItem(CHAT_HISTORY_KEY);
+          if (stored) {
+            const parsed: SerializedMessage[] = JSON.parse(stored);
+            if (parsed.length > 1) { // More than just greeting = real conversation
+              const restored: Message[] = parsed.map(m => ({
+                ...m,
+                timestamp: new Date(m.timestamp),
+              }));
+              setMessages(restored);
+              return; // Skip greeting
+            }
+          }
+        } catch {}
+        
+        // No previous conversation – show greeting
         const personalLine = getPersonalizedGreeting();
         const baseGreeting = savedLang === "de"
           ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu."
@@ -558,6 +599,18 @@ export default function Chat() {
 
   const handleUpgrade = () => { setShowUpgradePrompt(false); navigate("/upgrade"); };
 
+  const handleNewConversation = () => {
+    try { localStorage.removeItem(CHAT_HISTORY_KEY); } catch {}
+    setMessages([]);
+    chatMessageCountRef.current = 0;
+    // Trigger fresh greeting by reloading
+    const savedLang = preferences.current.language || language;
+    const baseGreeting = savedLang === "de"
+      ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
+      : "Hello. I'm Soulvay, and\nI'm here to listen.\n\nTake your time – share what's on your mind.";
+    setMessages([{ id: "greeting-" + Date.now(), content: baseGreeting, role: "assistant", timestamp: new Date() }]);
+  };
+
   return (
     <div 
       className="flex flex-col bg-background"
@@ -571,6 +624,21 @@ export default function Chat() {
         rightElement={
           <div className="flex items-center gap-2 -mr-1.5">
             <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" size="icon" 
+                    onClick={(e) => { e.stopPropagation(); handleNewConversation(); }} 
+                    className="text-muted-foreground shrink-0"
+                    aria-label={language === "de" ? "Neues Gespräch" : "New conversation"}
+                  >
+                    <Plus className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">
+                  {language === "de" ? "Neues Gespräch" : "New conversation"}
+                </TooltipContent>
+              </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 

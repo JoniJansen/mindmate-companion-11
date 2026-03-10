@@ -32,7 +32,7 @@ export default function FAQ() {
           questions: [
             {
               q: "Is my data secure?",
-              a: "Yes, absolutely. All your data is encrypted both in transit (TLS 1.3) and at rest (AES-256). We use enterprise-grade cloud infrastructure with industry-standard security certifications."
+              a: "Yes, absolutely. All your data is encrypted in transit (TLS) and stored securely using enterprise-grade cloud infrastructure with industry-standard security practices."
             },
             {
               q: "Can anyone else see my journal entries or chats?",
@@ -88,11 +88,11 @@ export default function FAQ() {
             },
             {
               q: "How does the AI work?",
-              a: "Soulvay uses advanced AI models to provide empathetic, supportive responses based on evidence-based therapeutic techniques. The AI learns from our training but never stores your personal conversations for training purposes."
+              a: "Soulvay uses advanced AI models to provide empathetic, supportive responses inspired by psychological principles. The AI does not store your personal conversations for training purposes."
             },
             {
               q: "Can I trust the AI's advice?",
-              a: "The AI provides general wellness support and reflective prompts. While it's trained on therapeutic principles, it cannot diagnose conditions or provide medical advice. Always consult professionals for health concerns."
+              a: "The AI provides general wellness support and reflective prompts. While it's designed with psychological insights in mind, it cannot diagnose conditions or provide medical advice. Always consult professionals for health concerns."
             },
             {
               q: "What happens if I share something serious?",
@@ -152,7 +152,7 @@ export default function FAQ() {
           questions: [
             {
               q: "Sind meine Daten sicher?",
-              a: "Ja, absolut. Alle deine Daten werden sowohl bei der Übertragung (TLS 1.3) als auch im Ruhezustand (AES-256) verschlüsselt. Wir nutzen Enterprise-Cloud-Infrastruktur mit branchenüblichen Sicherheitszertifizierungen."
+              a: "Ja, absolut. Alle deine Daten werden bei der Übertragung (TLS) verschlüsselt und sicher in einer Enterprise-Cloud-Infrastruktur mit branchenüblichen Sicherheitsstandards gespeichert."
             },
             {
               q: "Kann jemand anderes meine Tagebucheinträge oder Chats sehen?",
@@ -208,11 +208,11 @@ export default function FAQ() {
             },
             {
               q: "Wie funktioniert die KI?",
-              a: "Soulvay verwendet fortschrittliche KI-Modelle, um einfühlsame, unterstützende Antworten basierend auf evidenzbasierten therapeutischen Techniken zu geben. Die KI lernt aus unserem Training, speichert aber niemals deine persönlichen Gespräche zu Trainingszwecken."
+              a: "Soulvay verwendet fortschrittliche KI-Modelle, um einfühlsame, unterstützende Antworten zu geben, die von psychologischen Prinzipien inspiriert sind. Die KI speichert deine persönlichen Gespräche nicht zu Trainingszwecken."
             },
             {
               q: "Kann ich den Ratschlägen der KI vertrauen?",
-              a: "Die KI bietet allgemeine Wellness-Unterstützung und reflektierende Impulse. Obwohl sie auf therapeutischen Prinzipien trainiert ist, kann sie keine Erkrankungen diagnostizieren oder medizinische Ratschläge geben. Konsultiere immer Fachleute bei gesundheitlichen Bedenken."
+              a: "Die KI bietet allgemeine Wellness-Unterstützung und reflektierende Impulse. Obwohl sie mit psychologischen Erkenntnissen gestaltet ist, kann sie keine Erkrankungen diagnostizieren oder medizinische Ratschläge geben. Konsultiere immer Fachleute bei gesundheitlichen Bedenken."
             },
             {
               q: "Was passiert, wenn ich etwas Ernstes teile?",

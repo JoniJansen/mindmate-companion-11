@@ -35,8 +35,8 @@ We do NOT collect:
           title: "How We Protect Your Data",
           content: `Your mental health data deserves the highest protection:
 
-• **Encryption**: All data is encrypted in transit (TLS 1.3) and at rest (AES-256).
-• **Secure Infrastructure**: We use enterprise-grade cloud infrastructure with industry-standard security certifications.
+• **Encryption**: All data is encrypted in transit (TLS) and stored securely using enterprise-grade cloud infrastructure.
+• **Secure Infrastructure**: We use industry-standard security practices and trusted cloud providers.
 • **Access Controls**: Only you can access your personal data. Our team cannot read your journal entries or chat conversations.
 • **No Third-Party Sharing**: We never sell or share your personal data with advertisers or data brokers.`
         },
@@ -118,8 +118,8 @@ Wir erheben NICHT:
           title: "Wie wir deine Daten schützen",
           content: `Deine mentalen Gesundheitsdaten verdienen höchsten Schutz:
 
-• **Verschlüsselung**: Alle Daten werden bei der Übertragung (TLS 1.3) und im Ruhezustand (AES-256) verschlüsselt.
-• **Sichere Infrastruktur**: Wir nutzen eine Enterprise-Cloud-Infrastruktur mit branchenüblichen Sicherheitszertifizierungen.
+• **Verschlüsselung**: Alle Daten werden bei der Übertragung (TLS) verschlüsselt und sicher in einer Enterprise-Cloud-Infrastruktur gespeichert.
+• **Sichere Infrastruktur**: Wir nutzen branchenübliche Sicherheitsstandards und vertrauenswürdige Cloud-Anbieter.
 • **Zugriffskontrollen**: Nur du kannst auf deine persönlichen Daten zugreifen. Unser Team kann deine Tagebucheinträge oder Chat-Gespräche nicht lesen.
 • **Keine Weitergabe an Dritte**: Wir verkaufen oder teilen deine persönlichen Daten niemals mit Werbetreibenden oder Datenhändlern.`
         },

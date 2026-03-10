@@ -25,7 +25,7 @@ export default function About() {
         {
           icon: Shield,
           title: "Privacy First",
-          description: "Your thoughts are sacred. We use end-to-end encryption and never share your data.",
+          description: "Your thoughts are sacred. Your data is securely stored and we never share it.",
         },
         {
           icon: Heart,
@@ -34,8 +34,8 @@ export default function About() {
         },
         {
           icon: Brain,
-          title: "Evidence-Based",
-          description: "Our approaches are grounded in proven therapeutic techniques.",
+          title: "Thoughtfully Designed",
+          description: "Our approaches are inspired by established psychological principles.",
         },
         {
           icon: Sparkles,
@@ -70,7 +70,7 @@ export default function About() {
         {
           icon: Shield,
           title: "Datenschutz zuerst",
-          description: "Deine Gedanken sind heilig. Wir verwenden Ende-zu-Ende-Verschlüsselung und teilen deine Daten niemals.",
+          description: "Deine Gedanken sind heilig. Deine Daten werden sicher gespeichert und niemals weitergegeben.",
         },
         {
           icon: Heart,
@@ -79,8 +79,8 @@ export default function About() {
         },
         {
           icon: Brain,
-          title: "Evidenzbasiert",
-          description: "Unsere Ansätze basieren auf bewährten therapeutischen Techniken.",
+          title: "Durchdacht gestaltet",
+          description: "Unsere Ansätze sind inspiriert von etablierten psychologischen Prinzipien.",
         },
         {
           icon: Sparkles,

@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 // Critical pages (eagerly loaded for instant navigation)
 import Chat from "@/pages/Chat";
+import Home from "@/pages/Home";
 import Auth from "@/pages/Auth";
 import Onboarding from "@/pages/Onboarding";
 
@@ -124,7 +125,7 @@ function RootRedirect() {
   
   // If authenticated, go to chat
   if (isAuthenticated) {
-    return <Navigate to="/chat" replace />;
+    return <Navigate to="/home" replace />;
   }
   
   // If completed onboarding but not authenticated, go to auth
@@ -164,7 +165,7 @@ function AppContent() {
           <SubscriptionRestoreInitializer />
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TourProvider>
               <DelayedCookieConsent />
               <Suspense fallback={<PageLoader />}>
@@ -184,6 +185,7 @@ function AppContent() {
                   
                   {/* Main app with bottom navigation - Protected with OnboardingGuard */}
                   <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
+                    <Route path="/home" element={<Home />} />
                     <Route path="/chat" element={<Chat />} />
                     <Route path="/journal" element={<Journal />} />
                     <Route path="/topics" element={<Topics />} />

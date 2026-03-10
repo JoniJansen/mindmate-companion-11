@@ -5,7 +5,7 @@ import {
   BookOpen, 
   Compass, 
   BarChart3, 
-  Sparkles 
+  Home
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { BOTTOM_NAV_HEIGHT } from "@/lib/safeArea";
@@ -15,6 +15,12 @@ export function BottomNav() {
   const { language } = useTranslation();
 
   const navItems = [
+    { 
+      to: "/home", 
+      icon: Home, 
+      label: language === "de" ? "Space" : "Space",
+      tourId: "home",
+    },
     { 
       to: "/chat", 
       icon: MessageCircle, 
@@ -38,12 +44,6 @@ export function BottomNav() {
       icon: BarChart3, 
       label: language === "de" ? "Stimmung" : "Mood",
       tourId: "mood",
-    },
-    { 
-      to: "/toolbox", 
-      icon: Sparkles, 
-      label: language === "de" ? "Übungen" : "Toolbox",
-      tourId: "toolbox",
     },
   ];
 

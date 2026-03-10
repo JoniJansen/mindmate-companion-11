@@ -599,7 +599,7 @@ export const translations: Translations = {
   "auth.yourNamePlaceholder": { en: "Your name", de: "Dein Name" },
   "auth.password": { en: "Password", de: "Passwort" },
   "auth.forgot": { en: "Forgot?", de: "Vergessen?" },
-  "auth.secureEncrypted": { en: "Secure & encrypted", de: "Sicher & verschlüsselt" },
+  "auth.secureEncrypted": { en: "Secure & private", de: "Sicher & privat" },
   "auth.welcomeBackToast": { en: "Welcome back!", de: "Willkommen zurück!" },
   "auth.nowLoggedIn": { en: "You are now logged in.", de: "Du bist jetzt eingeloggt." },
   "auth.accountCreated": { en: "Account created!", de: "Konto erstellt!" },
