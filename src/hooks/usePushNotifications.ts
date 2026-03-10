@@ -250,48 +250,67 @@ export function usePushNotifications() {
   };
 }
 
-// Notification messages for different occasions
+// Contextual, reflective notification messages — never generic
 export const notificationMessages = {
   moodReminder: {
     en: [
-      { title: "How are you feeling? 🌿", body: "Take a moment to check in with your mood." },
-      { title: "Mood Check-in Time 💭", body: "A quick check-in helps you track your emotional patterns." },
-      { title: "Soulvay Here 🌙", body: "Ready for your evening mood check-in?" },
+      { title: "A moment for you 🌿", body: "How has this day felt so far? A quick check-in can bring clarity." },
+      { title: "Evening reflection 💭", body: "Before the day fades — how are you really feeling?" },
+      { title: "Soulvay 🌙", body: "Your emotions carry information. A brief check-in can help you listen." },
     ],
     de: [
-      { title: "Wie fühlst du dich? 🌿", body: "Nimm dir einen Moment für deinen Stimmungs-Check-in." },
-      { title: "Zeit für den Mood-Check 💭", body: "Ein kurzer Check-in hilft dir, deine emotionalen Muster zu erkennen." },
-      { title: "Soulvay ist da 🌙", body: "Bereit für deinen Abend-Check-in?" },
+      { title: "Ein Moment für dich 🌿", body: "Wie hat sich dieser Tag bisher angefühlt? Ein kurzer Check-in kann Klarheit bringen." },
+      { title: "Abendreflexion 💭", body: "Bevor der Tag verblasst — wie fühlst du dich wirklich?" },
+      { title: "Soulvay 🌙", body: "Deine Gefühle tragen Informationen. Ein kurzer Check-in hilft dir, zuzuhören." },
     ],
   },
   dailyReminder: {
     en: [
-      { title: "Evening Check-in 🌙", body: "How was your day? Take a moment to reflect." },
-      { title: "Time for You 💭", body: "A few minutes of journaling can make a difference." },
-      { title: "Soulvay is Here 🌿", body: "Ready to listen whenever you want to talk." },
-      { title: "Daily Reflection ✨", body: "What's one thing you're grateful for today?" },
+      { title: "Soulvay 🌿", body: "Something you reflected on recently might still deserve space." },
+      { title: "A quiet moment 💭", body: "Sometimes a few words to yourself can shift the whole day." },
+      { title: "Soulvay ✨", body: "Your thoughts are worth exploring. Even briefly." },
+      { title: "Reflection 🌙", body: "What's one thing you noticed about yourself today?" },
     ],
     de: [
-      { title: "Abend Check-in 🌙", body: "Wie war dein Tag? Nimm dir einen Moment zum Reflektieren." },
-      { title: "Zeit für Dich 💭", body: "Ein paar Minuten Tagebuch können viel bewirken." },
-      { title: "Soulvay ist da 🌿", body: "Bereit zuzuhören, wann immer du reden möchtest." },
-      { title: "Tägliche Reflexion ✨", body: "Wofür bist du heute dankbar?" },
+      { title: "Soulvay 🌿", body: "Etwas, worüber du kürzlich nachgedacht hast, verdient vielleicht noch Raum." },
+      { title: "Ein ruhiger Moment 💭", body: "Manchmal können ein paar Worte an dich selbst den ganzen Tag verändern." },
+      { title: "Soulvay ✨", body: "Deine Gedanken sind es wert, erkundet zu werden. Auch nur kurz." },
+      { title: "Reflexion 🌙", body: "Was hast du heute an dir selbst bemerkt?" },
     ],
   },
   weeklyRecap: {
-    en: { title: "Your Weekly Recap is Ready 📊", body: "See patterns and insights from your week." },
-    de: { title: "Dein Wochenrückblick ist da 📊", body: "Entdecke Muster und Einblicke aus deiner Woche." },
+    en: { title: "This week with Soulvay 📖", body: "A theme has appeared in your reflections. Take a look." },
+    de: { title: "Diese Woche mit Soulvay 📖", body: "Ein Thema ist in deinen Reflexionen aufgetaucht. Schau mal rein." },
   },
   streakReminder: {
     en: [
-      { title: "Don't break your streak 🔥", body: "A quick check-in keeps your momentum going." },
-      { title: "You're on a roll! ✨", body: "Just one minute to keep your streak alive." },
-      { title: "Still time today 🌙", body: "A mood check-in or a thought — that's all it takes." },
+      { title: "Still time today 🌙", body: "You've been showing up for yourself. Even one thought keeps it going." },
+      { title: "Your reflection practice ✨", body: "A brief moment of awareness is all it takes." },
+      { title: "Soulvay 🌿", body: "You've built something meaningful. A quick check-in keeps it alive." },
     ],
     de: [
-      { title: "Halte deinen Streak 🔥", body: "Ein kurzer Check-in hält dein Momentum." },
-      { title: "Du bist dran! ✨", body: "Nur eine Minute, um deinen Streak zu behalten." },
-      { title: "Noch Zeit heute 🌙", body: "Ein Stimmungs-Check-in oder ein Gedanke — mehr braucht es nicht." },
+      { title: "Noch Zeit heute 🌙", body: "Du warst für dich da. Auch ein Gedanke reicht, um weiterzumachen." },
+      { title: "Deine Reflexionspraxis ✨", body: "Ein kurzer Moment der Aufmerksamkeit ist alles, was es braucht." },
+      { title: "Soulvay 🌿", body: "Du hast etwas Bedeutsames aufgebaut. Ein kurzer Check-in hält es lebendig." },
+    ],
+  },
+  // Contextual notifications triggered by specific user data
+  patternDiscovered: {
+    en: [
+      { title: "Soulvay noticed something 🌱", body: "A pattern has appeared in your recent reflections." },
+      { title: "A theme is emerging 💡", body: "Something keeps coming up in your conversations. Worth exploring?" },
+    ],
+    de: [
+      { title: "Soulvay hat etwas bemerkt 🌱", body: "Ein Muster ist in deinen letzten Reflexionen aufgetaucht." },
+      { title: "Ein Thema zeichnet sich ab 💡", body: "Etwas taucht immer wieder in deinen Gesprächen auf. Wert, erkundet zu werden?" },
+    ],
+  },
+  insightGenerated: {
+    en: [
+      { title: "A new insight ✨", body: "Your last conversation revealed something worth revisiting." },
+    ],
+    de: [
+      { title: "Eine neue Erkenntnis ✨", body: "Dein letztes Gespräch hat etwas enthüllt, das es wert ist, nochmal angeschaut zu werden." },
     ],
   },
 };
