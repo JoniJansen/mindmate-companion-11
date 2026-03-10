@@ -672,27 +672,28 @@ export default function Chat() {
                     <div className="flex items-center gap-1 mt-0.5">
                       <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
                       <button
-                        onClick={async (e) => {
+                        onClick={(e) => {
                           e.stopPropagation();
                           if (!user) return;
-                          const customTitle = window.prompt(
-                            language === "de" ? "Titel für den Tagebucheintrag (optional):" : "Title for journal entry (optional):",
-                            language === "de" ? "Chat-Nachricht" : "Chat Message"
-                          );
-                          if (customTitle === null) return;
-                          try {
-                            await supabase.from("journal_entries").insert({
-                              user_id: user.id,
-                              user_session_id: user.id,
-                              content: message.content,
-                              title: customTitle || t("chat.journalTitle.message"),
-                              source: "chat",
-                              tags: ["chat"],
-                            } as any);
-                            toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
-                          } catch {
-                            toast({ title: t("common.error"), variant: "destructive" });
-                          }
+                          const msgContent = message.content;
+                          setSaveDialogVariant("message");
+                          setSaveDialogDefaultTitle(language === "de" ? "Chat-Nachricht" : "Chat Message");
+                          setSaveDialogCallback(() => async (title: string) => {
+                            try {
+                              await supabase.from("journal_entries").insert({
+                                user_id: user.id,
+                                user_session_id: user.id,
+                                content: msgContent,
+                                title: title || t("chat.journalTitle.message"),
+                                source: "chat",
+                                tags: ["chat"],
+                              } as any);
+                              toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
+                            } catch {
+                              toast({ title: t("common.error"), variant: "destructive" });
+                            }
+                          });
+                          setSaveDialogOpen(true);
                         }}
                         className="p-1.5 rounded-full hover:bg-muted/50 text-muted-foreground/50 hover:text-muted-foreground transition-colors flex items-center justify-center"
                         title={t("chat.saveMessage")}
