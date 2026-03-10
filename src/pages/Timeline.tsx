@@ -67,6 +67,7 @@ export default function Timeline() {
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isGeneratingInsight, setIsGeneratingInsight] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [sessionInsights, setSessionInsights] = useState<{ id: string; insight_text: string; created_at: string }[]>([]);
   
   const navigate = useNavigate();
   const { t, language } = useTranslation();
