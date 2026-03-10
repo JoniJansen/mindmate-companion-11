@@ -396,6 +396,46 @@ serve(async (req) => {
     }
 
     const { messages, preferences } = await req.json();
+
+    // --- Server-side daily message limit enforcement ---
+    const DAILY_LIMIT = 15;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check if user has an active premium subscription
+    const { data: subData } = await adminClient
+      .from("subscriptions")
+      .select("status")
+      .eq("user_id", userId)
+      .in("status", ["active", "trialing"])
+      .limit(1);
+
+    const isPremium = subData && subData.length > 0;
+
+    if (!isPremium) {
+      // Count today's chat messages from activity log
+      const today = new Date().toISOString().split("T")[0];
+      const { count, error: countError } = await adminClient
+        .from("user_activity_log")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("activity_type", "chat_session")
+        .eq("activity_date", today);
+
+      if (!countError && (count ?? 0) >= DAILY_LIMIT) {
+        return new Response(
+          JSON.stringify({ error: "Daily message limit reached. Upgrade to Premium for unlimited messages." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Log this chat message
+      await adminClient
+        .from("user_activity_log")
+        .insert({ user_id: userId, activity_date: today, activity_type: "chat_session" });
+    }
+    // --- End rate limit ---
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
