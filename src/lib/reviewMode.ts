@@ -5,21 +5,16 @@
  * Review accounts get automatic premium access and bypass rate limits.
  */
 
-// Review account credentials - stored securely, not exposed in UI
-export const REVIEW_CREDENTIALS = {
-  email: "apple-review@mindmate.de",
-  password: "MindMate2026Review!",
-} as const;
-
-export const GOOGLE_REVIEW_CREDENTIALS = {
-  email: "google-review@mindmate.de",
-  password: "MindMate2026Review!",
+// Review account emails only — passwords are stored server-side as secrets
+export const REVIEW_EMAILS_CONFIG = {
+  apple: "apple-review@mindmate.de",
+  google: "google-review@mindmate.de",
 } as const;
 
 // All review emails for checking
 const REVIEW_EMAILS = [
-  REVIEW_CREDENTIALS.email.toLowerCase(),
-  GOOGLE_REVIEW_CREDENTIALS.email.toLowerCase(),
+  REVIEW_EMAILS_CONFIG.apple.toLowerCase(),
+  REVIEW_EMAILS_CONFIG.google.toLowerCase(),
 ];
 
 // Check if current user is a review account (Apple or Google)

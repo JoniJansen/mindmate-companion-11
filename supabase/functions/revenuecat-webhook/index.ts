@@ -51,19 +51,23 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify RevenueCat webhook authorization
+    // Verify RevenueCat webhook authorization — fail closed
     const webhookSecret = Deno.env.get("REVENUECAT_WEBHOOK_SECRET")?.trim();
-    if (webhookSecret) {
-      const authHeader = req.headers.get("authorization");
-      if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
-        console.error("RevenueCat webhook: invalid authorization header");
-        return new Response(
-          JSON.stringify({ error: "Unauthorized" }),
-          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-    } else {
-      console.warn("REVENUECAT_WEBHOOK_SECRET not configured — skipping auth check");
+    if (!webhookSecret) {
+      console.error("REVENUECAT_WEBHOOK_SECRET not configured");
+      return new Response(
+        JSON.stringify({ error: "Server misconfigured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
+      console.error("RevenueCat webhook: invalid authorization header");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const payload: RevenueCatWebhookPayload = await req.json();

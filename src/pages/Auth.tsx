@@ -10,7 +10,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
-import { REVIEW_CREDENTIALS, activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
+import { activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
@@ -41,17 +42,28 @@ export default function Auth() {
     }
   }, [isAuthenticated, authLoading, navigate, searchParams]);
 
-  // Review/Demo Login - bypasses all verification
+  // Review/Demo Login - credentials fetched server-side
   const handleReviewLogin = async () => {
     setIsReviewLoading(true);
     
     try {
-      const reviewEmail = REVIEW_CREDENTIALS.email.trim().toLowerCase();
-      const reviewPassword = REVIEW_CREDENTIALS.password;
-      
-      if (import.meta.env.DEV) console.log("[Review Login] Attempting login for:", reviewEmail);
-      
-      await signIn(reviewEmail, reviewPassword);
+      // Call edge function to get review session (credentials never leave server)
+      const { data, error } = await supabase.functions.invoke("review-login", {
+        body: { platform: "apple" },
+      });
+
+      if (error || data?.error) {
+        throw new Error(data?.error || error?.message || "Review login failed");
+      }
+
+      // Set the session from the server response
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+
+      if (sessionError) throw sessionError;
+
       activateReviewMode();
       
       toast({
@@ -63,19 +75,9 @@ export default function Auth() {
     } catch (error: any) {
       if (import.meta.env.DEV) console.error("[Review Login] Error:", error);
       
-      let errorMessage = error.message || "Unknown error";
-      
-      if (errorMessage.includes("Invalid login credentials")) {
-        errorMessage = "Review account not found. Please contact support: service@soulvay.com";
-      } else if (errorMessage.includes("Email not confirmed")) {
-        errorMessage = "Email verification pending. Please contact support.";
-      } else if (errorMessage.includes("Too many requests")) {
-        errorMessage = "Rate limited. Please wait a moment and try again.";
-      }
-      
       toast({
         title: "Review Login Failed",
-        description: errorMessage,
+        description: error.message || "Please contact support: service@soulvay.com",
         variant: "destructive",
       });
     } finally {
