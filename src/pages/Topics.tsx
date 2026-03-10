@@ -7,6 +7,7 @@ import { TabHint } from "@/components/shared/TabHint";
 import { Button } from "@/components/ui/button";
 import { topics, Topic } from "@/data/topics";
 import { useTranslation } from "@/hooks/useTranslation";
+import { topicExerciseTranslations } from "@/lib/topicExerciseTranslations";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLastState } from "@/hooks/useLastState";
 import { useAuth } from "@/hooks/useAuth";
@@ -419,15 +420,20 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
                 {selectedTopic.exercises.length > 0 && (
                   <>
                     <h3 className="font-medium text-foreground mt-4 mb-2">{t("topics.exercises")}</h3>
-                    {selectedTopic.exercises.map(ex => (
-                      <CalmCard key={ex.id} variant="elevated" className="cursor-pointer hover:bg-muted/50" onClick={() => navigate("/toolbox")}>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"><BookOpen className="w-5 h-5 text-primary" /></div>
-                          <div className="flex-1"><h4 className="font-medium text-foreground">{ex.title}</h4><p className="text-sm text-muted-foreground">{ex.description}</p></div>
-                          <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{ex.duration}</span>
-                        </div>
-                      </CalmCard>
-                    ))}
+                    {selectedTopic.exercises.map(ex => {
+                      const exTranslation = topicExerciseTranslations[ex.id];
+                      const exTitle = exTranslation ? (language === "de" ? exTranslation.de.title : exTranslation.en.title) : ex.title;
+                      const exDesc = exTranslation ? (language === "de" ? exTranslation.de.description : exTranslation.en.description) : ex.description;
+                      return (
+                        <CalmCard key={ex.id} variant="elevated" className="cursor-pointer hover:bg-muted/50" onClick={() => navigate("/toolbox")}>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"><BookOpen className="w-5 h-5 text-primary" /></div>
+                            <div className="flex-1"><h4 className="font-medium text-foreground">{exTitle}</h4><p className="text-sm text-muted-foreground">{exDesc}</p></div>
+                            <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{ex.duration}</span>
+                          </div>
+                        </CalmCard>
+                      );
+                    })}
                   </>
                 )}
               </motion.div>

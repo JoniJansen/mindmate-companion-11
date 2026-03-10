@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Check, ChevronRight, TrendingUp, Calendar, BookOpen, Users } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ChevronRight, ChevronDown, TrendingUp, Calendar, BookOpen, Users } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { TabHint } from "@/components/shared/TabHint";
@@ -38,6 +38,7 @@ export default function Mood() {
   const [hasSavedToday, setHasSavedToday] = useState(false);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("7d");
   const [isLoading, setIsLoading] = useState(true);
+  const [checkinCollapsed, setCheckinCollapsed] = useState(false);
 
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -196,45 +197,67 @@ export default function Mood() {
           {/* Today's Check-in */}
           <CalmCard variant="calm" animate={false}>
             <div className="space-y-5">
-              <div className="text-center">
-                <h2 className="font-medium text-foreground mb-1">
-                  {hasSavedToday ? t("mood.checkedInToday") : t("mood.howDoYouFeel")}
-                </h2>
-                {hasSavedToday && (
+              <div 
+                className={`text-center ${hasSavedToday ? "cursor-pointer" : ""}`}
+                onClick={() => hasSavedToday && setCheckinCollapsed(prev => !prev)}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <h2 className="font-medium text-foreground mb-1">
+                    {hasSavedToday ? t("mood.checkedInToday") : t("mood.howDoYouFeel")}
+                  </h2>
+                  {hasSavedToday && (
+                    <motion.div animate={{ rotate: checkinCollapsed ? -90 : 0 }} transition={{ duration: 0.2 }}>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    </motion.div>
+                  )}
+                </div>
+                {hasSavedToday && !checkinCollapsed && (
                   <p className="text-sm text-muted-foreground">
                     {t("mood.canUpdate")}
                   </p>
                 )}
               </div>
 
-              <MoodSelector selected={selectedMood} onSelect={setSelectedMood} size="lg" />
+              <AnimatePresence initial={false}>
+                {!checkinCollapsed && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <MoodSelector selected={selectedMood} onSelect={setSelectedMood} size="lg" />
 
-              {selectedMood !== null && (
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {t("mood.whatDescribesYou")} <span className="opacity-50">({t("mood.optional")})</span>
-                    </p>
-                    <FeelingTags
-                      selected={selectedFeelings}
-                      onToggle={(f) => setSelectedFeelings(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])}
-                    />
-                  </div>
+                    {selectedMood !== null && (
+                      <div className="space-y-4 mt-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {t("mood.whatDescribesYou")} <span className="opacity-50">({t("mood.optional")})</span>
+                          </p>
+                          <FeelingTags
+                            selected={selectedFeelings}
+                            onToggle={(f) => setSelectedFeelings(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])}
+                          />
+                        </div>
 
-                  <textarea
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    placeholder={t("mood.addNote")}
-                    className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                    rows={2}
-                  />
+                        <textarea
+                          value={note}
+                          onChange={(e) => setNote(e.target.value)}
+                          placeholder={t("mood.addNote")}
+                          className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                          rows={2}
+                        />
 
-                  <Button onClick={handleSave} disabled={isSaving} className="w-full gap-2">
-                    <Check className="w-4 h-4" />
-                    {isSaving ? t("mood.saving") : t("common.save")}
-                  </Button>
-                </div>
-              )}
+                        <Button onClick={handleSave} disabled={isSaving} className="w-full gap-2">
+                          <Check className="w-4 h-4" />
+                          {isSaving ? t("mood.saving") : t("common.save")}
+                        </Button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </CalmCard>
 
