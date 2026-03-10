@@ -281,18 +281,34 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-md mx-auto text-center">
           {/* Speaking/Loading indicator */}
-          {voiceEnabled && (isSpeaking || isLoading) && (
-            <div className="flex items-center justify-center gap-2 mb-4 text-primary">
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Volume2 className="w-4 h-4 animate-pulse" />}
-              <span className="text-sm">{isLoading ? (language === "de" ? "Einen Moment..." : "One moment...") : t("voice.speaking")}</span>
-            </div>
-          )}
+          <AnimatePresence>
+            {voiceEnabled && (isSpeaking || isLoading) && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="flex items-center justify-center gap-2 mb-4 text-primary"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Volume2 className="w-4 h-4 animate-pulse" />}
+                <span className="text-sm">{isLoading ? (language === "de" ? "Einen Moment..." : "One moment...") : t("voice.speaking")}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Breathing circle */}
           {exercise.category === 'breathing' && (
-            <div className={`w-24 h-24 rounded-full bg-primary/20 mx-auto mb-6 flex items-center justify-center transition-transform duration-1000 ${isPlaying ? 'scale-110' : 'scale-100'}`}>
-              <div className="w-12 h-12 rounded-full bg-primary/40" />
-            </div>
+            <motion.div
+              animate={{ scale: isPlaying ? [1, 1.15, 1] : 1 }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="w-24 h-24 rounded-full bg-primary/20 mx-auto mb-6 flex items-center justify-center"
+            >
+              <motion.div
+                animate={{ scale: isPlaying ? [1, 1.2, 1] : 1 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                className="w-12 h-12 rounded-full bg-primary/40"
+              />
+            </motion.div>
           )}
 
           {/* Step counter */}
@@ -300,31 +316,58 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
             {t("common.step")} {currentStep + 1} {t("common.of")} {totalSteps}
           </p>
 
-          {/* Instruction */}
-          <h2 className="text-lg font-medium text-foreground leading-relaxed mb-4">
-            {getStepInstruction(currentStep)}
-          </h2>
+          {/* Instruction — smooth crossfade */}
+          <div className="relative min-h-[4rem]">
+            <AnimatePresence mode="wait">
+              <motion.h2
+                key={currentStep}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="text-lg font-medium text-foreground leading-relaxed mb-4"
+              >
+                {getStepInstruction(currentStep)}
+              </motion.h2>
+            </AnimatePresence>
+          </div>
 
           {/* Step progress */}
-          {isPlaying && (
-            <div className="w-48 mx-auto mb-4">
-              <div className="h-1 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-primary/50 rounded-full transition-all"
-                  style={{ width: `${stepProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {isPlaying && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="w-48 mx-auto mb-4"
+              >
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-primary/50 rounded-full transition-all duration-300 ease-linear"
+                    style={{ width: `${stepProgress}%` }}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Prompts */}
           {exercise.prompts && exercise.prompts.length > 0 && (
-            <div className="mt-6 p-4 bg-muted/50 rounded-xl text-left">
-              <p className="text-xs text-muted-foreground mb-1">{t("common.helpfulPrompts")}:</p>
-              <p className="text-sm text-foreground italic">
-                {getPrompt(currentStep)}
-              </p>
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`prompt-${currentStep}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="mt-6 p-4 bg-muted/50 rounded-xl text-left"
+              >
+                <p className="text-xs text-muted-foreground mb-1">{t("common.helpfulPrompts")}:</p>
+                <p className="text-sm text-foreground italic">
+                  {getPrompt(currentStep)}
+                </p>
+              </motion.div>
+            </AnimatePresence>
           )}
         </div>
       </div>
