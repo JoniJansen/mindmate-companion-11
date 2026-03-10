@@ -663,7 +663,7 @@ export default function Chat() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs">
-                  {language === "de" ? "Neues Gespräch" : "New conversation"}
+                  {t("chat.newConversation")}
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
