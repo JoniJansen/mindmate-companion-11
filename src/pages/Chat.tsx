@@ -648,7 +648,7 @@ export default function Chat() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs">
-                  {language === "de" ? "Gesprächsverlauf" : "Conversation history"}
+                  {t("chat.conversationHistory")}
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
