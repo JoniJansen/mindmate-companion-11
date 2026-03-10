@@ -160,6 +160,7 @@ export default function Mood() {
       });
 
       setHasSavedToday(true);
+      setCheckinCollapsed(true);
       logActivity("mood_checkin");
       loadCheckins();
     } catch (error) {
