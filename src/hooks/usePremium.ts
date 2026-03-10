@@ -46,6 +46,8 @@ export function usePremium() {
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
+  // Server-verified premium status – only this authorizes premium features
+  const [serverVerifiedPremium, setServerVerifiedPremium] = useState<boolean | null>(null);
   
   // RevenueCat integration for iOS
   const { 
@@ -57,7 +59,7 @@ export function usePremium() {
     checkEntitlements,
   } = useRevenueCat();
 
-  // Load state from localStorage and check for daily reset
+  // Load state from localStorage (cache only – NOT authoritative for premium)
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -84,17 +86,20 @@ export function usePremium() {
     setIsLoaded(true);
   }, []);
 
-  // Sync RevenueCat premium status to local state
+  // Sync RevenueCat premium status (RevenueCat SDK does its own server validation)
   useEffect(() => {
-    if (isRevenueCatPremium && !state.isPremium) {
-      if (import.meta.env.DEV) console.log("[Premium] RevenueCat premium detected, syncing to local state");
-      const newState: StoredState = {
-        ...state,
-        isPremium: true,
-        planType: "revenuecat",
-        subscriptionStatus: "active",
-      };
-      saveState(newState);
+    if (isRevenueCatPremium) {
+      setServerVerifiedPremium(true);
+      if (!state.isPremium) {
+        if (import.meta.env.DEV) console.log("[Premium] RevenueCat premium detected, syncing to local state");
+        const newState: StoredState = {
+          ...state,
+          isPremium: true,
+          planType: "revenuecat",
+          subscriptionStatus: "active",
+        };
+        saveState(newState);
+      }
     }
   }, [isRevenueCatPremium, state.isPremium]);
 
