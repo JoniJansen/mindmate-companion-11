@@ -88,7 +88,7 @@ export default function FAQ() {
             },
             {
               q: "How does the AI work?",
-              a: "Soulvay uses advanced AI models to provide empathetic, supportive responses based on evidence-based therapeutic techniques. The AI learns from our training but never stores your personal conversations for training purposes."
+              a: "Soulvay uses advanced AI models to provide empathetic, supportive responses inspired by psychological principles. The AI does not store your personal conversations for training purposes."
             },
             {
               q: "Can I trust the AI's advice?",
