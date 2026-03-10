@@ -777,23 +777,23 @@ export default function Chat() {
               {t("chat.summary")}
               {!canUseSessionSummary && <Lock className="w-3 h-3 ml-1" />}
             </Button>
-            <Button variant="outline" size="sm" className="gap-2" onClick={async () => {
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => {
               if (!user) return;
-              const customTitle = window.prompt(
-                language === "de" ? "Titel für das Gespräch (optional):" : "Title for the conversation (optional):",
-                language === "de" ? "Chat-Gespräch" : "Chat Conversation"
-              );
-              if (customTitle === null) return;
-              const chatContent = messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
-              try {
-                await supabase.from("journal_entries").insert({
-                  user_id: user.id, user_session_id: user.id,
-                  content: chatContent,
-                  title: customTitle || t("chat.journalTitle.conversation"),
-                  source: "chat", tags: ["chat"],
-                } as any);
-                toast({ title: t("chat.savedToJournal"), description: t("chat.chatSavedDesc") });
-              } catch { toast({ title: t("common.error"), variant: "destructive" }); }
+              setSaveDialogVariant("conversation");
+              setSaveDialogDefaultTitle(language === "de" ? "Chat-Gespräch" : "Chat Conversation");
+              setSaveDialogCallback(() => async (title: string) => {
+                const chatContent = messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
+                try {
+                  await supabase.from("journal_entries").insert({
+                    user_id: user.id, user_session_id: user.id,
+                    content: chatContent,
+                    title: title || t("chat.journalTitle.conversation"),
+                    source: "chat", tags: ["chat"],
+                  } as any);
+                  toast({ title: t("chat.savedToJournal"), description: t("chat.chatSavedDesc") });
+                } catch { toast({ title: t("common.error"), variant: "destructive" }); }
+              });
+              setSaveDialogOpen(true);
             }}>
               <Save className="w-4 h-4" />
               {t("chat.saveChat")}
