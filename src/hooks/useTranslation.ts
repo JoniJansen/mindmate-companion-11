@@ -119,6 +119,7 @@ export const translations: Translations = {
   "journal.weeklyRecap": { en: "Weekly Recap", de: "Wochenrückblick" },
   "journal.observedPatterns": { en: "Observed patterns", de: "Beobachtete Muster" },
   "journal.suggestion": { en: "Suggestion", de: "Vorschlag" },
+  "journal.possibleNeeds": { en: "Possible needs", de: "Mögliche Bedürfnisse" },
   "journal.refresh": { en: "Refresh", de: "Aktualisieren" },
   "journal.generate": { en: "Generate", de: "Erstellen" },
   "journal.discoverPatternsInEntries": { en: "Discover patterns in your entries.", de: "Entdecke Muster in deinen Einträgen." },

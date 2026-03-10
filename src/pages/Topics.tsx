@@ -367,7 +367,28 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
                         <GraduationCap className="w-4 h-4 text-primary" />
                         {section.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{section.content}</p>
+                      <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
+                        {section.content.split('\n\n').map((paragraph, pi) => {
+                          // Check if paragraph contains bullet-style lines
+                          const lines = paragraph.split('\n');
+                          const isBulletList = lines.length > 1 && lines.every(l => /^[•\-\*]\s/.test(l.trim()) || !l.trim());
+                          
+                          if (isBulletList) {
+                            return (
+                              <ul key={pi} className="space-y-2 pl-1">
+                                {lines.filter(l => l.trim()).map((line, li) => (
+                                  <li key={li} className="flex items-start gap-2.5">
+                                    <span className="text-primary mt-0.5 shrink-0">•</span>
+                                    <span>{line.replace(/^[•\-\*]\s*/, '')}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            );
+                          }
+                          
+                          return <p key={pi}>{paragraph}</p>;
+                        })}
+                      </div>
                       {section.reflectionQuestion && (
                         <div className="mt-3 p-3 bg-primary/5 rounded-xl border border-primary/10">
                           <p className="text-xs font-medium text-primary mb-1">💭 {t("topics.reflectionQuestion")}</p>
