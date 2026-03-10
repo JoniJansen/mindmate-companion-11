@@ -455,25 +455,51 @@ serve(async (req) => {
       innerDialogue: false,
     };
 
-    // Fetch user memories for personal context
+    // Fetch user memories AND emotional patterns for richer personal context
     let memoriesContext = "";
     try {
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const supabase = createClient(supabaseUrl, supabaseKey);
       
-      const { data: memories } = await supabase
-        .from("user_memories")
-        .select("memory_type, content")
-        .eq("user_id", userId)
-        .order("confidence_score", { ascending: false })
-        .limit(10);
+      const [memoriesResult, patternsResult, insightsResult] = await Promise.all([
+        supabase
+          .from("user_memories")
+          .select("memory_type, content")
+          .eq("user_id", userId)
+          .order("confidence_score", { ascending: false })
+          .limit(10),
+        supabase
+          .from("emotional_patterns")
+          .select("pattern_type, description, confidence")
+          .eq("user_id", userId)
+          .order("confidence", { ascending: false })
+          .limit(5),
+        supabase
+          .from("session_insights")
+          .select("insight_text, created_at")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(3),
+      ]);
+
+      const parts: string[] = [];
       
-      if (memories && memories.length > 0) {
-        memoriesContext = memories.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n");
+      if (memoriesResult.data && memoriesResult.data.length > 0) {
+        parts.push("### Personal memories:\n" + memoriesResult.data.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n"));
       }
+      
+      if (patternsResult.data && patternsResult.data.length > 0) {
+        parts.push("### Emotional patterns detected over time:\n" + patternsResult.data.map((p: any) => `- [${p.pattern_type}, confidence: ${Math.round((p.confidence || 0.5) * 100)}%] ${p.description}`).join("\n"));
+      }
+      
+      if (insightsResult.data && insightsResult.data.length > 0) {
+        parts.push("### Recent session insights:\n" + insightsResult.data.map((i: any) => `- ${i.insight_text}`).join("\n"));
+      }
+      
+      memoriesContext = parts.join("\n\n");
     } catch (memError) {
-      console.error("Failed to fetch memories:", memError);
+      console.error("Failed to fetch user context:", memError);
     }
 
     // Detect if this is a crisis situation
