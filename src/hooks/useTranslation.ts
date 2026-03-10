@@ -421,7 +421,7 @@ export const translations: Translations = {
   "notFound.goBack": { en: "Go Back", de: "Zurück" },
 
   // Emotional Timeline
-  "timeline.title": { en: "Emotional Timeline", de: "Emotionale Zeitleiste" },
+  "timeline.emotionalTitle": { en: "Emotional Timeline", de: "Emotionale Zeitleiste" },
   "timeline.description": { en: "Notice gentle patterns over time", de: "Bemerke sanfte Muster über die Zeit" },
   "timeline.notEnoughData": { en: "Not enough entries yet", de: "Noch nicht genug Einträge" },
   "timeline.writeMore": { en: "Write at least 5 journal entries to see your emotional timeline.", de: "Schreibe mindestens 5 Tagebucheinträge, um deine emotionale Zeitleiste zu sehen." },
