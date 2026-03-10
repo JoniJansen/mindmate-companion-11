@@ -743,7 +743,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         <div className="flex items-center gap-4">
           <div className="relative">
             <Avatar className="w-16 h-16 border-2 border-primary/20">
-              <AvatarImage src={profile?.avatar_url || undefined} alt="Avatar" />
+              <AvatarImage src={avatarSignedUrl} alt="Avatar" />
               <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
                 {getInitials()}
               </AvatarFallback>
