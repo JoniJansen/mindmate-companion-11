@@ -110,6 +110,9 @@ Deno.serve(async (req) => {
       "cancel_url": finalCancelUrl,
       "metadata[user_id]": userId,
       "metadata[plan_type]": normalizedPlanType,
+      "subscription_data[metadata][user_id]": userId,
+      "subscription_data[metadata][plan_type]": normalizedPlanType,
+      "payment_intent_data[statement_descriptor]": "SOULVAY PLUS",
     };
 
     if (trialDays > 0) {
