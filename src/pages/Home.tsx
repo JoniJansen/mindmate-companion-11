@@ -527,7 +527,7 @@ export default function Home() {
                 >
                   <MessageCircle className="w-4 h-4 text-muted-foreground/50 shrink-0" />
                   <span className="text-sm text-foreground truncate flex-1">
-                    {conv.title || (language === "de" ? "Gespräch" : "Conversation")}
+                    {conv.title || t("home.conversation")}
                   </span>
                   <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
                 </button>
