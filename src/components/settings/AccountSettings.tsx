@@ -3,20 +3,32 @@ import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shie
 import { Capacitor } from "@capacitor/core";
 import { CalmCard } from "@/components/shared/CalmCard";
 
-// Bulletproof native detection – multiple signals to prevent camera crash (Apple Guideline 2.1)
+// Native detection for iOS/Android builds (must be fail-closed for Apple review safety)
 const isNativeApp = (): boolean => {
+  if (typeof window === "undefined") return false;
+
   try {
-    // Primary check
     if (Capacitor.isNativePlatform()) return true;
-    // Fallback: check platform string
-    const platform = Capacitor.getPlatform?.();
-    if (platform === 'ios' || platform === 'android') return true;
-    // Fallback: check global Capacitor object
-    if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.()) return true;
   } catch {
-    // If Capacitor throws, check for native-only globals
-    if (typeof window !== 'undefined' && (window as any).webkit?.messageHandlers) return true;
+    // Continue with fallbacks
   }
+
+  try {
+    const platform = Capacitor.getPlatform?.();
+    if (platform === "ios" || platform === "android") return true;
+  } catch {
+    // Continue with fallbacks
+  }
+
+  const runtimeCapacitor = (window as any).Capacitor;
+  if (runtimeCapacitor?.isNativePlatform?.()) return true;
+
+  const runtimePlatform = runtimeCapacitor?.getPlatform?.() || runtimeCapacitor?.platform;
+  if (runtimePlatform === "ios" || runtimePlatform === "android") return true;
+
+  const webkitMessageHandlers = (window as any).webkit?.messageHandlers;
+  if (webkitMessageHandlers) return true;
+
   return false;
 };
 import { Button } from "@/components/ui/button";
