@@ -24,6 +24,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [isTransitioning, setIsTransitioning] = useState(false);
   const { t, language, getExerciseDisplay } = useTranslation();
   const { getVoiceId, speed } = useVoiceSettings();
+  const exerciseVoiceSpeed = exercise.category === "breathing" ? 0.9 : speed;
+
   
   const { speak, stop, isSpeaking, isLoading } = useElevenLabsTTS({
     onStart: () => {
