@@ -29,7 +29,7 @@ import { StandalonePage } from "@/components/layout/StandalonePage";
 export default function Upgrade() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { 
     isPremium, 
@@ -72,22 +72,18 @@ export default function Upgrade() {
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast({
-        title: language === "de" ? "Willkommen bei Soulvay Plus!" : "Welcome to Soulvay Plus!",
-        description: language === "de" 
-          ? "Dein Upgrade war erfolgreich." 
-          : "Your upgrade was successful.",
+        title: t("upgrade.welcomePlus"),
+        description: t("upgrade.upgradeSuccess"),
       });
       checkSubscriptionStatus();
       navigate("/settings", { replace: true });
     } else if (searchParams.get("canceled") === "true") {
       toast({
-        title: language === "de" ? "Checkout abgebrochen" : "Checkout canceled",
-        description: language === "de" 
-          ? "Du kannst jederzeit upgraden." 
-          : "You can upgrade anytime.",
+        title: t("upgrade.checkoutCanceled"),
+        description: t("upgrade.upgradeAnytime"),
       });
     }
-  }, [searchParams, navigate, toast, language, checkSubscriptionStatus]);
+  }, [searchParams, navigate, toast, t, checkSubscriptionStatus]);
 
   // Redirect if already premium
   useEffect(() => {
@@ -99,10 +95,8 @@ export default function Upgrade() {
   const handleUpgrade = async () => {
     if (!acceptedTerms || !acceptedWithdrawal) {
       toast({
-        title: language === "de" ? "Zustimmung erforderlich" : "Consent required",
-        description: language === "de" 
-          ? "Bitte akzeptiere die AGB und die Widerrufsbelehrung." 
-          : "Please accept the terms and the withdrawal policy.",
+        title: t("upgrade.consentRequired"),
+        description: t("upgrade.acceptTermsFirst"),
         variant: "destructive",
       });
       return;
@@ -111,7 +105,6 @@ export default function Upgrade() {
     setIsLoading(true);
     try {
       if (isRevenueCatAvailable && offerings) {
-        // Find the correct package from RevenueCat offerings
         const packageId = selectedPlan === "yearly" ? "yearly" : "monthly";
         const packageToPurchase = offerings.availablePackages.find(
           (pkg) => pkg.identifier === packageId || 
@@ -121,7 +114,6 @@ export default function Upgrade() {
         );
         
         if (!packageToPurchase) {
-          // Fallback: find any matching package
           const fallbackPackage = offerings.availablePackages.find(
             (pkg) => pkg.product.identifier.includes(selectedPlan)
           );
@@ -133,9 +125,7 @@ export default function Upgrade() {
               navigate("/settings", { replace: true });
             }
           } else {
-            throw new Error(language === "de" 
-              ? "Produkt nicht gefunden. Bitte versuche es später erneut."
-              : "Product not found. Please try again later.");
+            throw new Error(t("upgrade.productNotFound"));
           }
         } else {
           const success = await purchasePackage(packageToPurchase);
@@ -165,7 +155,7 @@ export default function Upgrade() {
       }
     } catch (error) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: t("common.error"),
         description: (error as Error).message,
         variant: "destructive",
       });
@@ -184,7 +174,7 @@ export default function Upgrade() {
       }
     } catch (error) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: t("common.error"),
         description: (error as Error).message,
         variant: "destructive",
       });
@@ -204,54 +194,33 @@ export default function Upgrade() {
         return pkg.product.priceString;
       }
     }
-    // Fallback prices
     return planType === "yearly" ? "€79,00" : "€9,99";
   };
 
   const plans = [
     {
       id: "monthly" as const,
-      name: language === "de" ? "Monatlich" : "Monthly",
+      name: t("upgrade.monthly"),
       price: getPrice("monthly"),
-      interval: language === "de" ? "/Monat" : "/month",
-      trial: language === "de" ? "7 Tage kostenlos testen" : "7-day free trial",
+      interval: t("upgrade.perMonth"),
+      trial: t("upgrade.trial"),
     },
     {
       id: "yearly" as const,
-      name: language === "de" ? "Jährlich" : "Yearly",
+      name: t("upgrade.yearly"),
       price: getPrice("yearly"),
-      interval: language === "de" ? "/Jahr" : "/year",
-      savings: language === "de" ? "2 Monate gratis" : "2 months free",
+      interval: t("upgrade.perYear"),
+      savings: t("upgrade.savings"),
       monthlyEquivalent: "€6,58",
     },
   ];
 
   const features = [
-    {
-      icon: MessageSquare,
-      title: { en: "Unlimited conversations", de: "Unbegrenzte Gespräche" },
-      description: { en: "Chat as much as you need, whenever you need", de: "Chatte so viel du willst, wann immer du willst" },
-    },
-    {
-      icon: Volume2,
-      title: { en: "Voice conversations", de: "Sprachgespräche" },
-      description: { en: "Speak naturally with warm AI voice responses", de: "Sprich natürlich mit warmen KI-Sprachantworten" },
-    },
-    {
-      icon: Brain,
-      title: { en: "Pattern insights", de: "Musteranalysen" },
-      description: { en: "Discover trends in your emotional journey", de: "Entdecke Trends in deiner emotionalen Reise" },
-    },
-    {
-      icon: Calendar,
-      title: { en: "Weekly recaps", de: "Wochenrückblicke" },
-      description: { en: "Thoughtful summaries of your week", de: "Nachdenkliche Zusammenfassungen deiner Woche" },
-    },
-    {
-      icon: Heart,
-      title: { en: "Guided journaling", de: "Geführtes Tagebuch" },
-      description: { en: "AI-powered prompts for deeper reflection", de: "KI-gestützte Impulse für tiefere Reflexion" },
-    },
+    { icon: MessageSquare, titleKey: "upgrade.feat.unlimitedTitle", descKey: "upgrade.feat.unlimitedDesc" },
+    { icon: Volume2, titleKey: "upgrade.feat.voiceTitle", descKey: "upgrade.feat.voiceDesc" },
+    { icon: Brain, titleKey: "upgrade.feat.patternsTitle", descKey: "upgrade.feat.patternsDesc" },
+    { icon: Calendar, titleKey: "upgrade.feat.recapsTitle", descKey: "upgrade.feat.recapsDesc" },
+    { icon: Heart, titleKey: "upgrade.feat.journalingTitle", descKey: "upgrade.feat.journalingDesc" },
   ];
 
   return (
@@ -265,7 +234,7 @@ export default function Upgrade() {
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm">{language === "de" ? "Zurück" : "Back"}</span>
+            <span className="text-sm">{t("common.back")}</span>
           </button>
         </div>
       </div>
@@ -283,9 +252,7 @@ export default function Upgrade() {
           <div>
             <h1 className="text-2xl font-semibold text-foreground">Soulvay Plus</h1>
             <p className="text-muted-foreground mt-2">
-              {language === "de" 
-                ? "Ein ruhiger Raum für deinen Geist" 
-                : "A quiet space for your mind"}
+              {t("upgrade.heroSubtitle")}
             </p>
           </div>
         </motion.div>
@@ -324,7 +291,7 @@ export default function Upgrade() {
               </div>
               {plan.monthlyEquivalent && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  {language === "de" ? "nur" : "only"} {plan.monthlyEquivalent}{language === "de" ? "/Monat" : "/mo"}
+                  {t("upgrade.only")} {plan.monthlyEquivalent}{t("upgrade.perMo")}
                 </p>
               )}
               {selectedPlan === plan.id && (
@@ -351,10 +318,10 @@ export default function Upgrade() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground text-sm">
-                    {language === "de" ? feature.title.de : feature.title.en}
+                    {t(feature.titleKey)}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {language === "de" ? feature.description.de : feature.description.en}
+                    {t(feature.descKey)}
                   </p>
                 </div>
               </div>
@@ -383,21 +350,10 @@ export default function Upgrade() {
               className="mt-0.5"
             />
             <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
-              {language === "de" ? (
-                <>
-                  Ich akzeptiere die{" "}
-                  <Link to="/terms" className="text-primary hover:underline">AGB</Link>
-                  {" "}und die{" "}
-                  <Link to="/privacy" className="text-primary hover:underline">Datenschutzerklärung</Link>.
-                </>
-              ) : (
-                <>
-                  I accept the{" "}
-                  <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>
-                  {" "}and the{" "}
-                  <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
-                </>
-              )}
+              {t("upgrade.acceptTermsLabel")}{" "}
+              <Link to="/terms" className="text-primary hover:underline">{t("upgrade.termsLink")}</Link>
+              {" "}{t("upgrade.andThe")}{" "}
+              <Link to="/privacy" className="text-primary hover:underline">{t("upgrade.privacyLink")}</Link>.
             </label>
           </div>
           
@@ -409,20 +365,9 @@ export default function Upgrade() {
               className="mt-0.5"
             />
             <label htmlFor="withdrawal" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
-              {language === "de" ? (
-                <>
-                  Ich stimme ausdrücklich zu, dass die Dienstleistung sofort beginnt, und nehme zur Kenntnis, 
-                  dass ich mein{" "}
-                  <Link to="/cancellation" className="text-primary hover:underline">Widerrufsrecht</Link>
-                  {" "}verliere, sobald der digitale Inhalt vollständig bereitgestellt wurde.
-                </>
-              ) : (
-                <>
-                  I expressly agree that the service begins immediately and acknowledge that I lose my{" "}
-                  <Link to="/cancellation" className="text-primary hover:underline">right of withdrawal</Link>
-                  {" "}once the digital content has been fully provided.
-                </>
-              )}
+              {t("upgrade.withdrawalAgree")}{" "}
+              <Link to="/cancellation" className="text-primary hover:underline">{t("upgrade.withdrawalRight")}</Link>
+              {" "}{t("upgrade.withdrawalEnd")}
             </label>
           </div>
         </motion.div>
@@ -442,14 +387,12 @@ export default function Upgrade() {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                {language === "de" ? "Einen Moment..." : "One moment..."}
+                {t("upgrade.loading")}
               </>
             ) : (
               <>
                 <Sparkles className="w-5 h-5 mr-2" />
-                {language === "de" 
-                  ? `Mit ${selectedPlan === "yearly" ? "Jahresabo" : "Monatsabo"} starten` 
-                  : `Start with ${selectedPlan === "yearly" ? "yearly" : "monthly"} plan`}
+                {selectedPlan === "yearly" ? t("upgrade.startYearly") : t("upgrade.startMonthly")}
               </>
             )}
           </Button>
@@ -463,52 +406,39 @@ export default function Upgrade() {
               className="w-full h-10"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
-              {language === "de" ? "Käufe wiederherstellen" : "Restore purchases"}
+              {t("upgrade.restorePurchases")}
             </Button>
           )}
 
           {/* Subscription Info - Required by Apple Guideline 3.1.2 */}
           <div className="bg-muted/30 rounded-xl p-4 space-y-3">
             <h4 className="font-medium text-sm text-foreground">
-              {language === "de" ? "Abo-Informationen" : "Subscription Information"}
+              {t("upgrade.subInfo")}
             </h4>
             <div className="text-xs text-muted-foreground space-y-1.5">
               <p>
-                <strong>{language === "de" ? "Titel:" : "Title:"}</strong> Soulvay Plus
+                <strong>{t("upgrade.subTitle")}</strong> Soulvay Plus
               </p>
               <p>
-                <strong>{language === "de" ? "Laufzeit:" : "Duration:"}</strong>{" "}
-                {selectedPlan === "yearly" 
-                  ? (language === "de" ? "1 Jahr (automatische Verlängerung)" : "1 Year (auto-renewing)")
-                  : (language === "de" ? "1 Monat (automatische Verlängerung)" : "1 Month (auto-renewing)")
-                }
+                <strong>{t("upgrade.subDuration")}</strong>{" "}
+                {selectedPlan === "yearly" ? t("upgrade.yearlyDuration") : t("upgrade.monthlyDuration")}
               </p>
               <p>
-                <strong>{language === "de" ? "Preis:" : "Price:"}</strong>{" "}
-                {getPrice(selectedPlan)}{selectedPlan === "yearly" 
-                  ? (language === "de" ? "/Jahr" : "/year") 
-                  : (language === "de" ? "/Monat" : "/month")}
-                {selectedPlan === "monthly" && (language === "de" ? " (nach 7-Tage-Testphase)" : " (after 7-day trial)")}
+                <strong>{t("upgrade.subPrice")}</strong>{" "}
+                {getPrice(selectedPlan)}{selectedPlan === "yearly" ? t("upgrade.perYear") : t("upgrade.perMonth")}
+                {selectedPlan === "monthly" && t("upgrade.afterTrial")}
               </p>
               <p className="pt-1">
-                {isRevenueCatAvailable ? (
-                  language === "de" 
-                    ? "Die Zahlung wird über deinen Apple ID Account abgerechnet. Das Abo verlängert sich automatisch, sofern du es nicht mindestens 24 Stunden vor Ablauf des aktuellen Zeitraums kündigst. Du kannst dein Abo in den Einstellungen deines Apple ID Accounts verwalten und kündigen."
-                    : "Payment will be charged to your Apple ID account. Subscription automatically renews unless cancelled at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID account settings."
-                ) : (
-                  language === "de"
-                    ? "Das Abo verlängert sich automatisch. Du kannst es jederzeit in deinen Kontoeinstellungen kündigen. Die Zahlung erfolgt sicher über Stripe."
-                    : "Subscription automatically renews. You can cancel anytime in your account settings. Payment is processed securely via Stripe."
-                )}
+                {isRevenueCatAvailable ? t("upgrade.applePaymentInfo") : t("upgrade.stripePaymentInfo")}
               </p>
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
               <Link to="/terms" className="text-xs text-primary hover:underline">
-                {language === "de" ? "Nutzungsbedingungen (AGB)" : "Terms of Use (EULA)"}
+                {t("upgrade.termsOfUse")}
               </Link>
               <span className="text-muted-foreground">•</span>
               <Link to="/privacy" className="text-xs text-primary hover:underline">
-                {language === "de" ? "Datenschutz" : "Privacy Policy"}
+                {t("upgrade.privacyPolicy")}
               </Link>
               <span className="text-muted-foreground">•</span>
               <a 
@@ -524,15 +454,10 @@ export default function Upgrade() {
 
           <div className="text-center space-y-2">
             <p className="text-xs text-muted-foreground">
-              {isRevenueCatAvailable 
-                ? (language === "de" ? "Sicherer Kauf über Apple" : "Secure purchase via Apple")
-                : (language === "de" ? "Sicherer Kauf über Stripe" : "Secure purchase via Stripe")
-              }
+              {isRevenueCatAvailable ? t("upgrade.secureApple") : t("upgrade.secureStripe")}
             </p>
             <p className="text-xs text-muted-foreground">
-              {language === "de" 
-                ? "Jederzeit kündbar • Keine versteckten Kosten" 
-                : "Cancel anytime • No hidden fees"}
+              {t("upgrade.cancelAnytime")}
             </p>
           </div>
         </motion.div>
