@@ -775,7 +775,7 @@ export default function Chat() {
                             if (!user) return;
                             const msgContent = message.content;
                             setSaveDialogVariant("message");
-                            setSaveDialogDefaultTitle(language === "de" ? "Chat-Nachricht" : "Chat Message");
+                            setSaveDialogDefaultTitle(t("chat.chatMessage"));
                             setSaveDialogCallback(() => async (title: string) => {
                               try {
                                 await supabase.from("journal_entries").insert({
