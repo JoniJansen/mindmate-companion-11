@@ -16,6 +16,12 @@ export function BottomNav() {
 
   const navItems = [
     { 
+      to: "/home", 
+      icon: Home, 
+      label: language === "de" ? "Space" : "Space",
+      tourId: "home",
+    },
+    { 
       to: "/chat", 
       icon: MessageCircle, 
       label: language === "de" ? "Chat" : "Chat",
@@ -38,12 +44,6 @@ export function BottomNav() {
       icon: BarChart3, 
       label: language === "de" ? "Stimmung" : "Mood",
       tourId: "mood",
-    },
-    { 
-      to: "/toolbox", 
-      icon: Sparkles, 
-      label: language === "de" ? "Übungen" : "Toolbox",
-      tourId: "toolbox",
     },
   ];
 
