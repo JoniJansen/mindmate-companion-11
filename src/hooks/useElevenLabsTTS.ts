@@ -21,6 +21,8 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
   const [loadingMessageId, setLoadingMessageId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentMessageIdRef = useRef<string | null>(null);
+  // Generation counter to prevent stale fetches from playing
+  const generationRef = useRef(0);
 
   // Cleanup audio on unmount
   useEffect(() => {
