@@ -166,6 +166,7 @@ export default function Timeline() {
         body: JSON.stringify({
           type: 'patterns',
           entries: entries.slice(0, 10).map(e => ({ date: e.created_at, content: e.content, mood: e.mood })),
+          language,
         }),
       });
       const data = await response.json();
