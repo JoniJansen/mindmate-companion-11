@@ -27,6 +27,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }
   });
 
+  // Hide BottomNav while exercise player is open
+  useEffect(() => {
+    document.body.classList.add('exercise-player-open');
+    return () => document.body.classList.remove('exercise-player-open');
+  }, []);
+
   // Single source of truth for exercise display strings
   const display = getExerciseDisplay(exercise.id, {
     title: exercise.title,
@@ -52,12 +58,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Speak current step when it changes or when playing starts
   useEffect(() => {
-    if (voiceEnabled) {
+    if (voiceEnabled && language) {
       const instruction = getStepInstruction(currentStep);
       const voiceId = getVoiceId(effectiveLang);
       speak(instruction, voiceId, effectiveLang, speed);
     }
-  }, [currentStep, voiceEnabled]);
+  }, [currentStep, voiceEnabled, language]);
 
   // Handle next step
   const handleNextStep = () => {
@@ -122,7 +128,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Completion screen
   if (isComplete) {
     return (
-      <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={fullScreenOverlay()}>
+      <div className="fixed inset-0 bg-background z-[200] flex flex-col" style={fullScreenOverlay()}>
         <div className="flex items-center justify-between p-3 border-b border-border">
           <button type="button" onClick={handleClose} className="p-2 hover:bg-muted rounded-lg">
             <X className="w-5 h-5" />
@@ -165,7 +171,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Exercise screen
   return (
-    <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={fullScreenOverlay()}>
+    <div className="fixed inset-0 bg-background z-[200] flex flex-col" style={fullScreenOverlay()}>
       {/* Header */}
       <div className="flex items-center justify-between px-2 py-2 border-b border-border">
         {/* Close button - 44px tap target */}
@@ -258,7 +264,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       </div>
 
       {/* FIXED BOTTOM CONTROLS */}
-      <div className="border-t border-border bg-background p-4 pb-6">
+      <div className="border-t border-border bg-background p-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
         <p className="text-xs text-muted-foreground text-center mb-3">
           {voiceEnabled ? t("toolbox.autoProgress") : t("toolbox.tapToStart")}
         </p>

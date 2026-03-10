@@ -75,6 +75,8 @@ serve(async (req) => {
         body: JSON.stringify({
           text: truncatedText,
           model_id: "eleven_multilingual_v2",
+          // Force language detection for short texts
+          ...(language ? { language_code: language === "de" ? "de" : "en" } : {}),
           voice_settings: {
             stability: 0.6,
             similarity_boost: 0.75,

@@ -338,3 +338,8 @@
     background: linear-gradient(135deg, hsl(var(--accent-soft)) 0%, hsl(var(--background)) 100%);
   }
 }
+
+/* Hide bottom nav when exercise player is open */
+body.exercise-player-open nav[class*="fixed bottom-0"] {
+  display: none !important;
+}
