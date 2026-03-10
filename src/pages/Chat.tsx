@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, MicOff, Phone, BookOpen, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save, HelpCircle } from "lucide-react";
+import { Send, Mic, MicOff, Phone, BookOpen, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save, HelpCircle, Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
