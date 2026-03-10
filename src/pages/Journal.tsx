@@ -106,6 +106,7 @@ export default function Journal() {
         body: JSON.stringify({
           type: "sentiment",
           entries: [{ content }],
+          language,
         }),
       });
       if (!response.ok) return;
