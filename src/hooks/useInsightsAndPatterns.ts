@@ -17,6 +17,7 @@ interface EmotionalPattern {
 
 export function useInsightsAndPatterns() {
   const [latestInsight, setLatestInsight] = useState<SessionInsight | null>(null);
+  const [insights, setInsights] = useState<SessionInsight[]>([]);
   const [patterns, setPatterns] = useState<EmotionalPattern[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
@@ -32,7 +33,7 @@ export function useInsightsAndPatterns() {
             .select("id, insight_text, created_at")
             .eq("user_id", user.id)
             .order("created_at", { ascending: false })
-            .limit(1) as any,
+            .limit(10) as any,
           supabase
             .from("emotional_patterns")
             .select("id, pattern_type, description, confidence")
@@ -43,6 +44,7 @@ export function useInsightsAndPatterns() {
 
         if (insightResult.data?.[0]) {
           setLatestInsight(insightResult.data[0]);
+          setInsights(insightResult.data);
         }
         if (patternResult.data) {
           setPatterns(patternResult.data);
@@ -56,7 +58,6 @@ export function useInsightsAndPatterns() {
 
     load();
 
-    // Listen for new insights in realtime
     const channel = supabase
       .channel("session-insights-home")
       .on("postgres_changes", {
@@ -65,12 +66,20 @@ export function useInsightsAndPatterns() {
         table: "session_insights",
         filter: `user_id=eq.${user.id}`,
       }, (payload) => {
-        setLatestInsight(payload.new as SessionInsight);
+        const newInsight = payload.new as SessionInsight;
+        setLatestInsight(newInsight);
+        setInsights(prev => [newInsight, ...prev].slice(0, 10));
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
   }, [user]);
 
-  return { latestInsight, patterns, isLoading };
+  return {
+    latestInsight,
+    insights,
+    insightCount: insights.length,
+    patterns,
+    isLoading,
+  };
 }
