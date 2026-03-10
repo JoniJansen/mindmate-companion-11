@@ -24,6 +24,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [isTransitioning, setIsTransitioning] = useState(false);
   const { t, language, getExerciseDisplay } = useTranslation();
   const { getVoiceId, speed } = useVoiceSettings();
+  const exerciseVoiceSpeed = exercise.category === "breathing" ? 0.9 : speed;
+
   
   const { speak, stop, isSpeaking, isLoading } = useElevenLabsTTS({
     onStart: () => {
@@ -95,7 +97,48 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   } as const;
 
   const getStepSpeechText = (index: number) => {
-    const instruction = getStepInstruction(index);
+    const instruction = getStepInstruction(index).trim();
+
+    const breathingSpeechOverrides: Record<string, { en: string[]; de: string[] }> = {
+      "breathing-60": {
+        en: [
+          "Find a comfortable position. And when you're ready, gently close your eyes.",
+          "Breathe in slowly through your nose now ... soft and easy ... in ... two ... three ... four.",
+          "Hold the breath gently for a brief moment ... two.",
+          "Now breathe out slowly through your mouth ... long and easy ... out ... two ... three ... four ... five ... six.",
+          "Breathe in again ... and let calm move gently through your body.",
+          "Hold softly for a moment.",
+          "And exhale slowly ... releasing tension with the breath.",
+          "Take another slow breath in through your nose ... in ... two ... three ... four.",
+          "Hold gently for a brief moment.",
+          "And exhale completely ... slow and steady ... out ... two ... three ... four ... five ... six.",
+          "One more deep, slow breath in.",
+          "Hold it softly for a moment.",
+          "And release ... letting go completely.",
+          "Gently open your eyes ... and notice how you feel now.",
+        ],
+        de: [
+          "Finde eine bequeme Position. Und wenn du soweit bist, schließe sanft die Augen.",
+          "Atme jetzt langsam durch die Nase ein ... ganz weich und ruhig ... ein ... zwei ... drei ... vier.",
+          "Halte den Atem für einen kleinen Moment ganz sanft.",
+          "Und jetzt atme langsam durch den Mund aus ... lang und ruhig ... aus ... zwei ... drei ... vier ... fünf ... sechs.",
+          "Atme wieder ein ... und lass mit dem Atem Ruhe in deinen Körper kommen.",
+          "Halte den Atem noch einen kleinen Moment ganz weich.",
+          "Und atme langsam aus ... lass dabei die Spannung weiter los.",
+          "Nimm noch einen ruhigen Atemzug durch die Nase ... ein ... zwei ... drei ... vier.",
+          "Halte wieder ganz sanft für einen kurzen Moment.",
+          "Und atme vollständig aus ... langsam und gleichmäßig ... aus ... zwei ... drei ... vier ... fünf ... sechs.",
+          "Ein letztes Mal tief und ruhig einatmen.",
+          "Halte den Atem noch einen sanften Moment.",
+          "Und jetzt lösen ... ganz loslassen.",
+          "Öffne nun langsam die Augen ... und spüre kurz nach, wie du dich jetzt fühlst.",
+        ],
+      },
+    };
+
+    const override = breathingSpeechOverrides[exercise.id]?.[effectiveLang]?.[index];
+    if (override) return override;
+
     const numberMap = spokenNumberMap[effectiveLang];
 
     return instruction
@@ -118,7 +161,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     if (!instruction) return;
 
     const voiceId = getVoiceId(effectiveLang);
-    speak(instruction, voiceId, effectiveLang, speed);
+    speak(instruction, voiceId, effectiveLang, exerciseVoiceSpeed);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep, voiceEnabled, language, isComplete]);
 
@@ -251,7 +294,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     } else {
       const instruction = getStepSpeechText(currentStep);
       const voiceId = getVoiceId(effectiveLang);
-      speak(instruction, voiceId, effectiveLang, speed);
+      speak(instruction, voiceId, effectiveLang, exerciseVoiceSpeed);
     }
     setVoiceEnabled(!voiceEnabled);
   };
