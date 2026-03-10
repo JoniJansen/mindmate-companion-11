@@ -73,7 +73,7 @@ export default function Timeline() {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
-
+  const { latestInsight, patterns } = useInsightsAndPatterns();
   // Load entries and mood checkins
   useEffect(() => {
     if (!user) return;
