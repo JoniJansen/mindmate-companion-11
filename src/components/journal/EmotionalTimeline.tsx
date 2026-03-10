@@ -74,7 +74,7 @@ export function EmotionalTimeline({
                 )}
               </div>
               <div className="text-left">
-                <p className="font-medium text-foreground">{t("timeline.title")}</p>
+                <p className="font-medium text-foreground">{t("timeline.emotionalTitle")}</p>
                 <p className="text-sm text-muted-foreground">{t("timeline.description")}</p>
               </div>
             </div>
