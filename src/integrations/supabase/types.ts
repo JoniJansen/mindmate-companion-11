@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_prompts: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          prompt_text: string
+          prompt_text_de: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          prompt_text: string
+          prompt_text_de: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          prompt_text?: string
+          prompt_text_de?: string
+        }
+        Relationships: []
+      }
+      emotional_patterns: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          description: string
+          id: string
+          pattern_type: string
+          user_id: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          description: string
+          id?: string
+          pattern_type?: string
+          user_id: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          description?: string
+          id?: string
+          pattern_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_entries: {
         Row: {
           content: string
@@ -116,6 +167,30 @@ export type Database = {
         }
         Relationships: []
       }
+      session_insights: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          id: string
+          insight_text: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          insight_text: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          insight_text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
@@ -181,6 +256,36 @@ export type Database = {
           activity_type?: string
           created_at?: string
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_memories: {
+        Row: {
+          confidence_score: number | null
+          content: string
+          created_at: string
+          id: string
+          memory_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          content: string
+          created_at?: string
+          id?: string
+          memory_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          content?: string
+          created_at?: string
+          id?: string
+          memory_type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
