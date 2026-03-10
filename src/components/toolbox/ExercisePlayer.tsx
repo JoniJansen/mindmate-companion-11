@@ -115,16 +115,21 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
           setIsCurrentStepMinDurationMet(true);
 
           if (!voiceEnabled || !isCurrentStepSpeakingRef.current) {
-            stop();
-            if (currentStepRef.current < totalStepsRef.current - 1) {
-              setCurrentStep(s => s + 1);
-              setStepProgress(0);
-              setIsCurrentStepMinDurationMet(false);
-            } else {
-              setIsComplete(true);
-              setIsPlaying(false);
-            }
-            return 0;
+            // Begin soft transition with a brief pause
+            setIsTransitioning(true);
+            setTimeout(() => {
+              stop();
+              if (currentStepRef.current < totalStepsRef.current - 1) {
+                setCurrentStep(s => s + 1);
+                setStepProgress(0);
+                setIsCurrentStepMinDurationMet(false);
+              } else {
+                setIsComplete(true);
+                setIsPlaying(false);
+              }
+              setIsTransitioning(false);
+            }, 800); // 800ms gentle pause between steps
+            return 100;
           }
 
           return 100;
