@@ -260,8 +260,8 @@ export default function Upgrade() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50">
         <div className="px-4 py-4 max-w-lg mx-auto">
-          <button
-            onClick={() => navigate(-1)}
+           <button
+            onClick={() => navigate("/settings", { replace: true })}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
