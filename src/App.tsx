@@ -125,7 +125,7 @@ function RootRedirect() {
   
   // If authenticated, go to chat
   if (isAuthenticated) {
-    return <Navigate to="/chat" replace />;
+    return <Navigate to="/home" replace />;
   }
   
   // If completed onboarding but not authenticated, go to auth
