@@ -414,26 +414,32 @@ serve(async (req) => {
     const isPremium = subData && subData.length > 0;
 
     if (!isPremium) {
-      // Count today's chat messages from activity log
       const today = new Date().toISOString().split("T")[0];
-      const { count, error: countError } = await adminClient
-        .from("user_activity_log")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("activity_type", "chat_session")
-        .eq("activity_date", today);
 
-      if (!countError && (count ?? 0) >= DAILY_LIMIT) {
+      // Upsert to increment message count atomically
+      const { data: usageRow } = await adminClient
+        .from("daily_chat_usage")
+        .select("message_count")
+        .eq("user_id", userId)
+        .eq("usage_date", today)
+        .maybeSingle();
+
+      const currentCount = usageRow?.message_count ?? 0;
+
+      if (currentCount >= DAILY_LIMIT) {
         return new Response(
           JSON.stringify({ error: "Daily message limit reached. Upgrade to Premium for unlimited messages." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Log this chat message
+      // Increment counter
       await adminClient
-        .from("user_activity_log")
-        .insert({ user_id: userId, activity_date: today, activity_type: "chat_session" });
+        .from("daily_chat_usage")
+        .upsert(
+          { user_id: userId, usage_date: today, message_count: currentCount + 1 },
+          { onConflict: "user_id,usage_date" }
+        );
     }
     // --- End rate limit ---
     
