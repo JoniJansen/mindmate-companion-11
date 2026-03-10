@@ -10,12 +10,12 @@ interface StreakMilestoneProps {
 }
 
 const milestoneMessages: Record<number, { en: string; de: string }> = {
-  3: { en: "3 days in a row — you're building a habit.", de: "3 Tage am Stück — du baust eine Gewohnheit auf." },
-  7: { en: "A full week! Your commitment inspires.", de: "Eine ganze Woche! Dein Engagement inspiriert." },
-  14: { en: "Two weeks strong. You're showing up for yourself.", de: "Zwei Wochen stark. Du bist für dich da." },
-  30: { en: "30 days — this is who you are now.", de: "30 Tage — das bist jetzt du." },
-  60: { en: "60 days of self-care. Remarkable.", de: "60 Tage Selbstfürsorge. Bemerkenswert." },
-  100: { en: "100 days. You've built something beautiful.", de: "100 Tage. Du hast etwas Schönes aufgebaut." },
+  3: { en: "3 days — you're building a habit of self-reflection.", de: "3 Tage — du baust eine Gewohnheit der Selbstreflexion auf." },
+  7: { en: "A full week of staying connected to yourself.", de: "Eine ganze Woche, in der du mit dir verbunden warst." },
+  14: { en: "Two weeks of showing up for yourself. That takes real commitment.", de: "Zwei Wochen, in denen du für dich da warst. Das erfordert echtes Engagement." },
+  30: { en: "30 days of reflection — this is becoming part of who you are.", de: "30 Tage Reflexion — das wird ein Teil von dir." },
+  60: { en: "60 days of self-understanding. You see yourself more clearly now.", de: "60 Tage Selbsterkenntnis. Du siehst dich jetzt klarer." },
+  100: { en: "100 days. You've built something deeply personal and meaningful.", de: "100 Tage. Du hast etwas zutiefst Persönliches und Bedeutsames aufgebaut." },
 };
 
 export function StreakMilestone({ milestone, onDismiss }: StreakMilestoneProps) {
@@ -24,7 +24,6 @@ export function StreakMilestone({ milestone, onDismiss }: StreakMilestoneProps) 
 
   const message = milestoneMessages[milestone]?.[language] || milestoneMessages[milestone]?.en || "";
 
-  // Auto-dismiss after 8 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setShow(false);
@@ -38,8 +37,7 @@ export function StreakMilestone({ milestone, onDismiss }: StreakMilestoneProps) 
     setTimeout(onDismiss, 300);
   };
 
-  // Respect prefers-reduced-motion
-  const prefersReducedMotion = typeof window !== "undefined" 
+  const prefersReducedMotion = typeof window !== "undefined"
     && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
   return (
@@ -52,7 +50,6 @@ export function StreakMilestone({ milestone, onDismiss }: StreakMilestoneProps) 
           transition={prefersReducedMotion ? { duration: 0.2 } : { type: "spring", damping: 20, stiffness: 300 }}
           className="mx-4 mb-4 p-4 rounded-2xl bg-primary/10 border border-primary/20 relative overflow-hidden"
         >
-          {/* Subtle sparkle background — skip for reduced motion */}
           {!prefersReducedMotion && (
             <motion.div
               className="absolute inset-0 opacity-10"
@@ -74,7 +71,7 @@ export function StreakMilestone({ milestone, onDismiss }: StreakMilestoneProps) 
             </motion.div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">
-                🔥 {milestone} {language === "de" ? "Tage Streak!" : "Day Streak!"}
+                🔥 {milestone} {language === "de" ? "Tage Reflexion" : "Days of Reflection"}
               </p>
               <p className="text-sm text-muted-foreground mt-1">{message}</p>
             </div>
