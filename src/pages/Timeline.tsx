@@ -329,6 +329,55 @@ export default function Timeline() {
         </div>
       )}
 
+      {/* Emotional Patterns */}
+      {patterns.length > 0 && (
+        <div className="px-6 mb-4">
+          <CalmCard variant="gentle">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">
+                {language === "de" ? "Erkannte Muster" : "Detected Patterns"}
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {patterns.map((p) => (
+                <div key={p.id} className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary/60 mt-1.5 shrink-0" />
+                  <p className="text-sm text-foreground/80 leading-relaxed">{p.description}</p>
+                </div>
+              ))}
+            </div>
+          </CalmCard>
+        </div>
+      )}
+
+      {/* Recent Session Insights */}
+      {sessionInsights.length > 0 && (
+        <div className="px-6 mb-4">
+          <CalmCard variant="gentle">
+            <div className="flex items-center gap-2 mb-3">
+              <Brain className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">
+                {language === "de" ? "Reflexionen aus Gesprächen" : "Conversation Reflections"}
+              </h3>
+            </div>
+            <div className="space-y-3">
+              {sessionInsights.slice(0, 3).map((insight) => (
+                <div key={insight.id} className="flex items-start gap-2">
+                  <Sparkles className="w-3 h-3 text-primary/50 mt-1 shrink-0" />
+                  <div>
+                    <p className="text-sm text-foreground/80 leading-relaxed">{insight.insight_text}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {new Date(insight.created_at).toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: "short", day: "numeric" })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CalmCard>
+        </div>
+      )}
+
       {/* Selected Day Entries */}
       <div className="px-6">
         {isLoading ? (
