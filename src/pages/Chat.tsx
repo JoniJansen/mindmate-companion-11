@@ -48,6 +48,17 @@ interface SerializedMessage {
 
 const CHAT_HISTORY_KEY = "soulvay-chat-history";
 const CHAT_HISTORY_MAX_MESSAGES = 100;
+const CONVERSATION_ID_KEY = "soulvay-conversation-id";
+
+// Get or create a conversation ID for this session
+const getConversationId = (): string => {
+  let id = sessionStorage.getItem(CONVERSATION_ID_KEY);
+  if (!id) {
+    id = `conv-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    sessionStorage.setItem(CONVERSATION_ID_KEY, id);
+  }
+  return id;
+};
 
 interface Preferences {
   language: "en" | "de";
