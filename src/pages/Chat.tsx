@@ -765,7 +765,11 @@ export default function Chat() {
                       ? "bg-primary text-primary-foreground rounded-br-lg" 
                       : "bg-card border border-border/50 text-foreground rounded-bl-lg shadow-soft"
                   }`}>
-                    <ChatMessageContent content={message.content} isUser={message.role === "user"} />
+                    <ChatMessageContent
+                      content={message.content}
+                      isUser={message.role === "user"}
+                      isStreaming={isLoading && message.role === "assistant" && message === messages[messages.length - 1]}
+                    />
                     {message.role === "assistant" && (
                       <div className="flex items-center gap-1 mt-0.5">
                         <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
