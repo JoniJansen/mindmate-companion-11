@@ -468,8 +468,7 @@ export default function Home() {
         </motion.div>
       </div>
 
-      {/* Bottom Safe Area */}
-      <div className="pb-6 safe-bottom" />
+    </div>
     </div>
   );
 }
