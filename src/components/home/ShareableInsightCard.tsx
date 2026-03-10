@@ -124,7 +124,7 @@ export function ShareableInsightCard({ insightText, date, onDismiss }: Shareable
       ctx.font = "120px Georgia, serif";
       ctx.fillStyle = "rgba(255,255,255,0.15)";
       const textStartY = h / 2 - (lines.length * 56) / 2 - 60;
-      ctx.fillText(""", w / 2, textStartY);
+      ctx.fillText("\u201C", w / 2, textStartY);
 
       // Draw lines
       ctx.font = "italic 42px Georgia, serif";
