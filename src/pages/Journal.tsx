@@ -479,7 +479,7 @@ export default function Journal() {
                       <h3 className="font-semibold text-foreground">{t("journal.yourWeeklyRecap")}</h3>
                       
                       {/* Summary narrative */}
-                      {weeklyRecap.summary_bullets && weeklyRecap.summary_bullets.length > 0 && (
+                      {Array.isArray(weeklyRecap.summary_bullets) && weeklyRecap.summary_bullets.length > 0 && (
                         <p className="text-sm text-foreground/80 leading-relaxed">
                           {weeklyRecap.summary_bullets.join(" ")}
                         </p>
