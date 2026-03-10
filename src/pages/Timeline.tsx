@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Plus, Sparkles, Loader2, BarChart3, TrendingUp, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +35,8 @@ interface DayData {
   moodAverage: number | null;
 }
 
+const PAGE_SIZE = 50;
+
 const moodToNumber = (mood: string | null): number | null => {
   if (!mood) return null;
   const moodMap: Record<string, number> = {
@@ -56,6 +58,8 @@ export default function Timeline() {
   const [entries, setEntries] = useState<TimelineEntry[]>([]);
   const [checkins, setCheckins] = useState<MoodCheckin[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [currentWeekStart, setCurrentWeekStart] = useState(() => {
     const now = new Date();
     const day = now.getDay();
@@ -74,7 +78,8 @@ export default function Timeline() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { latestInsight, patterns } = useInsightsAndPatterns();
-  // Load entries and mood checkins
+
+  // Load entries with pagination
   useEffect(() => {
     if (!user) return;
     
@@ -85,7 +90,8 @@ export default function Timeline() {
             .from('journal_entries')
             .select('*')
             .eq('user_id', user.id)
-            .order('created_at', { ascending: false }),
+            .order('created_at', { ascending: false })
+            .range(0, PAGE_SIZE - 1),
           supabase
             .from('mood_checkins')
             .select('*')
@@ -100,7 +106,9 @@ export default function Timeline() {
             .limit(30) as any,
         ]);
         
-        setEntries(entriesRes.data || []);
+        const entriesData = entriesRes.data || [];
+        setEntries(entriesData);
+        setHasMore(entriesData.length >= PAGE_SIZE);
         setCheckins(
           (checkinsRes.data || []).map((c) => ({
             id: c.id,
@@ -119,6 +127,27 @@ export default function Timeline() {
     
     loadData();
   }, [user]);
+
+  const loadMore = async () => {
+    if (!user || isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+    try {
+      const { data } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .range(entries.length, entries.length + PAGE_SIZE - 1);
+      
+      const newEntries = data || [];
+      setEntries(prev => [...prev, ...newEntries]);
+      setHasMore(newEntries.length >= PAGE_SIZE);
+    } catch {
+      // ignore
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   // Process week data
   useEffect(() => {
@@ -153,7 +182,7 @@ export default function Timeline() {
     return `${formatDate(currentWeekStart)} – ${formatDate(end)}`;
   };
   const getDayName = (date: Date) => {
-    if (date.toDateString() === new Date().toDateString()) return language === "de" ? "Heute" : "Today";
+    if (date.toDateString() === new Date().toDateString()) return t("timeline.today");
     return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { weekday: 'short' });
   };
   const isToday = (date: Date) => date.toDateString() === new Date().toDateString();
@@ -207,7 +236,7 @@ export default function Timeline() {
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-lg font-semibold text-foreground">
-            {language === "de" ? "Meine Timeline" : "My Timeline"}
+            {t("timeline.title")}
           </h1>
           <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-full">
             <Plus className="w-5 h-5" />
@@ -225,7 +254,7 @@ export default function Timeline() {
             className="gap-2 rounded-xl"
           >
             <BarChart3 className="w-4 h-4" />
-            {language === "de" ? "Stimmungskarte" : "Mood Map"}
+            {t("timeline.moodMap")}
           </Button>
         </div>
       )}
@@ -241,7 +270,7 @@ export default function Timeline() {
           >
             <CalmCard variant="gentle">
               <h3 className="font-medium text-foreground text-sm mb-3">
-                {language === "de" ? "90-Tage Stimmungsverlauf" : "90-Day Mood Map"}
+                {t("timeline.moodMap90")}
               </h3>
               <MoodHeatmap checkins={checkins} weeks={13} />
               <div className="mt-4">
@@ -312,7 +341,7 @@ export default function Timeline() {
                   <div>
                     <p className="text-sm text-foreground leading-relaxed">{aiInsight}</p>
                     <Button variant="ghost" size="sm" className="text-muted-foreground mt-2 h-auto py-1 px-0" onClick={() => setAiInsight(null)}>
-                      {language === "de" ? "Schließen" : "Dismiss"}
+                      {t("common.close")}
                     </Button>
                   </div>
                 </div>
@@ -321,7 +350,7 @@ export default function Timeline() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <Button variant="outline" className="w-full rounded-xl gap-2 text-muted-foreground" onClick={handleGenerateInsight} disabled={isGeneratingInsight}>
                   {isGeneratingInsight ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  {language === "de" ? "Muster erkennen" : "Discover patterns"}
+                  {t("home.detectingPatterns")}
                 </Button>
               </motion.div>
             )}
@@ -336,7 +365,7 @@ export default function Timeline() {
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-4 h-4 text-primary" />
               <h3 className="text-sm font-medium text-foreground">
-                {language === "de" ? "Erkannte Muster" : "Detected Patterns"}
+                {t("timeline.detectedPatterns")}
               </h3>
             </div>
             <div className="space-y-2">
@@ -358,7 +387,7 @@ export default function Timeline() {
             <div className="flex items-center gap-2 mb-3">
               <Brain className="w-4 h-4 text-primary" />
               <h3 className="text-sm font-medium text-foreground">
-                {language === "de" ? "Reflexionen aus Gesprächen" : "Conversation Reflections"}
+                {t("timeline.conversationReflections")}
               </h3>
             </div>
             <div className="space-y-3">
@@ -385,16 +414,16 @@ export default function Timeline() {
         ) : selectedDayData ? (
           <>
             <h2 className="text-sm font-medium text-muted-foreground mb-3">
-              {isToday(selectedDayData.date) ? (language === "de" ? "Heute" : "Today") : formatDate(selectedDayData.date)}
+              {isToday(selectedDayData.date) ? t("timeline.today") : formatDate(selectedDayData.date)}
             </h2>
             {selectedDayData.entries.length === 0 ? (
               <div className="bg-muted/30 rounded-2xl p-6 text-center">
                 <p className="text-muted-foreground text-sm mb-3">
-                  {language === "de" ? "Keine Gedanken an diesem Tag." : "No thoughts on this day."}
+                  {t("timeline.noThoughtsDay")}
                 </p>
                 {isToday(selectedDayData.date) && (
                   <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate("/")}>
-                    {language === "de" ? "Gedanken hinzufügen" : "Add thoughts"}
+                    {t("timeline.addThoughts")}
                   </Button>
                 )}
               </div>
@@ -426,7 +455,17 @@ export default function Timeline() {
           </>
         ) : (
           <div className="text-center py-12 text-muted-foreground">
-            {language === "de" ? "Wähle einen Tag" : "Select a day"}
+            {t("timeline.selectDay")}
+          </div>
+        )}
+
+        {/* Load More */}
+        {hasMore && !isLoading && (
+          <div className="flex justify-center py-6">
+            <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={loadMore} disabled={isLoadingMore}>
+              {isLoadingMore ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {t("timeline.loadMore")}
+            </Button>
           </div>
         )}
       </div>
