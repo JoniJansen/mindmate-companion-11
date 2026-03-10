@@ -171,7 +171,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Exercise screen
   return (
-    <div className="fixed inset-0 bg-background z-[100] flex flex-col" style={fullScreenOverlay()}>
+    <div className="fixed inset-0 bg-background z-[200] flex flex-col" style={fullScreenOverlay()}>
       {/* Header */}
       <div className="flex items-center justify-between px-2 py-2 border-b border-border">
         {/* Close button - 44px tap target */}
