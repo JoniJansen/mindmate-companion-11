@@ -24,6 +24,7 @@ import { MessagePlayButton } from "@/components/chat/MessagePlayButton";
 import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
 import { ChatDisclaimer } from "@/components/chat/ChatDisclaimer";
 import { ChatMessageContent } from "@/components/chat/ChatMessageContent";
+import { SaveToJournalDialog } from "@/components/chat/SaveToJournalDialog";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 import { useActivityLog } from "@/hooks/useActivityLog";
