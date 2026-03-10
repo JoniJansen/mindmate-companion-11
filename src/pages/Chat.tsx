@@ -878,7 +878,7 @@ export default function Chat() {
             <Button variant="outline" size="sm" className="gap-2" onClick={() => {
               if (!user) return;
               setSaveDialogVariant("conversation");
-              setSaveDialogDefaultTitle(language === "de" ? "Chat-Gespräch" : "Chat Conversation");
+              setSaveDialogDefaultTitle(t("chat.chatConversation"));
               setSaveDialogCallback(() => async (title: string) => {
                 const chatContent = messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
                 try {
