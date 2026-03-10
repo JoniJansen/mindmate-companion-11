@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Plus, Sparkles, Loader2, BarChart3 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Sparkles, Loader2, BarChart3, TrendingUp, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MoodHeatmap } from "@/components/mood/MoodHeatmap";
 import { MoodInsights } from "@/components/mood/MoodInsights";
 import { toStableTagIds } from "@/lib/tagUtils";
+import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
 
 interface TimelineEntry {
   id: string;
@@ -66,19 +67,20 @@ export default function Timeline() {
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isGeneratingInsight, setIsGeneratingInsight] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [sessionInsights, setSessionInsights] = useState<{ id: string; insight_text: string; created_at: string }[]>([]);
   
   const navigate = useNavigate();
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
-
+  const { latestInsight, patterns } = useInsightsAndPatterns();
   // Load entries and mood checkins
   useEffect(() => {
     if (!user) return;
     
     const loadData = async () => {
       try {
-        const [entriesRes, checkinsRes] = await Promise.all([
+        const [entriesRes, checkinsRes, insightsRes] = await Promise.all([
           supabase
             .from('journal_entries')
             .select('*')
@@ -90,6 +92,12 @@ export default function Timeline() {
             .eq('user_id', user.id)
             .gte('created_at', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
             .order('created_at', { ascending: false }),
+          supabase
+            .from('session_insights')
+            .select('id, insight_text, created_at')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(30) as any,
         ]);
         
         setEntries(entriesRes.data || []);
@@ -101,6 +109,7 @@ export default function Timeline() {
             created_at: c.created_at,
           }))
         );
+        setSessionInsights(insightsRes.data || []);
       } catch (error) {
         if (import.meta.env.DEV) console.error('Error loading data:', error);
       } finally {
@@ -317,6 +326,55 @@ export default function Timeline() {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+      )}
+
+      {/* Emotional Patterns */}
+      {patterns.length > 0 && (
+        <div className="px-6 mb-4">
+          <CalmCard variant="gentle">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">
+                {language === "de" ? "Erkannte Muster" : "Detected Patterns"}
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {patterns.map((p) => (
+                <div key={p.id} className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary/60 mt-1.5 shrink-0" />
+                  <p className="text-sm text-foreground/80 leading-relaxed">{p.description}</p>
+                </div>
+              ))}
+            </div>
+          </CalmCard>
+        </div>
+      )}
+
+      {/* Recent Session Insights */}
+      {sessionInsights.length > 0 && (
+        <div className="px-6 mb-4">
+          <CalmCard variant="gentle">
+            <div className="flex items-center gap-2 mb-3">
+              <Brain className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">
+                {language === "de" ? "Reflexionen aus Gesprächen" : "Conversation Reflections"}
+              </h3>
+            </div>
+            <div className="space-y-3">
+              {sessionInsights.slice(0, 3).map((insight) => (
+                <div key={insight.id} className="flex items-start gap-2">
+                  <Sparkles className="w-3 h-3 text-primary/50 mt-1 shrink-0" />
+                  <div>
+                    <p className="text-sm text-foreground/80 leading-relaxed">{insight.insight_text}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {new Date(insight.created_at).toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: "short", day: "numeric" })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CalmCard>
         </div>
       )}
 

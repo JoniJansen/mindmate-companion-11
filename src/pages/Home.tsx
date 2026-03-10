@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2, Headphones, Sparkles, Lightbulb } from "lucide-react";
+import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2, Headphones, Sparkles, Lightbulb, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -379,7 +379,30 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Quick Actions */}
+        {/* Emotional Patterns */}
+        {patterns.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.32 }}
+            className="mb-6"
+          >
+            <div className="rounded-2xl p-4 border bg-card border-border/30">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">{t("home.patterns")}</span>
+              </div>
+              <div className="space-y-2">
+                {patterns.slice(0, 3).map((pattern) => (
+                  <div key={pattern.id} className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary/60 mt-1.5 shrink-0" />
+                    <p className="text-sm text-foreground/80 leading-relaxed">{pattern.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
