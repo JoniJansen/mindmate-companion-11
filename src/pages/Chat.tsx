@@ -777,12 +777,17 @@ export default function Chat() {
           )}
 
           {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-            <div className="flex justify-start">
+            <div className="flex justify-start animate-fade-in">
               <div className="bg-card border border-border/50 px-4 py-3 rounded-2xl rounded-bl-lg shadow-soft">
-                <div className="flex gap-1.5 items-center">
-                  <div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                <div className="flex items-center gap-2">
+                  <span className="text-[14px] text-muted-foreground/70 italic">
+                    {language === "de" ? "Soulvay reflektiert" : "Soulvay is reflecting"}
+                  </span>
+                  <span className="inline-flex gap-0.5">
+                    <span className="w-1 h-1 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1 h-1 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '200ms' }} />
+                    <span className="w-1 h-1 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '400ms' }} />
+                  </span>
                 </div>
               </div>
             </div>
