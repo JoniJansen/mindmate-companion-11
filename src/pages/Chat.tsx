@@ -213,9 +213,9 @@ export default function Chat() {
 
   useEffect(() => {
     if (isUserAtBottomRef.current) {
-      scrollToBottom(isLoading ? "auto" : "smooth");
+      scrollToBottom(isStreamingActive ? "auto" : "smooth");
     }
-  }, [messages, isLoading, scrollToBottom]);
+  }, [messages, isStreamingActive, scrollToBottom]);
 
   // Initial greeting, restore from DB, or load specific conversation
   const initRef = useRef(false);
