@@ -428,11 +428,9 @@ export default function Chat() {
     setShowTranscriptConfirm(false);
     setIsLoading(true);
 
-    streamChunkBufferRef.current = "";
-    if (streamFlushFrameRef.current !== null) {
-      cancelAnimationFrame(streamFlushFrameRef.current);
-      streamFlushFrameRef.current = null;
-    }
+    // Reset streaming display for new message
+    streamingDisplay.reset();
+    setIsStreamingActive(true);
 
     // Ensure conversation exists for persistence
     let activeConvId = overrideConvId !== undefined ? overrideConvId : conversationId;
@@ -459,13 +457,11 @@ export default function Chat() {
     await streamChat({
       messages: messagesForAI,
       signal: controller.signal,
-      onDelta: (chunk) => { enqueueAssistantChunk(chunk); },
-      onDone: (fullResponse) => {
-        if (streamFlushFrameRef.current !== null) {
-          cancelAnimationFrame(streamFlushFrameRef.current);
-          streamFlushFrameRef.current = null;
-        }
-        flushBufferedAssistant();
+      onDelta: (chunk) => { streamingDisplay.enqueueChunk(chunk); },
+      onDone: async (fullResponse) => {
+        // Wait for drip-feed to finish displaying all words
+        await streamingDisplay.finalize();
+        setIsStreamingActive(false);
         setIsLoading(false);
         abortControllerRef.current = null;
 
@@ -481,11 +477,8 @@ export default function Chat() {
         }
       },
       onError: (errorMsg) => {
-        if (streamFlushFrameRef.current !== null) {
-          cancelAnimationFrame(streamFlushFrameRef.current);
-          streamFlushFrameRef.current = null;
-        }
-        flushBufferedAssistant();
+        streamingDisplay.abort();
+        setIsStreamingActive(false);
         setIsLoading(false);
         abortControllerRef.current = null;
         setMessages(prev => [...prev, {
@@ -497,7 +490,7 @@ export default function Chat() {
         }]);
       },
     });
-  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, upsertAssistant, enqueueAssistantChunk, flushBufferedAssistant, canSendMessage, incrementMessageCount, canUseVoice, t, isOnline, chatMode, conversationId, user, createConversation, saveMessage, updateConversationTitle]);
+  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, streamingDisplay, canSendMessage, incrementMessageCount, canUseVoice, t, isOnline, chatMode, conversationId, user, createConversation, saveMessage, updateConversationTitle]);
 
   const handleRetry = () => {
     setMessages(prev => prev.filter(m => !m.isError));
