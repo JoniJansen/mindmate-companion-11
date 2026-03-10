@@ -124,36 +124,42 @@ export function usePremium() {
     }
   }, [user, state.isPremium]);
 
-  // Check subscription status from backend
+  // Check subscription status from backend (source of truth)
   const checkSubscriptionStatus = useCallback(async () => {
     if (!user || isCheckingSubscription) return;
     
     setIsCheckingSubscription(true);
     try {
-      // First check RevenueCat if available
+      // First check RevenueCat if available (SDK does server-side validation)
       if (isRevenueCatAvailable) {
         const hasPremium = await checkEntitlements();
         if (hasPremium) {
+          setServerVerifiedPremium(true);
           setIsCheckingSubscription(false);
           return;
         }
       }
 
-      // Fallback to backend check
+      // Backend check via Edge Function (server-side Stripe validation)
       const { data, error } = await supabase.functions.invoke("manage-subscription", {
         body: { userId: user.id, action: "status" },
       });
 
       if (error) {
         if (import.meta.env.DEV) console.warn("Failed to check subscription:", error);
+        // On error, don't grant premium – fail closed
+        setServerVerifiedPremium(false);
         return;
       }
 
       if (data) {
+        const isPremiumFromServer = data.isPremium || false;
+        setServerVerifiedPremium(isPremiumFromServer);
+        
         setState(prev => {
           const newState: StoredState = {
             ...prev,
-            isPremium: data.isPremium || false,
+            isPremium: isPremiumFromServer,
             planType: data.planType,
             cancelAtPeriodEnd: data.cancelAtPeriodEnd,
             currentPeriodEnd: data.currentPeriodEnd,
@@ -166,9 +172,12 @@ export function usePremium() {
           }
           return newState;
         });
+      } else {
+        setServerVerifiedPremium(false);
       }
     } catch (e) {
       if (import.meta.env.DEV) console.warn("Failed to check subscription status:", e);
+      setServerVerifiedPremium(false);
     } finally {
       setIsCheckingSubscription(false);
     }
