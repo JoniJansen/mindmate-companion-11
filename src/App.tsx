@@ -47,6 +47,7 @@ const DeleteAccount = lazy(() => import("@/pages/DeleteAccount"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const AudioLibrary = lazy(() => import("@/pages/AudioLibrary"));
 const Timeline = lazy(() => import("@/pages/Timeline"));
+const ChatHistory = lazy(() => import("@/pages/ChatHistory"));
 const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
@@ -201,6 +202,7 @@ function AppContent() {
                   <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
                   <Route path="/audio" element={<OnboardingGuard><AudioLibrary /></OnboardingGuard>} />
                   <Route path="/timeline" element={<OnboardingGuard><Timeline /></OnboardingGuard>} />
+                  <Route path="/chat-history" element={<OnboardingGuard><ChatHistory /></OnboardingGuard>} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/impressum" element={<Impressum />} />

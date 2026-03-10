@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Mic, MicOff, Phone, BookOpen, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save, HelpCircle, Plus } from "lucide-react";
+import { Send, Mic, MicOff, Phone, BookOpen, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save, HelpCircle, Plus, History } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { CalmCard } from "@/components/shared/CalmCard";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -14,11 +13,10 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useVoiceSettings } from "@/hooks/useVoiceSettings";
 import { usePremium } from "@/hooks/usePremium";
-import { useAnalytics } from "@/hooks/useAnalytics";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { useChatPersistence } from "@/hooks/useChatPersistence";
 import { VoiceAvatar } from "@/components/chat/VoiceAvatar";
-import { AudioWaveform } from "@/components/chat/AudioWaveform";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
 import { MessagePlayButton } from "@/components/chat/MessagePlayButton";
 import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
@@ -37,28 +35,6 @@ interface Message {
   timestamp: Date;
   isError?: boolean;
 }
-
-interface SerializedMessage {
-  id: string;
-  content: string;
-  role: "user" | "assistant";
-  timestamp: string;
-  isError?: boolean;
-}
-
-const CHAT_HISTORY_KEY = "soulvay-chat-history";
-const CHAT_HISTORY_MAX_MESSAGES = 100;
-const CONVERSATION_ID_KEY = "soulvay-conversation-id";
-
-// Get or create a conversation ID for this session
-const getConversationId = (): string => {
-  let id = sessionStorage.getItem(CONVERSATION_ID_KEY);
-  if (!id) {
-    id = `conv-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    sessionStorage.setItem(CONVERSATION_ID_KEY, id);
-  }
-  return id;
-};
 
 interface Preferences {
   language: "en" | "de";
@@ -82,7 +58,6 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showActions, setShowActions] = useState(false);
   const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
   const [showTranscriptConfirm, setShowTranscriptConfirm] = useState(false);
   const [pendingTranscript, setPendingTranscript] = useState("");
@@ -93,6 +68,7 @@ export default function Chat() {
   const [saveDialogVariant, setSaveDialogVariant] = useState<"message" | "conversation" | "summary">("message");
   const [saveDialogDefaultTitle, setSaveDialogDefaultTitle] = useState("");
   const [saveDialogCallback, setSaveDialogCallback] = useState<((title: string) => void) | null>(null);
+  const [isRestoringConversation, setIsRestoringConversation] = useState(false);
   const [chatMode, setChatMode] = useState<ChatMode>(() => {
     const stored = localStorage.getItem("mindmate-chat-mode");
     return (stored as ChatMode) || "talk";
@@ -109,6 +85,16 @@ export default function Chat() {
   const chatMessageCountRef = useRef(0);
   const streamChunkBufferRef = useRef("");
   const streamFlushFrameRef = useRef<number | null>(null);
+
+  // Chat persistence
+  const {
+    conversationId,
+    setConversationId,
+    createConversation,
+    saveMessage,
+    updateConversationTitle,
+    loadConversation,
+  } = useChatPersistence();
 
   // Premium state
   const { 
@@ -216,7 +202,6 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior });
   }, []);
 
-  // Track whether user is at the bottom of the chat
   const handleMessagesScroll = useCallback(() => {
     const el = messagesContainerRef.current;
     if (!el) return;
@@ -227,28 +212,19 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    // Only auto-scroll if user is at bottom
     if (isUserAtBottomRef.current) {
       scrollToBottom(isLoading ? "auto" : "smooth");
     }
   }, [messages, isLoading, scrollToBottom]);
 
-  // Persist messages to localStorage whenever they change
+  // Initial greeting, restore from DB, or load specific conversation
+  const initRef = useRef(false);
   useEffect(() => {
-    if (messages.length > 0 && !isLoading) {
-      try {
-        const toSave: SerializedMessage[] = messages
-          .filter(m => !m.isError)
-          .slice(-CHAT_HISTORY_MAX_MESSAGES)
-          .map(m => ({ ...m, timestamp: m.timestamp.toISOString() }));
-        localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(toSave));
-      } catch {}
-    }
-  }, [messages, isLoading]);
+    if (initRef.current) return;
+    initRef.current = true;
 
-  // Initial greeting or restore from localStorage
-  useEffect(() => {
     const initialMessage = localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
+    const resumeConvId = location.state?.conversationId;
     const savedLang = preferences.current.language || language;
     
     const getPersonalizedGreeting = (): string => {
@@ -260,62 +236,45 @@ export default function Chat() {
         if (!focus) return "";
         
         const greetings: Record<string, { en: string; de: string }> = {
-          stress: {
-            en: "I noticed you'd like to work on stress.\nI'm here whenever things feel heavy.",
-            de: "Ich habe gesehen, dass Stress dich beschäftigt.\nIch bin hier, wenn es sich schwer anfühlt.",
-          },
-          anxiety: {
-            en: "Anxiety can feel overwhelming.\nLet's take it one step at a time, together.",
-            de: "Angst kann überwältigend sein.\nLass uns das gemeinsam angehen, Schritt für Schritt.",
-          },
-          sleep: {
-            en: "Better sleep starts with a calmer mind.\nI'm here to help you unwind.",
-            de: "Besserer Schlaf beginnt mit einem ruhigeren Geist.\nIch bin hier, um dir beim Abschalten zu helfen.",
-          },
-          relationships: {
-            en: "Relationships shape how we feel.\nLet's explore what's on your mind.",
-            de: "Beziehungen prägen, wie wir uns fühlen.\nLass uns erkunden, was dich beschäftigt.",
-          },
-          selfworth: {
-            en: "You're already taking a brave step.\nLet's discover your strengths together.",
-            de: "Du machst schon einen mutigen Schritt.\nLass uns gemeinsam deine Stärken entdecken.",
-          },
-          motivation: {
-            en: "Finding motivation starts with understanding yourself.\nI'm here to help you explore.",
-            de: "Motivation zu finden beginnt damit, sich selbst zu verstehen.\nIch bin hier, um dir dabei zu helfen.",
-          },
-          grief: {
-            en: "Grief has its own pace.\nI'm here to listen, whenever you're ready.",
-            de: "Trauer hat ihr eigenes Tempo.\nIch bin hier, um zuzuhören, wann immer du bereit bist.",
-          },
+          stress: { en: "I noticed you'd like to work on stress.\nI'm here whenever things feel heavy.", de: "Ich habe gesehen, dass Stress dich beschäftigt.\nIch bin hier, wenn es sich schwer anfühlt." },
+          anxiety: { en: "Anxiety can feel overwhelming.\nLet's take it one step at a time, together.", de: "Angst kann überwältigend sein.\nLass uns das gemeinsam angehen, Schritt für Schritt." },
+          sleep: { en: "Better sleep starts with a calmer mind.\nI'm here to help you unwind.", de: "Besserer Schlaf beginnt mit einem ruhigeren Geist.\nIch bin hier, um dir beim Abschalten zu helfen." },
+          relationships: { en: "Relationships shape how we feel.\nLet's explore what's on your mind.", de: "Beziehungen prägen, wie wir uns fühlen.\nLass uns erkunden, was dich beschäftigt." },
+          selfworth: { en: "You're already taking a brave step.\nLet's discover your strengths together.", de: "Du machst schon einen mutigen Schritt.\nLass uns gemeinsam deine Stärken entdecken." },
+          motivation: { en: "Finding motivation starts with understanding yourself.\nI'm here to help you explore.", de: "Motivation zu finden beginnt damit, sich selbst zu verstehen.\nIch bin hier, um dir dabei zu helfen." },
+          grief: { en: "Grief has its own pace.\nI'm here to listen, whenever you're ready.", de: "Trauer hat ihr eigenes Tempo.\nIch bin hier, um zuzuhören, wann immer du bereit bist." },
         };
         
         return greetings[focus]?.[savedLang as "en" | "de"] || "";
       } catch { return ""; }
     };
-    
+
     const init = async () => {
+      // Resume a specific conversation from history
+      if (resumeConvId) {
+        setIsRestoringConversation(true);
+        setConversationId(resumeConvId);
+        const msgs = await loadConversation(resumeConvId);
+        if (msgs.length > 0) {
+          setMessages(msgs.map(m => ({
+            id: m.id,
+            content: m.content,
+            role: m.role as "user" | "assistant",
+            timestamp: new Date(m.created_at),
+          })));
+          chatMessageCountRef.current = msgs.filter(m => m.role === "user").length;
+        }
+        setIsRestoringConversation(false);
+        return;
+      }
+
       if (initialMessage) {
         localStorage.removeItem('mindmate-initial-message');
-        handleSend(initialMessage);
+        // Create new conversation for this message
+        const convId = await createConversation(chatMode);
+        handleSend(initialMessage, false, convId);
       } else {
-        // Try to restore previous conversation
-        try {
-          const stored = localStorage.getItem(CHAT_HISTORY_KEY);
-          if (stored) {
-            const parsed: SerializedMessage[] = JSON.parse(stored);
-            if (parsed.length > 1) { // More than just greeting = real conversation
-              const restored: Message[] = parsed.map(m => ({
-                ...m,
-                timestamp: new Date(m.timestamp),
-              }));
-              setMessages(restored);
-              return; // Skip greeting
-            }
-          }
-        } catch {}
-        
-        // No previous conversation – show greeting
+        // Show greeting for new conversation
         const personalLine = getPersonalizedGreeting();
         const baseGreeting = savedLang === "de"
           ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu."
@@ -348,15 +307,12 @@ export default function Chat() {
   const upsertAssistant = useCallback((nextChunk: string) => {
     setMessages((prev) => {
       const last = prev[prev.length - 1];
-
       if (last?.role === "assistant" && !last.isError) {
-        // Mutate-then-copy: only create one new object for the changed message
         const newLast = { ...last, content: last.content + nextChunk };
         const next = prev.slice(0, -1);
         next.push(newLast);
         return next;
       }
-
       return [...prev, { id: Date.now().toString(), content: nextChunk, role: "assistant", timestamp: new Date() }];
     });
   }, []);
@@ -370,16 +326,14 @@ export default function Chat() {
   const enqueueAssistantChunk = useCallback((chunk: string) => {
     if (!chunk) return;
     streamChunkBufferRef.current += chunk;
-
     if (streamFlushFrameRef.current !== null) return;
-
     streamFlushFrameRef.current = requestAnimationFrame(() => {
       streamFlushFrameRef.current = null;
       flushBufferedAssistant();
     });
   }, [flushBufferedAssistant]);
 
-  const streamChat = async ({ messages, onDelta, onDone, onError, signal }: {
+  const streamChat = async ({ messages: chatMsgs, onDelta, onDone, onError, signal }: {
     messages: { role: "user" | "assistant"; content: string }[];
     onDelta: (chunk: string) => void;
     onDone: (fullResponse: string) => void;
@@ -389,7 +343,6 @@ export default function Chat() {
     try {
       const modePrompt = getModeSystemPrompt(chatMode, language as "en" | "de");
       
-      // Add personalization context if available
       let personalizationContext = "";
       try {
         const stored = localStorage.getItem("soulvay-personalization");
@@ -404,7 +357,6 @@ export default function Chat() {
         }
       } catch {}
       
-      // Get user session token for authenticated request
       const { data: { session } } = await supabase.auth.getSession();
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       
@@ -416,7 +368,7 @@ export default function Chat() {
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({
-          messages,
+          messages: chatMsgs,
           preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
         }),
         signal,
@@ -466,16 +418,15 @@ export default function Chat() {
       }
       onDone(fullResponse);
     } catch (error: any) {
-      if (error.name === "AbortError") return; // Intentional abort
+      if (error.name === "AbortError") return;
       if (import.meta.env.DEV) console.error("Stream error:", error);
       onError(t("chat.streamErrorBody"));
     }
   };
 
-  const handleSend = useCallback(async (content: string, isSystemAction = false) => {
+  const handleSend = useCallback(async (content: string, isSystemAction = false, overrideConvId?: string | null) => {
     if (!content.trim() || isLoading) return;
 
-    // Offline guard
     if (!navigator.onLine) {
       toast({ title: t("common.offline"), description: t("common.offlineBody"), variant: "destructive" });
       return;
@@ -485,7 +436,6 @@ export default function Chat() {
       setUpgradeReason("messages"); setShowUpgradePrompt(true); return;
     }
 
-    // Abort previous stream
     abortControllerRef.current?.abort();
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -496,7 +446,6 @@ export default function Chat() {
       incrementMessageCount();
       setLastUserMessage(content.trim());
       chatMessageCountRef.current += 1;
-      // Log chat session activity after 3+ user messages
       if (chatMessageCountRef.current >= 3) {
         logActivity("chat_session");
       }
@@ -504,13 +453,29 @@ export default function Chat() {
     setInputValue("");
     setPendingTranscript("");
     setShowTranscriptConfirm(false);
-    setShowActions(false);
     setIsLoading(true);
 
     streamChunkBufferRef.current = "";
     if (streamFlushFrameRef.current !== null) {
       cancelAnimationFrame(streamFlushFrameRef.current);
       streamFlushFrameRef.current = null;
+    }
+
+    // Ensure conversation exists for persistence
+    let activeConvId = overrideConvId !== undefined ? overrideConvId : conversationId;
+    if (!activeConvId && user) {
+      activeConvId = await createConversation(chatMode);
+    }
+
+    // Save user message to DB
+    if (activeConvId && !isSystemAction) {
+      saveMessage(activeConvId, "user", content.trim());
+    }
+
+    // Generate title after first user message
+    if (chatMessageCountRef.current === 1 && activeConvId) {
+      const title = content.trim().substring(0, 60);
+      updateConversationTitle(activeConvId, title);
     }
 
     const chatMessages = [...messages, ...(isSystemAction ? [] : [userMessage])].map((m) => ({ role: m.role, content: m.content }));
@@ -530,6 +495,12 @@ export default function Chat() {
         flushBufferedAssistant();
         setIsLoading(false);
         abortControllerRef.current = null;
+
+        // Save assistant response to DB
+        if (activeConvId && fullResponse) {
+          saveMessage(activeConvId, "assistant", fullResponse);
+        }
+
         if (canUseVoice && (voiceModeEnabled || voiceSettings.autoPlayReplies) && fullResponse && !isListening) {
           const voiceId = getVoiceId(language as "en" | "de");
           const effectiveLang = getEffectiveLanguage(language as "en" | "de");
@@ -544,7 +515,6 @@ export default function Chat() {
         flushBufferedAssistant();
         setIsLoading(false);
         abortControllerRef.current = null;
-        // Add error message card
         setMessages(prev => [...prev, {
           id: `error-${Date.now()}`,
           content: errorMsg,
@@ -554,10 +524,9 @@ export default function Chat() {
         }]);
       },
     });
-  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, upsertAssistant, enqueueAssistantChunk, flushBufferedAssistant, canSendMessage, incrementMessageCount, canUseVoice, t, isOnline, chatMode]);
+  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, upsertAssistant, enqueueAssistantChunk, flushBufferedAssistant, canSendMessage, incrementMessageCount, canUseVoice, t, isOnline, chatMode, conversationId, user, createConversation, saveMessage, updateConversationTitle]);
 
   const handleRetry = () => {
-    // Remove the error message and retry last user message
     setMessages(prev => prev.filter(m => !m.isError));
     if (lastUserMessage) handleSend(lastUserMessage);
   };
@@ -612,14 +581,12 @@ export default function Chat() {
   const handleUpgrade = () => { setShowUpgradePrompt(false); navigate("/upgrade"); };
 
   const handleNewConversation = () => {
-    // Trigger background memory extraction + session insight for the ended conversation
+    // Trigger background intelligence for the ended conversation
     const userMsgCount = messages.filter(m => m.role === "user" && !m.isError).length;
     if (user && userMsgCount >= 4) {
       const conversationContent = messages.filter(m => !m.isError).map(m => `${m.role}: ${m.content}`).join("\n\n");
       const chatMsgs = messages.filter(m => !m.isError).map(m => ({ role: m.role, content: m.content }));
-      const convId = getConversationId();
       
-      // Fire-and-forget: extract memories
       supabase.auth.getSession().then(({ data: { session } }) => {
         const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
         const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY };
@@ -629,15 +596,13 @@ export default function Chat() {
           body: JSON.stringify({ content: conversationContent, source: "chat", language }),
         }).catch(() => {});
 
-        // Fire-and-forget: session insight (only for 6+ user messages)
         if (userMsgCount >= 6) {
           fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/session-insight`, {
             method: "POST", headers,
-            body: JSON.stringify({ messages: chatMsgs, conversation_id: convId, language }),
+            body: JSON.stringify({ messages: chatMsgs, conversation_id: conversationId, language }),
           }).catch(() => {});
         }
 
-        // Fire-and-forget: detect emotional patterns (only for 8+ user messages)
         if (userMsgCount >= 8) {
           fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/detect-patterns`, {
             method: "POST", headers,
@@ -647,9 +612,8 @@ export default function Chat() {
       });
     }
 
-    // Reset conversation
-    sessionStorage.removeItem(CONVERSATION_ID_KEY);
-    try { localStorage.removeItem(CHAT_HISTORY_KEY); } catch {}
+    // Reset everything for new conversation
+    setConversationId(null);
     setMessages([]);
     chatMessageCountRef.current = 0;
     const savedLang = preferences.current.language || language;
@@ -672,6 +636,21 @@ export default function Chat() {
         rightElement={
           <div className="flex items-center gap-2 -mr-1.5">
             <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" size="icon" 
+                    onClick={(e) => { e.stopPropagation(); navigate("/chat-history"); }} 
+                    className="text-muted-foreground shrink-0"
+                    aria-label={language === "de" ? "Verlauf" : "History"}
+                  >
+                    <History className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">
+                  {language === "de" ? "Gesprächsverlauf" : "Conversation history"}
+                </TooltipContent>
+              </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
@@ -729,7 +708,6 @@ export default function Chat() {
       <ChatDisclaimer />
       <MessageLimitIndicator messagesRemaining={messagesRemaining} dailyLimit={dailyMessageLimit} isPremium={isPremium} />
 
-      {/* Persistent upgrade banner for free users */}
       {!isPremium && (
         <div className="shrink-0 px-4 py-2">
           <UpgradePrompt reason="general" variant="banner" onUpgrade={() => navigate("/upgrade")} />
@@ -761,67 +739,72 @@ export default function Chat() {
       {/* Messages */}
       <div ref={messagesContainerRef} onScroll={handleMessagesScroll} className="relative flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4" style={{ WebkitOverflowScrolling: 'touch', contain: 'layout style' }}>
         <div className="max-w-lg mx-auto space-y-3">
-          {messages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              {message.isError ? (
-                /* Error card with retry/continue */
-                <div className="max-w-[88%] px-4 py-3 rounded-2xl bg-destructive/10 border border-destructive/20 rounded-bl-lg">
-                  <p className="text-sm text-destructive mb-2">{message.content}</p>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handleRetry} className="gap-1.5">
-                      <RefreshCw className="w-3.5 h-3.5" />
-                      {t("chat.retryMessage")}
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={handleContinue}>
-                      {t("chat.continueMessage")}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className={`relative max-w-[88%] px-4 py-3 rounded-2xl ${
-                  message.role === "user" 
-                    ? "bg-primary text-primary-foreground rounded-br-lg" 
-                    : "bg-card border border-border/50 text-foreground rounded-bl-lg shadow-soft"
-                }`}>
-                  <ChatMessageContent content={message.content} isUser={message.role === "user"} />
-                  {message.role === "assistant" && (
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!user) return;
-                          const msgContent = message.content;
-                          setSaveDialogVariant("message");
-                          setSaveDialogDefaultTitle(language === "de" ? "Chat-Nachricht" : "Chat Message");
-                          setSaveDialogCallback(() => async (title: string) => {
-                            try {
-                              await supabase.from("journal_entries").insert({
-                                user_id: user.id,
-                                user_session_id: user.id,
-                                content: msgContent,
-                                title: title || t("chat.journalTitle.message"),
-                                source: "chat",
-                                tags: ["chat"],
-                              } as any);
-                              toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
-                            } catch {
-                              toast({ title: t("common.error"), variant: "destructive" });
-                            }
-                          });
-                          setSaveDialogOpen(true);
-                        }}
-                        className="p-1.5 rounded-full hover:bg-muted/50 text-muted-foreground/50 hover:text-muted-foreground transition-colors flex items-center justify-center"
-                        title={t("chat.saveMessage")}
-                      >
-                        <BookOpen className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+          {isRestoringConversation ? (
+            <div className="flex justify-center py-8">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
-          ))}
+          ) : (
+            messages.map((message) => (
+              <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                {message.isError ? (
+                  <div className="max-w-[88%] px-4 py-3 rounded-2xl bg-destructive/10 border border-destructive/20 rounded-bl-lg">
+                    <p className="text-sm text-destructive mb-2">{message.content}</p>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={handleRetry} className="gap-1.5">
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        {t("chat.retryMessage")}
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={handleContinue}>
+                        {t("chat.continueMessage")}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={`relative max-w-[88%] px-4 py-3 rounded-2xl ${
+                    message.role === "user" 
+                      ? "bg-primary text-primary-foreground rounded-br-lg" 
+                      : "bg-card border border-border/50 text-foreground rounded-bl-lg shadow-soft"
+                  }`}>
+                    <ChatMessageContent content={message.content} isUser={message.role === "user"} />
+                    {message.role === "assistant" && (
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!user) return;
+                            const msgContent = message.content;
+                            setSaveDialogVariant("message");
+                            setSaveDialogDefaultTitle(language === "de" ? "Chat-Nachricht" : "Chat Message");
+                            setSaveDialogCallback(() => async (title: string) => {
+                              try {
+                                await supabase.from("journal_entries").insert({
+                                  user_id: user.id,
+                                  user_session_id: user.id,
+                                  content: msgContent,
+                                  title: title || t("chat.journalTitle.message"),
+                                  source: "chat",
+                                  tags: ["chat"],
+                                } as any);
+                                toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
+                              } catch {
+                                toast({ title: t("common.error"), variant: "destructive" });
+                              }
+                            });
+                            setSaveDialogOpen(true);
+                          }}
+                          className="p-1.5 rounded-full hover:bg-muted/50 text-muted-foreground/50 hover:text-muted-foreground transition-colors flex items-center justify-center"
+                          title={t("chat.saveMessage")}
+                        >
+                          <BookOpen className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
 
           {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
             <div className="flex justify-start">
@@ -838,7 +821,6 @@ export default function Chat() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Jump to latest button */}
         {showJumpToLatest && messages.length > 5 && (
           <button
             onClick={() => { scrollToBottom("smooth"); isUserAtBottomRef.current = true; setShowJumpToLatest(false); }}
@@ -863,7 +845,7 @@ export default function Chat() {
       )}
 
       {/* Quick Replies */}
-      {messages.length <= 2 && !isLoading && (
+      {messages.length <= 2 && !isLoading && !isRestoringConversation && (
         <div className="shrink-0 px-4 pb-3 bg-background">
           <div className="max-w-lg mx-auto">
             <p className="text-xs text-muted-foreground text-center mb-3">{t("chat.howToStart")}</p>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2, Headphones, Sparkles, Lightbulb, TrendingUp } from "lucide-react";
+import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2, Headphones, Sparkles, Lightbulb, TrendingUp, History, Wrench, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -18,6 +18,8 @@ import { AdaptiveSuggestions } from "@/components/home/AdaptiveSuggestions";
 import { ContinueModule } from "@/components/home/ContinueModule";
 import { useDailyPrompt } from "@/hooks/useDailyPrompt";
 import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
+import { useMemoryMoments } from "@/hooks/useMemoryMoments";
+import { useChatPersistence } from "@/hooks/useChatPersistence";
 interface RecentThought {
   id: string;
   content: string;
@@ -43,6 +45,9 @@ export default function Home() {
   const { prompt: dailyPrompt } = useDailyPrompt();
   const { latestInsight, patterns } = useInsightsAndPatterns();
   const [showMilestone, setShowMilestone] = useState(true);
+  const { moment: memoryMoment, dismiss: dismissMoment, startConversation: startMomentConversation } = useMemoryMoments();
+  const { loadRecentConversations } = useChatPersistence();
+  const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
   
@@ -55,29 +60,33 @@ export default function Home() {
     resetTranscript
   } = useSpeechRecognition(speechLang, { continuous: true });
 
-  // Load recent thoughts
+  // Load recent thoughts + conversations
   useEffect(() => {
     if (!user) return;
     
-    const loadRecentThoughts = async () => {
+    const loadData = async () => {
       try {
-        const { data } = await supabase
-          .from('journal_entries')
-          .select('id, content, mood, created_at, source')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(3);
+        const [thoughtsRes, convs] = await Promise.all([
+          supabase
+            .from('journal_entries')
+            .select('id, content, mood, created_at, source')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(3),
+          loadRecentConversations(3),
+        ]);
         
-        setRecentThoughts(data || []);
+        setRecentThoughts(thoughtsRes.data || []);
+        setRecentConversations(convs);
       } catch (error) {
-        if (import.meta.env.DEV) console.error('Error loading recent thoughts:', error);
+        if (import.meta.env.DEV) console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
     };
     
-    loadRecentThoughts();
-  }, [user]);
+    loadData();
+  }, [user, loadRecentConversations]);
 
   // Update input from speech
   useEffect(() => {
@@ -332,6 +341,51 @@ export default function Home() {
           </p>
         </motion.div>
 
+        {/* Memory Moment — contextual check-in */}
+        {memoryMoment && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22 }}
+            className="mb-6"
+          >
+            <div className="rounded-2xl p-4 border bg-primary/5 border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Heart className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">
+                  {language === "de" ? "Erinnerung" : "Memory Moment"}
+                </span>
+              </div>
+              <p className="text-sm text-foreground/90 leading-relaxed mb-3">
+                {language === "de"
+                  ? `Vor einiger Zeit hast du erwähnt: "${memoryMoment.content}". Wie geht es dir damit heute?`
+                  : `A while back you mentioned: "${memoryMoment.content}". How has that been for you lately?`}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="rounded-xl gap-2"
+                  onClick={() => {
+                    startMomentConversation();
+                    const msg = language === "de"
+                      ? `Vor einiger Zeit habe ich erwähnt: "${memoryMoment.content}". Ich möchte darüber sprechen, wie es mir damit jetzt geht.`
+                      : `A while back I mentioned: "${memoryMoment.content}". I'd like to talk about how that's been going.`;
+                    localStorage.setItem('mindmate-initial-message', msg);
+                    navigate("/chat");
+                  }}
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  {language === "de" ? "Darüber sprechen" : "Talk about it"}
+                </Button>
+                <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={dismissMoment}>
+                  {language === "de" ? "Nicht jetzt" : "Not now"}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Daily Reflection Prompt */}
         {dailyPrompt && (
           <motion.div
@@ -407,41 +461,84 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="grid grid-cols-3 gap-3 mb-6"
+          className="grid grid-cols-4 gap-2 mb-6"
         >
           <Button
             variant="outline"
-            className="h-auto py-4 px-3 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
+            className="h-auto py-3.5 px-2.5 rounded-2xl flex flex-col items-center gap-1 bg-card border-border/50"
             onClick={() => navigate("/chat")}
           >
             <MessageCircle className="w-5 h-5 text-primary" />
-            <span className="font-medium text-foreground text-xs">
+            <span className="font-medium text-foreground text-[11px]">
               {t("home.talkToMe")}
             </span>
           </Button>
           
           <Button
             variant="outline"
-            className="h-auto py-4 px-3 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
+            className="h-auto py-3.5 px-2.5 rounded-2xl flex flex-col items-center gap-1 bg-card border-border/50"
+            onClick={() => navigate("/toolbox")}
+          >
+            <Wrench className="w-5 h-5 text-primary" />
+            <span className="font-medium text-foreground text-[11px]">
+              {t("nav.toolbox")}
+            </span>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto py-3.5 px-2.5 rounded-2xl flex flex-col items-center gap-1 bg-card border-border/50"
             onClick={() => navigate("/timeline")}
           >
             <Calendar className="w-5 h-5 text-primary" />
-            <span className="font-medium text-foreground text-xs">
+            <span className="font-medium text-foreground text-[11px]">
               {t("home.myTimeline")}
             </span>
           </Button>
 
           <Button
             variant="outline"
-            className="h-auto py-4 px-3 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
-            onClick={() => navigate("/audio")}
+            className="h-auto py-3.5 px-2.5 rounded-2xl flex flex-col items-center gap-1 bg-card border-border/50"
+            onClick={() => navigate("/chat-history")}
           >
-            <Headphones className="w-5 h-5 text-primary" />
-            <span className="font-medium text-foreground text-xs">
-              {language === "de" ? "Audio" : "Audio"}
+            <History className="w-5 h-5 text-primary" />
+            <span className="font-medium text-foreground text-[11px]">
+              {language === "de" ? "Verlauf" : "History"}
             </span>
           </Button>
         </motion.div>
+
+        {/* Recent Conversations */}
+        {recentConversations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="mb-6"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-muted-foreground">{language === "de" ? "Letzte Gespräche" : "Recent conversations"}</span>
+              <Button variant="ghost" size="sm" className="text-muted-foreground h-auto py-1 text-xs" onClick={() => navigate("/chat-history")}>
+                {t("home.all")} <ChevronRight className="w-3 h-3 ml-0.5" />
+              </Button>
+            </div>
+            <div className="space-y-1.5">
+              {recentConversations.map((conv) => (
+                <button
+                  key={conv.id}
+                  onClick={() => navigate("/chat", { state: { conversationId: conv.id } })}
+                  className="w-full text-left rounded-xl px-3.5 py-2.5 border bg-card border-border/30 hover:border-primary/20 transition-colors flex items-center gap-3"
+                >
+                  <MessageCircle className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                  <span className="text-sm text-foreground truncate flex-1">
+                    {conv.title || (language === "de" ? "Gespräch" : "Conversation")}
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Weekly Progress Dashboard */}
         {!streak.isLoading && (
