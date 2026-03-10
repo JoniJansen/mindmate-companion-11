@@ -929,6 +929,16 @@ export default function Chat() {
           </div>
         </div>
       </div>
+
+      <SaveToJournalDialog
+        open={saveDialogOpen}
+        onOpenChange={setSaveDialogOpen}
+        defaultTitle={saveDialogDefaultTitle}
+        variant={saveDialogVariant}
+        onSave={(title) => {
+          if (saveDialogCallback) saveDialogCallback(title);
+        }}
+      />
     </div>
   );
 }
