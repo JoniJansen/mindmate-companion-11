@@ -18,12 +18,21 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [stepProgress, setStepProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [isCurrentStepSpeaking, setIsCurrentStepSpeaking] = useState(false);
+  const [isCurrentStepMinDurationMet, setIsCurrentStepMinDurationMet] = useState(false);
   const { t, language, getExerciseDisplay } = useTranslation();
   const { getVoiceId, speed } = useVoiceSettings();
   
   const { speak, stop, isSpeaking, isLoading } = useElevenLabsTTS({
+    onStart: () => {
+      setIsCurrentStepSpeaking(true);
+    },
+    onEnd: () => {
+      setIsCurrentStepSpeaking(false);
+    },
     onError: () => {
       // Silently degrade - exercise still works without voice
+      setIsCurrentStepSpeaking(false);
     }
   });
 
@@ -58,6 +67,9 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Speak current step when it changes (only ElevenLabs, no browser TTS)
   useEffect(() => {
+    setIsCurrentStepMinDurationMet(false);
+    setIsCurrentStepSpeaking(false);
+
     if (voiceEnabled && language) {
       const instruction = getStepInstruction(currentStep);
       const voiceId = getVoiceId(effectiveLang);
@@ -69,6 +81,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   // Handle next step
   const handleNextStep = () => {
     stop(); // Stop current speech
+    setIsCurrentStepSpeaking(false);
+    setIsCurrentStepMinDurationMet(false);
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
       setStepProgress(0);
@@ -78,11 +92,13 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }
   };
 
-  // Auto-progress when playing — uses refs to avoid stale closures
+  // Auto-progress when playing — never cut off active speech
   const currentStepRef = useRef(currentStep);
   currentStepRef.current = currentStep;
   const totalStepsRef = useRef(totalSteps);
   totalStepsRef.current = totalSteps;
+  const isCurrentStepSpeakingRef = useRef(isCurrentStepSpeaking);
+  isCurrentStepSpeakingRef.current = isCurrentStepSpeaking;
 
   useEffect(() => {
     if (!isPlaying || isComplete || !step) return;
@@ -91,24 +107,47 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     const interval = setInterval(() => {
       setStepProgress(prev => {
         const increment = 100 / (stepDuration * 10);
-        if (prev + increment >= 100) {
-          // Advance step via functional approach to avoid stale closure
-          stop();
-          if (currentStepRef.current < totalStepsRef.current - 1) {
-            setCurrentStep(s => s + 1);
-            setStepProgress(0);
-          } else {
-            setIsComplete(true);
-            setIsPlaying(false);
+        const nextProgress = Math.min(prev + increment, 100);
+
+        if (nextProgress >= 100) {
+          setIsCurrentStepMinDurationMet(true);
+
+          if (!voiceEnabled || !isCurrentStepSpeakingRef.current) {
+            stop();
+            if (currentStepRef.current < totalStepsRef.current - 1) {
+              setCurrentStep(s => s + 1);
+              setStepProgress(0);
+              setIsCurrentStepMinDurationMet(false);
+            } else {
+              setIsComplete(true);
+              setIsPlaying(false);
+            }
+            return 0;
           }
-          return 0;
+
+          return 100;
         }
-        return prev + increment;
+
+        return nextProgress;
       });
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isPlaying, step, isComplete, currentStep, stop]);
+  }, [isPlaying, step, isComplete, currentStep, stop, voiceEnabled]);
+
+  useEffect(() => {
+    if (!isPlaying || isComplete || !stepProgress || !isCurrentStepMinDurationMet) return;
+    if (voiceEnabled && isCurrentStepSpeaking) return;
+
+    if (currentStep < totalSteps - 1) {
+      setCurrentStep((prev) => prev + 1);
+      setStepProgress(0);
+      setIsCurrentStepMinDurationMet(false);
+    } else {
+      setIsComplete(true);
+      setIsPlaying(false);
+    }
+  }, [isCurrentStepSpeaking, isCurrentStepMinDurationMet, isPlaying, isComplete, currentStep, totalSteps, voiceEnabled, stepProgress]);
 
   const handleRestart = () => {
     setCurrentStep(0);
