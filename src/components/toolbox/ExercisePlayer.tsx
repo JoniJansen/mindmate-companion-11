@@ -203,7 +203,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
         <div className="w-10" />
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex-1 flex flex-col items-center justify-center p-6"
+        >
           <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4">
             <Check className="w-8 h-8 text-primary" />
           </div>
