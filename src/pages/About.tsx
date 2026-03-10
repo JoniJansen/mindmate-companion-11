@@ -34,8 +34,8 @@ export default function About() {
         },
         {
           icon: Brain,
-          title: "Evidence-Based",
-          description: "Our approaches are grounded in proven therapeutic techniques.",
+          title: "Thoughtfully Designed",
+          description: "Our approaches are inspired by established psychological principles.",
         },
         {
           icon: Sparkles,
