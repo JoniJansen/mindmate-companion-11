@@ -304,34 +304,7 @@ export default function Chat() {
     setIsLoading(false);
   };
 
-  const upsertAssistant = useCallback((nextChunk: string) => {
-    setMessages((prev) => {
-      const last = prev[prev.length - 1];
-      if (last?.role === "assistant" && !last.isError) {
-        const newLast = { ...last, content: last.content + nextChunk };
-        const next = prev.slice(0, -1);
-        next.push(newLast);
-        return next;
-      }
-      return [...prev, { id: Date.now().toString(), content: nextChunk, role: "assistant", timestamp: new Date() }];
-    });
-  }, []);
-
-  const flushBufferedAssistant = useCallback(() => {
-    if (!streamChunkBufferRef.current) return;
-    upsertAssistant(streamChunkBufferRef.current);
-    streamChunkBufferRef.current = "";
-  }, [upsertAssistant]);
-
-  const enqueueAssistantChunk = useCallback((chunk: string) => {
-    if (!chunk) return;
-    streamChunkBufferRef.current += chunk;
-    if (streamFlushFrameRef.current !== null) return;
-    streamFlushFrameRef.current = requestAnimationFrame(() => {
-      streamFlushFrameRef.current = null;
-      flushBufferedAssistant();
-    });
-  }, [flushBufferedAssistant]);
+  // Old buffering removed — now using useStreamingDisplay hook
 
   const streamChat = async ({ messages: chatMsgs, onDelta, onDone, onError, signal }: {
     messages: { role: "user" | "assistant"; content: string }[];
