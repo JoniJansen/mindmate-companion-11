@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 // Critical pages (eagerly loaded for instant navigation)
 import Chat from "@/pages/Chat";
+import Home from "@/pages/Home";
 import Auth from "@/pages/Auth";
 import Onboarding from "@/pages/Onboarding";
 
