@@ -537,6 +537,21 @@ export const translations: Translations = {
   "streak.chatSessions": { en: "Chats", de: "Chats" },
   "streak.startToday": { en: "Start your day — check in, write, or chat.", de: "Starte deinen Tag — checke ein, schreib oder chatte." },
   "streak.validatingMessage": { en: "You showed up {days} days this week. That matters.", de: "Du warst diese Woche {days} Tage für dich da. Das zählt." },
+  "streak.connected": { en: "Connected to yourself for {days} days", de: "Seit {days} Tagen mit dir verbunden" },
+  "streak.reflectedWeek": { en: "You've reflected regularly this week", de: "Du hast diese Woche regelmäßig reflektiert" },
+  "streak.singleDay": { en: "You showed up for yourself today", de: "Du warst heute für dich da" },
+
+  // Growth & Sharing
+  "growth.dashboard": { en: "Your Growth", de: "Deine Entwicklung" },
+  "growth.seeTimeline": { en: "See timeline", de: "Zeitstrahl" },
+  "growth.reflectionScore": { en: "Reflection this week", de: "Reflexion diese Woche" },
+  "growth.dayStreak": { en: "day streak", de: "Tage Streak" },
+  "growth.daysThisWeek": { en: "this week", de: "diese Woche" },
+  "growth.insights": { en: "insights", de: "Insights" },
+  "growth.recurringTheme": { en: "Recurring theme", de: "Wiederkehrendes Thema" },
+  "growth.insightCard": { en: "Reflection", de: "Reflexion" },
+  "growth.companionCheckin": { en: "Soulvay noticed something", de: "Soulvay hat etwas bemerkt" },
+  "growth.identityMessage": { en: "Soulvay remembers what matters to you", de: "Soulvay erinnert sich, was dir wichtig ist" },
 
   // Settings toasts
   "settings.tourReset": { en: "Tour reset", de: "Tour zurückgesetzt" },
