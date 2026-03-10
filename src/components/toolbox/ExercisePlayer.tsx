@@ -185,8 +185,13 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   ]);
 
   const handleRestart = () => {
+    clearAdvanceTimeout();
+    stop();
     setCurrentStep(0);
     setStepProgress(0);
+    setIsCurrentStepMinDurationMet(false);
+    setIsCurrentStepSpeaking(false);
+    setIsTransitioning(false);
     setIsComplete(false);
     setIsPlaying(true);
   };
