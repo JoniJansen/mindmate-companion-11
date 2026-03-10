@@ -27,6 +27,7 @@ import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { fullScreenWithNav } from "@/lib/safeArea";
+import { useStreamingDisplay } from "@/hooks/useStreamingDisplay";
 
 interface Message {
   id: string;
@@ -83,8 +84,7 @@ export default function Chat() {
   const { isOnline } = useNetworkStatus();
   const { logActivity } = useActivityLog();
   const chatMessageCountRef = useRef(0);
-  const streamChunkBufferRef = useRef("");
-  const streamFlushFrameRef = useRef<number | null>(null);
+  const [isStreamingActive, setIsStreamingActive] = useState(false);
 
   // Chat persistence
   const {
@@ -125,14 +125,14 @@ export default function Chat() {
     },
   });
 
+  // Streaming display hook — drip-feeds large model chunks word-by-word
+  const streamingDisplay = useStreamingDisplay(setMessages);
+
   // Cleanup abort controller on unmount
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
-      if (streamFlushFrameRef.current !== null) {
-        cancelAnimationFrame(streamFlushFrameRef.current);
-      }
-      streamChunkBufferRef.current = "";
+      streamingDisplay.abort();
     };
   }, []);
 
@@ -213,9 +213,9 @@ export default function Chat() {
 
   useEffect(() => {
     if (isUserAtBottomRef.current) {
-      scrollToBottom(isLoading ? "auto" : "smooth");
+      scrollToBottom(isStreamingActive ? "auto" : "smooth");
     }
-  }, [messages, isLoading, scrollToBottom]);
+  }, [messages, isStreamingActive, scrollToBottom]);
 
   // Initial greeting, restore from DB, or load specific conversation
   const initRef = useRef(false);
@@ -304,34 +304,7 @@ export default function Chat() {
     setIsLoading(false);
   };
 
-  const upsertAssistant = useCallback((nextChunk: string) => {
-    setMessages((prev) => {
-      const last = prev[prev.length - 1];
-      if (last?.role === "assistant" && !last.isError) {
-        const newLast = { ...last, content: last.content + nextChunk };
-        const next = prev.slice(0, -1);
-        next.push(newLast);
-        return next;
-      }
-      return [...prev, { id: Date.now().toString(), content: nextChunk, role: "assistant", timestamp: new Date() }];
-    });
-  }, []);
-
-  const flushBufferedAssistant = useCallback(() => {
-    if (!streamChunkBufferRef.current) return;
-    upsertAssistant(streamChunkBufferRef.current);
-    streamChunkBufferRef.current = "";
-  }, [upsertAssistant]);
-
-  const enqueueAssistantChunk = useCallback((chunk: string) => {
-    if (!chunk) return;
-    streamChunkBufferRef.current += chunk;
-    if (streamFlushFrameRef.current !== null) return;
-    streamFlushFrameRef.current = requestAnimationFrame(() => {
-      streamFlushFrameRef.current = null;
-      flushBufferedAssistant();
-    });
-  }, [flushBufferedAssistant]);
+  // Old buffering removed — now using useStreamingDisplay hook
 
   const streamChat = async ({ messages: chatMsgs, onDelta, onDone, onError, signal }: {
     messages: { role: "user" | "assistant"; content: string }[];
@@ -455,11 +428,9 @@ export default function Chat() {
     setShowTranscriptConfirm(false);
     setIsLoading(true);
 
-    streamChunkBufferRef.current = "";
-    if (streamFlushFrameRef.current !== null) {
-      cancelAnimationFrame(streamFlushFrameRef.current);
-      streamFlushFrameRef.current = null;
-    }
+    // Reset streaming display for new message
+    streamingDisplay.reset();
+    setIsStreamingActive(true);
 
     // Ensure conversation exists for persistence
     let activeConvId = overrideConvId !== undefined ? overrideConvId : conversationId;
@@ -486,13 +457,11 @@ export default function Chat() {
     await streamChat({
       messages: messagesForAI,
       signal: controller.signal,
-      onDelta: (chunk) => { enqueueAssistantChunk(chunk); },
-      onDone: (fullResponse) => {
-        if (streamFlushFrameRef.current !== null) {
-          cancelAnimationFrame(streamFlushFrameRef.current);
-          streamFlushFrameRef.current = null;
-        }
-        flushBufferedAssistant();
+      onDelta: (chunk) => { streamingDisplay.enqueueChunk(chunk); },
+      onDone: async (fullResponse) => {
+        // Wait for drip-feed to finish displaying all words
+        await streamingDisplay.finalize();
+        setIsStreamingActive(false);
         setIsLoading(false);
         abortControllerRef.current = null;
 
@@ -508,11 +477,8 @@ export default function Chat() {
         }
       },
       onError: (errorMsg) => {
-        if (streamFlushFrameRef.current !== null) {
-          cancelAnimationFrame(streamFlushFrameRef.current);
-          streamFlushFrameRef.current = null;
-        }
-        flushBufferedAssistant();
+        streamingDisplay.abort();
+        setIsStreamingActive(false);
         setIsLoading(false);
         abortControllerRef.current = null;
         setMessages(prev => [...prev, {
@@ -524,7 +490,7 @@ export default function Chat() {
         }]);
       },
     });
-  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, upsertAssistant, enqueueAssistantChunk, flushBufferedAssistant, canSendMessage, incrementMessageCount, canUseVoice, t, isOnline, chatMode, conversationId, user, createConversation, saveMessage, updateConversationTitle]);
+  }, [isLoading, messages, voiceModeEnabled, voiceSettings, getVoiceId, getEffectiveLanguage, language, speakTTS, streamingDisplay, canSendMessage, incrementMessageCount, canUseVoice, t, isOnline, chatMode, conversationId, user, createConversation, saveMessage, updateConversationTitle]);
 
   const handleRetry = () => {
     setMessages(prev => prev.filter(m => !m.isError));
@@ -768,7 +734,7 @@ export default function Chat() {
                     <ChatMessageContent
                       content={message.content}
                       isUser={message.role === "user"}
-                      isStreaming={isLoading && message.role === "assistant" && message === messages[messages.length - 1]}
+                      isStreaming={isStreamingActive && message.role === "assistant" && message === messages[messages.length - 1]}
                     />
                     {message.role === "assistant" && (
                       <div className="flex items-center gap-1 mt-0.5">
