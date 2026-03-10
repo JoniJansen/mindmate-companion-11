@@ -67,6 +67,10 @@ export default function Chat() {
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState<"messages" | "voice" | "features">("features");
   const [lastUserMessage, setLastUserMessage] = useState<string>("");
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveDialogVariant, setSaveDialogVariant] = useState<"message" | "conversation" | "summary">("message");
+  const [saveDialogDefaultTitle, setSaveDialogDefaultTitle] = useState("");
+  const [saveDialogCallback, setSaveDialogCallback] = useState<((title: string) => void) | null>(null);
   const [chatMode, setChatMode] = useState<ChatMode>(() => {
     const stored = localStorage.getItem("mindmate-chat-mode");
     return (stored as ChatMode) || "talk";
