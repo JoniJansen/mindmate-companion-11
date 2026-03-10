@@ -352,36 +352,32 @@ export default function Home() {
             <div className="rounded-2xl p-4 border bg-primary/5 border-primary/20">
               <div className="flex items-center gap-2 mb-2">
                 <Heart className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  {language === "de" ? "Erinnerung" : "Memory Moment"}
-                </span>
-              </div>
-              <p className="text-sm text-foreground/90 leading-relaxed mb-3">
-                {language === "de"
-                  ? `Vor einiger Zeit hast du erwähnt: "${memoryMoment.content}". Wie geht es dir damit heute?`
-                  : `A while back you mentioned: "${memoryMoment.content}". How has that been for you lately?`}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="rounded-xl gap-2"
-                  onClick={() => {
-                    startMomentConversation();
-                    const msg = language === "de"
-                      ? `Vor einiger Zeit habe ich erwähnt: "${memoryMoment.content}". Ich möchte darüber sprechen, wie es mir damit jetzt geht.`
-                      : `A while back I mentioned: "${memoryMoment.content}". I'd like to talk about how that's been going.`;
-                    localStorage.setItem('mindmate-initial-message', msg);
-                    navigate("/chat");
-                  }}
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  {language === "de" ? "Darüber sprechen" : "Talk about it"}
-                </Button>
-                <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={dismissMoment}>
-                  {language === "de" ? "Nicht jetzt" : "Not now"}
-                </Button>
-              </div>
+                 <span className="text-xs font-medium text-muted-foreground">
+                   {t("home.memoryMoment")}
+                 </span>
+               </div>
+               <p className="text-sm text-foreground/90 leading-relaxed mb-3">
+                 {t("home.memoryMomentIntro")} &ldquo;{memoryMoment.content}&rdquo; {t("home.memoryMomentQuestion")}
+               </p>
+               <div className="flex gap-2">
+                 <Button
+                   size="sm"
+                   variant="outline"
+                   className="rounded-xl gap-2"
+                   onClick={() => {
+                     startMomentConversation();
+                     const msg = `${t("home.memoryMomentMsg")} "${memoryMoment.content}". ${t("home.memoryMomentContinue")}`;
+                     localStorage.setItem('mindmate-initial-message', msg);
+                     navigate("/chat");
+                   }}
+                 >
+                   <MessageCircle className="w-3.5 h-3.5" />
+                   {t("home.talkAboutIt")}
+                 </Button>
+                 <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={dismissMoment}>
+                   {t("home.notNow")}
+                 </Button>
+               </div>
             </div>
           </motion.div>
         )}
@@ -503,7 +499,7 @@ export default function Home() {
           >
             <History className="w-5 h-5 text-primary" />
             <span className="font-medium text-foreground text-[11px]">
-              {language === "de" ? "Verlauf" : "History"}
+              {t("home.history")}
             </span>
           </Button>
         </motion.div>
@@ -517,7 +513,7 @@ export default function Home() {
             className="mb-6"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-muted-foreground">{language === "de" ? "Letzte Gespräche" : "Recent conversations"}</span>
+              <span className="text-xs font-medium text-muted-foreground">{t("home.recentConversations")}</span>
               <Button variant="ghost" size="sm" className="text-muted-foreground h-auto py-1 text-xs" onClick={() => navigate("/chat-history")}>
                 {t("home.all")} <ChevronRight className="w-3 h-3 ml-0.5" />
               </Button>
@@ -531,7 +527,7 @@ export default function Home() {
                 >
                   <MessageCircle className="w-4 h-4 text-muted-foreground/50 shrink-0" />
                   <span className="text-sm text-foreground truncate flex-1">
-                    {conv.title || (language === "de" ? "Gespräch" : "Conversation")}
+                    {conv.title || t("home.conversation")}
                   </span>
                   <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
                 </button>

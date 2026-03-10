@@ -43,19 +43,19 @@ export default function ChatHistory() {
     const now = new Date();
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return language === "de" ? "Heute" : "Today";
-    if (diffDays === 1) return language === "de" ? "Gestern" : "Yesterday";
+    if (diffDays === 0) return t("chatHistory.today");
+    if (diffDays === 1) return t("chatHistory.yesterday");
     return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
       month: "short",
       day: "numeric",
     });
   };
 
-  const modeLabels: Record<string, { en: string; de: string }> = {
-    talk: { en: "Talk", de: "Freireden" },
-    clarify: { en: "Clarify", de: "Klären" },
-    calm: { en: "Calm", de: "Beruhigen" },
-    patterns: { en: "Patterns", de: "Muster" },
+  const modeLabels: Record<string, string> = {
+    talk: t("chat.talk.reply1").includes("listen") ? "Talk" : "Freireden",
+    clarify: language === "de" ? "Klären" : "Clarify",
+    calm: language === "de" ? "Beruhigen" : "Calm",
+    patterns: language === "de" ? "Muster" : "Patterns",
   };
 
   return (
@@ -66,7 +66,7 @@ export default function ChatHistory() {
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-lg font-semibold text-foreground">
-            {language === "de" ? "Gesprächsverlauf" : "Conversation History"}
+            {t("chatHistory.title")}
           </h1>
         </div>
       </div>
@@ -80,12 +80,10 @@ export default function ChatHistory() {
           <div className="text-center py-16">
             <MessageCircle className="w-10 h-10 text-muted-foreground/30 mx-auto mb-4" />
             <p className="text-muted-foreground text-sm">
-              {language === "de"
-                ? "Deine Gespräche erscheinen hier, sobald du mit Soulvay chattest."
-                : "Your conversations will appear here once you start chatting with Soulvay."}
+              {t("chatHistory.emptyState")}
             </p>
             <Button variant="outline" className="mt-4 rounded-xl" onClick={() => navigate("/chat")}>
-              {language === "de" ? "Gespräch starten" : "Start a conversation"}
+              {t("chatHistory.startConversation")}
             </Button>
           </div>
         ) : (
@@ -104,7 +102,7 @@ export default function ChatHistory() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground text-sm truncate">
-                        {conv.title || (language === "de" ? "Gespräch" : "Conversation")}
+                        {conv.title || t("home.conversation")}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-muted-foreground">
@@ -112,7 +110,7 @@ export default function ChatHistory() {
                         </span>
                         <span className="text-xs text-muted-foreground/50">·</span>
                         <span className="text-xs text-primary/70">
-                          {modeLabels[conv.chat_mode]?.[language] || conv.chat_mode}
+                          {modeLabels[conv.chat_mode] || conv.chat_mode}
                         </span>
                       </div>
                     </div>

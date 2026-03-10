@@ -1,0 +1,154 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
+import { useVoiceSettings } from "@/hooks/useVoiceSettings";
+import { usePremium } from "@/hooks/usePremium";
+import { useToast } from "@/hooks/use-toast";
+
+interface Message {
+  id: string;
+  content: string;
+  role: "user" | "assistant";
+  timestamp: Date;
+  isError?: boolean;
+}
+
+export function useChatVoice() {
+  const { t, language } = useTranslation();
+  const { toast } = useToast();
+  const { canUseVoice } = usePremium();
+  const { settings: voiceSettings, getVoiceId, getEffectiveLanguage, updateSetting } = useVoiceSettings();
+
+  const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
+  const [showTranscriptConfirm, setShowTranscriptConfirm] = useState(false);
+  const [pendingTranscript, setPendingTranscript] = useState("");
+  const [inputValue, setInputValue] = useState("");
+
+  const speechLang = language === "de" ? "de-DE" : "en-US";
+
+  const { speak: speakTTS, stop: stopTTS, isSpeaking, isPlayingMessage, isLoadingMessage } = useElevenLabsTTS({
+    onError: (error) => {
+      toast({ title: t("chat.voiceFailed"), description: error, variant: "destructive" });
+    },
+  });
+
+  const { isListening, fullTranscript, isSupported: isSpeechSupported, startListening, stopListening, resetTranscript, error: sttError } = useSpeechRecognition(speechLang, {
+    continuous: true,
+    onFinalTranscript: (transcript) => {
+      if (transcript.trim() && canUseVoice) {
+        setPendingTranscript(prev => (prev + " " + transcript).trim());
+      }
+    },
+  });
+
+  // Handle STT errors
+  const hasShownMicErrorRef = useRef(false);
+  useEffect(() => {
+    if (sttError === "not-allowed" && !hasShownMicErrorRef.current) {
+      hasShownMicErrorRef.current = true;
+      toast({ title: t("voice.micPermissionDenied"), description: t("voice.enableMic"), variant: "destructive" });
+    } else if (!sttError) {
+      hasShownMicErrorRef.current = false;
+    }
+  }, [sttError, t, toast]);
+
+  // Auto-restart listening after AI finishes speaking
+  useEffect(() => {
+    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice) {
+      const timeoutId = setTimeout(() => { resetTranscript(); setPendingTranscript(""); startListening(); }, 800);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice]);
+
+  // Stop listening when speaking
+  useEffect(() => { if (isSpeaking && isListening) stopListening(); }, [isSpeaking, isListening, stopListening]);
+
+  // Show transcript confirm after stop
+  useEffect(() => {
+    if (pendingTranscript && !isListening && voiceModeEnabled) {
+      const timeoutId = setTimeout(() => {
+        if (pendingTranscript.trim()) { setShowTranscriptConfirm(true); setInputValue(pendingTranscript); }
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [pendingTranscript, isListening, voiceModeEnabled]);
+
+  // Update input from live transcript
+  useEffect(() => {
+    if (fullTranscript && isListening) { setInputValue((pendingTranscript + " " + fullTranscript).trim()); }
+  }, [fullTranscript, isListening, pendingTranscript]);
+
+  const toggleVoiceMode = useCallback(() => {
+    if (isSpeaking) stopTTS();
+    if (isListening) stopListening();
+    setVoiceModeEnabled(!voiceModeEnabled);
+    setShowTranscriptConfirm(false); setPendingTranscript(""); setInputValue("");
+  }, [voiceModeEnabled, isSpeaking, isListening, stopTTS, stopListening]);
+
+  const toggleRecording = useCallback(() => {
+    if (isListening) { stopListening(); } else {
+      if (isSpeaking) stopTTS();
+      resetTranscript(); setPendingTranscript(""); setInputValue(""); setShowTranscriptConfirm(false); startListening();
+    }
+  }, [isListening, isSpeaking, stopListening, stopTTS, resetTranscript, startListening]);
+
+  const handleTranscriptSend = useCallback((onSend: (content: string) => void) => {
+    if (inputValue.trim()) onSend(inputValue.trim());
+  }, [inputValue]);
+
+  const handleTranscriptEdit = useCallback(() => { setShowTranscriptConfirm(false); }, []);
+
+  const handleTranscriptCancel = useCallback(() => {
+    setShowTranscriptConfirm(false); setInputValue(""); setPendingTranscript(""); resetTranscript();
+  }, [resetTranscript]);
+
+  const playMessage = useCallback((message: Message) => {
+    const voiceId = getVoiceId(language as "en" | "de");
+    const effectiveLang = getEffectiveLanguage(language as "en" | "de");
+    speakTTS(message.content, voiceId, effectiveLang, voiceSettings.speed, message.id);
+  }, [getVoiceId, getEffectiveLanguage, language, speakTTS, voiceSettings.speed]);
+
+  const speakResponse = useCallback((content: string, messageId: string) => {
+    if (!canUseVoice || (!voiceModeEnabled && !voiceSettings.autoPlayReplies)) return;
+    if (isListening) return;
+    const voiceId = getVoiceId(language as "en" | "de");
+    const effectiveLang = getEffectiveLanguage(language as "en" | "de");
+    speakTTS(content, voiceId, effectiveLang, voiceSettings.speed, messageId);
+  }, [canUseVoice, voiceModeEnabled, voiceSettings.autoPlayReplies, voiceSettings.speed, isListening, getVoiceId, getEffectiveLanguage, language, speakTTS]);
+
+  return {
+    // State
+    voiceModeEnabled,
+    showTranscriptConfirm,
+    pendingTranscript,
+    voiceInputValue: inputValue,
+    setVoiceInputValue: setInputValue,
+    
+    // TTS state
+    isSpeaking,
+    isPlayingMessage,
+    isLoadingMessage,
+    stopTTS,
+    
+    // STT state
+    isListening,
+    isSpeechSupported,
+    
+    // Voice settings
+    voiceSettings,
+    updateSetting,
+    canUseVoice,
+    
+    // Actions
+    toggleVoiceMode,
+    toggleRecording,
+    handleTranscriptSend,
+    handleTranscriptEdit,
+    handleTranscriptCancel,
+    playMessage,
+    speakResponse,
+    setPendingTranscript,
+    setShowTranscriptConfirm,
+  };
+}

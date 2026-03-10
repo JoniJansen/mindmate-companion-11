@@ -421,7 +421,7 @@ export const translations: Translations = {
   "notFound.goBack": { en: "Go Back", de: "Zurück" },
 
   // Emotional Timeline
-  "timeline.title": { en: "Emotional Timeline", de: "Emotionale Zeitleiste" },
+  "timeline.emotionalTitle": { en: "Emotional Timeline", de: "Emotionale Zeitleiste" },
   "timeline.description": { en: "Notice gentle patterns over time", de: "Bemerke sanfte Muster über die Zeit" },
   "timeline.notEnoughData": { en: "Not enough entries yet", de: "Noch nicht genug Einträge" },
   "timeline.writeMore": { en: "Write at least 5 journal entries to see your emotional timeline.", de: "Schreibe mindestens 5 Tagebucheinträge, um deine emotionale Zeitleiste zu sehen." },
@@ -688,6 +688,47 @@ export const translations: Translations = {
   "home.saveInsight": { en: "Save to journal", de: "Im Tagebuch speichern" },
   "home.refreshPatterns": { en: "Refresh", de: "Aktualisieren" },
   "home.detectingPatterns": { en: "Looking for patterns...", de: "Suche nach Mustern..." },
+
+  // Home — Memory Moments
+  "home.memoryMoment": { en: "Memory Moment", de: "Erinnerung" },
+  "home.memoryMomentIntro": { en: "A while back you mentioned:", de: "Vor einiger Zeit hast du erwähnt:" },
+  "home.memoryMomentQuestion": { en: "How has that been for you lately?", de: "Wie geht es dir damit heute?" },
+  "home.talkAboutIt": { en: "Talk about it", de: "Darüber sprechen" },
+  "home.notNow": { en: "Not now", de: "Nicht jetzt" },
+  "home.history": { en: "History", de: "Verlauf" },
+  "home.recentConversations": { en: "Recent conversations", de: "Letzte Gespräche" },
+  "home.conversation": { en: "Conversation", de: "Gespräch" },
+  "home.appExploreQuestion": { en: "What can I do in this app?", de: "Was kann ich in der App machen?" },
+  "home.memoryMomentMsg": { en: "A while back I mentioned:", de: "Vor einiger Zeit habe ich erwähnt:" },
+  "home.memoryMomentContinue": { en: "I'd like to talk about how that's been going.", de: "Ich möchte darüber sprechen, wie es mir damit jetzt geht." },
+
+  // Nav
+  "nav.home": { en: "Home", de: "Zuhause" },
+
+  // Chat History
+  "chatHistory.title": { en: "Conversation History", de: "Gesprächsverlauf" },
+  "chatHistory.emptyState": { en: "Your conversations will appear here once you start chatting with Soulvay.", de: "Deine Gespräche erscheinen hier, sobald du mit Soulvay chattest." },
+  "chatHistory.startConversation": { en: "Start a conversation", de: "Gespräch starten" },
+  "chatHistory.today": { en: "Today", de: "Heute" },
+  "chatHistory.yesterday": { en: "Yesterday", de: "Gestern" },
+
+  // Chat — header tooltips
+  "chat.conversationHistory": { en: "Conversation history", de: "Gesprächsverlauf" },
+  "chat.newConversation": { en: "New conversation", de: "Neues Gespräch" },
+  "chat.chatMessage": { en: "Chat Message", de: "Chat-Nachricht" },
+  "chat.chatConversation": { en: "Chat Conversation", de: "Chat-Gespräch" },
+
+  // Timeline
+  "timeline.title": { en: "My Timeline", de: "Meine Timeline" },
+  "timeline.moodMap": { en: "Mood Map", de: "Stimmungskarte" },
+  "timeline.moodMap90": { en: "90-Day Mood Map", de: "90-Tage Stimmungsverlauf" },
+  "timeline.detectedPatterns": { en: "Detected Patterns", de: "Erkannte Muster" },
+  "timeline.conversationReflections": { en: "Conversation Reflections", de: "Reflexionen aus Gesprächen" },
+  "timeline.noThoughtsDay": { en: "No thoughts on this day.", de: "Keine Gedanken an diesem Tag." },
+  "timeline.addThoughts": { en: "Add thoughts", de: "Gedanken hinzufügen" },
+  "timeline.selectDay": { en: "Select a day", de: "Wähle einen Tag" },
+  "timeline.today": { en: "Today", de: "Heute" },
+  "timeline.loadMore": { en: "Load more", de: "Mehr laden" },
 };
 
 // Exercise translations

@@ -642,13 +642,13 @@ export default function Chat() {
                     variant="ghost" size="icon" 
                     onClick={(e) => { e.stopPropagation(); navigate("/chat-history"); }} 
                     className="text-muted-foreground shrink-0"
-                    aria-label={language === "de" ? "Verlauf" : "History"}
+                    aria-label={t("chat.conversationHistory")}
                   >
                     <History className="w-5 h-5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs">
-                  {language === "de" ? "Gesprächsverlauf" : "Conversation history"}
+                  {t("chat.conversationHistory")}
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
@@ -657,13 +657,13 @@ export default function Chat() {
                     variant="ghost" size="icon" 
                     onClick={(e) => { e.stopPropagation(); handleNewConversation(); }} 
                     className="text-muted-foreground shrink-0"
-                    aria-label={language === "de" ? "Neues Gespräch" : "New conversation"}
+                    aria-label={t("chat.newConversation")}
                   >
                     <Plus className="w-5 h-5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs">
-                  {language === "de" ? "Neues Gespräch" : "New conversation"}
+                  {t("chat.newConversation")}
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
@@ -775,7 +775,7 @@ export default function Chat() {
                             if (!user) return;
                             const msgContent = message.content;
                             setSaveDialogVariant("message");
-                            setSaveDialogDefaultTitle(language === "de" ? "Chat-Nachricht" : "Chat Message");
+                            setSaveDialogDefaultTitle(t("chat.chatMessage"));
                             setSaveDialogCallback(() => async (title: string) => {
                               try {
                                 await supabase.from("journal_entries").insert({
@@ -855,11 +855,11 @@ export default function Chat() {
               ))}
               <Button 
                 variant="outline" 
-                onClick={() => handleSend(language === "de" ? "Was kann ich alles in der App machen?" : "What can I do in this app?")} 
+                onClick={() => handleSend(t("home.appExploreQuestion"))} 
                 className="text-[14px] min-h-[48px] justify-start px-4 text-left gap-2.5 text-muted-foreground border-dashed"
               >
                 <HelpCircle className="w-4 h-4 shrink-0" />
-                {language === "de" ? "Was kann ich in der App machen?" : "What can I do in this app?"}
+                {t("home.appExploreQuestion")}
               </Button>
             </div>
           </div>
@@ -878,7 +878,7 @@ export default function Chat() {
             <Button variant="outline" size="sm" className="gap-2" onClick={() => {
               if (!user) return;
               setSaveDialogVariant("conversation");
-              setSaveDialogDefaultTitle(language === "de" ? "Chat-Gespräch" : "Chat Conversation");
+              setSaveDialogDefaultTitle(t("chat.chatConversation"));
               setSaveDialogCallback(() => async (title: string) => {
                 const chatContent = messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
                 try {

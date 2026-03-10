@@ -188,7 +188,7 @@ describe("Chat: handleSend dependencies include chatMode", () => {
     const chatSource = await import("../pages/Chat.tsx?raw");
     const src = (chatSource as any).default || chatSource;
     // The handleSend dep array must contain chatMode
-    expect(src).toContain("canUseVoice, t, isOnline, chatMode]");
+    expect(src).toContain("chatMode, conversationId, user, createConversation");
   });
 });
 
