@@ -67,6 +67,9 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
   // Speak current step when it changes (only ElevenLabs, no browser TTS)
   useEffect(() => {
+    setIsCurrentStepMinDurationMet(false);
+    setIsCurrentStepSpeaking(false);
+
     if (voiceEnabled && language) {
       const instruction = getStepInstruction(currentStep);
       const voiceId = getVoiceId(effectiveLang);
