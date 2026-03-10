@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Plus, Sparkles, Loader2, BarChart3 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Sparkles, Loader2, BarChart3, TrendingUp, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MoodHeatmap } from "@/components/mood/MoodHeatmap";
 import { MoodInsights } from "@/components/mood/MoodInsights";
 import { toStableTagIds } from "@/lib/tagUtils";
+import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
 
 interface TimelineEntry {
   id: string;
