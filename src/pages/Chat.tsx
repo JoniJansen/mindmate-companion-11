@@ -125,14 +125,14 @@ export default function Chat() {
     },
   });
 
+  // Streaming display hook — drip-feeds large model chunks word-by-word
+  const streamingDisplay = useStreamingDisplay(setMessages);
+
   // Cleanup abort controller on unmount
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
-      if (streamFlushFrameRef.current !== null) {
-        cancelAnimationFrame(streamFlushFrameRef.current);
-      }
-      streamChunkBufferRef.current = "";
+      streamingDisplay.abort();
     };
   }, []);
 
