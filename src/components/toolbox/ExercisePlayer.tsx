@@ -114,7 +114,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
 
     if (!voiceEnabled || !language || isComplete) return;
 
-    const instruction = getStepInstruction(currentStep).trim();
+    const instruction = getStepSpeechText(currentStep).trim();
     if (!instruction) return;
 
     const voiceId = getVoiceId(effectiveLang);
