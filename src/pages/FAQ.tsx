@@ -32,7 +32,7 @@ export default function FAQ() {
           questions: [
             {
               q: "Is my data secure?",
-              a: "Yes, absolutely. All your data is encrypted both in transit (TLS 1.3) and at rest (AES-256). We use enterprise-grade cloud infrastructure with industry-standard security certifications."
+              a: "Yes, absolutely. All your data is encrypted in transit (TLS) and stored securely using enterprise-grade cloud infrastructure with industry-standard security practices."
             },
             {
               q: "Can anyone else see my journal entries or chats?",
