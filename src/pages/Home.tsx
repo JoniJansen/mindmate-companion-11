@@ -46,7 +46,8 @@ export default function Home() {
   const { logActivity } = useActivityLog();
   const { suggestions, audioSuggestion } = usePersonalization();
   const { prompt: dailyPrompt } = useDailyPrompt();
-  const { latestInsight, patterns } = useInsightsAndPatterns();
+  const { latestInsight, insights, insightCount, patterns } = useInsightsAndPatterns();
+  const [companionCheckinDismissed, setCompanionCheckinDismissed] = useState(false);
   const [showMilestone, setShowMilestone] = useState(true);
   const { moment: memoryMoment, dismiss: dismissMoment, startConversation: startMomentConversation } = useMemoryMoments();
   const { loadRecentConversations } = useChatPersistence();
