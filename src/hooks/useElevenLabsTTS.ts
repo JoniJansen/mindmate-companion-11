@@ -128,6 +128,9 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
       setLoadingMessageId(null);
     }
 
+    // If a newer speak() was called while we were fetching, abort
+    if (generationRef.current !== thisGeneration) return;
+
     // Play the audio
     const audio = new Audio(audioUrl);
     audioRef.current = audio;
