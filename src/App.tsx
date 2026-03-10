@@ -185,6 +185,7 @@ function AppContent() {
                   
                   {/* Main app with bottom navigation - Protected with OnboardingGuard */}
                   <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
+                    <Route path="/home" element={<Home />} />
                     <Route path="/chat" element={<Chat />} />
                     <Route path="/journal" element={<Journal />} />
                     <Route path="/topics" element={<Topics />} />
