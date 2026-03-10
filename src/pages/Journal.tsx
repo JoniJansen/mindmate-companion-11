@@ -501,7 +501,7 @@ export default function Journal() {
                       )}
 
                       {/* Potential needs */}
-                      {weeklyRecap.potential_needs && weeklyRecap.potential_needs.length > 0 && (
+                      {Array.isArray(weeklyRecap.potential_needs) && weeklyRecap.potential_needs.length > 0 && (
                         <div className="p-2.5 bg-accent/10 border border-accent/20 rounded-lg">
                           <p className="text-xs font-medium text-muted-foreground mb-1">
                             {language === "de" ? "Mögliche Bedürfnisse" : "Possible needs"}
