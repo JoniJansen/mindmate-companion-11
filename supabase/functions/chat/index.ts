@@ -43,7 +43,7 @@ function detectCrisis(messages: { role: string; content: string }[]): boolean {
   return CRISIS_KEYWORDS.some(keyword => lowerContent.includes(keyword));
 }
 
-function buildSystemPrompt(preferences: Preferences, isCrisis: boolean): string {
+function buildSystemPrompt(preferences: Preferences, isCrisis: boolean, memoriesContext?: string): string {
   const languageInstruction = preferences.language === "de" 
     ? "Respond in German." 
     : "Respond in English.";
