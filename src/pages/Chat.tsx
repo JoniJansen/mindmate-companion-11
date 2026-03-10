@@ -24,6 +24,7 @@ import { MessagePlayButton } from "@/components/chat/MessagePlayButton";
 import { ChatModeSelector, ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
 import { ChatDisclaimer } from "@/components/chat/ChatDisclaimer";
 import { ChatMessageContent } from "@/components/chat/ChatMessageContent";
+import { SaveToJournalDialog } from "@/components/chat/SaveToJournalDialog";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 import { useActivityLog } from "@/hooks/useActivityLog";
@@ -66,6 +67,10 @@ export default function Chat() {
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState<"messages" | "voice" | "features">("features");
   const [lastUserMessage, setLastUserMessage] = useState<string>("");
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveDialogVariant, setSaveDialogVariant] = useState<"message" | "conversation" | "summary">("message");
+  const [saveDialogDefaultTitle, setSaveDialogDefaultTitle] = useState("");
+  const [saveDialogCallback, setSaveDialogCallback] = useState<((title: string) => void) | null>(null);
   const [chatMode, setChatMode] = useState<ChatMode>(() => {
     const stored = localStorage.getItem("mindmate-chat-mode");
     return (stored as ChatMode) || "talk";
@@ -667,27 +672,28 @@ export default function Chat() {
                     <div className="flex items-center gap-1 mt-0.5">
                       <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
                       <button
-                        onClick={async (e) => {
+                        onClick={(e) => {
                           e.stopPropagation();
                           if (!user) return;
-                          const customTitle = window.prompt(
-                            language === "de" ? "Titel für den Tagebucheintrag (optional):" : "Title for journal entry (optional):",
-                            language === "de" ? "Chat-Nachricht" : "Chat Message"
-                          );
-                          if (customTitle === null) return;
-                          try {
-                            await supabase.from("journal_entries").insert({
-                              user_id: user.id,
-                              user_session_id: user.id,
-                              content: message.content,
-                              title: customTitle || t("chat.journalTitle.message"),
-                              source: "chat",
-                              tags: ["chat"],
-                            } as any);
-                            toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
-                          } catch {
-                            toast({ title: t("common.error"), variant: "destructive" });
-                          }
+                          const msgContent = message.content;
+                          setSaveDialogVariant("message");
+                          setSaveDialogDefaultTitle(language === "de" ? "Chat-Nachricht" : "Chat Message");
+                          setSaveDialogCallback(() => async (title: string) => {
+                            try {
+                              await supabase.from("journal_entries").insert({
+                                user_id: user.id,
+                                user_session_id: user.id,
+                                content: msgContent,
+                                title: title || t("chat.journalTitle.message"),
+                                source: "chat",
+                                tags: ["chat"],
+                              } as any);
+                              toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
+                            } catch {
+                              toast({ title: t("common.error"), variant: "destructive" });
+                            }
+                          });
+                          setSaveDialogOpen(true);
                         }}
                         className="p-1.5 rounded-full hover:bg-muted/50 text-muted-foreground/50 hover:text-muted-foreground transition-colors flex items-center justify-center"
                         title={t("chat.saveMessage")}
@@ -771,23 +777,23 @@ export default function Chat() {
               {t("chat.summary")}
               {!canUseSessionSummary && <Lock className="w-3 h-3 ml-1" />}
             </Button>
-            <Button variant="outline" size="sm" className="gap-2" onClick={async () => {
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => {
               if (!user) return;
-              const customTitle = window.prompt(
-                language === "de" ? "Titel für das Gespräch (optional):" : "Title for the conversation (optional):",
-                language === "de" ? "Chat-Gespräch" : "Chat Conversation"
-              );
-              if (customTitle === null) return;
-              const chatContent = messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
-              try {
-                await supabase.from("journal_entries").insert({
-                  user_id: user.id, user_session_id: user.id,
-                  content: chatContent,
-                  title: customTitle || t("chat.journalTitle.conversation"),
-                  source: "chat", tags: ["chat"],
-                } as any);
-                toast({ title: t("chat.savedToJournal"), description: t("chat.chatSavedDesc") });
-              } catch { toast({ title: t("common.error"), variant: "destructive" }); }
+              setSaveDialogVariant("conversation");
+              setSaveDialogDefaultTitle(language === "de" ? "Chat-Gespräch" : "Chat Conversation");
+              setSaveDialogCallback(() => async (title: string) => {
+                const chatContent = messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
+                try {
+                  await supabase.from("journal_entries").insert({
+                    user_id: user.id, user_session_id: user.id,
+                    content: chatContent,
+                    title: title || t("chat.journalTitle.conversation"),
+                    source: "chat", tags: ["chat"],
+                  } as any);
+                  toast({ title: t("chat.savedToJournal"), description: t("chat.chatSavedDesc") });
+                } catch { toast({ title: t("common.error"), variant: "destructive" }); }
+              });
+              setSaveDialogOpen(true);
             }}>
               <Save className="w-4 h-4" />
               {t("chat.saveChat")}
@@ -923,6 +929,16 @@ export default function Chat() {
           </div>
         </div>
       </div>
+
+      <SaveToJournalDialog
+        open={saveDialogOpen}
+        onOpenChange={setSaveDialogOpen}
+        defaultTitle={saveDialogDefaultTitle}
+        variant={saveDialogVariant}
+        onSave={(title) => {
+          if (saveDialogCallback) saveDialogCallback(title);
+        }}
+      />
     </div>
   );
 }

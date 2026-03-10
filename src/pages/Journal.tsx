@@ -479,14 +479,14 @@ export default function Journal() {
                       <h3 className="font-semibold text-foreground">{t("journal.yourWeeklyRecap")}</h3>
                       
                       {/* Summary narrative */}
-                      {weeklyRecap.summary_bullets && weeklyRecap.summary_bullets.length > 0 && (
+                      {Array.isArray(weeklyRecap.summary_bullets) && weeklyRecap.summary_bullets.length > 0 && (
                         <p className="text-sm text-foreground/80 leading-relaxed">
                           {weeklyRecap.summary_bullets.join(" ")}
                         </p>
                       )}
 
                       {/* Patterns */}
-                      {weeklyRecap.patterns.length > 0 && (
+                      {Array.isArray(weeklyRecap.patterns) && weeklyRecap.patterns.length > 0 && (
                         <div>
                           <p className="text-xs font-medium text-muted-foreground mb-1.5">{t("journal.observedPatterns")}</p>
                           <ul className="space-y-1.5">
@@ -501,7 +501,7 @@ export default function Journal() {
                       )}
 
                       {/* Potential needs */}
-                      {weeklyRecap.potential_needs && weeklyRecap.potential_needs.length > 0 && (
+                      {Array.isArray(weeklyRecap.potential_needs) && weeklyRecap.potential_needs.length > 0 && (
                         <div className="p-2.5 bg-accent/10 border border-accent/20 rounded-lg">
                           <p className="text-xs font-medium text-muted-foreground mb-1">
                             {language === "de" ? "Mögliche Bedürfnisse" : "Possible needs"}
