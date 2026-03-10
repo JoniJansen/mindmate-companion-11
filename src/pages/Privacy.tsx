@@ -118,8 +118,8 @@ Wir erheben NICHT:
           title: "Wie wir deine Daten schützen",
           content: `Deine mentalen Gesundheitsdaten verdienen höchsten Schutz:
 
-• **Verschlüsselung**: Alle Daten werden bei der Übertragung (TLS 1.3) und im Ruhezustand (AES-256) verschlüsselt.
-• **Sichere Infrastruktur**: Wir nutzen eine Enterprise-Cloud-Infrastruktur mit branchenüblichen Sicherheitszertifizierungen.
+• **Verschlüsselung**: Alle Daten werden bei der Übertragung (TLS) verschlüsselt und sicher in einer Enterprise-Cloud-Infrastruktur gespeichert.
+• **Sichere Infrastruktur**: Wir nutzen branchenübliche Sicherheitsstandards und vertrauenswürdige Cloud-Anbieter.
 • **Zugriffskontrollen**: Nur du kannst auf deine persönlichen Daten zugreifen. Unser Team kann deine Tagebucheinträge oder Chat-Gespräche nicht lesen.
 • **Keine Weitergabe an Dritte**: Wir verkaufen oder teilen deine persönlichen Daten niemals mit Werbetreibenden oder Datenhändlern.`
         },
