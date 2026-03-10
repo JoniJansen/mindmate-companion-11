@@ -178,9 +178,22 @@ export default function Home() {
     }
   };
 
+  const stripMarkdown = (text: string) => {
+    return text
+      .replace(/^#{1,6}\s+/gm, '')     // ## headers
+      .replace(/\*\*(.*?)\*\*/g, '$1')  // **bold**
+      .replace(/\*(.*?)\*/g, '$1')      // *italic*
+      .replace(/`(.*?)`/g, '$1')        // `code`
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // [links](url)
+      .replace(/^[-*]\s+/gm, '')        // - list items
+      .replace(/\n{2,}/g, ' ')          // collapse newlines
+      .trim();
+  };
+
   const truncateText = (text: string, maxLength: number = 80) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength).trim() + "...";
+    const clean = stripMarkdown(text);
+    if (clean.length <= maxLength) return clean;
+    return clean.substring(0, maxLength).trim() + "...";
   };
 
   const greeting = () => {
