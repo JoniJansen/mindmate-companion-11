@@ -496,12 +496,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-
-      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
-      await updateProfile({ avatar_url: avatarUrl });
+      // Store just the file path - we'll generate signed URLs for display
+      await updateProfile({ avatar_url: filePath });
       refreshProfile();
       toast({ title: t.avatarUpdated });
     } catch (error: any) {
