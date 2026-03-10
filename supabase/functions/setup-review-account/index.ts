@@ -18,6 +18,11 @@ const REVIEW_ACCOUNTS = [
     password: Deno.env.get("REVIEW_ACCOUNT_GOOGLE_PASSWORD") || "",
     displayName: "Google Reviewer",
   },
+  {
+    email: Deno.env.get("TEST_ACCOUNT_ALINA_EMAIL") || "",
+    password: Deno.env.get("TEST_ACCOUNT_ALINA_PASSWORD") || "",
+    displayName: "Alina",
+  },
 ];
 
 async function setupAccount(
@@ -134,6 +139,11 @@ Deno.serve(async (req) => {
     // Setup all review accounts
     const results = [];
     for (const account of REVIEW_ACCOUNTS) {
+      if (!account.email || !account.password) {
+        console.log("Skipping account with missing credentials:", JSON.stringify({ email: account.email ? "set" : "empty", password: account.password ? "set" : "empty", displayName: account.displayName }));
+        results.push({ success: false, message: `Skipped ${account.displayName}: missing email or password` });
+        continue;
+      }
       const result = await setupAccount(supabase, account);
       results.push(result);
     }
