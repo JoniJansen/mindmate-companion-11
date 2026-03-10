@@ -38,6 +38,7 @@ export default function Mood() {
   const [hasSavedToday, setHasSavedToday] = useState(false);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("7d");
   const [isLoading, setIsLoading] = useState(true);
+  const [checkinCollapsed, setCheckinCollapsed] = useState(false);
 
   const { t } = useTranslation();
   const { user } = useAuth();
