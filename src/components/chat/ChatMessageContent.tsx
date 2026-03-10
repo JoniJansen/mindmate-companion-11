@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 interface ChatMessageContentProps {
   content: string;
   isUser: boolean;
+  isStreaming?: boolean;
 }
 
 /**
@@ -11,8 +12,9 @@ interface ChatMessageContentProps {
  * - **bold** → <strong>
  * - Bullet points (• or - at line start) → styled list
  * - Line breaks preserved
+ * - Animated cursor when streaming
  */
-export function ChatMessageContent({ content, isUser }: ChatMessageContentProps) {
+export function ChatMessageContent({ content, isUser, isStreaming = false }: ChatMessageContentProps) {
   if (isUser) {
     return <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p>;
   }
@@ -61,13 +63,29 @@ export function ChatMessageContent({ content, isUser }: ChatMessageContentProps)
   }
   flushList();
 
-  return <div className="space-y-0.5">{elements}</div>;
+  return (
+    <div className="space-y-0.5">
+      {elements}
+      {isStreaming && <StreamingCursor />}
+    </div>
+  );
+}
+
+/** Animated typing cursor that appears at the end of streaming messages */
+function StreamingCursor() {
+  return (
+    <span
+      className="inline-block w-[3px] h-[18px] bg-primary/70 rounded-full align-text-bottom ml-0.5"
+      style={{
+        animation: "cursor-blink 0.8s ease-in-out infinite",
+      }}
+    />
+  );
 }
 
 /** Render inline markdown: **bold** and *italic* */
 function renderInline(text: string): React.ReactNode {
   const parts: React.ReactNode[] = [];
-  // Match **bold** first, then *italic* (single asterisks not preceded/followed by *)
   const regex = /\*\*(.+?)\*\*|\*([^*]+?)\*/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -78,14 +96,12 @@ function renderInline(text: string): React.ReactNode {
       parts.push(text.slice(lastIndex, match.index));
     }
     if (match[1]) {
-      // **bold**
       parts.push(
         <strong key={i++} className="font-semibold">
           {match[1]}
         </strong>
       );
     } else if (match[2]) {
-      // *italic*
       parts.push(
         <em key={i++} className="italic">
           {match[2]}
