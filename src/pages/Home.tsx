@@ -40,6 +40,8 @@ export default function Home() {
   const streak = useStreak();
   const { logActivity } = useActivityLog();
   const { suggestions, audioSuggestion } = usePersonalization();
+  const { prompt: dailyPrompt } = useDailyPrompt();
+  const { latestInsight, patterns } = useInsightsAndPatterns();
   const [showMilestone, setShowMilestone] = useState(true);
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
