@@ -332,6 +332,53 @@ export default function Home() {
           </p>
         </motion.div>
 
+        {/* Daily Reflection Prompt */}
+        {dailyPrompt && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="mb-6"
+          >
+            <button
+              onClick={() => {
+                localStorage.setItem('mindmate-initial-message', dailyPrompt.text);
+                navigate("/chat");
+              }}
+              className="w-full text-left rounded-2xl p-4 border bg-primary/5 border-primary/20 hover:border-primary/30 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Lightbulb className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-muted-foreground mb-0.5">{t("home.dailyPrompt")}</p>
+                  <p className="text-sm font-medium text-foreground">{dailyPrompt.text}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              </div>
+            </button>
+          </motion.div>
+        )}
+
+        {/* Latest Session Insight */}
+        {latestInsight && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28 }}
+            className="mb-6"
+          >
+            <div className="rounded-2xl p-4 border bg-card border-border/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">{t("home.sessionInsight")}</span>
+              </div>
+              <p className="text-sm text-foreground/90 leading-relaxed">{latestInsight.insight_text}</p>
+            </div>
+          </motion.div>
+        )}
+
         {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
