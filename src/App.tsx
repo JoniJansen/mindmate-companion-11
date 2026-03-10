@@ -47,6 +47,7 @@ const DeleteAccount = lazy(() => import("@/pages/DeleteAccount"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const AudioLibrary = lazy(() => import("@/pages/AudioLibrary"));
 const Timeline = lazy(() => import("@/pages/Timeline"));
+const ChatHistory = lazy(() => import("@/pages/ChatHistory"));
 const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
