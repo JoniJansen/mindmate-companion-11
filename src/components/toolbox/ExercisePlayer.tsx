@@ -27,6 +27,12 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     }
   });
 
+  // Hide BottomNav while exercise player is open
+  useEffect(() => {
+    document.body.classList.add('exercise-player-open');
+    return () => document.body.classList.remove('exercise-player-open');
+  }, []);
+
   // Single source of truth for exercise display strings
   const display = getExerciseDisplay(exercise.id, {
     title: exercise.title,
