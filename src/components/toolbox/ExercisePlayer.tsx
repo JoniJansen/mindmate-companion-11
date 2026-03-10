@@ -24,8 +24,15 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const { getVoiceId, speed } = useVoiceSettings();
   
   const { speak, stop, isSpeaking, isLoading } = useElevenLabsTTS({
+    onStart: () => {
+      setIsCurrentStepSpeaking(true);
+    },
+    onEnd: () => {
+      setIsCurrentStepSpeaking(false);
+    },
     onError: () => {
       // Silently degrade - exercise still works without voice
+      setIsCurrentStepSpeaking(false);
     }
   });
 
