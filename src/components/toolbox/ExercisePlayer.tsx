@@ -235,7 +235,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
               {t("common.finish")}
             </button>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
