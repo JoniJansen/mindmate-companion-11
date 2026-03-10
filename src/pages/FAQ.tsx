@@ -152,7 +152,7 @@ export default function FAQ() {
           questions: [
             {
               q: "Sind meine Daten sicher?",
-              a: "Ja, absolut. Alle deine Daten werden sowohl bei der Übertragung (TLS 1.3) als auch im Ruhezustand (AES-256) verschlüsselt. Wir nutzen Enterprise-Cloud-Infrastruktur mit branchenüblichen Sicherheitszertifizierungen."
+              a: "Ja, absolut. Alle deine Daten werden bei der Übertragung (TLS) verschlüsselt und sicher in einer Enterprise-Cloud-Infrastruktur mit branchenüblichen Sicherheitsstandards gespeichert."
             },
             {
               q: "Kann jemand anderes meine Tagebucheinträge oder Chats sehen?",
