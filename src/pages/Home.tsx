@@ -513,7 +513,7 @@ export default function Home() {
             className="mb-6"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-muted-foreground">{language === "de" ? "Letzte Gespräche" : "Recent conversations"}</span>
+              <span className="text-xs font-medium text-muted-foreground">{t("home.recentConversations")}</span>
               <Button variant="ghost" size="sm" className="text-muted-foreground h-auto py-1 text-xs" onClick={() => navigate("/chat-history")}>
                 {t("home.all")} <ChevronRight className="w-3 h-3 ml-0.5" />
               </Button>
