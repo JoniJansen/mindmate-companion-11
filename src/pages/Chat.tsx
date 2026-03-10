@@ -611,10 +611,38 @@ export default function Chat() {
   const handleUpgrade = () => { setShowUpgradePrompt(false); navigate("/upgrade"); };
 
   const handleNewConversation = () => {
+    // Trigger background memory extraction + session insight for the ended conversation
+    const userMsgCount = messages.filter(m => m.role === "user" && !m.isError).length;
+    if (user && userMsgCount >= 4) {
+      const conversationContent = messages.filter(m => !m.isError).map(m => `${m.role}: ${m.content}`).join("\n\n");
+      const chatMsgs = messages.filter(m => !m.isError).map(m => ({ role: m.role, content: m.content }));
+      const convId = getConversationId();
+      
+      // Fire-and-forget: extract memories
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY };
+        
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-memories`, {
+          method: "POST", headers,
+          body: JSON.stringify({ content: conversationContent, source: "chat", language }),
+        }).catch(() => {});
+
+        // Fire-and-forget: session insight (only for 8+ messages)
+        if (userMsgCount >= 6) {
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/session-insight`, {
+            method: "POST", headers,
+            body: JSON.stringify({ messages: chatMsgs, conversation_id: convId, language }),
+          }).catch(() => {});
+        }
+      });
+    }
+
+    // Reset conversation
+    sessionStorage.removeItem(CONVERSATION_ID_KEY);
     try { localStorage.removeItem(CHAT_HISTORY_KEY); } catch {}
     setMessages([]);
     chatMessageCountRef.current = 0;
-    // Trigger fresh greeting by reloading
     const savedLang = preferences.current.language || language;
     const baseGreeting = savedLang === "de"
       ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
