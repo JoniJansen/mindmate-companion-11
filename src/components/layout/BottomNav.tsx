@@ -5,7 +5,7 @@ import {
   BookOpen, 
   Compass, 
   BarChart3, 
-  Sparkles 
+  Home
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { BOTTOM_NAV_HEIGHT } from "@/lib/safeArea";
