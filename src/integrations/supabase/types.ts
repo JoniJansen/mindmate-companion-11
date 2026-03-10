@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_chat_usage: {
+        Row: {
+          id: string
+          message_count: number
+          usage_date: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          message_count?: number
+          usage_date?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          message_count?: number
+          usage_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_prompts: {
         Row: {
           category: string | null
