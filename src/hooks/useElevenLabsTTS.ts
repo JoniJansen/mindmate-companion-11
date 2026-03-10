@@ -57,6 +57,9 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
     // Stop any current playback
     stop();
 
+    // Increment generation so any in-flight fetch from a previous call won't play
+    const thisGeneration = ++generationRef.current;
+
     // Check cache first
     const cacheKey = `${text}-${voiceId}-${language}-${speed}`;
     let audioUrl = audioCache.get(cacheKey);
