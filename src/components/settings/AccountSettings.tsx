@@ -753,10 +753,13 @@ export function AccountSettings({ language }: AccountSettingsProps) {
               </AvatarFallback>
             </Avatar>
             {/* CRITICAL: Do NOT show upload button on iOS native - file input causes WKWebView crash on iPad (Guideline 2.1) */}
-            {!isNativeApp() && (
+            {!isNativeEnvironment && (
               <>
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    if (isNativeEnvironment) return;
+                    fileInputRef.current?.click();
+                  }}
                   disabled={isUploadingAvatar}
                   className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
@@ -779,7 +782,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           <div className="flex-1">
             <p className="font-medium text-foreground">{t.changeAvatar}</p>
             <p className="text-sm text-muted-foreground">
-              {isNativeApp() 
+              {isNativeEnvironment
                 ? (language === "de" ? "Profilbild wird über die Web-Version geändert" : "Change profile picture via web version")
                 : (language === "de" ? "JPG, PNG oder GIF. Max 5MB" : "JPG, PNG or GIF. Max 5MB")
               }
