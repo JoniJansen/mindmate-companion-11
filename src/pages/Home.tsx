@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2, Headphones } from "lucide-react";
+import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2, Headphones, Sparkles, Lightbulb } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -16,6 +16,8 @@ import { WeeklyProgress } from "@/components/streak/WeeklyProgress";
 import { usePersonalization } from "@/hooks/usePersonalization";
 import { AdaptiveSuggestions } from "@/components/home/AdaptiveSuggestions";
 import { ContinueModule } from "@/components/home/ContinueModule";
+import { useDailyPrompt } from "@/hooks/useDailyPrompt";
+import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
 interface RecentThought {
   id: string;
   content: string;

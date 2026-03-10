@@ -680,6 +680,14 @@ export const translations: Translations = {
   "diagnostics.copied": { en: "Copied", de: "Kopiert" },
   "diagnostics.errorLog": { en: "Error Log", de: "Fehlerprotokoll" },
   "diagnostics.noErrors": { en: "No recent errors captured.", de: "Keine kürzlichen Fehler erfasst." },
+
+  // Daily Prompts & Insights
+  "home.dailyPrompt": { en: "A thought for you", de: "Ein Gedanke für dich" },
+  "home.sessionInsight": { en: "From your last conversation", de: "Aus deinem letzten Gespräch" },
+  "home.patterns": { en: "What I notice", de: "Was mir auffällt" },
+  "home.saveInsight": { en: "Save to journal", de: "Im Tagebuch speichern" },
+  "home.refreshPatterns": { en: "Refresh", de: "Aktualisieren" },
+  "home.detectingPatterns": { en: "Looking for patterns...", de: "Suche nach Mustern..." },
 };
 
 // Exercise translations
