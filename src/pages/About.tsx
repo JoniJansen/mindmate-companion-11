@@ -79,8 +79,8 @@ export default function About() {
         },
         {
           icon: Brain,
-          title: "Evidenzbasiert",
-          description: "Unsere Ansätze basieren auf bewährten therapeutischen Techniken.",
+          title: "Durchdacht gestaltet",
+          description: "Unsere Ansätze sind inspiriert von etablierten psychologischen Prinzipien.",
         },
         {
           icon: Sparkles,

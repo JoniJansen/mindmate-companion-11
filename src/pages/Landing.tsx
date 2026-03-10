@@ -150,7 +150,7 @@ export default function Landing() {
           {
             icon: Shield,
             title: "Privat & Sicher",
-            description: "Deine Gedanken bleiben deine. Ende-zu-Ende verschlüsselt.",
+            description: "Deine Gedanken bleiben deine. Datenschutzorientiert und sicher gespeichert.",
           },
         ],
       },
