@@ -153,49 +153,51 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
                 </div>
               )}
 
-              {/* Action buttons */}
-              <div className="space-y-2 pt-1">
-                {/* Billing portal - hide on native iOS/Android (Apple Guideline 3.1.1) */}
-                {!(window as any).Capacitor && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleManageBilling}
-                    disabled={isLoading}
-                    className="w-full"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <CreditCard className="w-4 h-4 mr-2" />
-                    )}
-                    {language === "de" ? "Zahlung verwalten" : "Manage billing"}
-                  </Button>
-                )}
+              {/* Action buttons - only show for real Stripe subscriptions, not review/manual accounts */}
+              {planType && planType !== "review" && planType !== "revenuecat" && (
+                <div className="space-y-2 pt-1">
+                  {/* Billing portal - hide on native iOS/Android (Apple Guideline 3.1.1) */}
+                  {!(window as any).Capacitor && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleManageBilling}
+                      disabled={isLoading}
+                      className="w-full"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <CreditCard className="w-4 h-4 mr-2" />
+                      )}
+                      {language === "de" ? "Zahlung verwalten" : "Manage billing"}
+                    </Button>
+                  )}
 
-                {cancelAtPeriodEnd ? (
-                  <Button 
-                    variant="default" 
-                    size="sm" 
-                    onClick={handleReactivate}
-                    disabled={isLoading}
-                    className="w-full"
-                  >
-                    {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                    {language === "de" ? "Abo reaktivieren" : "Reactivate subscription"}
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setShowCancelDialog(true)}
-                    disabled={isLoading}
-                    className="w-full text-muted-foreground hover:text-destructive"
-                  >
-                    {language === "de" ? "Abo kündigen" : "Cancel subscription"}
-                  </Button>
-                )}
-              </div>
+                  {cancelAtPeriodEnd ? (
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      onClick={handleReactivate}
+                      disabled={isLoading}
+                      className="w-full"
+                    >
+                      {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                      {language === "de" ? "Abo reaktivieren" : "Reactivate subscription"}
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setShowCancelDialog(true)}
+                      disabled={isLoading}
+                      className="w-full text-muted-foreground hover:text-destructive"
+                    >
+                      {language === "de" ? "Abo kündigen" : "Cancel subscription"}
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           </CalmCard>
         </motion.div>
