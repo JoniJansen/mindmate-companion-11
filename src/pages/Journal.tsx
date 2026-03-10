@@ -466,7 +466,7 @@ export default function Journal() {
         </div>
 
         {/* Source Filter Chips */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+        <div className="flex justify-center gap-2 pb-1">
           {[
             { key: "all", label: t("journal.filter.all") },
             { key: "free", label: t("journal.filter.free") },
@@ -477,7 +477,7 @@ export default function Journal() {
             <button
               key={f.key}
               onClick={() => setSourceFilter(f.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+              className={`px-2.5 py-1.5 rounded-full text-xs font-medium text-center transition-all ${
                 sourceFilter === f.key
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted/50 text-muted-foreground hover:bg-muted"
