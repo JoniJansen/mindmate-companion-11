@@ -23,6 +23,8 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
   const currentMessageIdRef = useRef<string | null>(null);
   // Generation counter to prevent stale fetches from playing
   const generationRef = useRef(0);
+  // AbortController to cancel in-flight fetch when a new speak() is called
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Cleanup audio on unmount
   useEffect(() => {
