@@ -467,7 +467,7 @@ export default function Journal() {
         {/* First-visit hint */}
         <TabHint tabId="journal" />
 
-        {/* Weekly Recap Card */}
+        {/* Weekly Recap Card — collapsible */}
         {entries.length >= 3 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <CalmCard variant="calm">
@@ -475,62 +475,82 @@ export default function Journal() {
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   <CalendarIcon className="w-5 h-5 text-primary" />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   {weeklyRecap ? (
-                    <div className="space-y-3">
-                      <h3 className="font-semibold text-foreground">{t("journal.yourWeeklyRecap")}</h3>
-                      
-                      {/* Summary narrative */}
-                      {Array.isArray(weeklyRecap.summary_bullets) && weeklyRecap.summary_bullets.length > 0 && (
-                        <p className="text-sm text-foreground/80 leading-relaxed">
-                          {weeklyRecap.summary_bullets.join(" ")}
-                        </p>
-                      )}
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setRecapCollapsed(prev => !prev)}
+                        className="w-full flex items-center justify-between"
+                      >
+                        <h3 className="font-semibold text-foreground">{t("journal.yourWeeklyRecap")}</h3>
+                        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${recapCollapsed ? '' : 'rotate-180'}`} />
+                      </button>
 
-                      {/* Patterns */}
-                      {Array.isArray(weeklyRecap.patterns) && weeklyRecap.patterns.length > 0 && (
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground mb-1.5">{t("journal.observedPatterns")}</p>
-                          <ul className="space-y-1.5">
-                            {weeklyRecap.patterns.slice(0, 4).map((p, i) => (
-                              <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
-                                <span className="text-primary mt-0.5">•</span>
-                                <span>{p}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      <AnimatePresence initial={false}>
+                        {!recapCollapsed && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="space-y-3 pt-1">
+                              {/* Summary narrative */}
+                              {Array.isArray(weeklyRecap.summary_bullets) && weeklyRecap.summary_bullets.length > 0 && (
+                                <p className="text-sm text-foreground/80 leading-relaxed">
+                                  {weeklyRecap.summary_bullets.join(" ")}
+                                </p>
+                              )}
 
-                      {/* Potential needs */}
-                      {Array.isArray(weeklyRecap.potential_needs) && weeklyRecap.potential_needs.length > 0 && (
-                        <div className="p-2.5 bg-accent/10 border border-accent/20 rounded-lg">
-                          <p className="text-xs font-medium text-muted-foreground mb-1">
-                            {language === "de" ? "Mögliche Bedürfnisse" : "Possible needs"}
-                          </p>
-                          <ul className="space-y-1">
-                            {weeklyRecap.potential_needs.map((need, i) => (
-                              <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
-                                <span className="text-accent-foreground mt-0.5">💡</span>
-                                <span>{need}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                              {/* Patterns */}
+                              {Array.isArray(weeklyRecap.patterns) && weeklyRecap.patterns.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-medium text-muted-foreground mb-1.5">{t("journal.observedPatterns")}</p>
+                                  <ul className="space-y-1.5">
+                                    {weeklyRecap.patterns.slice(0, 4).map((p, i) => (
+                                      <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
+                                        <span className="text-primary mt-0.5">•</span>
+                                        <span>{p}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
 
-                      {/* Suggestion */}
-                      {weeklyRecap.suggested_next_step && (
-                        <div className="p-2.5 bg-primary/5 border border-primary/15 rounded-lg">
-                          <p className="text-xs font-medium text-muted-foreground mb-1">{t("journal.suggestion")}</p>
-                          <p className="text-sm text-foreground/90">{weeklyRecap.suggested_next_step}</p>
-                        </div>
-                      )}
+                              {/* Potential needs */}
+                              {Array.isArray(weeklyRecap.potential_needs) && weeklyRecap.potential_needs.length > 0 && (
+                                <div className="p-2.5 bg-accent/10 border border-accent/20 rounded-lg">
+                                  <p className="text-xs font-medium text-muted-foreground mb-1">
+                                    {t("journal.possibleNeeds")}
+                                  </p>
+                                  <ul className="space-y-1">
+                                    {weeklyRecap.potential_needs.map((need, i) => (
+                                      <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
+                                        <span className="text-accent-foreground mt-0.5">💡</span>
+                                        <span>{need}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
 
-                      <Button variant="ghost" size="sm" onClick={handleGenerateWeeklyRecap} disabled={isLoadingRecap}>
-                        {isLoadingRecap ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <TrendingUp className="w-4 h-4 mr-2" />}
-                        {t("journal.refresh")}
-                      </Button>
+                              {/* Suggestion */}
+                              {weeklyRecap.suggested_next_step && (
+                                <div className="p-2.5 bg-primary/5 border border-primary/15 rounded-lg">
+                                  <p className="text-xs font-medium text-muted-foreground mb-1">{t("journal.suggestion")}</p>
+                                  <p className="text-sm text-foreground/90">{weeklyRecap.suggested_next_step}</p>
+                                </div>
+                              )}
+
+                              <Button variant="ghost" size="sm" onClick={handleGenerateWeeklyRecap} disabled={isLoadingRecap}>
+                                {isLoadingRecap ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <TrendingUp className="w-4 h-4 mr-2" />}
+                                {t("journal.refresh")}
+                              </Button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   ) : (
                     <div>
