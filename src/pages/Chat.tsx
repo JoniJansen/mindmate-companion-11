@@ -734,7 +734,7 @@ export default function Chat() {
                     <ChatMessageContent
                       content={message.content}
                       isUser={message.role === "user"}
-                      isStreaming={isLoading && message.role === "assistant" && message === messages[messages.length - 1]}
+                      isStreaming={isStreamingActive && message.role === "assistant" && message === messages[messages.length - 1]}
                     />
                     {message.role === "assistant" && (
                       <div className="flex items-center gap-1 mt-0.5">
