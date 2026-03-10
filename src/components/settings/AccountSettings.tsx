@@ -458,6 +458,11 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isNativeEnvironment) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
