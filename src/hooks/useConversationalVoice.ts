@@ -43,6 +43,7 @@ export function useConversationalVoice({
   // Use ref for retry count to avoid stale closures in SDK callbacks
   const retryCountRef = useRef(0);
   const isConnectingRef = useRef(false);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxRetries = 2;
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
@@ -56,6 +57,11 @@ export function useConversationalVoice({
   const conversation = useConversation({
     onConnect: () => {
       console.log("[Voice2.0] Connected to agent via WebRTC");
+      // Cancel any pending retry — connection succeeded
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
       setStatus("connected");
       setPhase("listening");
       retryCountRef.current = 0;
@@ -103,7 +109,8 @@ export function useConversationalVoice({
         console.log(`[Voice2.0] Auto-retry ${currentRetry + 1}/${maxRetries}, error: ${errorMsg}`);
         retryCountRef.current = currentRetry + 1;
         setStatus("connecting");
-        setTimeout(() => {
+        retryTimerRef.current = setTimeout(() => {
+          retryTimerRef.current = null;
           startSessionInternalRef.current?.();
         }, 1500);
         return;
@@ -233,6 +240,10 @@ export function useConversationalVoice({
 
   // End the current voice session
   const endSession = useCallback(async () => {
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
     try {
       await conversation.endSession();
     } catch (e) {
@@ -246,6 +257,10 @@ export function useConversationalVoice({
 
   // Reset error state so user can try again
   const resetError = useCallback(() => {
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
     setStatus("disconnected");
     setPhase("idle");
     retryCountRef.current = 0;
