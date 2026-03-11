@@ -29,6 +29,9 @@ import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicato
 import { fullScreenWithNav } from "@/lib/safeArea";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { useCompanionVisualState } from "@/hooks/useCompanionVisualState";
+import { RealtimeVoicePanel } from "@/components/chat/RealtimeVoicePanel";
+import { useConversationalVoice } from "@/hooks/useConversationalVoice";
+import { getCompanionAgentId, hasRealtimeAgent } from "@/data/companionAgentIds";
 
 export default function Chat() {
   const location = useLocation();
