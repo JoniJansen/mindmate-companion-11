@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, Volume2, VolumeX } from "lucide-react";
+import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, Volume2, VolumeX, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -393,18 +393,18 @@ export default function Chat() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" onClick={handleToggleVoiceMode}
-                    className={`relative shrink-0 ${voice.voiceModeEnabled && canUseVoice ? "text-primary" : "text-muted-foreground"}`}
+                    className={`relative shrink-0 ${voice.voiceModeEnabled && canUseVoice ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
                     aria-label={voice.voiceModeEnabled ? t("chat.voiceModeActive") : t("chat.startVoiceMode")}
                   >
                     {canUseVoice
-                      ? (voice.voiceModeEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />)
-                      : <><VolumeX className="w-5 h-5" /><Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-muted-foreground" /></>
+                      ? <User className="w-5 h-5" />
+                      : <><User className="w-5 h-5" /><Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-muted-foreground" /></>
                     }
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs">
                   {canUseVoice
-                    ? (voice.voiceModeEnabled ? t("chat.voiceModeActive") : t("chat.startVoiceMode"))
+                    ? (voice.voiceModeEnabled ? t("chat.voiceModeActive") : (language === "de" ? "Face-to-Face" : "Face to face"))
                     : t("chat.voiceConversationsPlus")}
                 </TooltipContent>
               </Tooltip>
