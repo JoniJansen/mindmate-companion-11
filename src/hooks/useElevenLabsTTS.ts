@@ -52,10 +52,16 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
     currentMessageIdRef.current = null;
   }, []);
 
-  const playAudio = useCallback(async (audioUrl: string, messageId?: string, intentId?: number) => {
+  const playAudio = useCallback(async (audioUrl: string, messageId?: string, intentId?: number, preUnlockedAudio?: HTMLAudioElement) => {
     if (intentId && intentId !== latestIntentRef.current) return;
 
-    const audio = new Audio(audioUrl);
+    // Use pre-unlocked audio element if provided (iOS gesture context preservation)
+    const audio = preUnlockedAudio || new Audio(audioUrl);
+    if (!preUnlockedAudio) {
+      audio.src = audioUrl;
+    } else {
+      audio.src = audioUrl;
+    }
     audioRef.current = audio;
     currentMessageIdRef.current = messageId || null;
 
