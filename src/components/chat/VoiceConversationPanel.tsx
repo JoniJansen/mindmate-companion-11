@@ -32,6 +32,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
   isSpeaking,
   isThinking,
   isStreamingActive,
+  isTTSLoading,
   liveTranscript,
   lastAssistantMessage,
   onToggleRecording,
@@ -42,7 +43,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
 
   const visualState = useCompanionVisualState({
     isListening,
-    isThinking: isThinking || isStreamingActive,
+    isThinking: isThinking || isStreamingActive || isTTSLoading,
     isSpeaking,
   });
 
