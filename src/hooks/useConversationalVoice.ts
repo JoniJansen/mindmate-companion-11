@@ -219,6 +219,9 @@ export function useConversationalVoice({
       if (error?.name === "NotAllowedError") {
         onErrorRef.current?.("Microphone access denied. Please allow microphone access.");
         setIsSupported(false);
+      } else if (error?.name === "NotFoundError") {
+        onErrorRef.current?.("No microphone found. Please connect a microphone.");
+        setIsSupported(false);
       } else {
         onErrorRef.current?.(error?.message || "Failed to start voice session");
       }
