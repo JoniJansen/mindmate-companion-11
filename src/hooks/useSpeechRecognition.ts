@@ -141,18 +141,17 @@ export function useSpeechRecognition(
   }, [language]);
 
   const startListening = useCallback(() => {
-    if (recognitionRef.current && !isListening) {
-      setTranscript("");
-      setInterimTranscript("");
-      setError(null);
-      shouldRestartRef.current = true;
-      try {
-        recognitionRef.current.start();
-      } catch {
-        if (import.meta.env.DEV) console.error("Error starting speech recognition");
-        setError("Failed to start");
-        shouldRestartRef.current = false;
-      }
+    if (!recognitionRef.current || isListening) return;
+    setTranscript("");
+    setInterimTranscript("");
+    setError(null);
+    shouldRestartRef.current = true;
+    try {
+      recognitionRef.current.start();
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("Speech recognition unavailable in this environment");
+      setError("not-available");
+      shouldRestartRef.current = false;
     }
   }, [isListening]);
 
