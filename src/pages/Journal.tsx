@@ -321,6 +321,20 @@ export default function Journal() {
           suggested_next_step: data.suggested_next_step,
           summary_bullets: data.summary_bullets,
         } as any);
+
+        // Send weekly recap email (fire-and-forget)
+        supabase.functions.invoke('send-transactional-email', {
+          body: {
+            template: 'weekly-recap',
+            data: {
+              summaryBullets: data.summary_bullets || [],
+              patterns: data.patterns || [],
+              suggestedNextStep: data.suggested_next_step || '',
+            },
+          },
+        }).catch((e) => {
+          if (import.meta.env.DEV) console.warn('Weekly recap email failed:', e);
+        });
       }
 
     } catch (error) {

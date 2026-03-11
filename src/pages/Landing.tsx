@@ -480,7 +480,7 @@ export default function Landing() {
               </p>
             </div>
           )}
-          <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Soulvay. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Soulvay. {language === "de" ? "Alle Rechte vorbehalten." : "All rights reserved."}</p>
         </div>
       </footer>
     </div>
