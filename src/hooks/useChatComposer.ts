@@ -221,6 +221,7 @@ export function useChatComposer(chatMode: ChatMode) {
     setIsLoading(true);
 
     streamingDisplay.reset();
+    setStreamingContent("");
     setIsStreamingActive(true);
 
     let activeConvId = overrideConvId !== undefined ? overrideConvId : conversationId;
