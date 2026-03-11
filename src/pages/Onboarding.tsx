@@ -244,7 +244,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="bg-background flex flex-col" style={{ minHeight: '100dvh' }}>
+    <div className="bg-background flex flex-col" style={{ minHeight: '100dvh', minHeight: '100vh', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top">
         <div className="w-10" />
