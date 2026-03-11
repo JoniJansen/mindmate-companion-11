@@ -99,9 +99,16 @@ export function useChatComposer(chatMode: ChatMode) {
       const { data: { session } } = await supabase.auth.getSession();
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+      // Use the caller's signal or create our own for timeout control
+      const ownController = signal ? undefined : new AbortController();
+      const activeSignal = signal || ownController?.signal;
+
       // Timeout after 30s to prevent hanging
-      const timeoutId = setTimeout(() => signal?.aborted || controller?.abort?.(), 30000);
-      const controller = signal ? undefined : new AbortController();
+      const timeoutId = setTimeout(() => {
+        if (!activeSignal?.aborted) {
+          ownController?.abort();
+        }
+      }, 30000);
 
       const resp = await fetch(CHAT_URL, {
         method: "POST",
@@ -114,7 +121,7 @@ export function useChatComposer(chatMode: ChatMode) {
           messages: chatMsgs,
           preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
         }),
-        signal: signal || controller?.signal,
+        signal: activeSignal,
       });
 
       clearTimeout(timeoutId);
