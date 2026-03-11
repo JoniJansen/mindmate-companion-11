@@ -353,11 +353,7 @@ export default function Chat() {
             archetype={companion.archetype}
             name={companion.name}
             size="sm"
-            state={useCompanionVisualState({
-              isListening: voice.isListening,
-              isThinking: composer.isLoading && !composer.isStreamingActive,
-              isSpeaking: voice.isSpeaking || composer.isStreamingActive,
-            })}
+            state={companionState}
             showPresenceDot
           />
         ) : undefined}
