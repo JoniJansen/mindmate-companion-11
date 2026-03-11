@@ -121,7 +121,7 @@ export function useStreamingDisplay(
         interval = drainInterval;
       } else if (isFirstBurst) {
         // Faster initial rendering for perceived responsiveness
-        interval = Math.round(baseInterval * 0.4);
+        interval = Math.round(baseInterval * 0.3);
       } else if (queueLen > speedUpThreshold * 2) {
         interval = minInterval;
       } else if (queueLen > speedUpThreshold) {
