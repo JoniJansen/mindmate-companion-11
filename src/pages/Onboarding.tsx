@@ -563,7 +563,7 @@ function CompanionStep({ t, language, selected, onSelect }: {
                   <Check className="w-3.5 h-3.5 text-primary-foreground" />
                 </motion.div>
               )}
-              <div className="w-full aspect-[4/3] bg-muted/30 overflow-hidden">
+              <div className="w-full aspect-square sm:aspect-[4/5] bg-muted/30 overflow-hidden">
                 <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-top" loading="lazy" />
               </div>
               <div className="p-3">

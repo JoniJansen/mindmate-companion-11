@@ -71,7 +71,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               )}
               
               {/* Avatar Image */}
-              <div className="w-full aspect-square bg-muted/30 overflow-hidden">
+              <div className="w-full aspect-square sm:aspect-[4/5] bg-muted/30 overflow-hidden">
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
