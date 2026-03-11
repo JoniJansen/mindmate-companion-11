@@ -58,7 +58,7 @@ export function CompanionCard({ companion }: CompanionCardProps) {
       >
         <div className="flex items-center gap-3">
           <CompanionAvatar
-            avatarUrl={companion.avatar_url}
+            avatarUrl={avatarSignedUrl}
             archetype={companion.archetype}
             name={companion.name}
             size="md"
