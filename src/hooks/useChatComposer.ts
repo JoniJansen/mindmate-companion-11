@@ -259,6 +259,20 @@ export function useChatComposer(chatMode: ChatMode) {
         setIsLoading(false);
         abortControllerRef.current = null;
 
+        // Handle empty AI response gracefully
+        if (!fullResponse || !fullResponse.trim()) {
+          setMessages(prev => [...prev.filter(m => m.role !== "assistant" || m.content.trim()), {
+            id: `empty-${Date.now()}`,
+            content: language === "de"
+              ? "Ich konnte gerade keine Antwort formulieren. Bitte versuche es noch einmal."
+              : "I wasn't able to form a response just now. Please try again.",
+            role: "assistant" as const,
+            timestamp: new Date(),
+            isError: true,
+          }]);
+          return;
+        }
+
         if (activeConvId && fullResponse) {
           saveMessage(activeConvId, "assistant", fullResponse);
         }
