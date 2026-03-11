@@ -106,7 +106,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
         ) : (
           <button
             onClick={onNavigateUpgrade}
-            className="w-full text-left p-3 rounded-xl border border-dashed border-amber-500/30 bg-amber-500/5 text-sm text-muted-foreground"
+            className="w-full text-left p-3 rounded-xl border border-dashed border-primary/30 bg-primary/5 text-sm text-muted-foreground"
           >
             {language === "de"
               ? "Upgrade auf Plus, um deinen Begleiter umzubenennen und das Aussehen anzupassen."
