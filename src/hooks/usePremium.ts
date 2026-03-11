@@ -35,6 +35,12 @@ interface StoredState {
 
 const getToday = () => new Date().toISOString().split("T")[0];
 
+// Module-level deduplication: prevents multiple usePremium instances from
+// firing concurrent subscription checks on mount.
+let _lastCheckAt = 0;
+let _checkInFlight: Promise<void> | null = null;
+const CHECK_COOLDOWN_MS = 10_000; // 10s between checks
+
 const getDefaultState = (): StoredState => ({
   isPremium: false,
   dailyMessagesUsed: 0,
