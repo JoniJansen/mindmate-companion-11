@@ -77,7 +77,11 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="fixed inset-0 z-50 flex flex-col bg-background"
-      style={{ willChange: "opacity" }}
+      style={{
+        willChange: "opacity",
+        paddingTop: "env(safe-area-inset-top, 0px)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
     >
       {/* Subtle ambient gradient */}
       <div className="absolute inset-0 pointer-events-none">
@@ -90,7 +94,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
       </div>
 
       {/* Close button */}
-      <div className="relative z-10 flex items-center justify-between px-5 pt-5 pb-2">
+      <div className="relative z-10 flex items-center justify-between px-5 pt-3 pb-2">
         <button
           onClick={onClose}
           className="w-10 h-10 rounded-full bg-muted/60 flex items-center justify-center transition-colors hover:bg-muted"
