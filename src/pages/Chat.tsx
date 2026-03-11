@@ -434,6 +434,7 @@ export default function Chat() {
         isPlayingMessage={voice.isPlayingMessage}
         isLoadingMessage={voice.isLoadingMessage}
         canUseVoice={canUseVoice}
+        companionName={companion?.name}
       />
 
       {/* Calm Exercises */}
