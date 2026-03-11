@@ -144,6 +144,11 @@ const translations = {
       title: "Wähle deinen Begleiter",
       subtitle: "Wer soll mit dir reflektieren?",
     },
+    companionIntro: {
+      greeting: "Schön, dich kennenzulernen.",
+      description: "Ich werde dein Reflexionsbegleiter sein — hier, um zuzuhören, mit dir nachzudenken und dir zu helfen, dich selbst besser zu verstehen.",
+      ready: "Lass uns weitermachen.",
+    },
     focus: {
       title: "Was beschäftigt dich?",
       subtitle: "Wähle, was sich richtig anfühlt — Mehrfachauswahl möglich.",
