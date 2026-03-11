@@ -13,6 +13,7 @@ import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { usePremium } from "@/hooks/usePremium";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { useChatComposer } from "@/hooks/useChatComposer";
+import { useCompanion } from "@/hooks/useCompanion";
 import { useChatVoice } from "@/hooks/useChatVoice";
 import { VoiceAvatar } from "@/components/chat/VoiceAvatar";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
