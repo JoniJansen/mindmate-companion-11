@@ -198,8 +198,10 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     // STT state
     isListening,
     isSpeechSupported,
+    sttError,
     
-    // Voice settings
+    // Cooldown
+    isCooldown,
     voiceSettings,
     updateSetting,
     canUseVoice,
