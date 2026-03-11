@@ -83,7 +83,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
           <label className="text-sm font-medium text-foreground">
             {language === "de" ? "Name anpassen" : "Customize name"}
           </label>
-          {!isPremium && <Sparkles className="w-3.5 h-3.5 text-amber-500" />}
+          {!isPremium && <Sparkles className="w-3.5 h-3.5 text-primary" />}
         </div>
         {isPremium ? (
           <div className="flex gap-2">
