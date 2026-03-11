@@ -224,7 +224,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
       </div>
 
       {/* Bottom controls — minimal */}
-      <div className="relative z-10 flex flex-col items-center pb-10 pt-4 gap-4">
+      <div className="relative z-10 flex flex-col items-center pb-6 pt-4 gap-4">
         {/* Primary mic button */}
         <motion.button
           whileTap={{ scale: 0.93 }}
