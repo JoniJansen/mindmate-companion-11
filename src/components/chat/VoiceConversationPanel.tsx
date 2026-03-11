@@ -216,7 +216,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
 
             {subtitleContent?.type === "response" && (
               <motion.div
-                key={`response-${phase}`}
+                key="response"
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}

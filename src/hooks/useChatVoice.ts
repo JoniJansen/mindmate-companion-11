@@ -54,13 +54,32 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     }
   }, [sttError, t, toast]);
 
-  // Auto-restart listening after AI finishes speaking (only if no STT error, composer not busy, and TTS not loading)
+  // Track cooldown phase: brief pause after speaking ends before re-enabling mic
+  const [isCooldown, setIsCooldown] = useState(false);
+  const cooldownRef = useRef<number | null>(null);
+
   useEffect(() => {
-    if (!isSpeaking && !isTTSLoading && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice && !sttError && !isComposerBusy) {
-      const timeoutId = setTimeout(() => { resetTranscript(); setPendingTranscript(""); startListening(); }, 800);
-      return () => clearTimeout(timeoutId);
+    if (isSpeaking) {
+      // Clear any pending cooldown if speaking restarts
+      if (cooldownRef.current) { window.clearTimeout(cooldownRef.current); cooldownRef.current = null; }
+      setIsCooldown(false);
+    } else if (!isSpeaking && voiceModeEnabled && !isComposerBusy && !isTTSLoading) {
+      // Speaking just ended → enter cooldown
+      setIsCooldown(true);
+      cooldownRef.current = window.setTimeout(() => {
+        cooldownRef.current = null;
+        setIsCooldown(false);
+      }, 800);
     }
-  }, [isSpeaking, isTTSLoading, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice, sttError, isComposerBusy]);
+    return () => { if (cooldownRef.current) { window.clearTimeout(cooldownRef.current); cooldownRef.current = null; } };
+  }, [isSpeaking, voiceModeEnabled, isComposerBusy, isTTSLoading]);
+
+  // Auto-restart listening after cooldown ends (only if no STT error, composer not busy, and TTS not loading)
+  useEffect(() => {
+    if (!isSpeaking && !isTTSLoading && !isCooldown && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice && !sttError && !isComposerBusy) {
+      resetTranscript(); setPendingTranscript(""); startListening();
+    }
+  }, [isSpeaking, isTTSLoading, isCooldown, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice, sttError, isComposerBusy]);
 
   // Stop listening when speaking
   useEffect(() => { if (isSpeaking && isListening) stopListening(); }, [isSpeaking, isListening, stopListening]);
