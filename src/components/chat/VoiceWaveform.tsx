@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, forwardRef } from "react";
 import { motion } from "framer-motion";
 
 interface VoiceWaveformProps {
@@ -16,12 +16,12 @@ interface VoiceWaveformProps {
  * Smooth waveform visualizer driven by real-time audio levels.
  * Each bar oscillates with slight phase offsets for an organic feel.
  */
-export const VoiceWaveform = memo(function VoiceWaveform({
+export const VoiceWaveform = memo(forwardRef<HTMLDivElement, VoiceWaveformProps>(function VoiceWaveform({
   level,
   barCount = 5,
   colorClass = "bg-primary/60",
   active = true,
-}: VoiceWaveformProps) {
+}, ref) {
   // Smooth the level to avoid jitter
   const smoothedRef = useRef(0);
   const displayLevel = active ? level : 0;
@@ -33,12 +33,10 @@ export const VoiceWaveform = memo(function VoiceWaveform({
   const clamped = Math.min(1, Math.max(0, displayLevel));
 
   return (
-    <div className="flex items-center justify-center gap-[3px] h-8">
+    <div ref={ref} className="flex items-center justify-center gap-[3px] h-8">
       {Array.from({ length: barCount }).map((_, i) => {
-        // Each bar gets a unique phase so they don't move in lockstep
         const phase = (i - Math.floor(barCount / 2)) / barCount;
         const offset = Math.abs(phase);
-        // Base height + volume-driven height, with per-bar variation
         const minH = 6;
         const maxH = 28;
         const variation = 1 - offset * 0.5;
@@ -61,4 +59,4 @@ export const VoiceWaveform = memo(function VoiceWaveform({
       })}
     </div>
   );
-});
+}));
