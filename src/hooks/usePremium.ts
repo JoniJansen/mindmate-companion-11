@@ -322,7 +322,9 @@ export function usePremium() {
 
     // For RevenueCat, users manage subscriptions through App Store
     if (isRevenueCatAvailable) {
-      throw new Error("Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements");
+      throw new Error(language === "de"
+        ? "Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements"
+        : "Please manage your subscription in iOS Settings → Subscriptions");
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
