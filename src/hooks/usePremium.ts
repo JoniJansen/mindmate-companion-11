@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useTranslation } from "./useTranslation";
 import { isReviewAccount, isReviewModeActive, activateReviewMode } from "@/lib/reviewMode";
 import { useRevenueCat, PREMIUM_ENTITLEMENT } from "./useRevenueCat";
 import { getSimulatedPremiumOverride } from "./useEntitlementSimulator";
