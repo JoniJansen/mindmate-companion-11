@@ -26,7 +26,7 @@ interface ChatMessagesProps {
 export function ChatMessages({
   messages, isLoading, isStreamingActive, isRestoringConversation,
   onRetry, onContinue, onPlayMessage, onStopTTS, onSaveMessage,
-  isPlayingMessage, isLoadingMessage, canUseVoice,
+  isPlayingMessage, isLoadingMessage, canUseVoice, companionName,
 }: ChatMessagesProps) {
   const { t, language } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
