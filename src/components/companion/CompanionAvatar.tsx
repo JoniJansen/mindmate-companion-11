@@ -49,15 +49,15 @@ export function CompanionAvatar({ avatarUrl, archetype, name, size = "md", anima
       className={`relative ${sizeMap[size]} rounded-full flex items-center justify-center overflow-hidden ${className}`}
       style={{ willChange: "transform, opacity" }}
     >
-      {/* Breathing glow */}
+      {/* Subtle breathing glow */}
       <motion.div
-        className="absolute inset-0 rounded-full bg-primary/8"
+        className="absolute inset-0 rounded-full bg-primary/6"
         animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.5, 0.8, 0.5],
+          scale: [1, 1.06, 1],
+          opacity: [0.3, 0.6, 0.3],
         }}
         transition={{
-          duration: 4,
+          duration: 5,
           repeat: Infinity,
           ease: "easeInOut",
         }}

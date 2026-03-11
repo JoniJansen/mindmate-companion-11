@@ -26,6 +26,17 @@ import { SaveToJournalDialog } from "@/components/chat/SaveToJournalDialog";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 import { fullScreenWithNav } from "@/lib/safeArea";
+import { CompanionAvatar } from "@/components/companion/CompanionAvatar";
+
+function CompanionAvatarHeader({ archetype, name }: { archetype: string; name: string }) {
+  return (
+    <div className="relative shrink-0">
+      <CompanionAvatar archetype={archetype} name={name} size="sm" animate={false} />
+      {/* Subtle presence dot */}
+      <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-background" />
+    </div>
+  );
+}
 
 export default function Chat() {
   const location = useLocation();
@@ -337,8 +348,11 @@ export default function Chat() {
       <PageHeader
         title={companion?.name || t("chat.title")}
         subtitle={companion ? (language === "de" ? "Dein Reflexionsbegleiter" : "Your reflection companion") : t("chat.subtitle")}
-        showLogo={!companion}
+        showLogo={false}
         showBack={false}
+        avatarElement={companion ? (
+          <CompanionAvatarHeader archetype={companion.archetype} name={companion.name} />
+        ) : undefined}
         rightElement={
           <div className="flex items-center gap-2 -mr-1.5">
             <TooltipProvider delayDuration={300}>

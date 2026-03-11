@@ -24,7 +24,9 @@ import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionCard } from "@/components/companion/CompanionCard";
 import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
 import { useMemoryMoments } from "@/hooks/useMemoryMoments";
+import { useCompanionCheckins } from "@/hooks/useCompanionCheckins";
 import { useChatPersistence } from "@/hooks/useChatPersistence";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 interface RecentThought {
   id: string;
   content: string;
@@ -54,7 +56,9 @@ export default function Home() {
   const { moment: memoryMoment, dismiss: dismissMoment, startConversation: startMomentConversation } = useMemoryMoments();
   const { loadRecentConversations } = useChatPersistence();
   const { companion } = useCompanion();
+  const { checkin: companionCheckin, dismiss: dismissCheckin } = useCompanionCheckins(companion?.name);
   const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
+  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
   
@@ -351,11 +355,32 @@ export default function Home() {
         {/* Companion Card */}
         {companion && <CompanionCard companion={companion} />}
 
-        {/* Companion Check-in — memory moment or insight-based */}
-        {memoryMoment && !companionCheckinDismissed && (
+        {/* Companion Check-in — new system with memory, pattern, insight, initiative */}
+        {companionCheckin && !companionCheckinDismissed && (
+          <CompanionCheckin
+            type={companionCheckin.type}
+            text={companionCheckin.text}
+            companionName={companion?.name}
+            companionArchetype={companion?.archetype}
+            companionAvatarUrl={companionAvatarUrl}
+            onTalkAboutIt={() => {
+              dismissCheckin();
+              setCompanionCheckinDismissed(true);
+              localStorage.setItem('mindmate-initial-message', companionCheckin.chatPrompt);
+              navigate("/chat");
+            }}
+            onDismiss={() => { dismissCheckin(); setCompanionCheckinDismissed(true); }}
+          />
+        )}
+
+        {/* Legacy memory moment fallback (if no new checkin) */}
+        {!companionCheckin && memoryMoment && !companionCheckinDismissed && (
           <CompanionCheckin
             type="memory"
             text={`${t("home.memoryMomentIntro")} "${memoryMoment.content}" ${t("home.memoryMomentQuestion")}`}
+            companionName={companion?.name}
+            companionArchetype={companion?.archetype}
+            companionAvatarUrl={companionAvatarUrl}
             onTalkAboutIt={() => {
               startMomentConversation();
               const msg = `${t("home.memoryMomentMsg")} "${memoryMoment.content}". ${t("home.memoryMomentContinue")}`;

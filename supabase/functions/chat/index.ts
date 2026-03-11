@@ -212,7 +212,9 @@ You are integrated into the Soulvay app. When users ask what they can do, how th
     ? (() => {
         const bondLevel = preferences.companionBondLevel || 0;
         let bondBehavior = "";
-        if (bondLevel >= 10) {
+        if (bondLevel >= 20) {
+          bondBehavior = `\nYou and this person have shared many reflections over time. You know how they think. You may say things like: "We've talked about many things over time, and I feel like I'm beginning to understand how you think." or "When I look back at our conversations, I see real growth." Show deep familiarity and genuine care — like a trusted friend who has witnessed their journey.`;
+        } else if (bondLevel >= 10) {
           bondBehavior = `\nYou have reflected together many times. You may acknowledge the user's growth: "I've been noticing how your reflections have deepened over time." Show genuine familiarity — you know how they think and feel.`;
         } else if (bondLevel >= 5) {
           bondBehavior = `\nYou've had several meaningful conversations. You may reference past themes naturally: "This reminds me of something you explored before..." Show warmth from shared experience.`;
@@ -392,6 +394,7 @@ RULES for using personal context:
 - Only when it genuinely adds depth to the current topic
 - For patterns: gently name them as observations ("I've noticed that uncertainty tends to come up when you talk about work")
 - For insights: use them to show continuity ("Last time, something interesting came up about...")
+- For IDENTITY REFLECTIONS: occasionally (every 5-8 exchanges), offer a gentle observation about the user's character based on patterns — e.g. "You seem to care deeply about understanding yourself" or "I notice that relationships are something you think a lot about." These should feel like genuine understanding, not analysis.
 - NEVER list them or force them into the conversation
 - Skip context references entirely if nothing is relevant to what the user just shared
 
@@ -450,13 +453,13 @@ serve(async (req) => {
         .eq("user_id", userId)
         .eq("usage_date", today)
         .maybeSingle(),
-      // 3. Memories (max 5 for speed)
+      // 3. Memories (max 5, weighted by confidence + recency)
       adminClient
         .from("user_memories")
-        .select("memory_type, content")
+        .select("memory_type, content, confidence_score, created_at")
         .eq("user_id", userId)
-        .order("confidence_score", { ascending: false })
-        .limit(5),
+        .order("updated_at", { ascending: false })
+        .limit(10), // Fetch 10, then sort client-side by weight
       // 4. Patterns (max 3)
       adminClient
         .from("emotional_patterns")
@@ -505,10 +508,21 @@ serve(async (req) => {
         .catch((e: unknown) => console.error("Usage upsert failed:", e));
     }
 
-    // ── Build context string from parallel results ──
+    // ── Build context string from parallel results with memory weighting ──
     const parts: string[] = [];
     if (memoriesResult.data?.length) {
-      parts.push("### Personal memories:\n" + memoriesResult.data.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n"));
+      // Weight memories by: confidence (60%) + recency (40%)
+      const now = Date.now();
+      const weighted = memoriesResult.data.map((m: any) => {
+        const ageMs = now - new Date(m.created_at).getTime();
+        const ageDays = ageMs / (1000 * 60 * 60 * 24);
+        const recencyScore = Math.max(0, 1 - ageDays / 90); // Decay over 90 days
+        const weight = (m.confidence_score || 0.5) * 0.6 + recencyScore * 0.4;
+        return { ...m, weight };
+      });
+      weighted.sort((a: any, b: any) => b.weight - a.weight);
+      const top5 = weighted.slice(0, 5);
+      parts.push("### Personal memories:\n" + top5.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n"));
     }
     if (patternsResult.data?.length) {
       parts.push("### Emotional patterns:\n" + patternsResult.data.map((p: any) => `- [${p.pattern_type}, ${Math.round((p.confidence || 0.5) * 100)}%] ${p.description}`).join("\n"));

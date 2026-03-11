@@ -10,13 +10,14 @@ interface PageHeaderProps {
   showBack?: boolean;
   backTo?: string;
   rightElement?: React.ReactNode;
+  avatarElement?: React.ReactNode;
   showSettings?: boolean;
   showLogo?: boolean;
   className?: string;
 }
 
 export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
-  ({ title, subtitle, showBack = false, backTo, rightElement, showSettings = true, showLogo = false, className = "" }, ref) => {
+  ({ title, subtitle, showBack = false, backTo, rightElement, avatarElement, showSettings = true, showLogo = false, className = "" }, ref) => {
     const navigate = useNavigate();
 
     const handleBack = () => {
@@ -46,7 +47,8 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
                 <ChevronLeft className="w-5 h-5 stroke-[1.8]" />
               </Button>
             )}
-            {showLogo && (
+            {avatarElement}
+            {showLogo && !avatarElement && (
               <img 
                 src={logoImage} 
                 alt="Soulvay" 
