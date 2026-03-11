@@ -123,23 +123,6 @@ export default function Safety() {
 
   const crisisLines = language === "de" ? germanCrisisLines : englishCrisisLines;
 
-  const resources: Resource[] = [
-    {
-      title: t("resource.findTherapist"),
-      description: t("resource.findTherapistDesc"),
-      icon: MapPin,
-    },
-    {
-      title: t("resource.understandingSigns"),
-      description: t("resource.understandingSignsDesc"),
-      icon: AlertTriangle,
-    },
-    {
-      title: t("resource.selfCare"),
-      description: t("resource.selfCareDesc"),
-      icon: Heart,
-    },
-  ];
 
   const emergencyNumber = language === "de" ? "112" : "911";
 
