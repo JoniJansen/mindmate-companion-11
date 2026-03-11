@@ -36,22 +36,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
+  // Module-level dedup: prevent double-fetch from onAuthStateChange + getSession racing
+  const profileFetchInFlight = useRef<Promise<void> | null>(null);
+  const lastProfileUserId = useRef<string | null>(null);
 
-      if (error) {
-        if (import.meta.env.DEV) console.warn("Failed to fetch profile:", error);
-        return;
-      }
-      setProfile(data);
-    } catch (e) {
-      if (import.meta.env.DEV) console.warn("Failed to fetch profile:", e);
+  const fetchProfile = useCallback(async (userId: string) => {
+    // If we already fetched for this user and have data, skip
+    if (lastProfileUserId.current === userId && profileFetchInFlight.current) {
+      await profileFetchInFlight.current;
+      return;
     }
+    lastProfileUserId.current = userId;
+
+    const doFetch = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (error) {
+          if (import.meta.env.DEV) console.warn("Failed to fetch profile:", error);
+          return;
+        }
+        setProfile(data);
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Failed to fetch profile:", e);
+      } finally {
+        profileFetchInFlight.current = null;
+      }
+    };
+
+    profileFetchInFlight.current = doFetch();
+    await profileFetchInFlight.current;
   }, []);
 
   // Create companion profile from onboarding data (runs once after first sign-in)
