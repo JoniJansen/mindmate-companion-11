@@ -105,6 +105,12 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
       return;
     }
 
+    // iOS Safari: pre-create and "unlock" Audio element within user gesture context
+    // This must happen BEFORE any async work (fetch) to preserve gesture chain
+    const preUnlockedAudio = new Audio();
+    preUnlockedAudio.preload = "auto";
+    try { preUnlockedAudio.play().catch(() => {}); } catch {}
+
     fetchInFlightRef.current = true;
     setIsLoading(true);
     setLoadingMessageId(messageId || null);
@@ -153,7 +159,7 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
         return;
       }
 
-      await playAudio(audioUrl, messageId, intentId);
+      await playAudio(audioUrl, messageId, intentId, preUnlockedAudio);
     } catch (error: any) {
       if (import.meta.env.DEV) console.error("TTS error:", error);
 

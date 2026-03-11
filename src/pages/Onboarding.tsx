@@ -323,8 +323,8 @@ export default function Onboarding() {
           )}
         </AnimatePresence>
 
-        {/* Continue button */}
-        <div className="mt-auto pt-6 safe-bottom shrink-0">
+        {/* Continue button — extra padding for in-app browsers */}
+        <div className="mt-auto pt-6 pb-4 shrink-0">
           {currentStep === "goal" ? (
             <div className="space-y-3">
               <Button size="xl" className="w-full" onClick={finishOnboarding}>

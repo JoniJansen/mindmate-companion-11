@@ -42,12 +42,12 @@ const companionVoiceProfiles: Record<string, CompanionVoiceProfile> = {
     voiceLabelDe: "Geerdet & direkt",
   },
   lina: {
-    voiceType: "femaleSoft",
+    voiceType: "neutralWarm",
     voiceLabel: "Soft & patient",
     voiceLabelDe: "Sanft & geduldig",
   },
   theo: {
-    voiceType: "maleDeep",
+    voiceType: "neutral",
     voiceLabel: "Wise & steady",
     voiceLabelDe: "Weise & beständig",
   },
@@ -57,17 +57,17 @@ const companionVoiceProfiles: Record<string, CompanionVoiceProfile> = {
     voiceLabelDe: "Aufgeweckt & neugierig",
   },
   jonas: {
-    voiceType: "male",
+    voiceType: "femaleBright",
     voiceLabel: "Structured & thoughtful",
     voiceLabelDe: "Strukturiert & durchdacht",
   },
   sofia: {
-    voiceType: "neutralWarm",
+    voiceType: "femaleSoft",
     voiceLabel: "Warm & perceptive",
     voiceLabelDe: "Warm & einfühlsam",
   },
   arin: {
-    voiceType: "neutral",
+    voiceType: "maleDeep",
     voiceLabel: "Calm & minimal",
     voiceLabelDe: "Ruhig & minimalistisch",
   },
