@@ -54,13 +54,13 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     }
   }, [sttError, t, toast]);
 
-  // Auto-restart listening after AI finishes speaking (only if no STT error)
+  // Auto-restart listening after AI finishes speaking (only if no STT error and composer not busy)
   useEffect(() => {
-    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice && !sttError) {
+    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice && !sttError && !isComposerBusy) {
       const timeoutId = setTimeout(() => { resetTranscript(); setPendingTranscript(""); startListening(); }, 800);
       return () => clearTimeout(timeoutId);
     }
-  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice, sttError]);
+  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice, sttError, isComposerBusy]);
 
   // Stop listening when speaking
   useEffect(() => { if (isSpeaking && isListening) stopListening(); }, [isSpeaking, isListening, stopListening]);
