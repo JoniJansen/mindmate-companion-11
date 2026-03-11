@@ -24,7 +24,9 @@ import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionCard } from "@/components/companion/CompanionCard";
 import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
 import { useMemoryMoments } from "@/hooks/useMemoryMoments";
+import { useCompanionCheckins } from "@/hooks/useCompanionCheckins";
 import { useChatPersistence } from "@/hooks/useChatPersistence";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 interface RecentThought {
   id: string;
   content: string;
