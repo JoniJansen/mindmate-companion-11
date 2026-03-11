@@ -76,9 +76,6 @@
     "vitest": "^3.2.4",
     "zod": "^3.25.76"
   },
-  "overrides": {
-    "livekit-client": "2.15.16"
-  },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
