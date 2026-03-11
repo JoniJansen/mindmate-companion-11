@@ -15,7 +15,7 @@ interface Message {
   isError?: boolean;
 }
 
-export function useChatVoice() {
+export function useChatVoice(companionArchetypeId?: string) {
   const { t, language } = useTranslation();
   const { toast } = useToast();
   const { canUseVoice } = usePremium();
