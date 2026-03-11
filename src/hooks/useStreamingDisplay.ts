@@ -94,19 +94,25 @@ export function useStreamingDisplay(
     const isDraining = streamDoneRef.current;
     const displayed = displayedLengthRef.current;
 
-    // First-token acceleration: emit more words initially for perceived responsiveness
-    const isFirstBurst = displayed < 60;
+    // Gentle first appearance: show 1-2 words softly, not a burst
+    const isFirstPhase = displayed < 30;
+    // Steady reading phase: the core experience
+    const isSteadyPhase = displayed >= 30 && displayed < 400;
+    // Tail phase: slightly faster to finish cleanly
+    const isTailPhase = displayed >= 400;
 
     let wordsPerTick = 1;
     if (isDraining) {
-      wordsPerTick = Math.min(5, queueLen);
-    } else if (isFirstBurst) {
-      // Faster start: emit 3-4 words at once for the first ~60 chars
-      wordsPerTick = Math.min(4, queueLen);
-    } else if (queueLen > speedUpThreshold * 2) {
-      wordsPerTick = 3;
-    } else if (queueLen > speedUpThreshold) {
+      wordsPerTick = Math.min(3, queueLen);
+    } else if (isFirstPhase) {
+      // Soft start: just 1 word at a time for a calm appearance
+      wordsPerTick = 1;
+    } else if (isTailPhase && queueLen > speedUpThreshold) {
       wordsPerTick = 2;
+    } else if (queueLen > speedUpThreshold * 2) {
+      wordsPerTick = 2;
+    } else {
+      wordsPerTick = 1;
     }
 
     const words = wordQueueRef.current.splice(0, wordsPerTick);
@@ -119,13 +125,14 @@ export function useStreamingDisplay(
       let interval: number;
       if (isDraining) {
         interval = drainInterval;
-      } else if (isFirstBurst) {
-        // Faster initial rendering for perceived responsiveness
-        interval = Math.round(baseInterval * 0.3);
-      } else if (queueLen > speedUpThreshold * 2) {
-        interval = minInterval;
-      } else if (queueLen > speedUpThreshold) {
-        interval = Math.round(baseInterval * 0.6);
+      } else if (isFirstPhase) {
+        // Gentle unveil: slightly faster than steady but not a burst
+        interval = Math.round(baseInterval * 0.7);
+      } else if (isSteadyPhase) {
+        // Core reading rhythm — calm and readable
+        interval = queueLen > speedUpThreshold ? Math.round(baseInterval * 0.75) : baseInterval;
+      } else if (isTailPhase) {
+        interval = queueLen > speedUpThreshold ? minInterval : Math.round(baseInterval * 0.8);
       } else {
         interval = baseInterval;
       }
