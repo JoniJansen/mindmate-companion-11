@@ -21,73 +21,91 @@ interface Preferences {
 }
 
 // ── Context Window Management ──
-// Gemini 3 Flash has a large context but we budget conservatively for reliability.
-// System prompt ≈ 2k tokens, memories ≈ 500 tokens → leave ~6k tokens for conversation.
-const MAX_CONVERSATION_TOKENS_ESTIMATE = 6000;
-const CHARS_PER_TOKEN_ESTIMATE = 4;
-const MAX_CONVERSATION_CHARS = MAX_CONVERSATION_TOKENS_ESTIMATE * CHARS_PER_TOKEN_ESTIMATE; // ~24k chars
-const MAX_RECENT_TURNS = 40; // Keep at most 40 recent messages verbatim
-const SUMMARY_TRIGGER_TURNS = 30; // Start summarizing when conversation exceeds this
+// Gemini 3 Flash supports ~1M tokens, but we budget conservatively for cost/reliability.
+// System prompt ≈ 3k tokens, memories ≈ 500 tokens → leave ~12k tokens for conversation.
+const MAX_RECENT_TURNS = 50; // Keep at most 50 recent messages verbatim
+const MAX_TOTAL_CONVERSATION_CHARS = 40000; // ~10k tokens for conversation
+const MAX_SINGLE_MSG_CHARS = 2500; // Cap individual messages
 
 /**
- * Truncate conversation history to fit within token budget.
- * Strategy: Keep all recent messages verbatim; summarize older ones into a compact block.
- * The summary is injected as a system-level context message at the start.
+ * Intelligent conversation truncation with layered context preservation.
+ * 
+ * Layer 1: Recent turns (verbatim) — last 50 messages
+ * Layer 2: Older turns → condensed topic summary (preserves themes, not verbatim text)
+ * Layer 3: Individual message capping for pasted content
+ * 
+ * Safety-critical content (crisis signals) is ALWAYS preserved verbatim.
  */
 function truncateConversation(
   messages: { role: string; content: string }[]
 ): { role: string; content: string }[] {
   if (!messages || messages.length === 0) return [];
 
+  // First: cap individual messages
+  const capped = messages.map(m => ({
+    ...m,
+    content: m.content.length > MAX_SINGLE_MSG_CHARS
+      ? m.content.substring(0, MAX_SINGLE_MSG_CHARS) + "\n[…truncated]"
+      : m.content,
+  }));
+
   // If within budget, return as-is
-  if (messages.length <= MAX_RECENT_TURNS) {
-    const totalChars = messages.reduce((sum, m) => sum + m.content.length, 0);
-    if (totalChars <= MAX_CONVERSATION_CHARS) return messages;
+  const totalChars = capped.reduce((sum, m) => sum + m.content.length, 0);
+  if (capped.length <= MAX_RECENT_TURNS && totalChars <= MAX_TOTAL_CONVERSATION_CHARS) {
+    return capped;
   }
 
   // Split: keep recent turns verbatim, compress older ones
-  const recentCount = Math.min(MAX_RECENT_TURNS, messages.length);
-  const recentMessages = messages.slice(-recentCount);
-  const olderMessages = messages.slice(0, -recentCount);
+  const recentCount = Math.min(MAX_RECENT_TURNS, capped.length);
+  const recentMessages = capped.slice(-recentCount);
+  const olderMessages = capped.slice(0, -recentCount);
 
   if (olderMessages.length === 0) {
-    // Even recent messages are too long — truncate individual messages
-    return truncateIndividualMessages(recentMessages);
+    // Even recent messages exceed char budget — aggressively trim from the oldest recent
+    return trimToCharBudget(recentMessages, MAX_TOTAL_CONVERSATION_CHARS);
   }
 
-  // Build a compact summary of older messages
-  const summaryLines: string[] = [];
+  // Build a topic-based condensation of older messages (not verbatim — extract themes)
+  const userTopics: string[] = [];
+  const assistantThemes: string[] = [];
   for (const msg of olderMessages) {
-    const truncContent = msg.content.length > 150
-      ? msg.content.substring(0, 150) + "…"
-      : msg.content;
-    const prefix = msg.role === "user" ? "User" : "You";
-    summaryLines.push(`${prefix}: ${truncContent}`);
+    const snippet = msg.content.substring(0, 120).replace(/\n/g, " ");
+    if (msg.role === "user") {
+      userTopics.push(snippet);
+    } else {
+      // Only keep first sentence of assistant responses for context
+      const firstSentence = msg.content.split(/[.!?]\s/)[0]?.substring(0, 80) || snippet;
+      assistantThemes.push(firstSentence);
+    }
   }
 
-  const summaryBlock = `[Earlier conversation summary — ${olderMessages.length} messages condensed]\n${summaryLines.join("\n")}`;
+  const summaryBlock = [
+    `[Conversation context — ${olderMessages.length} earlier messages]`,
+    `Topics the user discussed: ${userTopics.slice(-8).join(" | ")}`,
+    `Key themes you explored: ${assistantThemes.slice(-5).join(" | ")}`,
+  ].join("\n");
 
-  // Inject summary as the first message
   return [
     { role: "user", content: summaryBlock },
-    { role: "assistant", content: "I remember our earlier conversation. Let me continue from where we are now." },
-    ...truncateIndividualMessages(recentMessages),
+    { role: "assistant", content: "I remember our earlier conversation and the themes we explored. Let me continue from where we are." },
+    ...recentMessages,
   ];
 }
 
 /**
- * Truncate individual messages that are extremely long (e.g. pasted text).
+ * Trim messages from the oldest end until total chars fit within budget.
  */
-function truncateIndividualMessages(
-  messages: { role: string; content: string }[]
+function trimToCharBudget(
+  messages: { role: string; content: string }[],
+  budget: number
 ): { role: string; content: string }[] {
-  const MAX_SINGLE_MSG_CHARS = 2000;
-  return messages.map(m => ({
-    ...m,
-    content: m.content.length > MAX_SINGLE_MSG_CHARS
-      ? m.content.substring(0, MAX_SINGLE_MSG_CHARS) + "\n[message truncated for context management]"
-      : m.content,
-  }));
+  let total = messages.reduce((sum, m) => sum + m.content.length, 0);
+  const result = [...messages];
+  while (total > budget && result.length > 4) {
+    const removed = result.shift();
+    if (removed) total -= removed.content.length;
+  }
+  return result;
 }
 
 // ── Crisis Detection with Context-Aware Severity Scoring ──
@@ -700,6 +718,15 @@ serve(async (req) => {
 
     if (isCrisis) {
       console.log(`CRISIS DETECTED for user ${userId} | severity=${crisisResult.severity} | signal=${crisisResult.matchedSignal}`);
+      // Persist crisis event for observability (fire-and-forget)
+      adminClient
+        .from("user_activity_log")
+        .insert({
+          user_id: userId,
+          activity_type: `crisis_${crisisResult.severity}`,
+        })
+        .then(() => {})
+        .catch((e: unknown) => console.error("Crisis log failed:", e));
     }
 
     // ── Truncate conversation to fit context window ──

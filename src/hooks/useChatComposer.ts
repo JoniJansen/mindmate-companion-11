@@ -192,7 +192,13 @@ export function useChatComposer(chatMode: ChatMode) {
     overrideConvId?: string | null,
     onStreamDone?: (fullResponse: string, messageId: string, convId: string | null) => void,
   ) => {
-    if (!content.trim() || isLoading) return;
+    const trimmed = content.trim();
+    if (!trimmed || isLoading) return;
+
+    // Guard: prevent rapid double-sends
+    if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+      return; // Already in-flight
+    }
 
     if (!navigator.onLine) {
       toast({ title: t("common.offline"), description: t("common.offlineBody"), variant: "destructive" });
@@ -207,11 +213,11 @@ export function useChatComposer(chatMode: ChatMode) {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    const userMessage: Message = { id: Date.now().toString(), content: content.trim(), role: "user", timestamp: new Date() };
+    const userMessage: Message = { id: Date.now().toString(), content: trimmed, role: "user", timestamp: new Date() };
     if (!isSystemAction) {
       setMessages((prev) => [...prev, userMessage]);
       incrementMessageCount();
-      setLastUserMessage(content.trim());
+      setLastUserMessage(trimmed);
       chatMessageCountRef.current += 1;
       if (chatMessageCountRef.current >= 3) {
         logActivity("chat_session");
@@ -230,11 +236,11 @@ export function useChatComposer(chatMode: ChatMode) {
     }
 
     if (activeConvId && !isSystemAction) {
-      saveMessage(activeConvId, "user", content.trim());
+      saveMessage(activeConvId, "user", trimmed);
     }
 
     if (chatMessageCountRef.current === 1 && activeConvId) {
-      const title = content.trim().substring(0, 60);
+      const title = trimmed.substring(0, 60);
       updateConversationTitle(activeConvId, title);
     }
 
