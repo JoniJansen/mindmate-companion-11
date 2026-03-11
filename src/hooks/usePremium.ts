@@ -35,6 +35,12 @@ interface StoredState {
 
 const getToday = () => new Date().toISOString().split("T")[0];
 
+// Module-level deduplication: prevents multiple usePremium instances from
+// firing concurrent subscription checks on mount.
+let _lastCheckAt = 0;
+let _checkInFlight: Promise<void> | null = null;
+const CHECK_COOLDOWN_MS = 10_000; // 10s between checks
+
 const getDefaultState = (): StoredState => ({
   isPremium: false,
   dailyMessagesUsed: 0,
@@ -126,73 +132,89 @@ export function usePremium() {
   }, [user, state.isPremium]);
 
   // Check subscription status from backend (source of truth)
-  const checkSubscriptionStatus = useCallback(async () => {
-    if (!user || isCheckingSubscription) return;
-    
-    setIsCheckingSubscription(true);
-    try {
-      // First check RevenueCat if available (SDK does server-side validation)
-      if (isRevenueCatAvailable) {
-        const hasPremium = await checkEntitlements();
-        if (hasPremium) {
-          setServerVerifiedPremium(true);
-          setIsCheckingSubscription(false);
+  // Uses module-level deduplication to prevent N parallel calls from N hook instances.
+  const checkSubscriptionStatus = useCallback(async (force = false) => {
+    if (!user) return;
+
+    // Deduplication: skip if a recent check already ran (unless forced)
+    const now = Date.now();
+    if (!force && now - _lastCheckAt < CHECK_COOLDOWN_MS) return;
+
+    // If another instance is already in-flight, piggyback on it
+    if (_checkInFlight) {
+      await _checkInFlight;
+      return;
+    }
+
+    const doCheck = async () => {
+      setIsCheckingSubscription(true);
+      _lastCheckAt = Date.now();
+      try {
+        // First check RevenueCat if available (SDK does server-side validation)
+        if (isRevenueCatAvailable) {
+          const hasPremium = await checkEntitlements();
+          if (hasPremium) {
+            setServerVerifiedPremium(true);
+            return;
+          }
+        }
+
+        // Backend check via Edge Function (server-side Stripe validation)
+        const { data, error } = await supabase.functions.invoke("manage-subscription", {
+          body: { userId: user.id, action: "status" },
+        });
+
+        if (error) {
+          if (import.meta.env.DEV) console.warn("Failed to check subscription:", error);
+          const cached = state.isPremium && state.subscriptionStatus === "active";
+          setServerVerifiedPremium(cached || false);
           return;
         }
-      }
 
-      // Backend check via Edge Function (server-side Stripe validation)
-      const { data, error } = await supabase.functions.invoke("manage-subscription", {
-        body: { userId: user.id, action: "status" },
-      });
-
-      if (error) {
-        if (import.meta.env.DEV) console.warn("Failed to check subscription:", error);
-        // On network/auth error, use cached state instead of forcing non-premium
-        const cached = state.isPremium && state.subscriptionStatus === "active";
-        setServerVerifiedPremium(cached || false);
-        return;
-      }
-
-      if (data) {
-        const isPremiumFromServer = data.isPremium || false;
-        setServerVerifiedPremium(isPremiumFromServer);
-        
-        setState(prev => {
-          const newState: StoredState = {
-            ...prev,
-            isPremium: isPremiumFromServer,
-            planType: data.planType,
-            cancelAtPeriodEnd: data.cancelAtPeriodEnd,
-            currentPeriodEnd: data.currentPeriodEnd,
-            subscriptionStatus: data.status,
-          };
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
-          } catch (e) {
-            if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
-          }
-          return newState;
-        });
-      } else {
+        if (data) {
+          const isPremiumFromServer = data.isPremium || false;
+          setServerVerifiedPremium(isPremiumFromServer);
+          
+          setState(prev => {
+            const newState: StoredState = {
+              ...prev,
+              isPremium: isPremiumFromServer,
+              planType: data.planType,
+              cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+              currentPeriodEnd: data.currentPeriodEnd,
+              subscriptionStatus: data.status,
+            };
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+            } catch (e) {
+              if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
+            }
+            return newState;
+          });
+        } else {
+          setServerVerifiedPremium(false);
+        }
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Failed to check subscription status:", e);
         setServerVerifiedPremium(false);
+      } finally {
+        setIsCheckingSubscription(false);
+        _checkInFlight = null;
       }
-    } catch (e) {
-      if (import.meta.env.DEV) console.warn("Failed to check subscription status:", e);
-      setServerVerifiedPremium(false);
-    } finally {
-      setIsCheckingSubscription(false);
-    }
-  }, [user, isCheckingSubscription, isRevenueCatAvailable, checkEntitlements]);
+    };
 
-  // Check subscription on mount, when user changes, and every 5 minutes
+    _checkInFlight = doCheck();
+    await _checkInFlight;
+  }, [user, isRevenueCatAvailable, checkEntitlements, state.isPremium, state.subscriptionStatus]);
+
+  // Check subscription on mount, when user changes, and every 15 minutes
   useEffect(() => {
     if (user && isLoaded) {
       checkSubscriptionStatus();
 
       // Auto-refresh every 15 minutes to catch delayed webhooks
       const interval = setInterval(() => {
-        checkSubscriptionStatus();
+        checkSubscriptionStatus(true); // force bypass cooldown for scheduled refresh
       }, 15 * 60 * 1000);
 
       return () => clearInterval(interval);
