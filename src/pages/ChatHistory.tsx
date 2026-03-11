@@ -3,6 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, MessageCircle, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useChatPersistence } from "@/hooks/useChatPersistence";
 
@@ -17,6 +27,7 @@ interface Conversation {
 export default function ChatHistory() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const navigate = useNavigate();
   const { t, language } = useTranslation();
   const { loadRecentConversations, deleteConversation } = useChatPersistence();
@@ -28,10 +39,11 @@ export default function ChatHistory() {
     });
   }, [loadRecentConversations]);
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    await deleteConversation(id);
-    setConversations(prev => prev.filter(c => c.id !== id));
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    await deleteConversation(deleteTarget);
+    setConversations(prev => prev.filter(c => c.id !== deleteTarget));
+    setDeleteTarget(null);
   };
 
   const handleOpen = (id: string) => {
@@ -52,7 +64,7 @@ export default function ChatHistory() {
   };
 
   const modeLabels: Record<string, string> = {
-    talk: t("chat.talk.reply1").includes("listen") ? "Talk" : "Freireden",
+    talk: language === "de" ? "Freireden" : "Talk",
     clarify: language === "de" ? "Klären" : "Clarify",
     calm: language === "de" ? "Beruhigen" : "Calm",
     patterns: language === "de" ? "Muster" : "Patterns",
@@ -117,8 +129,12 @@ export default function ChatHistory() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={(e) => handleDelete(conv.id, e)}
+                      className="shrink-0 h-8 w-8 text-muted-foreground hover:text-destructive opacity-60 hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteTarget(conv.id);
+                      }}
+                      aria-label={t("chatHistory.deleteConversation")}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
@@ -129,6 +145,22 @@ export default function ChatHistory() {
           </div>
         )}
       </div>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("chatHistory.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("chatHistory.deleteDesc")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("common.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

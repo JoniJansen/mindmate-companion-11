@@ -86,4 +86,7 @@ export const chatTranslations: Translations = {
   "chatHistory.startConversation": { en: "Start a conversation", de: "Gespräch starten" },
   "chatHistory.today": { en: "Today", de: "Heute" },
   "chatHistory.yesterday": { en: "Yesterday", de: "Gestern" },
+  "chatHistory.deleteConversation": { en: "Delete conversation", de: "Gespräch löschen" },
+  "chatHistory.deleteTitle": { en: "Delete conversation?", de: "Gespräch löschen?" },
+  "chatHistory.deleteDesc": { en: "This conversation and all its messages will be permanently deleted.", de: "Dieses Gespräch und alle Nachrichten werden unwiderruflich gelöscht." },
 };
