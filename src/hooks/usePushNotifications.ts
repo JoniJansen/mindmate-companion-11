@@ -10,9 +10,9 @@ export interface NotificationSettings {
   moodReminderTime: string;
 }
 
-const NOTIFICATION_SETTINGS_KEY = "mindmate_notification_settings";
-const NOTIFICATION_PERMISSION_KEY = "mindmate_notification_permission";
-const LAST_NOTIFICATION_KEY = "mindmate_last_notification";
+const NOTIFICATION_SETTINGS_KEY = "soulvay_notification_settings";
+const NOTIFICATION_PERMISSION_KEY = "soulvay_notification_permission";
+const LAST_NOTIFICATION_KEY = "soulvay_last_notification";
 
 const defaultSettings: NotificationSettings = {
   enabled: false,
