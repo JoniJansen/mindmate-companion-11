@@ -131,6 +131,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
     if (error) throw error;
+
+    // Send branded welcome email asynchronously (fire-and-forget)
+    if (data.session) {
+      supabase.functions.invoke('send-transactional-email', {
+        body: {
+          template: 'welcome',
+          data: { displayName: displayName || undefined },
+        },
+      }).catch((e) => {
+        if (import.meta.env.DEV) console.warn('Welcome email failed:', e);
+      });
+    }
+
     return data;
   }, []);
 
