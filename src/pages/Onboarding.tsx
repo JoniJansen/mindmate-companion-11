@@ -92,6 +92,10 @@ const translations = {
       addressForm: "How should I address you?",
       addressForms: { du: "Informal", sie: "Formal" },
     },
+    companion: {
+      title: "Choose your companion",
+      subtitle: "Who should reflect with you?",
+    },
     focus: {
       title: "What's on your mind?",
       subtitle: "Choose what resonates — you can pick multiple.",
