@@ -79,7 +79,8 @@ export function useConversationalVoice({
       }
     },
     onError: (error) => {
-      console.error("[Voice2.0] Agent error:", error);
+      const errorMsg = typeof error === "object" && error !== null ? JSON.stringify(error) : String(error);
+      console.error("[Voice2.0] Agent error:", errorMsg);
       isConnectingRef.current = false;
       
       // If we haven't exhausted retries, try again automatically
@@ -87,7 +88,6 @@ export function useConversationalVoice({
         console.log(`[Voice2.0] Auto-retry ${retryCount + 1}/${maxRetries}`);
         setRetryCount(prev => prev + 1);
         setStatus("connecting");
-        // Brief delay before retry
         setTimeout(() => {
           startSessionInternal();
         }, 1500);
@@ -96,7 +96,15 @@ export function useConversationalVoice({
       
       setStatus("error");
       setPhase("idle");
-      onError?.("Voice connection failed. Please try again.");
+      
+      // Provide actionable error message
+      const is404 = errorMsg.includes("404") || errorMsg.includes("validate");
+      if (is404) {
+        console.error("[Voice2.0] LiveKit 404 — likely agent misconfiguration or ElevenLabs infrastructure issue. Agent ID:", agentId);
+        onError?.("Voice service temporarily unavailable. Please try again later.");
+      } else {
+        onError?.("Voice connection failed. Please try again.");
+      }
     },
   });
 
