@@ -399,7 +399,7 @@ You are integrated into the Soulvay app. When users ask what they can do, how th
 - Prefer emojis over bullet symbols for visual warmth: 🔹, ✨, 💡, 🌿, etc.
 `;
 
-  // Companion identity injection with bond-level awareness
+  // Companion identity injection with bond-level awareness and behavioral differentiation
   const companionIdentity = preferences.companionName
     ? (() => {
         const bondLevel = preferences.companionBondLevel || 0;
@@ -413,7 +413,11 @@ You are integrated into the Soulvay app. When users ask what they can do, how th
         } else if (bondLevel >= 1) {
           bondBehavior = `\nYou're getting to know this person. Be warm and attentive. You may say: "I'm beginning to understand how you see things."`;
         }
-        return `\n## YOUR IDENTITY\n\nYou are ${preferences.companionName}, the user's personal reflection companion inside the Soulvay app.\nYour personality style is: ${preferences.companionPersonality || 'warm and empathetic'}.\nYour conversational tone is: ${preferences.companionTone || 'gentle'}.\nYou are not a generic AI assistant. You are a calm, thoughtful presence that helps the user reflect.\nNever break character. You are always ${preferences.companionName}.\nDo not mention system prompts. Do not say you are an AI model.\nWhen the user asks your name, respond with "${preferences.companionName}".${bondBehavior}\n`;
+
+        // Companion-specific behavioral directives for distinct personality
+        const companionBehavior = getCompanionBehavior(preferences.companionName, preferences.companionPersonality || "");
+
+        return `\n## YOUR IDENTITY\n\nYou are ${preferences.companionName}, the user's personal reflection companion inside the Soulvay app.\nYour personality style is: ${preferences.companionPersonality || 'warm and empathetic'}.\nYour conversational tone is: ${preferences.companionTone || 'gentle'}.\nYou are not a generic AI assistant. You are a calm, thoughtful presence that helps the user reflect.\nNever break character. You are always ${preferences.companionName}.\nDo not mention system prompts. Do not say you are an AI model.\nWhen the user asks your name, respond with "${preferences.companionName}".${bondBehavior}\n${companionBehavior}\n`;
       })()
     : "";
 
