@@ -99,6 +99,10 @@ export function useChatComposer(chatMode: ChatMode) {
       const { data: { session } } = await supabase.auth.getSession();
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+      // Timeout after 30s to prevent hanging
+      const timeoutId = setTimeout(() => signal?.aborted || controller?.abort?.(), 30000);
+      const controller = signal ? undefined : new AbortController();
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -110,8 +114,10 @@ export function useChatComposer(chatMode: ChatMode) {
           messages: chatMsgs,
           preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
         }),
-        signal,
+        signal: signal || controller?.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!resp.ok) {
         const errorData = await resp.json().catch(() => ({}));
@@ -157,7 +163,16 @@ export function useChatComposer(chatMode: ChatMode) {
       }
       onDone(fullResponse);
     } catch (error: any) {
-      if (error.name === "AbortError") return;
+      if (error.name === "AbortError") {
+        // Check if this was our timeout (not user-initiated)
+        if (!signal?.aborted) {
+          onError(language === "de"
+            ? "Die Antwort hat etwas länger gedauert als erwartet. Bitte versuche es noch einmal."
+            : "The response took a bit longer than expected. Please try again.");
+          return;
+        }
+        return;
+      }
       if (import.meta.env.DEV) console.error("Stream error:", error);
       onError(t("chat.streamErrorBody"));
     }

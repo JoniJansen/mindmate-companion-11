@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
-import { companionArchetypes } from "@/data/companions";
+import { companionArchetypes, CompanionArchetype } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
 
 type Language = "en" | "de";
@@ -26,7 +26,7 @@ interface OnboardingState {
   companionId: string;
 }
 
-const steps = ["welcome", "disclaimer", "preferences", "companion", "focus", "frequency", "goal"] as const;
+const steps = ["welcome", "disclaimer", "preferences", "companion", "companion-intro", "focus", "frequency", "goal"] as const;
 type Step = typeof steps[number];
 
 const focusOptions = {
@@ -96,6 +96,11 @@ const translations = {
       title: "Choose your companion",
       subtitle: "Who should reflect with you?",
     },
+    companionIntro: {
+      greeting: "Nice to meet you.",
+      description: "I'll be your reflection companion — here to listen, think with you, and help you understand yourself better.",
+      ready: "Let's continue setting up.",
+    },
     focus: {
       title: "What's on your mind?",
       subtitle: "Choose what resonates — you can pick multiple.",
@@ -138,6 +143,11 @@ const translations = {
     companion: {
       title: "Wähle deinen Begleiter",
       subtitle: "Wer soll mit dir reflektieren?",
+    },
+    companionIntro: {
+      greeting: "Schön, dich kennenzulernen.",
+      description: "Ich werde dein Reflexionsbegleiter sein — hier, um zuzuhören, mit dir nachzudenken und dir zu helfen, dich selbst besser zu verstehen.",
+      ready: "Lass uns weitermachen.",
     },
     focus: {
       title: "Was beschäftigt dich?",
@@ -288,6 +298,11 @@ export default function Onboarding() {
           {currentStep === "companion" && (
             <motion.div key="companion" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
               <CompanionStep t={(t as any).companion} language={state.language} selected={state.companionId} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} />
+            </motion.div>
+          )}
+          {currentStep === "companion-intro" && (
+            <motion.div key="companion-intro" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CompanionIntroStep t={(t as any).companionIntro} archetype={companionArchetypes.find(a => a.id === state.companionId)!} language={state.language} />
             </motion.div>
           )}
           {currentStep === "focus" && (
@@ -518,44 +533,102 @@ function CompanionStep({ t, language, selected, onSelect }: {
 }) {
   return (
     <div className="flex-1 flex flex-col pt-4">
-      <div className="text-center mb-6">
+      <div className="text-center mb-5">
         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
           <Users className="w-7 h-7 text-primary" />
         </div>
         <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
         <p className="text-muted-foreground text-sm">{t.subtitle}</p>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 overflow-y-auto max-h-[50vh]">
+      <div className="grid grid-cols-2 gap-3 overflow-y-auto max-h-[55vh] pr-0.5">
         {companionArchetypes.map((arch) => {
           const isSelected = selected === arch.id;
           return (
-            <button
+            <motion.button
               key={arch.id}
+              whileTap={{ scale: 0.97 }}
               onClick={() => onSelect(arch.id)}
               className={`relative rounded-2xl border text-left transition-all overflow-hidden ${
                 isSelected
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                  ? "border-primary bg-primary/5 ring-2 ring-primary/30 shadow-sm"
                   : "border-border/40 bg-card hover:border-border/60"
               }`}
             >
               {isSelected && (
-                <div className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="w-3 h-3 text-primary-foreground" />
-                </div>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-md"
+                >
+                  <Check className="w-3.5 h-3.5 text-primary-foreground" />
+                </motion.div>
               )}
-              <div className="w-full aspect-square bg-muted/30 overflow-hidden">
-                <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover" loading="lazy" />
+              <div className="w-full aspect-[4/3] bg-muted/30 overflow-hidden">
+                <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-top" loading="lazy" />
               </div>
-              <div className="p-2.5">
-                <p className="font-semibold text-foreground text-xs">{arch.name}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
+              <div className="p-3">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="text-sm">{arch.emoji}</span>
+                  <p className="font-semibold text-foreground text-sm">{arch.name}</p>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
                   {language === "de" ? arch.descriptionDe : arch.description}
                 </p>
               </div>
-            </button>
+            </motion.button>
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function CompanionIntroStep({ t, archetype, language }: {
+  t: { greeting: string; description: string; ready: string };
+  archetype: CompanionArchetype;
+  language: Language;
+}) {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="relative mb-8"
+      >
+        <motion.div
+          className="absolute inset-0 rounded-full bg-primary/20 blur-2xl"
+          animate={{ scale: [1.2, 1.5, 1.2], opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <div className="relative w-32 h-32 rounded-full overflow-hidden ring-2 ring-primary/20 shadow-xl shadow-primary/15">
+          <img src={archetype.defaultAvatar} alt={archetype.name} className="w-full h-full object-cover" />
+        </div>
+      </motion.div>
+      
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="space-y-3 max-w-xs"
+      >
+        <h2 className="text-2xl font-semibold text-foreground">{archetype.name}</h2>
+        <p className="text-primary/80 text-sm font-medium">
+          {language === "de" ? archetype.descriptionDe : archetype.description}
+        </p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mt-8 bg-card rounded-2xl border border-border/50 p-5 max-w-xs shadow-sm"
+      >
+        <p className="text-foreground text-sm leading-relaxed italic">
+          "{t.greeting} {t.description}"
+        </p>
+        <p className="text-muted-foreground text-xs mt-3">{t.ready}</p>
+      </motion.div>
     </div>
   );
 }
