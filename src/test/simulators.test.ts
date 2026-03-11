@@ -37,7 +37,7 @@ describe("Network Simulator", () => {
 });
 
 describe("Entitlement Simulator", () => {
-  const KEY = "mindmate-dev-entitlement-sim";
+  const KEY = "soulvay-dev-entitlement-sim";
 
   afterEach(() => localStorage.removeItem(KEY));
 
