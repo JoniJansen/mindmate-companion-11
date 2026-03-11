@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { companionArchetypes } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
 
 type Language = "en" | "de";
@@ -22,9 +23,10 @@ interface OnboardingState {
   focusAreas: string[];
   reflectionFrequency: string;
   personalGoal: string;
+  companionId: string;
 }
 
-const steps = ["welcome", "disclaimer", "preferences", "focus", "frequency", "goal"] as const;
+const steps = ["welcome", "disclaimer", "preferences", "companion", "focus", "frequency", "goal"] as const;
 type Step = typeof steps[number];
 
 const focusOptions = {
@@ -90,6 +92,10 @@ const translations = {
       addressForm: "How should I address you?",
       addressForms: { du: "Informal", sie: "Formal" },
     },
+    companion: {
+      title: "Choose your companion",
+      subtitle: "Who should reflect with you?",
+    },
     focus: {
       title: "What's on your mind?",
       subtitle: "Choose what resonates — you can pick multiple.",
@@ -129,6 +135,10 @@ const translations = {
       addressForm: "Wie soll ich dich ansprechen?",
       addressForms: { du: "Du (informell)", sie: "Sie (formell)" },
     },
+    companion: {
+      title: "Wähle deinen Begleiter",
+      subtitle: "Wer soll mit dir reflektieren?",
+    },
     focus: {
       title: "Was beschäftigt dich?",
       subtitle: "Wähle, was sich richtig anfühlt — Mehrfachauswahl möglich.",
@@ -159,6 +169,7 @@ export default function Onboarding() {
       focusAreas: [],
       reflectionFrequency: "",
       personalGoal: "",
+      companionId: "mira",
     };
   });
   const navigate = useNavigate();
@@ -193,6 +204,7 @@ export default function Onboarding() {
       focusAreas: state.focusAreas,
       reflectionFrequency: state.reflectionFrequency || "3x_week",
       personalGoal: state.personalGoal,
+      companionId: state.companionId,
     }));
 
     completeOnboarding();
@@ -271,6 +283,11 @@ export default function Onboarding() {
           {currentStep === "preferences" && (
             <motion.div key="preferences" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
               <PreferencesStep t={t.preferences} language={state.language} tone={state.tone} addressForm={state.addressForm} onLanguageChange={(language) => setState(s => ({ ...s, language }))} onToneChange={(tone) => setState(s => ({ ...s, tone }))} onAddressFormChange={(addressForm) => setState(s => ({ ...s, addressForm }))} />
+            </motion.div>
+          )}
+          {currentStep === "companion" && (
+            <motion.div key="companion" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <CompanionStep t={(t as any).companion} language={state.language} selected={state.companionId} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} />
             </motion.div>
           )}
           {currentStep === "focus" && (
@@ -488,6 +505,56 @@ function GoalStep({ t, value, onChange }: {
           className="w-full bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none resize-none min-h-[120px] text-base leading-relaxed"
           rows={4}
         />
+      </div>
+    </div>
+  );
+}
+
+function CompanionStep({ t, language, selected, onSelect }: {
+  t: { title: string; subtitle: string };
+  language: Language;
+  selected: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col pt-4">
+      <div className="text-center mb-6">
+        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <Users className="w-7 h-7 text-primary" />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
+        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5 overflow-y-auto max-h-[50vh]">
+        {companionArchetypes.map((arch) => {
+          const isSelected = selected === arch.id;
+          return (
+            <button
+              key={arch.id}
+              onClick={() => onSelect(arch.id)}
+              className={`relative rounded-2xl border text-left transition-all overflow-hidden ${
+                isSelected
+                  ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                  : "border-border/40 bg-card hover:border-border/60"
+              }`}
+            >
+              {isSelected && (
+                <div className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="w-3 h-3 text-primary-foreground" />
+                </div>
+              )}
+              <div className="w-full aspect-square bg-muted/30 overflow-hidden">
+                <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover" loading="lazy" />
+              </div>
+              <div className="p-2.5">
+                <p className="font-semibold text-foreground text-xs">{arch.name}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
+                  {language === "de" ? arch.descriptionDe : arch.description}
+                </p>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

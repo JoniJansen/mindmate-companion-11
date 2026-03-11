@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MessageCircle, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CompanionAvatar } from "./CompanionAvatar";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -15,13 +15,10 @@ export function CompanionCard({ companion }: CompanionCardProps) {
   const { language } = useTranslation();
   const avatarSignedUrl = useAvatarUrl(companion.avatar_url);
 
-  // Return greeting based on time + bond
   const getGreeting = () => {
-    const hour = new Date().getHours();
     const name = companion.name;
     const bond = companion.bond_level || 0;
 
-    // Retention: returning after absence
     if (companion.last_interaction) {
       const lastInteraction = new Date(companion.last_interaction);
       const hoursSince = (Date.now() - lastInteraction.getTime()) / (1000 * 60 * 60);
@@ -32,14 +29,12 @@ export function CompanionCard({ companion }: CompanionCardProps) {
       }
     }
 
-    // Bond-based messages
     if (bond >= 10) {
       return language === "de"
         ? `${name} kennt dich gut und ist bereit zu reflektieren.`
         : `${name} knows you well and is ready to reflect.`;
     }
 
-    // Default
     return language === "de"
       ? `${name} ist hier, um mit dir zu reflektieren.`
       : `${name} is here to reflect with you.`;

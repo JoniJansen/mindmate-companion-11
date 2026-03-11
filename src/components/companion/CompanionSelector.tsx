@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/hooks/useTranslation";
 import { companionArchetypes, CompanionArchetype } from "@/data/companions";
-import { CompanionAvatar } from "./CompanionAvatar";
 import { usePremium } from "@/hooks/usePremium";
 import { CompanionProfile } from "@/hooks/useCompanion";
 
@@ -48,30 +47,46 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
     <div className="space-y-6">
       {/* Archetype Grid */}
       <div className="grid grid-cols-2 gap-3">
-        {companionArchetypes.map((arch) => {
+        {companionArchetypes.map((arch, index) => {
           const isSelected = selectedId === arch.id;
           return (
             <motion.button
               key={arch.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.04 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => handleSelect(arch)}
               disabled={isSaving}
-              className={`relative p-4 rounded-2xl border text-left transition-all ${
+              className={`relative rounded-2xl border text-left transition-all overflow-hidden ${
                 isSelected
                   ? "border-primary bg-primary/5 ring-1 ring-primary/30"
                   : "border-border/50 bg-card hover:border-border"
               }`}
             >
               {isSelected && (
-                <div className="absolute top-2 right-2">
-                  <Check className="w-4 h-4 text-primary" />
+                <div className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="w-3 h-3 text-primary-foreground" />
                 </div>
               )}
-              <CompanionAvatar archetype={arch.id} size="md" animate={false} />
-              <p className="font-medium text-foreground mt-2 text-sm">{arch.name}</p>
-              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                {language === "de" ? arch.descriptionDe : arch.description}
-              </p>
+              
+              {/* Avatar Image */}
+              <div className="w-full aspect-square bg-muted/30 overflow-hidden">
+                <img
+                  src={arch.defaultAvatar}
+                  alt={arch.name}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              
+              {/* Info */}
+              <div className="p-3">
+                <p className="font-semibold text-foreground text-sm">{arch.name}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
+                  {language === "de" ? arch.descriptionDe : arch.description}
+                </p>
+              </div>
             </motion.button>
           );
         })}

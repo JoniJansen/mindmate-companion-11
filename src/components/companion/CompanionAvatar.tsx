@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { User } from "lucide-react";
 import { getArchetype } from "@/data/companions";
 
 interface CompanionAvatarProps {
@@ -18,27 +17,22 @@ const sizeMap = {
   xl: "w-28 h-28",
 };
 
-const iconSizeMap = {
-  sm: "w-4 h-4",
-  md: "w-5 h-5",
-  lg: "w-8 h-8",
-  xl: "w-12 h-12",
-};
-
 export function CompanionAvatar({ avatarUrl, archetype, name, size = "md", animate = true, className = "" }: CompanionAvatarProps) {
   const arch = archetype ? getArchetype(archetype) : undefined;
-  const emoji = arch?.emoji || "🌿";
+  
+  // Use custom avatar, or fall back to default archetype avatar
+  const imgSrc = avatarUrl || arch?.defaultAvatar;
 
-  const content = avatarUrl ? (
+  const content = imgSrc ? (
     <img
-      src={avatarUrl}
+      src={imgSrc}
       alt={name || "Companion"}
       className="w-full h-full object-cover rounded-full"
       loading="lazy"
     />
   ) : (
     <span className={`${size === "xl" ? "text-4xl" : size === "lg" ? "text-2xl" : size === "md" ? "text-lg" : "text-sm"}`}>
-      {emoji}
+      {arch?.emoji || "🌿"}
     </span>
   );
 
