@@ -12,7 +12,7 @@ function setSimMode(key: string, value: string | null) {
 }
 
 describe("Network Simulator", () => {
-  const KEY = "mindmate-dev-network-sim";
+  const KEY = "soulvay-dev-network-sim";
 
   afterEach(() => localStorage.removeItem(KEY));
 
