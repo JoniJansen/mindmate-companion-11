@@ -236,11 +236,11 @@ export function useChatComposer(chatMode: ChatMode) {
     }
 
     if (activeConvId && !isSystemAction) {
-      saveMessage(activeConvId, "user", content.trim());
+      saveMessage(activeConvId, "user", trimmed);
     }
 
     if (chatMessageCountRef.current === 1 && activeConvId) {
-      const title = content.trim().substring(0, 60);
+      const title = trimmed.substring(0, 60);
       updateConversationTitle(activeConvId, title);
     }
 
