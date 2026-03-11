@@ -10,9 +10,9 @@ export interface NotificationSettings {
   moodReminderTime: string;
 }
 
-const NOTIFICATION_SETTINGS_KEY = "mindmate_notification_settings";
-const NOTIFICATION_PERMISSION_KEY = "mindmate_notification_permission";
-const LAST_NOTIFICATION_KEY = "mindmate_last_notification";
+const NOTIFICATION_SETTINGS_KEY = "soulvay_notification_settings";
+const NOTIFICATION_PERMISSION_KEY = "soulvay_notification_permission";
+const LAST_NOTIFICATION_KEY = "soulvay_last_notification";
 
 const defaultSettings: NotificationSettings = {
   enabled: false,
@@ -107,7 +107,7 @@ export function usePushNotifications() {
         const streakKey = `streak_${today}`;
         if (!lastData[streakKey]) {
           try {
-            const activityLog = localStorage.getItem("mindmate_today_active");
+            const activityLog = localStorage.getItem("soulvay_today_active") || localStorage.getItem("mindmate_today_active");
             if (!activityLog || activityLog !== today) {
               sendStreakReminder();
               lastData[streakKey] = true;
@@ -158,7 +158,7 @@ export function usePushNotifications() {
         body,
         icon: "/logo.png",
         badge: "/logo.png",
-        tag: "mindmate",
+        tag: "soulvay",
         requireInteraction: false,
         silent: false,
         ...options,
@@ -171,7 +171,7 @@ export function usePushNotifications() {
   // Get language
   const getLang = useCallback(() => {
     try {
-      const prefs = localStorage.getItem("mindmate-preferences");
+      const prefs = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
       if (prefs) {
         return JSON.parse(prefs).language || "en";
       }
@@ -184,7 +184,7 @@ export function usePushNotifications() {
     const lang = getLang();
     const messages = notificationMessages.moodReminder[lang as "en" | "de"];
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    showNotification(randomMessage.title, randomMessage.body, { tag: "mindmate-mood" });
+    showNotification(randomMessage.title, randomMessage.body, { tag: "soulvay-mood" });
   }, [showNotification, getLang]);
 
   // Send daily reminder
@@ -192,14 +192,14 @@ export function usePushNotifications() {
     const lang = getLang();
     const messages = notificationMessages.dailyReminder[lang as "en" | "de"];
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    showNotification(randomMessage.title, randomMessage.body, { tag: "mindmate-daily" });
+    showNotification(randomMessage.title, randomMessage.body, { tag: "soulvay-daily" });
   }, [showNotification, getLang]);
 
   // Send weekly recap reminder
   const sendWeeklyRecapReminder = useCallback(() => {
     const lang = getLang();
     const message = notificationMessages.weeklyRecap[lang as "en" | "de"];
-    showNotification(message.title, message.body, { tag: "mindmate-weekly" });
+    showNotification(message.title, message.body, { tag: "soulvay-weekly" });
   }, [showNotification, getLang]);
 
   // Send streak at-risk reminder
@@ -207,7 +207,7 @@ export function usePushNotifications() {
     const lang = getLang();
     const messages = notificationMessages.streakReminder[lang as "en" | "de"];
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    showNotification(randomMessage.title, randomMessage.body, { tag: "mindmate-streak" });
+    showNotification(randomMessage.title, randomMessage.body, { tag: "soulvay-streak" });
   }, [showNotification, getLang]);
 
   // Update settings

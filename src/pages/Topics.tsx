@@ -59,7 +59,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
 
   // Load progress
   useEffect(() => {
-    const stored = localStorage.getItem("mindmate-topic-progress");
+    const stored = localStorage.getItem("soulvay-topic-progress") || localStorage.getItem("mindmate-topic-progress");
     if (stored) {
       try {
         setProgress(JSON.parse(stored));
@@ -71,7 +71,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
 
   // Load notes
   useEffect(() => {
-    const stored = localStorage.getItem("mindmate-topic-notes");
+    const stored = localStorage.getItem("soulvay-topic-notes") || localStorage.getItem("mindmate-topic-notes");
     if (stored) {
       try { setTopicNotes(JSON.parse(stored)); } catch {}
     }
@@ -94,7 +94,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
   const saveNotes = (topicId: string, content: string) => {
     const updated = { ...topicNotes, [topicId]: content };
     setTopicNotes(updated);
-    localStorage.setItem("mindmate-topic-notes", JSON.stringify(updated));
+    localStorage.setItem("soulvay-topic-notes", JSON.stringify(updated));
   };
 
   const saveNoteToJournal = async (topicId: string) => {
@@ -238,7 +238,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
       },
     };
     setProgress(newProgress);
-    localStorage.setItem("mindmate-topic-progress", JSON.stringify(newProgress));
+    localStorage.setItem("soulvay-topic-progress", JSON.stringify(newProgress));
   };
 
   const getTopicProgress = (topicId: string, totalSteps: number): number => {

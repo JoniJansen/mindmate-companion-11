@@ -7,7 +7,7 @@ import { useState, useCallback, useEffect } from "react";
 
 export type NetworkSimMode = "real" | "offline" | "slow";
 
-const STORAGE_KEY = "mindmate-dev-network-sim";
+const STORAGE_KEY = "soulvay-dev-network-sim";
 
 interface NetworkSimState {
   mode: NetworkSimMode;

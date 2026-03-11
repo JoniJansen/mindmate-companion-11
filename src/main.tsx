@@ -1,6 +1,10 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { migrateLegacyKeys } from "./lib/migrateLegacyKeys";
+
+// Run localStorage migration before anything else
+migrateLegacyKeys();
 
 // DEV-only: Suppress known React 18 forwardRef warnings caused by ErrorBoundary class component.
 // These are false positives — ErrorBoundary doesn't pass refs, but React 18 DEV mode validates
