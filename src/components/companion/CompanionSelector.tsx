@@ -89,13 +89,16 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
           const isExpanded = expandedId === arch.id;
           const desc = language === "de" ? arch.descriptionDe : arch.description;
           return (
-            <motion.button
+            <motion.div
               key={arch.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.04 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => handleSelect(arch)}
+              className={`relative rounded-2xl border text-left transition-all overflow-hidden group cursor-pointer ${
+                isSelected
+                  ? "border-primary bg-primary/5 ring-1 ring-primary/30 shadow-[0_0_15px_-3px_hsl(var(--primary)/0.3)]"
+                  : "border-border/50 bg-card hover:border-primary/20 hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.15)]"
+              }`}
               disabled={isSaving}
               className={`relative rounded-2xl border text-left transition-all overflow-hidden group ${
                 isSelected
