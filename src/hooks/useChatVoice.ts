@@ -171,6 +171,7 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     
     // TTS state
     isSpeaking,
+    isTTSLoading,
     isPlayingMessage,
     isLoadingMessage,
     stopTTS,
