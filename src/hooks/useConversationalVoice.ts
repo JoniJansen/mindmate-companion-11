@@ -67,8 +67,8 @@ export function useConversationalVoice({
       retryCountRef.current = 0;
       isConnectingRef.current = false;
     },
-    onDisconnect: () => {
-      console.log("[Voice2.0] Disconnected from agent");
+    onDisconnect: (details) => {
+      console.log("[Voice2.0] Disconnected from agent", details ? JSON.stringify(details) : "");
       // Only set disconnected if we were connected (not during retry cycle)
       setStatus(prev => {
         // If we're in a retry cycle (connecting), don't override to disconnected
