@@ -423,7 +423,7 @@ serve(async (req) => {
     // ── PARALLEL: subscription check + context loading simultaneously ──
     const today = new Date().toISOString().split("T")[0];
 
-    const [subResult, usageResult, memoriesResult, patternsResult, insightsResult] = await Promise.all([
+    const [subResult, usageResult, memoriesResult, patternsResult, insightsResult, companionResult] = await Promise.all([
       // 1. Subscription check
       adminClient
         .from("subscriptions")
@@ -459,6 +459,12 @@ serve(async (req) => {
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(1),
+      // 6. Companion profile
+      adminClient
+        .from("companion_profiles")
+        .select("name, personality_style, tone, bond_level")
+        .eq("user_id", userId)
+        .maybeSingle(),
     ]);
 
     const tQueries = performance.now();
