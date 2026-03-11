@@ -110,7 +110,20 @@ export default function Auth() {
           description: t("auth.nowLoggedIn"),
         });
       } else if (authMode === "signup") {
-        await signUp(normalizedEmail, password, displayName);
+        const result = await signUp(normalizedEmail, password, displayName);
+        
+        // With auto-confirm enabled, the user is immediately signed in
+        // The auth state change listener will handle navigation
+        if (result?.session) {
+          toast({
+            title: t("auth.accountCreated"),
+            description: t("auth.welcomeToSoulvay"),
+          });
+          // Navigate to home - user is already authenticated
+          navigate("/home", { replace: true });
+          return;
+        }
+        
         toast({
           title: t("auth.accountCreated"),
           description: t("auth.welcomeToSoulvay"),
