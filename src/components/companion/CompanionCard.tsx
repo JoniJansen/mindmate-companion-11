@@ -12,7 +12,7 @@ interface CompanionCardProps {
 
 export function CompanionCard({ companion }: CompanionCardProps) {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const avatarSignedUrl = useAvatarUrl(companion.avatar_url);
 
   const getGreeting = () => {
@@ -23,21 +23,15 @@ export function CompanionCard({ companion }: CompanionCardProps) {
       const lastInteraction = new Date(companion.last_interaction);
       const hoursSince = (Date.now() - lastInteraction.getTime()) / (1000 * 60 * 60);
       if (hoursSince > 48) {
-        return language === "de"
-          ? `${name} hat sich gefragt, wie es dir geht.`
-          : `${name} was wondering how you're doing.`;
+        return `${name} ${t("companion.greetingWondering")}`;
       }
     }
 
     if (bond >= 10) {
-      return language === "de"
-        ? `${name} kennt dich gut und ist bereit zu reflektieren.`
-        : `${name} knows you well and is ready to reflect.`;
+      return `${name} ${t("companion.greetingKnowsYou")}`;
     }
 
-    return language === "de"
-      ? `${name} ist hier, um mit dir zu reflektieren.`
-      : `${name} is here to reflect with you.`;
+    return `${name} ${t("companion.greetingHere")}`;
   };
 
   return (

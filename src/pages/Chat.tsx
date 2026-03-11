@@ -347,7 +347,7 @@ export default function Chat() {
       {/* Header */}
       <PageHeader
         title={companion?.name || t("chat.title")}
-        subtitle={companion ? (language === "de" ? "Dein Reflexionsbegleiter" : "Your reflection companion") : t("chat.subtitle")}
+        subtitle={companion ? t("companion.reflectionCompanion") : t("chat.subtitle")}
         showLogo={false}
         showBack={false}
         avatarElement={companion ? (
