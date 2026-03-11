@@ -86,6 +86,9 @@ export const contentTranslations: Translations = {
   "timeline.selectDay": { en: "Select a day", de: "Wähle einen Tag" },
   "timeline.today": { en: "Today", de: "Heute" },
   "timeline.loadMore": { en: "Load more", de: "Mehr laden" },
+  "timeline.notEnoughDataTitle": { en: "Not enough data yet", de: "Noch nicht genug Daten" },
+  "timeline.notEnoughDataDesc": { en: "Keep journaling and chatting to see insights here.", de: "Schreibe weiter Tagebuch und chatte, um hier Erkenntnisse zu sehen." },
+  "timeline.insightError": { en: "Could not load insights. Please try again later.", de: "Erkenntnisse konnten nicht geladen werden. Bitte versuche es später erneut." },
 
   // Crisis
   "crisis.title": { en: "Support & Resources", de: "Unterstützung & Ressourcen" },

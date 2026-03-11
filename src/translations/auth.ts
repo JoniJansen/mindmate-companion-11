@@ -40,4 +40,9 @@ export const authTranslations: Translations = {
   "resetPassword.passwordUpdatedDesc": { en: "You can now sign in with your new password.", de: "Du kannst dich jetzt mit deinem neuen Passwort anmelden." },
   "resetPassword.passwordMismatch": { en: "Passwords do not match.", de: "Passwörter stimmen nicht überein." },
   "resetPassword.tooShort": { en: "Password must be at least 6 characters.", de: "Passwort muss mindestens 6 Zeichen lang sein." },
+  "resetPassword.submit": { en: "Update password", de: "Passwort aktualisieren" },
+  "resetPassword.mismatch": { en: "Passwords do not match.", de: "Passwörter stimmen nicht überein." },
+  "resetPassword.success": { en: "Password updated successfully.", de: "Passwort erfolgreich aktualisiert." },
+  "resetPassword.linkExpired": { en: "This reset link has expired. Please request a new one.", de: "Dieser Link ist abgelaufen. Bitte fordere einen neuen an." },
+  "resetPassword.backToLogin": { en: "Back to login", de: "Zurück zum Login" },
 };
