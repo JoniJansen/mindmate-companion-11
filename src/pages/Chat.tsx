@@ -461,9 +461,27 @@ export default function Chat() {
         </div>
       )}
 
-      {/* Voice Conversation Panel — full-screen companion voice experience */}
+      {/* Real-time Voice Panel — ElevenLabs Conversational AI Agent */}
       <AnimatePresence>
-        {voice.voiceModeEnabled && canUseVoice && companion && (
+        {useRealtimeMode && canUseVoice && companion && (
+          <RealtimeVoicePanel
+            companion={companion}
+            avatarUrl={companionAvatarUrl}
+            status={realtimeVoice.status}
+            phase={realtimeVoice.phase}
+            isSpeaking={realtimeVoice.isSpeaking}
+            userTranscript={realtimeVoice.userTranscript}
+            agentTranscript={realtimeVoice.agentTranscript}
+            onStartSession={() => realtimeVoice.startSession()}
+            onEndSession={() => realtimeVoice.endSession()}
+            onClose={() => { realtimeVoice.endSession(); setUseRealtimeMode(false); }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Turn-based Voice Panel — fallback for companions without agents */}
+      <AnimatePresence>
+        {voice.voiceModeEnabled && !useRealtimeMode && canUseVoice && companion && (
           <VoiceConversationPanel
             companion={companion}
             avatarUrl={companionAvatarUrl}
