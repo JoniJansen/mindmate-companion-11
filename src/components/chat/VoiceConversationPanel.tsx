@@ -42,6 +42,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
   isThinking,
   isStreamingActive,
   isTTSLoading,
+  isCooldown,
   sttError,
   liveTranscript,
   lastAssistantMessage,
