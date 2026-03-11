@@ -192,7 +192,7 @@ export function usePushNotifications() {
     const lang = getLang();
     const messages = notificationMessages.dailyReminder[lang as "en" | "de"];
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    showNotification(randomMessage.title, randomMessage.body, { tag: "mindmate-daily" });
+    showNotification(randomMessage.title, randomMessage.body, { tag: "soulvay-daily" });
   }, [showNotification, getLang]);
 
   // Send weekly recap reminder
