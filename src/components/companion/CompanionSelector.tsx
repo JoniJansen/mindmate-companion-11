@@ -46,7 +46,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
   return (
     <div className="space-y-6">
       {/* Archetype Grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         {companionArchetypes.map((arch, index) => {
           const isSelected = selectedId === arch.id;
           return (
@@ -71,7 +71,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               )}
               
               {/* Avatar Image */}
-              <div className="w-full aspect-square bg-muted/30 overflow-hidden">
+              <div className="w-full aspect-square sm:aspect-[4/5] bg-muted/30 overflow-hidden">
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
