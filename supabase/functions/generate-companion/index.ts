@@ -7,11 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const MASTER_STYLE = `Create a calm illustrated portrait for an AI reflection companion.
-STYLE: soft illustrated portrait, modern minimal illustration style, gentle lighting, warm color palette, clean composition, upper torso portrait, neutral background, friendly thoughtful expression, semi realistic digital illustration, subtle depth of field.
-MOOD: calm, trustworthy, reflective, intelligent presence.
-DO NOT include: text, logos, watermarks, anime style, busy backgrounds.
-Portrait must feel like a quiet thoughtful companion.`;
+const MASTER_STYLE = `Create a high-quality illustrated companion portrait.
+STYLE: semi-realistic animated character, Disney-inspired character design, anime-influenced facial features, soft cinematic lighting, subtle warm color palette, professional character illustration, clean soft background, upper-torso portrait.
+MOOD: calm, intelligent, kind, trustworthy, thoughtful.
+DO NOT include: text, logos, busy background, exaggerated anime style, chibi proportions, watermarks.
+Portrait must feel premium and emotionally expressive.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
