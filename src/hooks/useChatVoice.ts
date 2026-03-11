@@ -185,6 +185,9 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     updateSetting,
     canUseVoice,
     
+    // STT state
+    sttError,
+
     // Actions
     toggleVoiceMode,
     toggleRecording,
