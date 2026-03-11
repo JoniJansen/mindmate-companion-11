@@ -54,6 +54,7 @@ export default function Home() {
   const [companionCheckinDismissed, setCompanionCheckinDismissed] = useState(false);
   const [showMilestone, setShowMilestone] = useState(true);
   const { moment: memoryMoment, dismiss: dismissMoment, startConversation: startMomentConversation } = useMemoryMoments();
+  const { checkin: companionCheckin, dismiss: dismissCheckin } = useCompanionCheckins(companion?.name);
   const { loadRecentConversations } = useChatPersistence();
   const { companion } = useCompanion();
   const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
