@@ -245,7 +245,7 @@ export function useChatComposer(chatMode: ChatMode) {
     await streamChat({
       messages: messagesForAI,
       signal: controller.signal,
-      onDelta: (chunk) => { streamingDisplay.enqueueChunk(chunk); },
+      onDelta: (chunk) => { streamingDisplay.enqueueChunk(chunk); setStreamingContent(prev => prev + chunk); },
       onDone: async (fullResponse) => {
         await streamingDisplay.finalize();
         setIsStreamingActive(false);
