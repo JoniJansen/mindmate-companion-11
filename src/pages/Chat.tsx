@@ -29,6 +29,9 @@ import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicato
 import { fullScreenWithNav } from "@/lib/safeArea";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { useCompanionVisualState } from "@/hooks/useCompanionVisualState";
+import { RealtimeVoicePanel } from "@/components/chat/RealtimeVoicePanel";
+import { useConversationalVoice } from "@/hooks/useConversationalVoice";
+import { getCompanionAgentId, hasRealtimeAgent } from "@/data/companionAgentIds";
 
 export default function Chat() {
   const location = useLocation();
@@ -65,14 +68,25 @@ export default function Chat() {
   const { companion, incrementBond } = useCompanion();
   const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
 
-  // Voice hook
+  // Voice hook (turn-based)
   const voice = useChatVoice(companion?.archetype, composer.isLoading || composer.isStreamingActive);
+
+  // Real-time conversational voice (ElevenLabs Agent SDK)
+  const agentId = companion ? getCompanionAgentId(companion.archetype) : undefined;
+  const realtimeAvailable = companion ? hasRealtimeAgent(companion.archetype) : false;
+  const realtimeVoice = useConversationalVoice({
+    agentId,
+    onError: (msg) => toast({ title: language === "de" ? "Sprachfehler" : "Voice error", description: msg, variant: "destructive" }),
+  });
+
+  // Track if user is in real-time mode vs turn-based
+  const [useRealtimeMode, setUseRealtimeMode] = useState(false);
 
   // Companion visual state for animated avatar
   const companionState = useCompanionVisualState({
-    isListening: voice.isListening,
+    isListening: voice.isListening || (useRealtimeMode && realtimeVoice.phase === "listening"),
     isThinking: composer.isLoading && !composer.isStreamingActive,
-    isSpeaking: voice.isSpeaking || composer.isStreamingActive,
+    isSpeaking: voice.isSpeaking || composer.isStreamingActive || realtimeVoice.isSpeaking,
   });
 
   // Sync voice input → composer input
@@ -199,6 +213,19 @@ export default function Chat() {
   // Voice mode toggle with premium gate
   const handleToggleVoiceMode = () => {
     if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
+    
+    // If real-time agent is available, use that
+    if (realtimeAvailable && agentId) {
+      if (useRealtimeMode && realtimeVoice.isConnected) {
+        realtimeVoice.endSession();
+        setUseRealtimeMode(false);
+      } else {
+        setUseRealtimeMode(true);
+      }
+      return;
+    }
+    
+    // Fallback to turn-based
     if (!voice.isSpeechSupported) { toast({ title: t("voice.notSupported"), description: t("voice.tryChrome"), variant: "destructive" }); return; }
     voice.toggleVoiceMode();
   };
@@ -434,9 +461,27 @@ export default function Chat() {
         </div>
       )}
 
-      {/* Voice Conversation Panel — full-screen companion voice experience */}
+      {/* Real-time Voice Panel — ElevenLabs Conversational AI Agent */}
       <AnimatePresence>
-        {voice.voiceModeEnabled && canUseVoice && companion && (
+        {useRealtimeMode && canUseVoice && companion && (
+          <RealtimeVoicePanel
+            companion={companion}
+            avatarUrl={companionAvatarUrl}
+            status={realtimeVoice.status}
+            phase={realtimeVoice.phase}
+            isSpeaking={realtimeVoice.isSpeaking}
+            userTranscript={realtimeVoice.userTranscript}
+            agentTranscript={realtimeVoice.agentTranscript}
+            onStartSession={() => realtimeVoice.startSession()}
+            onEndSession={() => realtimeVoice.endSession()}
+            onClose={() => { realtimeVoice.endSession(); setUseRealtimeMode(false); }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Turn-based Voice Panel — fallback for companions without agents */}
+      <AnimatePresence>
+        {voice.voiceModeEnabled && !useRealtimeMode && canUseVoice && companion && (
           <VoiceConversationPanel
             companion={companion}
             avatarUrl={companionAvatarUrl}

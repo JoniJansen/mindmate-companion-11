@@ -1,22 +1,13 @@
 /**
  * useConversationalVoice — Real-time voice hook using ElevenLabs Conversational AI Agent.
  * 
- * This wraps @elevenlabs/react useConversation with Soulvay-specific logic:
- * - Companion identity injection via dynamic overrides
- * - Transcript/subtitle extraction from agent messages
- * - Avatar visual state derivation
- * - Session lifecycle management
- * 
- * Phase 1: Hook scaffold with full API surface.
- * The actual ElevenLabs Agent must be configured in the ElevenLabs dashboard
- * before this hook becomes functional.
+ * Uses WebRTC via @elevenlabs/react useConversation for low-latency
+ * full-duplex voice conversations with companion characters.
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { supabase } from "@/integrations/supabase/client";
-import { buildCompanionAgentConfig } from "@/data/companionAgentPrompts";
-import type { CompanionProfile } from "@/hooks/useCompanion";
 
 export type RealtimeVoiceStatus = "disconnected" | "connecting" | "connected" | "error";
 
@@ -27,11 +18,7 @@ export type RealtimeVoicePhase =
   | "processing";
 
 interface UseConversationalVoiceOptions {
-  companion: CompanionProfile | null;
-  language: "en" | "de";
-  userName?: string;
-  memoriesContext?: string;
-  /** ElevenLabs Agent ID (configured in ElevenLabs dashboard) */
+  /** ElevenLabs Agent ID */
   agentId?: string;
   onError?: (error: string) => void;
 }
@@ -43,10 +30,6 @@ interface TranscriptEntry {
 }
 
 export function useConversationalVoice({
-  companion,
-  language,
-  userName,
-  memoriesContext,
   agentId,
   onError,
 }: UseConversationalVoiceOptions) {
@@ -59,21 +42,10 @@ export function useConversationalVoice({
   
   const isConnectingRef = useRef(false);
 
-  // Build agent config from companion
-  const agentConfig = companion
-    ? buildCompanionAgentConfig(
-        companion.archetype,
-        companion.bond_level,
-        language,
-        userName,
-        memoriesContext
-      )
-    : null;
-
   // ElevenLabs useConversation hook
   const conversation = useConversation({
     onConnect: () => {
-      console.log("[Voice2.0] Connected to agent");
+      console.log("[Voice2.0] Connected to agent via WebRTC");
       setStatus("connected");
       setPhase("listening");
       isConnectingRef.current = false;
@@ -87,7 +59,6 @@ export function useConversationalVoice({
       isConnectingRef.current = false;
     },
     onMessage: (message: any) => {
-      // Handle different message types for transcript display
       const msgType = message?.type;
       if (msgType === "user_transcript") {
         const text = message?.user_transcription_event?.user_transcript || "";
@@ -111,21 +82,6 @@ export function useConversationalVoice({
       isConnectingRef.current = false;
       onError?.("Voice connection failed. Falling back to text mode.");
     },
-    // Dynamic overrides for companion identity
-    ...(agentConfig ? {
-      overrides: {
-        agent: {
-          prompt: {
-            prompt: agentConfig.prompt,
-          },
-          firstMessage: language === "de" ? agentConfig.firstMessageDe : agentConfig.firstMessage,
-          language,
-        },
-        tts: {
-          voiceId: agentConfig.voiceId,
-        },
-      },
-    } : {}),
   });
 
   // Derive phase from conversation state
@@ -137,7 +93,7 @@ export function useConversationalVoice({
     setPhase(conversation.isSpeaking ? "agent_speaking" : "listening");
   }, [status, conversation.isSpeaking]);
 
-  // Start a real-time voice session
+  // Start a real-time voice session via WebRTC
   const startSession = useCallback(async () => {
     if (!agentId || isConnectingRef.current) return false;
 
@@ -151,7 +107,7 @@ export function useConversationalVoice({
       // Request microphone permission
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      // Get signed URL from edge function
+      // Get conversation token from edge function
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
@@ -172,15 +128,16 @@ export function useConversationalVoice({
         throw new Error("Failed to get voice session token");
       }
 
-      const { signed_url } = await response.json();
+      const data = await response.json();
 
-      if (!signed_url) {
-        throw new Error("No signed URL received");
+      if (!data.token) {
+        throw new Error("No conversation token received");
       }
 
-      // Start the conversation with WebSocket
+      // Start WebRTC conversation session
       await conversation.startSession({
-        signedUrl: signed_url,
+        conversationToken: data.token,
+        connectionType: "webrtc",
       });
 
       return true;
@@ -220,26 +177,17 @@ export function useConversationalVoice({
     : "idle" as const;
 
   return {
-    // Session control
     startSession,
     endSession,
-    
-    // State
     status,
     phase,
     isSupported,
     isSpeaking: conversation.isSpeaking,
     isConnected: status === "connected",
-    
-    // Transcripts for subtitle display
     userTranscript,
     agentTranscript,
     transcriptHistory,
-    
-    // Avatar state
     visualState,
-    
-    // Volume control
     setVolume: conversation.setVolume,
   };
 }
