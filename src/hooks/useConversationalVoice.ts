@@ -109,7 +109,8 @@ export function useConversationalVoice({
         console.log(`[Voice2.0] Auto-retry ${currentRetry + 1}/${maxRetries}, error: ${errorMsg}`);
         retryCountRef.current = currentRetry + 1;
         setStatus("connecting");
-        setTimeout(() => {
+        retryTimerRef.current = setTimeout(() => {
+          retryTimerRef.current = null;
           startSessionInternalRef.current?.();
         }, 1500);
         return;
