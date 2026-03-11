@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,12 +73,21 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
     }
   };
 
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggleExpand = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedId(expandedId === id ? null : id);
+  };
+
   return (
     <div className="space-y-6">
       {/* Archetype Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         {companionArchetypes.map((arch, index) => {
           const isSelected = selectedId === arch.id;
+          const isExpanded = expandedId === arch.id;
+          const desc = language === "de" ? arch.descriptionDe : arch.description;
           return (
             <motion.button
               key={arch.id}
@@ -113,9 +122,45 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               {/* Info */}
               <div className="p-3">
                 <p className="font-semibold text-foreground text-sm">{arch.name}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
-                  {language === "de" ? arch.descriptionDe : arch.description}
-                </p>
+                <AnimatePresence mode="wait">
+                  {isExpanded ? (
+                    <motion.p
+                      key="full"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed"
+                    >
+                      {desc}
+                    </motion.p>
+                  ) : (
+                    <motion.p
+                      key="truncated"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2"
+                      onClick={(e) => toggleExpand(arch.id, e)}
+                    >
+                      {desc}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+                {!isExpanded && desc.length > 50 && (
+                  <span
+                    onClick={(e) => toggleExpand(arch.id, e)}
+                    className="text-[10px] text-primary font-medium mt-0.5 inline-block cursor-pointer"
+                  >
+                    {language === "de" ? "Mehr →" : "More →"}
+                  </span>
+                )}
+                {isExpanded && (
+                  <span
+                    onClick={(e) => toggleExpand(arch.id, e)}
+                    className="text-[10px] text-primary font-medium mt-0.5 inline-block cursor-pointer"
+                  >
+                    {language === "de" ? "Weniger" : "Less"}
+                  </span>
+                )}
               </div>
             </motion.button>
           );
