@@ -6,7 +6,6 @@ import {
   Heart, 
   AlertTriangle,
   Clock,
-  MapPin,
   User
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -25,11 +24,6 @@ interface CrisisLine {
   isLink?: boolean;
 }
 
-interface Resource {
-  title: string;
-  description: string;
-  icon: typeof MapPin;
-}
 
 export default function Safety() {
   const { t, language } = useTranslation();
@@ -123,23 +117,6 @@ export default function Safety() {
 
   const crisisLines = language === "de" ? germanCrisisLines : englishCrisisLines;
 
-  const resources: Resource[] = [
-    {
-      title: t("resource.findTherapist"),
-      description: t("resource.findTherapistDesc"),
-      icon: MapPin,
-    },
-    {
-      title: t("resource.understandingSigns"),
-      description: t("resource.understandingSignsDesc"),
-      icon: AlertTriangle,
-    },
-    {
-      title: t("resource.selfCare"),
-      description: t("resource.selfCareDesc"),
-      icon: Heart,
-    },
-  ];
 
   const emergencyNumber = language === "de" ? "112" : "911";
 
@@ -299,52 +276,6 @@ export default function Safety() {
           </CalmCard>
         </motion.div>
 
-        {/* Additional resources */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            {t("safety.additionalResources")}
-          </h2>
-          
-          <div className="space-y-3">
-            {resources.map((resource) => {
-              const Icon = resource.icon;
-              const resourceLinks: Record<string, string> = {
-                [t("resource.findTherapist")]: language === "de" ? "https://www.therapie.de/psyche/info/" : "https://www.psychologytoday.com/us/therapists",
-                [t("resource.understandingSigns")]: language === "de" ? "https://www.deutsche-depressionshilfe.de/" : "https://www.nimh.nih.gov/health/topics/depression",
-                [t("resource.selfCare")]: language === "de" ? "https://www.bzga.de/" : "https://www.mentalhealth.gov/",
-              };
-              const href = resourceLinks[resource.title] || "#";
-              return (
-                <a 
-                  key={resource.title}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <CalmCard 
-                    variant="default" 
-                    className="cursor-pointer hover:shadow-card transition-shadow"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
-                        <Icon className="w-5 h-5 text-muted-foreground" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium text-foreground">{resource.title}</h3>
-                        <p className="text-sm text-muted-foreground">{resource.description}</p>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
-                    </div>
-                  </CalmCard>
-                </a>
-              );
-            })}
-          </div>
-        </motion.div>
       </div>
     </div>
     </StandalonePage>
