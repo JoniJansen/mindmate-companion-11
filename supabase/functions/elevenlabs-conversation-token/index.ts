@@ -13,7 +13,6 @@ serve(async (req) => {
   }
 
   try {
-    // Require authenticated user
     try {
       await requireUser(req);
     } catch (authError) {
@@ -50,8 +49,9 @@ serve(async (req) => {
 
     console.log(`Requesting conversation token for agent: ${agentId}`);
 
+    // Use the conversation token endpoint for WebRTC support
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${agentId}`,
+      `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${agentId}`,
       {
         headers: {
           "xi-api-key": ELEVENLABS_API_KEY,
@@ -89,7 +89,7 @@ serve(async (req) => {
     const data = await response.json();
 
     return new Response(
-      JSON.stringify({ signed_url: data.signed_url }),
+      JSON.stringify({ token: data.token }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
