@@ -47,7 +47,8 @@ export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
                 <ChevronLeft className="w-5 h-5 stroke-[1.8]" />
               </Button>
             )}
-            {showLogo && (
+            {avatarElement}
+            {showLogo && !avatarElement && (
               <img 
                 src={logoImage} 
                 alt="Soulvay" 
