@@ -127,7 +127,7 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
                   e.stopPropagation();
                   onDismiss();
                 }}
-                aria-label="Dismiss"
+                aria-label={language === "de" ? "Schließen" : "Dismiss"}
               >
                 <X className="w-4 h-4" />
               </Button>
