@@ -20,6 +20,8 @@ import { ShareableInsightCard } from "@/components/home/ShareableInsightCard";
 import { GrowthDashboard } from "@/components/home/GrowthDashboard";
 import { CompanionCheckin } from "@/components/home/CompanionCheckin";
 import { useDailyPrompt } from "@/hooks/useDailyPrompt";
+import { useCompanion } from "@/hooks/useCompanion";
+import { CompanionCard } from "@/components/companion/CompanionCard";
 import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
 import { useMemoryMoments } from "@/hooks/useMemoryMoments";
 import { useChatPersistence } from "@/hooks/useChatPersistence";
