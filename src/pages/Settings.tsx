@@ -14,6 +14,7 @@ import { SettingsVoiceSection } from "@/components/settings/SettingsVoiceSection
 import { SettingsSupportSection } from "@/components/settings/SettingsSupportSection";
 import { SettingsAccountSection } from "@/components/settings/SettingsAccountSection";
 import { SettingsLegalSection } from "@/components/settings/SettingsLegalSection";
+import { SettingsCompanionSection } from "@/components/settings/SettingsCompanionSection";
 
 interface Preferences {
   language: "en" | "de";
