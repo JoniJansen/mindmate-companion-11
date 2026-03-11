@@ -97,10 +97,10 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               whileTap={{ scale: 0.97 }}
               onClick={() => handleSelect(arch)}
               disabled={isSaving}
-              className={`relative rounded-2xl border text-left transition-all overflow-hidden ${
+              className={`relative rounded-2xl border text-left transition-all overflow-hidden group ${
                 isSelected
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                  : "border-border/50 bg-card hover:border-border"
+                  ? "border-primary bg-primary/5 ring-1 ring-primary/30 shadow-[0_0_15px_-3px_hsl(var(--primary)/0.3)]"
+                  : "border-border/50 bg-card hover:border-primary/20 hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.15)]"
               }`}
             >
               {isSelected && (
