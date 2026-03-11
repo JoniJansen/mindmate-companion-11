@@ -342,7 +342,17 @@ export default function Chat() {
         showLogo={false}
         showBack={false}
         avatarElement={companion ? (
-          <CompanionAvatarHeader archetype={companion.archetype} name={companion.name} />
+          <CompanionAvatarAnimated
+            archetype={companion.archetype}
+            name={companion.name}
+            size="sm"
+            state={useCompanionVisualState({
+              isListening: voice.isListening,
+              isThinking: composer.isLoading && !composer.isStreamingActive,
+              isSpeaking: voice.isSpeaking || composer.isStreamingActive,
+            })}
+            showPresenceDot
+          />
         ) : undefined}
         rightElement={
           <div className="flex items-center gap-2 -mr-1.5">
