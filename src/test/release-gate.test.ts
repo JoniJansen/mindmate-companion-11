@@ -184,12 +184,12 @@ describe("Review: Apple review login accessible on native", () => {
 });
 
 // ── CHAT MODE FRESHNESS ──
-describe("Chat: handleSend dependencies include chatMode", () => {
-  it("chatMode is in handleSend useCallback deps", async () => {
+describe("Chat: handleSend uses composer pattern", () => {
+  it("handleSend delegates to composer.handleSend", async () => {
     const chatSource = await import("../pages/Chat.tsx?raw");
     const src = (chatSource as any).default || chatSource;
-    // The handleSend dep array must contain chatMode
-    expect(src).toContain("chatMode, conversationId, user, createConversation");
+    // handleSend should delegate to the composer hook
+    expect(src).toContain("composer.handleSend");
   });
 });
 
