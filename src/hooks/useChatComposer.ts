@@ -213,11 +213,11 @@ export function useChatComposer(chatMode: ChatMode) {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    const userMessage: Message = { id: Date.now().toString(), content: content.trim(), role: "user", timestamp: new Date() };
+    const userMessage: Message = { id: Date.now().toString(), content: trimmed, role: "user", timestamp: new Date() };
     if (!isSystemAction) {
       setMessages((prev) => [...prev, userMessage]);
       incrementMessageCount();
-      setLastUserMessage(content.trim());
+      setLastUserMessage(trimmed);
       chatMessageCountRef.current += 1;
       if (chatMessageCountRef.current >= 3) {
         logActivity("chat_session");
