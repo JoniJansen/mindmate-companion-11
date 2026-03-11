@@ -718,6 +718,15 @@ serve(async (req) => {
 
     if (isCrisis) {
       console.log(`CRISIS DETECTED for user ${userId} | severity=${crisisResult.severity} | signal=${crisisResult.matchedSignal}`);
+      // Persist crisis event for observability (fire-and-forget)
+      adminClient
+        .from("user_activity_log")
+        .insert({
+          user_id: userId,
+          activity_type: `crisis_${crisisResult.severity}`,
+        })
+        .then(() => {})
+        .catch((e: unknown) => console.error("Crisis log failed:", e));
     }
 
     // ── Truncate conversation to fit context window ──

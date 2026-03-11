@@ -23,7 +23,7 @@ interface RealtimeVoicePanelProps {
   getOutputVolume?: () => number;
 }
 
-// ─── Audio Level Poller ───
+// ─── Audio Level Poller (optimized: useRef to avoid re-renders per frame) ───
 function useAudioLevels(
   active: boolean,
   getInput?: () => number,
@@ -32,6 +32,8 @@ function useAudioLevels(
   const [inputLevel, setInputLevel] = useState(0);
   const [outputLevel, setOutputLevel] = useState(0);
   const rafRef = useRef<number>(0);
+  const lastInputRef = useRef(0);
+  const lastOutputRef = useRef(0);
 
   useEffect(() => {
     if (!active || (!getInput && !getOutput)) {
@@ -41,10 +43,24 @@ function useAudioLevels(
     }
 
     let running = true;
+    let frameCount = 0;
     const poll = () => {
       if (!running) return;
-      if (getInput) setInputLevel(getInput());
-      if (getOutput) setOutputLevel(getOutput());
+      frameCount++;
+      // Only update React state every 3rd frame (~20fps) to reduce re-renders
+      if (frameCount % 3 === 0) {
+        const newIn = getInput ? getInput() : 0;
+        const newOut = getOutput ? getOutput() : 0;
+        // Only setState if value changed meaningfully (>2% threshold)
+        if (Math.abs(newIn - lastInputRef.current) > 0.02) {
+          lastInputRef.current = newIn;
+          setInputLevel(newIn);
+        }
+        if (Math.abs(newOut - lastOutputRef.current) > 0.02) {
+          lastOutputRef.current = newOut;
+          setOutputLevel(newOut);
+        }
+      }
       rafRef.current = requestAnimationFrame(poll);
     };
     poll();

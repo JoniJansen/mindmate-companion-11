@@ -192,7 +192,13 @@ export function useChatComposer(chatMode: ChatMode) {
     overrideConvId?: string | null,
     onStreamDone?: (fullResponse: string, messageId: string, convId: string | null) => void,
   ) => {
-    if (!content.trim() || isLoading) return;
+    const trimmed = content.trim();
+    if (!trimmed || isLoading) return;
+
+    // Guard: prevent rapid double-sends
+    if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+      return; // Already in-flight
+    }
 
     if (!navigator.onLine) {
       toast({ title: t("common.offline"), description: t("common.offlineBody"), variant: "destructive" });
