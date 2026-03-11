@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, forwardRef } from "react";
 import { motion } from "framer-motion";
 
 interface VoiceWaveformProps {
@@ -16,12 +16,12 @@ interface VoiceWaveformProps {
  * Smooth waveform visualizer driven by real-time audio levels.
  * Each bar oscillates with slight phase offsets for an organic feel.
  */
-export const VoiceWaveform = memo(function VoiceWaveform({
+export const VoiceWaveform = memo(forwardRef<HTMLDivElement, VoiceWaveformProps>(function VoiceWaveform({
   level,
   barCount = 5,
   colorClass = "bg-primary/60",
   active = true,
-}: VoiceWaveformProps) {
+}, ref) {
   // Smooth the level to avoid jitter
   const smoothedRef = useRef(0);
   const displayLevel = active ? level : 0;
