@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { CompanionAvatar } from "./CompanionAvatar";
+import { CompanionAvatarAnimated } from "./CompanionAvatarAnimated";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CompanionProfile } from "@/hooks/useCompanion";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
