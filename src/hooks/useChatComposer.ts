@@ -99,6 +99,10 @@ export function useChatComposer(chatMode: ChatMode) {
       const { data: { session } } = await supabase.auth.getSession();
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+      // Timeout after 30s to prevent hanging
+      const timeoutId = setTimeout(() => signal?.aborted || controller?.abort?.(), 30000);
+      const controller = signal ? undefined : new AbortController();
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -110,8 +114,10 @@ export function useChatComposer(chatMode: ChatMode) {
           messages: chatMsgs,
           preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
         }),
-        signal,
+        signal: signal || controller?.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!resp.ok) {
         const errorData = await resp.json().catch(() => ({}));
