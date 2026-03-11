@@ -28,7 +28,7 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
 
-  const { speak: speakTTS, stop: stopTTS, isSpeaking, isPlayingMessage, isLoadingMessage } = useElevenLabsTTS({
+  const { speak: speakTTS, stop: stopTTS, isSpeaking, isLoading: isTTSLoading, isPlayingMessage, isLoadingMessage } = useElevenLabsTTS({
     onError: (error) => {
       toast({ title: t("chat.voiceFailed"), description: error, variant: "destructive" });
     },
@@ -54,13 +54,13 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     }
   }, [sttError, t, toast]);
 
-  // Auto-restart listening after AI finishes speaking (only if no STT error and composer not busy)
+  // Auto-restart listening after AI finishes speaking (only if no STT error, composer not busy, and TTS not loading)
   useEffect(() => {
-    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice && !sttError && !isComposerBusy) {
+    if (!isSpeaking && !isTTSLoading && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice && !sttError && !isComposerBusy) {
       const timeoutId = setTimeout(() => { resetTranscript(); setPendingTranscript(""); startListening(); }, 800);
       return () => clearTimeout(timeoutId);
     }
-  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice, sttError, isComposerBusy]);
+  }, [isSpeaking, isTTSLoading, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice, sttError, isComposerBusy]);
 
   // Stop listening when speaking
   useEffect(() => { if (isSpeaking && isListening) stopListening(); }, [isSpeaking, isListening, stopListening]);
@@ -171,6 +171,7 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     
     // TTS state
     isSpeaking,
+    isTTSLoading,
     isPlayingMessage,
     isLoadingMessage,
     stopTTS,

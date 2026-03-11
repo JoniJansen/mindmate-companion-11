@@ -14,6 +14,7 @@ interface VoiceConversationPanelProps {
   isSpeaking: boolean;
   isThinking: boolean;
   isStreamingActive: boolean;
+  isTTSLoading: boolean;
   liveTranscript: string;
   lastAssistantMessage: string;
   onToggleRecording: () => void;
@@ -31,6 +32,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
   isSpeaking,
   isThinking,
   isStreamingActive,
+  isTTSLoading,
   liveTranscript,
   lastAssistantMessage,
   onToggleRecording,
@@ -41,7 +43,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
 
   const visualState = useCompanionVisualState({
     isListening,
-    isThinking: isThinking || isStreamingActive,
+    isThinking: isThinking || isStreamingActive || isTTSLoading,
     isSpeaking,
   });
 
@@ -181,7 +183,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
               </motion.div>
             )}
 
-            {isSpeaking && lastAssistantMessage && (
+            {(isSpeaking || isTTSLoading) && lastAssistantMessage && (
               <motion.div
                 key="response"
                 initial={{ opacity: 0, y: 8 }}
@@ -195,7 +197,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
               </motion.div>
             )}
 
-            {(isThinking || isStreamingActive) && !isSpeaking && (
+            {(isThinking || isStreamingActive) && !isSpeaking && !isTTSLoading && (
               <motion.div
                 key="thinking"
                 initial={{ opacity: 0 }}
