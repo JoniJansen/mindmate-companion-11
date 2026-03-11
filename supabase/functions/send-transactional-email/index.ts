@@ -106,42 +106,52 @@ Deno.serve(async (req) => {
 
   const messageId = crypto.randomUUID()
 
-  // Enqueue for async sending via process-email-queue
-  const { error: enqueueError } = await supabase.rpc('enqueue_email', {
-    queue_name: 'transactional_emails',
-    payload: {
-      run_id: messageId,
-      message_id: messageId,
-      to: user.email,
-      from: `${SITE_NAME} <hello@${FROM_DOMAIN}>`,
-      sender_domain: SENDER_DOMAIN,
-      subject: templateConfig.subject,
-      html,
-      text,
-      purpose: 'transactional',
-      label: body.template,
-      queued_at: new Date().toISOString(),
-    },
-  })
+  try {
+    // Send directly via Lovable Email API (transactional emails don't have a platform run_id)
+    await sendLovableEmail(
+      {
+        to: user.email,
+        from: `${SITE_NAME} <hello@${FROM_DOMAIN}>`,
+        sender_domain: SENDER_DOMAIN,
+        subject: templateConfig.subject,
+        html,
+        text,
+        purpose: 'transactional',
+        label: body.template,
+        idempotency_key: messageId,
+      },
+      { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
+    )
 
-  if (enqueueError) {
-    console.error('Failed to enqueue transactional email', { error: enqueueError, template: body.template })
+    // Log success
+    await supabase.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: body.template,
+      recipient_email: user.email,
+      status: 'sent',
+    })
+
+    console.log('Transactional email sent', { template: body.template, email: user.email })
+
     return new Response(
-      JSON.stringify({ error: 'Failed to queue email' }),
+      JSON.stringify({ success: true, sent: true }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    console.error('Failed to send transactional email', { error: errorMsg, template: body.template })
+
+    await supabase.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: body.template,
+      recipient_email: user.email,
+      status: 'failed',
+      error_message: errorMsg.slice(0, 1000),
+    })
+
+    return new Response(
+      JSON.stringify({ error: 'Failed to send email' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
-
-  // Log
-  await supabase.from('email_send_log').insert({
-    message_id: messageId,
-    template_name: body.template,
-    recipient_email: user.email,
-    status: 'pending',
-  })
-
-  return new Response(
-    JSON.stringify({ success: true, queued: true }),
-    { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-  )
 })
