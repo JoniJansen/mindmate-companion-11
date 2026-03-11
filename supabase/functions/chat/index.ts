@@ -17,6 +17,7 @@ interface Preferences {
   companionName?: string;
   companionPersonality?: string;
   companionTone?: string;
+  companionBondLevel?: number;
 }
 
 // Crisis keywords that trigger safety response
