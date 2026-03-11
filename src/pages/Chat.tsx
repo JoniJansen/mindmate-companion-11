@@ -66,6 +66,13 @@ export default function Chat() {
   // Voice hook
   const voice = useChatVoice();
 
+  // Companion visual state for animated avatar
+  const companionState = useCompanionVisualState({
+    isListening: voice.isListening,
+    isThinking: composer.isLoading && !composer.isStreamingActive,
+    isSpeaking: voice.isSpeaking || composer.isStreamingActive,
+  });
+
   // Sync voice input → composer input
   useEffect(() => {
     if (voice.voiceInputValue) {
