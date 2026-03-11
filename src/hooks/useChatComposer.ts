@@ -40,6 +40,7 @@ export function useChatComposer(chatMode: ChatMode) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isStreamingActive, setIsStreamingActive] = useState(false);
+  const [streamingContent, setStreamingContent] = useState("");
   const [lastUserMessage, setLastUserMessage] = useState("");
   const [isRestoringConversation, setIsRestoringConversation] = useState(false);
 
