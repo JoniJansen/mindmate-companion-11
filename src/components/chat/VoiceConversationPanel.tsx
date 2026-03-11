@@ -21,6 +21,7 @@ interface VoiceConversationPanelProps {
   isThinking: boolean;
   isStreamingActive: boolean;
   isTTSLoading: boolean;
+  isCooldown?: boolean;
   sttError?: string | null;
   liveTranscript: string;
   lastAssistantMessage: string;
