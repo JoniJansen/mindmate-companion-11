@@ -453,13 +453,13 @@ serve(async (req) => {
         .eq("user_id", userId)
         .eq("usage_date", today)
         .maybeSingle(),
-      // 3. Memories (max 5 for speed)
+      // 3. Memories (max 5, weighted by confidence + recency)
       adminClient
         .from("user_memories")
-        .select("memory_type, content")
+        .select("memory_type, content, confidence_score, created_at")
         .eq("user_id", userId)
-        .order("confidence_score", { ascending: false })
-        .limit(5),
+        .order("updated_at", { ascending: false })
+        .limit(10), // Fetch 10, then sort client-side by weight
       // 4. Patterns (max 3)
       adminClient
         .from("emotional_patterns")
