@@ -168,7 +168,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
                   </span>
                 )}
               </div>
-            </motion.button>
+            </motion.div>
           );
         })}
       </div>
