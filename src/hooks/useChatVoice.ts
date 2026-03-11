@@ -64,9 +64,37 @@ export function useChatVoice() {
   // Stop listening when speaking
   useEffect(() => { if (isSpeaking && isListening) stopListening(); }, [isSpeaking, isListening, stopListening]);
 
-  // Show transcript confirm after stop
+  // Auto-send in voice mode: after user stops recording, auto-send after brief pause
+  const autoSendTimeoutRef = useRef<number | null>(null);
   useEffect(() => {
+    if (autoSendTimeoutRef.current) {
+      window.clearTimeout(autoSendTimeoutRef.current);
+      autoSendTimeoutRef.current = null;
+    }
+
     if (pendingTranscript && !isListening && voiceModeEnabled) {
+      autoSendTimeoutRef.current = window.setTimeout(() => {
+        autoSendTimeoutRef.current = null;
+        if (pendingTranscript.trim()) {
+          // Fire auto-send event for fluid voice conversation
+          window.dispatchEvent(new CustomEvent("voice-send", { detail: pendingTranscript.trim() }));
+          setPendingTranscript("");
+          setInputValue("");
+          setShowTranscriptConfirm(false);
+        }
+      }, 1200); // 1.2s pause before auto-send for natural feel
+    }
+
+    return () => {
+      if (autoSendTimeoutRef.current) {
+        window.clearTimeout(autoSendTimeoutRef.current);
+      }
+    };
+  }, [pendingTranscript, isListening, voiceModeEnabled]);
+
+  // Show transcript confirm after stop (only when NOT in voice mode — fallback for non-panel use)
+  useEffect(() => {
+    if (pendingTranscript && !isListening && !voiceModeEnabled) {
       const timeoutId = setTimeout(() => {
         if (pendingTranscript.trim()) { setShowTranscriptConfirm(true); setInputValue(pendingTranscript); }
       }, 500);
