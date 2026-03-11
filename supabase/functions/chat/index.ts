@@ -14,6 +14,9 @@ interface Preferences {
   addressForm: "du" | "sie";
   innerDialogue: boolean;
   modePrompt?: string; // Chat mode specific prompt from frontend
+  companionName?: string;
+  companionPersonality?: string;
+  companionTone?: string;
 }
 
 // Crisis keywords that trigger safety response
