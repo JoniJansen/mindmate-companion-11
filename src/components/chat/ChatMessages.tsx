@@ -20,6 +20,7 @@ interface ChatMessagesProps {
   isPlayingMessage: (id: string) => boolean;
   isLoadingMessage: (id: string) => boolean;
   canUseVoice: boolean;
+  companionName?: string;
 }
 
 export function ChatMessages({
