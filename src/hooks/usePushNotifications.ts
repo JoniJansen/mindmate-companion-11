@@ -184,7 +184,7 @@ export function usePushNotifications() {
     const lang = getLang();
     const messages = notificationMessages.moodReminder[lang as "en" | "de"];
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    showNotification(randomMessage.title, randomMessage.body, { tag: "mindmate-mood" });
+    showNotification(randomMessage.title, randomMessage.body, { tag: "soulvay-mood" });
   }, [showNotification, getLang]);
 
   // Send daily reminder
