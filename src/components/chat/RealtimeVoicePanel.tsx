@@ -1,6 +1,6 @@
 import { memo, useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, X, Volume2, Loader2 } from "lucide-react";
+import { Mic, X, Volume2, Loader2, RefreshCw } from "lucide-react";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { VoiceWaveform } from "@/components/chat/VoiceWaveform";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -19,6 +19,7 @@ interface RealtimeVoicePanelProps {
   onStartSession: () => void;
   onEndSession: () => void;
   onClose: () => void;
+  onResetError?: () => void;
   getInputVolume?: () => number;
   getOutputVolume?: () => number;
 }
@@ -160,6 +161,7 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
   onStartSession,
   onEndSession,
   onClose,
+  onResetError,
   getInputVolume,
   getOutputVolume,
 }: RealtimeVoicePanelProps) {
@@ -169,6 +171,18 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
 
   const isConnected = status === "connected";
   const isConnecting = status === "connecting";
+  const isError = status === "error";
+
+  // Auto-start session when panel opens (if not already connected/connecting)
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (!autoStartedRef.current && status === "disconnected") {
+      autoStartedRef.current = true;
+      // Brief delay for panel animation to complete
+      const timer = setTimeout(() => onStartSession(), 400);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Poll audio levels at 60fps while connected
   const { inputLevel, outputLevel } = useAudioLevels(isConnected, getInputVolume, getOutputVolume);
@@ -178,16 +192,22 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
 
   const statusText = useMemo(() => {
     if (isConnecting) return lang === "de" ? "Verbinde…" : "Connecting…";
-    if (status === "error") return lang === "de" ? "Verbindungsfehler" : "Connection error";
+    if (isError) return lang === "de" ? "Verbindungsfehler" : "Connection error";
     if (isSpeaking) return lang === "de" ? `${companion.name} spricht…` : `${companion.name} is speaking…`;
     if (phase === "listening") return lang === "de" ? "Ich höre zu…" : "Listening…";
     return lang === "de" ? "Tippe zum Starten" : "Tap to start";
-  }, [isConnecting, status, isSpeaking, phase, companion.name, lang]);
+  }, [isConnecting, isError, isSpeaking, phase, companion.name, lang]);
 
   const handleClose = useCallback(() => {
     if (isConnected) onEndSession();
     onClose();
   }, [isConnected, onEndSession, onClose]);
+
+  const handleRetry = useCallback(() => {
+    onResetError?.();
+    // Brief delay so state resets before new attempt
+    setTimeout(() => onStartSession(), 100);
+  }, [onResetError, onStartSession]);
 
   return (
     <motion.div
@@ -321,6 +341,31 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
           </AnimatePresence>
         </motion.div>
 
+        {/* Error recovery UI */}
+        <AnimatePresence>
+          {isError && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mt-4 flex flex-col items-center gap-3"
+            >
+              <p className="text-sm text-muted-foreground text-center max-w-xs">
+                {lang === "de"
+                  ? "Die Verbindung konnte nicht hergestellt werden. Bitte versuche es erneut."
+                  : "Couldn't establish connection. Please try again."}
+              </p>
+              <button
+                onClick={handleRetry}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors active:scale-95"
+              >
+                <RefreshCw className="w-4 h-4" />
+                {lang === "de" ? "Erneut versuchen" : "Try again"}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Subtitle area */}
         <SubtitleArea
           isSpeaking={isSpeaking}
@@ -336,19 +381,27 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
         <div className="relative">
           <motion.button
             whileTap={{ scale: 0.93 }}
-            onClick={isConnected ? onEndSession : onStartSession}
+            onClick={isConnected ? onEndSession : isError ? handleRetry : onStartSession}
             disabled={isConnecting}
             className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg disabled:opacity-50 ${
               isConnected
                 ? "bg-destructive shadow-destructive/30"
+                : isError
+                ? "bg-primary shadow-primary/30"
                 : "bg-primary shadow-primary/30"
             }`}
             aria-label={isConnected
               ? (lang === "de" ? "Gespräch beenden" : "End conversation")
+              : isError
+              ? (lang === "de" ? "Erneut versuchen" : "Try again")
               : (lang === "de" ? "Gespräch starten" : "Start conversation")
             }
           >
-            <Mic className={`w-6 h-6 ${isConnected ? "text-destructive-foreground" : "text-primary-foreground"}`} />
+            {isError ? (
+              <RefreshCw className="w-6 h-6 text-primary-foreground" />
+            ) : (
+              <Mic className={`w-6 h-6 ${isConnected ? "text-destructive-foreground" : "text-primary-foreground"}`} />
+            )}
           </motion.button>
 
           {/* Active listening pulse ring */}
@@ -383,9 +436,11 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
         <p className="text-[11px] text-muted-foreground/50">
           {isConnecting
             ? (lang === "de" ? "Verbindung wird hergestellt…" : "Establishing connection…")
-            : isConnected
-              ? (lang === "de" ? "Tippe zum Beenden" : "Tap to end")
-              : (lang === "de" ? "Tippe zum Starten" : "Tap to start")
+            : isError
+              ? (lang === "de" ? "Tippe zum erneuten Versuch" : "Tap to retry")
+              : isConnected
+                ? (lang === "de" ? "Tippe zum Beenden" : "Tap to end")
+                : (lang === "de" ? "Tippe zum Starten" : "Tap to start")
           }
         </p>
       </div>

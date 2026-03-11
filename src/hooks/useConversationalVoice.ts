@@ -39,8 +39,10 @@ export function useConversationalVoice({
   const [agentTranscript, setAgentTranscript] = useState("");
   const [transcriptHistory, setTranscriptHistory] = useState<TranscriptEntry[]>([]);
   const [isSupported, setIsSupported] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
   
   const isConnectingRef = useRef(false);
+  const maxRetries = 2;
 
   // ElevenLabs useConversation hook
   const conversation = useConversation({
@@ -48,6 +50,7 @@ export function useConversationalVoice({
       console.log("[Voice2.0] Connected to agent via WebRTC");
       setStatus("connected");
       setPhase("listening");
+      setRetryCount(0);
       isConnectingRef.current = false;
     },
     onDisconnect: () => {
@@ -77,10 +80,23 @@ export function useConversationalVoice({
     },
     onError: (error) => {
       console.error("[Voice2.0] Agent error:", error);
+      isConnectingRef.current = false;
+      
+      // If we haven't exhausted retries, try again automatically
+      if (retryCount < maxRetries) {
+        console.log(`[Voice2.0] Auto-retry ${retryCount + 1}/${maxRetries}`);
+        setRetryCount(prev => prev + 1);
+        setStatus("connecting");
+        // Brief delay before retry
+        setTimeout(() => {
+          startSessionInternal();
+        }, 1500);
+        return;
+      }
+      
       setStatus("error");
       setPhase("idle");
-      isConnectingRef.current = false;
-      onError?.("Voice connection failed. Falling back to text mode.");
+      onError?.("Voice connection failed. Please try again.");
     },
   });
 
@@ -93,20 +109,11 @@ export function useConversationalVoice({
     setPhase(conversation.isSpeaking ? "agent_speaking" : "listening");
   }, [status, conversation.isSpeaking]);
 
-  // Start a real-time voice session via WebRTC
-  const startSession = useCallback(async () => {
-    if (!agentId || isConnectingRef.current) return false;
-
-    isConnectingRef.current = true;
-    setStatus("connecting");
-    setUserTranscript("");
-    setAgentTranscript("");
-    setTranscriptHistory([]);
+  // Internal session start (used for retries too)
+  const startSessionInternal = useCallback(async () => {
+    if (!agentId) return false;
 
     try {
-      // Request microphone permission
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-
       // Get conversation token from edge function
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -143,6 +150,42 @@ export function useConversationalVoice({
       return true;
     } catch (error: any) {
       console.error("[Voice2.0] Session start failed:", error);
+      
+      if (error?.name === "NotAllowedError") {
+        setStatus("error");
+        isConnectingRef.current = false;
+        onError?.("Microphone access denied. Please allow microphone access.");
+        setIsSupported(false);
+        return false;
+      }
+      
+      // For connection errors, let the onError handler deal with retries
+      if (retryCount >= maxRetries) {
+        setStatus("error");
+        isConnectingRef.current = false;
+        onError?.(error?.message || "Failed to start voice session");
+      }
+      return false;
+    }
+  }, [agentId, conversation, onError, retryCount]);
+
+  // Start a real-time voice session via WebRTC
+  const startSession = useCallback(async () => {
+    if (!agentId || isConnectingRef.current) return false;
+
+    isConnectingRef.current = true;
+    setStatus("connecting");
+    setUserTranscript("");
+    setAgentTranscript("");
+    setTranscriptHistory([]);
+    setRetryCount(0);
+
+    try {
+      // Request microphone permission first
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      return await startSessionInternal();
+    } catch (error: any) {
+      console.error("[Voice2.0] Session start failed:", error);
       setStatus("error");
       isConnectingRef.current = false;
       
@@ -154,7 +197,7 @@ export function useConversationalVoice({
       }
       return false;
     }
-  }, [agentId, conversation, onError]);
+  }, [agentId, startSessionInternal, onError]);
 
   // End the current voice session
   const endSession = useCallback(async () => {
@@ -165,7 +208,17 @@ export function useConversationalVoice({
     }
     setStatus("disconnected");
     setPhase("idle");
+    setRetryCount(0);
+    isConnectingRef.current = false;
   }, [conversation]);
+
+  // Reset error state so user can try again
+  const resetError = useCallback(() => {
+    setStatus("disconnected");
+    setPhase("idle");
+    setRetryCount(0);
+    isConnectingRef.current = false;
+  }, []);
 
   // Visual state for companion avatar
   const visualState = phase === "agent_speaking" 
@@ -179,6 +232,7 @@ export function useConversationalVoice({
   return {
     startSession,
     endSession,
+    resetError,
     status,
     phase,
     isSupported,
