@@ -244,7 +244,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="bg-background flex flex-col" style={{ minHeight: '100dvh' }}>
+    <div className="bg-background flex flex-col" style={{ minHeight: 'calc(100vh - env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top">
         <div className="w-10" />
@@ -323,8 +323,8 @@ export default function Onboarding() {
           )}
         </AnimatePresence>
 
-        {/* Continue button */}
-        <div className="mt-auto pt-6 safe-bottom shrink-0">
+        {/* Continue button — extra padding for in-app browsers */}
+        <div className="mt-auto pt-6 pb-4 shrink-0">
           {currentStep === "goal" ? (
             <div className="space-y-3">
               <Button size="xl" className="w-full" onClick={finishOnboarding}>
@@ -541,7 +541,7 @@ function CompanionStep({ t, language, selected, onSelect }: {
         <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
         <p className="text-muted-foreground text-sm">{t.subtitle}</p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 overflow-y-auto max-h-[55vh] pr-0.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 overflow-y-auto max-h-[50vh] pr-0.5 -mx-1 px-1">
         {companionArchetypes.map((arch) => {
           const isSelected = selected === arch.id;
           return (
@@ -564,10 +564,10 @@ function CompanionStep({ t, language, selected, onSelect }: {
                   <Check className="w-3.5 h-3.5 text-primary-foreground" />
                 </motion.div>
               )}
-              <div className="w-full aspect-square sm:aspect-[4/5] bg-muted/30 overflow-hidden">
+              <div className="w-full aspect-[3/4] sm:aspect-[4/5] bg-muted/30 overflow-hidden">
                 <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-top" loading="lazy" />
               </div>
-              <div className="p-3">
+              <div className="p-2.5">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="text-sm">{arch.emoji}</span>
                   <p className="font-semibold text-foreground text-sm">{arch.name}</p>

@@ -52,10 +52,16 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
     currentMessageIdRef.current = null;
   }, []);
 
-  const playAudio = useCallback(async (audioUrl: string, messageId?: string, intentId?: number) => {
+  const playAudio = useCallback(async (audioUrl: string, messageId?: string, intentId?: number, preUnlockedAudio?: HTMLAudioElement) => {
     if (intentId && intentId !== latestIntentRef.current) return;
 
-    const audio = new Audio(audioUrl);
+    // Use pre-unlocked audio element if provided (iOS gesture context preservation)
+    const audio = preUnlockedAudio || new Audio(audioUrl);
+    if (!preUnlockedAudio) {
+      audio.src = audioUrl;
+    } else {
+      audio.src = audioUrl;
+    }
     audioRef.current = audio;
     currentMessageIdRef.current = messageId || null;
 
@@ -98,6 +104,12 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
       await playAudio(cachedAudioUrl, messageId, intentId);
       return;
     }
+
+    // iOS Safari: pre-create and "unlock" Audio element within user gesture context
+    // This must happen BEFORE any async work (fetch) to preserve gesture chain
+    const preUnlockedAudio = new Audio();
+    preUnlockedAudio.preload = "auto";
+    try { preUnlockedAudio.play().catch(() => {}); } catch {}
 
     fetchInFlightRef.current = true;
     setIsLoading(true);
@@ -147,7 +159,7 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
         return;
       }
 
-      await playAudio(audioUrl, messageId, intentId);
+      await playAudio(audioUrl, messageId, intentId, preUnlockedAudio);
     } catch (error: any) {
       if (import.meta.env.DEV) console.error("TTS error:", error);
 
