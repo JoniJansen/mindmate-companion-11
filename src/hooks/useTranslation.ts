@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
+import { allTranslations, type Translations } from "@/translations";
 
 export type Language = "en" | "de";
 
-interface Translations {
-  [key: string]: {
-    en: string;
-    de: string;
-  };
-}
+// Re-export merged translations for backward compatibility
+export const translations: Translations = allTranslations;
 
-// Common translations used across the app
-export const translations: Translations = {
-  // Navigation & Common
-  "nav.chat": { en: "Chat", de: "Chat" },
+// Legacy marker — all flat key-value translations now live in src/translations/*.ts
+// Only exerciseTranslations and topicTranslations remain here (different structure).
+
   "nav.journal": { en: "Journal", de: "Tagebuch" },
   "nav.toolbox": { en: "Toolbox", de: "Werkzeuge" },
   "nav.topics": { en: "Topics", de: "Themen" },
