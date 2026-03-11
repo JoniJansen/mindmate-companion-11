@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { companionArchetypes } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
 
 type Language = "en" | "de";
