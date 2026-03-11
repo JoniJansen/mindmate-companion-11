@@ -540,7 +540,7 @@ function CompanionStep({ t, language, selected, onSelect }: {
         <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
         <p className="text-muted-foreground text-sm">{t.subtitle}</p>
       </div>
-      <div className="grid grid-cols-2 gap-3 overflow-y-auto max-h-[55vh] pr-0.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 overflow-y-auto max-h-[55vh] pr-0.5">
         {companionArchetypes.map((arch) => {
           const isSelected = selected === arch.id;
           return (
