@@ -105,7 +105,7 @@ export default function CompanionSettings() {
         className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
-        <div className="px-4 py-6 pb-32 max-w-lg mx-auto space-y-6">
+        <div className="px-4 py-6 pb-32 max-w-lg lg:max-w-4xl mx-auto space-y-6">
           {/* Current Companion Preview */}
           {companion && (
             <motion.div
