@@ -20,6 +20,8 @@ import { ShareableInsightCard } from "@/components/home/ShareableInsightCard";
 import { GrowthDashboard } from "@/components/home/GrowthDashboard";
 import { CompanionCheckin } from "@/components/home/CompanionCheckin";
 import { useDailyPrompt } from "@/hooks/useDailyPrompt";
+import { useCompanion } from "@/hooks/useCompanion";
+import { CompanionCard } from "@/components/companion/CompanionCard";
 import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
 import { useMemoryMoments } from "@/hooks/useMemoryMoments";
 import { useChatPersistence } from "@/hooks/useChatPersistence";
@@ -51,6 +53,7 @@ export default function Home() {
   const [showMilestone, setShowMilestone] = useState(true);
   const { moment: memoryMoment, dismiss: dismissMoment, startConversation: startMomentConversation } = useMemoryMoments();
   const { loadRecentConversations } = useChatPersistence();
+  const { companion } = useCompanion();
   const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
@@ -344,6 +347,9 @@ export default function Home() {
             {t("home.unloadThoughts")}
           </p>
         </motion.div>
+
+        {/* Companion Card */}
+        {companion && <CompanionCard companion={companion} />}
 
         {/* Companion Check-in — memory moment or insight-based */}
         {memoryMoment && !companionCheckinDismissed && (

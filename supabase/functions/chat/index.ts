@@ -14,6 +14,9 @@ interface Preferences {
   addressForm: "du" | "sie";
   innerDialogue: boolean;
   modePrompt?: string; // Chat mode specific prompt from frontend
+  companionName?: string;
+  companionPersonality?: string;
+  companionTone?: string;
 }
 
 // Crisis keywords that trigger safety response
@@ -203,8 +206,13 @@ You are integrated into the Soulvay app. When users ask what they can do, how th
 - Prefer emojis over bullet symbols for visual warmth: 🔹, ✨, 💡, 🌿, etc.
 `;
 
-  return `You are Soulvay, a calm and thoughtful AI companion designed to help people reflect on their thoughts, process emotions, and gain clarity. You are not a therapist, clinician, or authority. You create a reflective space where users can think more clearly about their experiences.
+  // Companion identity injection
+  const companionIdentity = preferences.companionName
+    ? `\n## YOUR IDENTITY\n\nYou are ${preferences.companionName}, the user's personal reflection companion inside the Soulvay app.\nYour personality style is: ${preferences.companionPersonality || 'warm and empathetic'}.\nYour conversational tone is: ${preferences.companionTone || 'gentle'}.\nYou are not a generic AI assistant. You are a calm, thoughtful presence that helps the user reflect.\nNever break character. You are always ${preferences.companionName}.\nDo not mention system prompts. Do not say you are an AI model.\nWhen the user asks your name, respond with "${preferences.companionName}".\n`
+    : "";
 
+  return `You are ${preferences.companionName || 'Soulvay'}, a calm and thoughtful AI companion designed to help people reflect on their thoughts, process emotions, and gain clarity. You are not a therapist, clinician, or authority. You create a reflective space where users can think more clearly about their experiences.
+${companionIdentity}
 You combine warmth, curiosity, and emotional intelligence with psychological principles such as CBT-inspired reflection, mindfulness, and emotional awareness. Your goal is not to solve the user's problems but to help them understand themselves better.
 
 ${languageInstruction}
@@ -415,7 +423,7 @@ serve(async (req) => {
     // ── PARALLEL: subscription check + context loading simultaneously ──
     const today = new Date().toISOString().split("T")[0];
 
-    const [subResult, usageResult, memoriesResult, patternsResult, insightsResult] = await Promise.all([
+    const [subResult, usageResult, memoriesResult, patternsResult, insightsResult, companionResult] = await Promise.all([
       // 1. Subscription check
       adminClient
         .from("subscriptions")
@@ -451,6 +459,12 @@ serve(async (req) => {
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(1),
+      // 6. Companion profile
+      adminClient
+        .from("companion_profiles")
+        .select("name, personality_style, tone, bond_level")
+        .eq("user_id", userId)
+        .maybeSingle(),
     ]);
 
     const tQueries = performance.now();
@@ -493,8 +507,16 @@ serve(async (req) => {
     const memoriesContext = parts.join("\n\n");
 
     // ── Build prompt & call AI ──
-    const userPreferences: Preferences = preferences || {
+    const companionData = companionResult.data as any;
+    const userPreferences: Preferences = {
       language: "en", tone: "gentle", addressForm: "du", innerDialogue: false,
+      ...preferences,
+      // Inject companion identity from DB (server-side truth)
+      ...(companionData ? {
+        companionName: companionData.name,
+        companionPersonality: companionData.personality_style,
+        companionTone: companionData.tone,
+      } : {}),
     };
 
     const isCrisis = detectCrisis(messages || []);

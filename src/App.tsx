@@ -53,6 +53,7 @@ const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const DevQA = lazy(() => import("@/pages/DevQA"));
 const Diagnostics = lazy(() => import("@/pages/Diagnostics"));
+const CompanionSettings = lazy(() => import("@/pages/CompanionSettings"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -212,6 +213,7 @@ function AppContent() {
                   <Route path="/about" element={<About />} />
                   <Route path="/delete-account" element={<DeleteAccount />} />
                   <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
+                  <Route path="/companion" element={<OnboardingGuard><CompanionSettings /></OnboardingGuard>} />
                   
                   {/* Review Mode Pages */}
                   <Route path="/review-instructions" element={<ReviewInstructions />} />

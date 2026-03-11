@@ -13,6 +13,7 @@ import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { usePremium } from "@/hooks/usePremium";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { useChatComposer } from "@/hooks/useChatComposer";
+import { useCompanion } from "@/hooks/useCompanion";
 import { useChatVoice } from "@/hooks/useChatVoice";
 import { VoiceAvatar } from "@/components/chat/VoiceAvatar";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
@@ -56,6 +57,9 @@ export default function Chat() {
 
   // Composer hook (messages, streaming, persistence)
   const composer = useChatComposer(chatMode);
+
+  // Companion
+  const { companion, incrementBond } = useCompanion();
 
   // Voice hook
   const voice = useChatVoice();
@@ -113,9 +117,10 @@ export default function Chat() {
         composer.handleSend(initialMessage, false, undefined, handleStreamDone);
       } else {
         const personalLine = getPersonalizedGreeting();
+        const companionName = companion?.name || "Soulvay";
         const baseGreeting = savedLang === "de"
-          ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu."
-          : "Hello. I'm Soulvay, and\nI'm here to listen.";
+          ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.`
+          : `Hello. I'm ${companionName}, and\nI'm here to listen.`;
         const closingLine = savedLang === "de"
           ? "Nimm dir Zeit – teile, was dich bewegt."
           : "Take your time – share what's on your mind.";
@@ -228,13 +233,19 @@ export default function Chat() {
           }).catch(() => {});
         }
       });
+
+      // Increment companion bond for meaningful conversations
+      if (userMsgCount >= 5) {
+        incrementBond();
+      }
     }
 
     composer.startNewConversation();
     const savedLang = composer.preferences.current.language || language;
+    const companionName = companion?.name || "Soulvay";
     const baseGreeting = savedLang === "de"
-      ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
-      : "Hello. I'm Soulvay, and\nI'm here to listen.\n\nTake your time – share what's on your mind.";
+      ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt.`
+      : `Hello. I'm ${companionName}, and\nI'm here to listen.\n\nTake your time – share what's on your mind.`;
     composer.setMessages([{ id: "greeting-" + Date.now(), content: baseGreeting, role: "assistant", timestamp: new Date() }]);
   };
 
@@ -324,9 +335,9 @@ export default function Chat() {
     <div className="flex flex-col bg-background" style={fullScreenWithNav()}>
       {/* Header */}
       <PageHeader
-        title={t("chat.title")}
-        subtitle={t("chat.subtitle")}
-        showLogo
+        title={companion?.name || t("chat.title")}
+        subtitle={companion ? (language === "de" ? "Dein Reflexionsbegleiter" : "Your reflection companion") : t("chat.subtitle")}
+        showLogo={!companion}
         showBack={false}
         rightElement={
           <div className="flex items-center gap-2 -mr-1.5">
@@ -423,6 +434,7 @@ export default function Chat() {
         isPlayingMessage={voice.isPlayingMessage}
         isLoadingMessage={voice.isLoadingMessage}
         canUseVoice={canUseVoice}
+        companionName={companion?.name}
       />
 
       {/* Calm Exercises */}
