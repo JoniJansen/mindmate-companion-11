@@ -14,6 +14,7 @@ interface VoiceConversationPanelProps {
   isSpeaking: boolean;
   isThinking: boolean;
   isStreamingActive: boolean;
+  isTTSLoading: boolean;
   liveTranscript: string;
   lastAssistantMessage: string;
   onToggleRecording: () => void;
