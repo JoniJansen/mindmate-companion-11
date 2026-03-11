@@ -239,11 +239,20 @@ export default function Home() {
           >
             {greeting()}
           </motion.h1>
-          <StreakCounter
-            currentStreak={streak.currentStreak}
-            isActiveToday={streak.isActiveToday}
-            isLoading={streak.isLoading}
-          />
+          <div className="flex items-center gap-2">
+            <StreakCounter
+              currentStreak={streak.currentStreak}
+              isActiveToday={streak.isActiveToday}
+              isLoading={streak.isLoading}
+            />
+            <button
+              onClick={() => navigate("/settings")}
+              className="w-9 h-9 rounded-xl bg-card border border-border/50 flex items-center justify-center hover:border-primary/30 transition-colors"
+              aria-label="Settings"
+            >
+              <Settings className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
         </div>
         <motion.p 
           initial={{ opacity: 0 }}

@@ -79,7 +79,7 @@ export const homeTranslations: Translations = {
   "growth.insights": { en: "insights", de: "Insights" },
   "growth.recurringTheme": { en: "Recurring theme", de: "Wiederkehrendes Thema" },
   "growth.insightCard": { en: "Reflection", de: "Reflexion" },
-  "growth.companionCheckin": { en: "Soulvay noticed something", de: "Soulvay hat etwas bemerkt" },
-  "growth.identityMessage": { en: "Soulvay remembers what matters to you", de: "Soulvay erinnert sich, was dir wichtig ist" },
+  "growth.companionCheckin": { en: "Something caught my attention", de: "Etwas ist mir aufgefallen" },
+  "growth.identityMessage": { en: "Your companion remembers what matters to you", de: "Dein Begleiter erinnert sich, was dir wichtig ist" },
   "growth.chats": { en: "Chats", de: "Gespräche" },
 };
