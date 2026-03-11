@@ -101,6 +101,26 @@ export default function Chat() {
     return () => { composer.cleanup(); };
   }, []);
 
+  // Helper: resolve companion name from hook or localStorage fallback
+  const getCompanionName = (): string => {
+    if (companion?.name) return companion.name;
+    try {
+      const stored = localStorage.getItem("soulvay-personalization");
+      if (stored) {
+        const p = JSON.parse(stored);
+        const archetypeId = p.companionId;
+        if (archetypeId) {
+          const archetypeNames: Record<string, string> = {
+            mira: "Mira", noah: "Noah", elena: "Elena", kai: "Kai", lina: "Lina",
+            theo: "Theo", ava: "Ava", jonas: "Jonas", sofia: "Sofia", arin: "Arin",
+          };
+          return archetypeNames[archetypeId] || "Soulvay";
+        }
+      }
+    } catch {}
+    return "Soulvay";
+  };
+
   // Initialize: greeting, restore conversation, or handle initial message
   const [initDone, setInitDone] = useState(false);
   useEffect(() => {
@@ -142,7 +162,7 @@ export default function Chat() {
         composer.handleSend(initialMessage, false, undefined, handleStreamDone);
       } else {
         const personalLine = getPersonalizedGreeting();
-        const companionName = companion?.name || "Soulvay";
+        const companionName = getCompanionName();
         const baseGreeting = savedLang === "de"
           ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.`
           : `Hello. I'm ${companionName}, and\nI'm here to listen.`;
@@ -161,6 +181,25 @@ export default function Chat() {
     };
     init();
   }, []);
+
+  // Update greeting when companion loads (if still showing fallback name)
+  useEffect(() => {
+    if (!companion?.name || !initDone) return;
+    const firstMsg = composer.messages[0];
+    if (!firstMsg || firstMsg.role !== "assistant" || !firstMsg.id.startsWith("greeting")) return;
+    // Check if greeting contains "Soulvay" (fallback) and replace with actual companion name
+    if (firstMsg.content.includes("Soulvay") || firstMsg.content.includes("Ich bin Soulway")) {
+      const savedLang = composer.preferences.current.language || language;
+      const updated = firstMsg.content
+        .replace(/Ich bin Soulvay/g, `Ich bin ${companion.name}`)
+        .replace(/Ich bin Soulway/g, `Ich bin ${companion.name}`)
+        .replace(/I'm Soulvay/g, `I'm ${companion.name}`)
+        .replace(/I'm Soulway/g, `I'm ${companion.name}`);
+      if (updated !== firstMsg.content) {
+        composer.setMessages(prev => prev.map((m, i) => i === 0 ? { ...m, content: updated } : m));
+      }
+    }
+  }, [companion?.name, initDone]);
 
   // Handle stream completion → trigger TTS
   // Use a ref to always call the LATEST speakResponse, avoiding stale closures
@@ -296,7 +335,7 @@ export default function Chat() {
 
     composer.startNewConversation();
     const savedLang = composer.preferences.current.language || language;
-    const companionName = companion?.name || "Soulvay";
+    const companionName = getCompanionName();
     const baseGreeting = savedLang === "de"
       ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt.`
       : `Hello. I'm ${companionName}, and\nI'm here to listen.\n\nTake your time – share what's on your mind.`;

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell, ImageIcon } from "lucide-react";
+import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { CalmCard } from "@/components/shared/CalmCard";
 
@@ -740,55 +740,6 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
   return (
     <div className="space-y-3">
-      {/* Avatar Upload */}
-      <CalmCard variant="elevated">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Avatar className="w-16 h-16 border-2 border-primary/20">
-              <AvatarImage src={avatarSignedUrl} alt="Avatar" />
-              <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
-            {/* CRITICAL: Do NOT show upload button on iOS native - file input causes WKWebView crash on iPad (Guideline 2.1) */}
-            {!isNativeEnvironment && (
-              <>
-                <button
-                  onClick={() => {
-                    if (isNativeEnvironment) return;
-                    fileInputRef.current?.click();
-                  }}
-                  disabled={isUploadingAvatar}
-                  className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                >
-                  {isUploadingAvatar ? (
-                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <ImageIcon className="w-3.5 h-3.5" />
-                  )}
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  className="hidden"
-                />
-              </>
-            )}
-          </div>
-          <div className="flex-1">
-            <p className="font-medium text-foreground">{t.changeAvatar}</p>
-            <p className="text-sm text-muted-foreground">
-              {isNativeEnvironment
-                ? (language === "de" ? "Profilbild wird über die Web-Version geändert" : "Change profile picture via web version")
-                : (language === "de" ? "JPG, PNG oder GIF. Max 5MB" : "JPG, PNG or GIF. Max 5MB")
-              }
-            </p>
-          </div>
-        </div>
-      </CalmCard>
-
       {/* Display Name - Editable */}
       <CalmCard variant="elevated">
         <div className="flex items-center gap-3">
