@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { CompanionAvatar } from "./CompanionAvatar";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CompanionProfile } from "@/hooks/useCompanion";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 
 interface CompanionCardProps {
   companion: CompanionProfile;
