@@ -132,6 +132,15 @@ export function usePremium() {
     }
   }, [user, state.isPremium]);
 
+  // Reset module-level cache when user logs out to prevent cross-account stale state
+  useEffect(() => {
+    if (!user) {
+      _lastCheckAt = 0;
+      _lastServerResult = false;
+      _checkInFlight = null;
+    }
+  }, [user]);
+
   // Check subscription status from backend (source of truth)
   // Uses module-level deduplication to prevent N parallel calls from N hook instances.
   const checkSubscriptionStatus = useCallback(async (force = false) => {
