@@ -1,7 +1,7 @@
 /**
  * useConversationalVoice — Real-time voice hook using ElevenLabs Conversational AI Agent.
  * 
- * Uses WebRTC via @elevenlabs/react useConversation for low-latency
+ * Uses WebSocket via @elevenlabs/react useConversation for
  * full-duplex voice conversations with companion characters.
  */
 
@@ -40,7 +40,6 @@ export function useConversationalVoice({
   const [transcriptHistory, setTranscriptHistory] = useState<TranscriptEntry[]>([]);
   const [isSupported, setIsSupported] = useState(true);
   
-  // Use ref for retry count to avoid stale closures in SDK callbacks
   const retryCountRef = useRef(0);
   const isConnectingRef = useRef(false);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -50,14 +49,12 @@ export function useConversationalVoice({
   const agentIdRef = useRef(agentId);
   agentIdRef.current = agentId;
 
-  // Forward ref for startSessionInternal to break circular dep
   const startSessionInternalRef = useRef<() => Promise<boolean>>();
 
   // ElevenLabs useConversation hook
   const conversation = useConversation({
     onConnect: () => {
-      console.log("[Voice2.0] Connected to agent via WebRTC");
-      // Cancel any pending retry — connection succeeded
+      console.log("[Voice2.0] Connected to agent via WebSocket");
       if (retryTimerRef.current) {
         clearTimeout(retryTimerRef.current);
         retryTimerRef.current = null;
@@ -69,9 +66,7 @@ export function useConversationalVoice({
     },
     onDisconnect: (details) => {
       console.log("[Voice2.0] Disconnected from agent", details ? JSON.stringify(details) : "");
-      // Only set disconnected if we were connected (not during retry cycle)
       setStatus(prev => {
-        // If we're in a retry cycle (connecting), don't override to disconnected
         if (prev === "connecting") return prev;
         return "disconnected";
       });
@@ -104,7 +99,6 @@ export function useConversationalVoice({
       
       const currentRetry = retryCountRef.current;
       
-      // If we haven't exhausted retries, try again automatically
       if (currentRetry < maxRetries) {
         console.log(`[Voice2.0] Auto-retry ${currentRetry + 1}/${maxRetries}, error: ${errorMsg}`);
         retryCountRef.current = currentRetry + 1;
@@ -119,16 +113,11 @@ export function useConversationalVoice({
       setStatus("error");
       setPhase("idle");
       
-      // Classify error for user-facing message
-      const isConnectionError = errorMsg.includes("ConnectionError") || errorMsg.includes("could not establish") || errorMsg.includes("connection");
       const isAuthError = errorMsg.includes("401") || errorMsg.includes("403") || errorMsg.includes("NotAllowed");
       
       if (isAuthError) {
-        console.error("[Voice2.0] Auth error — check API key permissions (convai_write). Agent ID:", agentIdRef.current);
+        console.error("[Voice2.0] Auth error — check API key permissions. Agent ID:", agentIdRef.current);
         onErrorRef.current?.("Voice service authentication failed. Please try again later.");
-      } else if (isConnectionError) {
-        console.error("[Voice2.0] WebRTC connection failed. Agent ID:", agentIdRef.current);
-        onErrorRef.current?.("Voice connection failed. Please try again.");
       } else {
         onErrorRef.current?.("Voice connection failed. Please try again.");
       }
@@ -144,13 +133,13 @@ export function useConversationalVoice({
     setPhase(conversation.isSpeaking ? "agent_speaking" : "listening");
   }, [status, conversation.isSpeaking]);
 
-  // Internal session start (used for retries too)
+  // Internal session start
   const startSessionInternal = useCallback(async () => {
     const currentAgentId = agentIdRef.current;
     if (!currentAgentId) return false;
 
     try {
-      // Get conversation token from edge function
+      // Get signed URL from edge function (WebSocket connection)
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
@@ -168,19 +157,20 @@ export function useConversationalVoice({
       );
 
       if (!response.ok) {
-        throw new Error("Failed to get voice session token");
+        throw new Error("Failed to get voice session URL");
       }
 
       const data = await response.json();
 
-      if (!data.token) {
-        throw new Error("No conversation token received");
+      if (!data.signed_url) {
+        throw new Error("No signed URL received");
       }
 
-      // Start WebRTC conversation session
+      console.log("[Voice2.0] Starting WebSocket session for agent:", currentAgentId);
+
+      // Start WebSocket conversation session (avoids LiveKit RTC path issues)
       await conversation.startSession({
-        conversationToken: data.token,
-        connectionType: "webrtc",
+        signedUrl: data.signed_url,
       });
 
       return true;
@@ -195,7 +185,6 @@ export function useConversationalVoice({
         return false;
       }
       
-      // For connection errors, let the onError handler deal with retries
       if (retryCountRef.current >= maxRetries) {
         setStatus("error");
         isConnectingRef.current = false;
@@ -205,10 +194,9 @@ export function useConversationalVoice({
     }
   }, [conversation]);
 
-  // Keep ref in sync
   startSessionInternalRef.current = startSessionInternal;
 
-  // Start a real-time voice session via WebRTC
+  // Start a real-time voice session
   const startSession = useCallback(async () => {
     if (!agentIdRef.current || isConnectingRef.current) return false;
 
@@ -220,10 +208,8 @@ export function useConversationalVoice({
     retryCountRef.current = 0;
 
     try {
-      // Request microphone permission first, then release the stream
-      // so the SDK can capture its own audio track without conflicts
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
+      // Request microphone permission — SDK needs it for audio capture
+      await navigator.mediaDevices.getUserMedia({ audio: true });
       return await startSessionInternal();
     } catch (error: any) {
       console.error("[Voice2.0] Session start failed:", error);
@@ -257,7 +243,7 @@ export function useConversationalVoice({
     isConnectingRef.current = false;
   }, [conversation]);
 
-  // Reset error state so user can try again
+  // Reset error state
   const resetError = useCallback(() => {
     if (retryTimerRef.current) {
       clearTimeout(retryTimerRef.current);
@@ -269,7 +255,6 @@ export function useConversationalVoice({
     isConnectingRef.current = false;
   }, []);
 
-  // Visual state for companion avatar
   const visualState = phase === "agent_speaking" 
     ? "speaking" as const
     : phase === "listening" 
