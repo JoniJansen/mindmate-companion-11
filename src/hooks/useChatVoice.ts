@@ -28,7 +28,7 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
 
-  const { speak: speakTTS, stop: stopTTS, isSpeaking, isPlayingMessage, isLoadingMessage } = useElevenLabsTTS({
+  const { speak: speakTTS, stop: stopTTS, isSpeaking, isLoading: isTTSLoading, isPlayingMessage, isLoadingMessage } = useElevenLabsTTS({
     onError: (error) => {
       toast({ title: t("chat.voiceFailed"), description: error, variant: "destructive" });
     },
