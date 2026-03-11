@@ -39,5 +39,7 @@ project_id = "djnbvnufmegiursvqbhp"
     verify_jwt = false
   [functions.verify-apple-receipt]
     verify_jwt = false
+  [functions.send-transactional-email]
+    verify_jwt = false
   [functions.weekly-recap]
     verify_jwt = false
