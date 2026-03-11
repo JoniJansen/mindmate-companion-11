@@ -694,12 +694,16 @@ serve(async (req) => {
       } : {}),
     };
 
-    const isCrisis = detectCrisis(messages || []);
+    const crisisResult = detectCrisis(messages || []);
+    const isCrisis = crisisResult.detected;
     const systemPrompt = buildSystemPrompt(userPreferences, isCrisis, memoriesContext);
 
     if (isCrisis) {
-      console.log("CRISIS DETECTED for user", userId);
+      console.log(`CRISIS DETECTED for user ${userId} | severity=${crisisResult.severity} | signal=${crisisResult.matchedSignal}`);
     }
+
+    // ── Truncate conversation to fit context window ──
+    const truncatedMessages = truncateConversation(messages || []);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -711,7 +715,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          ...messages,
+          ...truncatedMessages,
         ],
         stream: true,
       }),

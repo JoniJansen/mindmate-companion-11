@@ -285,7 +285,7 @@ export type Database = {
           tags: string[] | null
           title: string | null
           updated_at: string
-          user_id: string | null
+          user_id: string
           user_session_id: string
         }
         Insert: {
@@ -298,7 +298,7 @@ export type Database = {
           tags?: string[] | null
           title?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id: string
           user_session_id: string
         }
         Update: {
@@ -311,7 +311,7 @@ export type Database = {
           tags?: string[] | null
           title?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
           user_session_id?: string
         }
         Relationships: []
@@ -323,7 +323,7 @@ export type Database = {
           id: string
           mood_value: number
           note: string | null
-          user_id: string | null
+          user_id: string
           user_session_id: string
         }
         Insert: {
@@ -332,7 +332,7 @@ export type Database = {
           id?: string
           mood_value: number
           note?: string | null
-          user_id?: string | null
+          user_id: string
           user_session_id: string
         }
         Update: {
@@ -341,7 +341,7 @@ export type Database = {
           id?: string
           mood_value?: number
           note?: string | null
-          user_id?: string | null
+          user_id?: string
           user_session_id?: string
         }
         Relationships: []
@@ -412,7 +412,7 @@ export type Database = {
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           updated_at: string
-          user_id: string | null
+          user_id: string
           user_session_id: string
         }
         Insert: {
@@ -426,7 +426,7 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id: string
           user_session_id: string
         }
         Update: {
@@ -440,7 +440,7 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
           user_session_id?: string
         }
         Relationships: []
@@ -553,7 +553,7 @@ export type Database = {
           suggested_next_step: string | null
           summary_bullets: string[] | null
           time_range: string
-          user_id: string | null
+          user_id: string
           user_session_id: string
         }
         Insert: {
@@ -564,7 +564,7 @@ export type Database = {
           suggested_next_step?: string | null
           summary_bullets?: string[] | null
           time_range?: string
-          user_id?: string | null
+          user_id: string
           user_session_id: string
         }
         Update: {
@@ -575,7 +575,7 @@ export type Database = {
           suggested_next_step?: string | null
           summary_bullets?: string[] | null
           time_range?: string
-          user_id?: string | null
+          user_id?: string
           user_session_id?: string
         }
         Relationships: []
