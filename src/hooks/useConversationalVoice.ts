@@ -43,6 +43,7 @@ export function useConversationalVoice({
   // Use ref for retry count to avoid stale closures in SDK callbacks
   const retryCountRef = useRef(0);
   const isConnectingRef = useRef(false);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxRetries = 2;
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
