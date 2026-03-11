@@ -76,6 +76,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Force Vite to use the livekit-client version bundled by @elevenlabs/client
+      // to avoid protocol mismatch with ElevenLabs' LiveKit server
+      "livekit-client": path.resolve(__dirname, "node_modules/@elevenlabs/client/node_modules/livekit-client"),
     },
   },
 }));
