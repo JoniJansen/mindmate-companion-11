@@ -168,7 +168,7 @@ export default function Chat() {
     voice.setVoiceInputValue("");
     voice.setPendingTranscript("");
     voice.setShowTranscriptConfirm(false);
-  }, [composer, handleStreamDone, voice]);
+  }, [composer, handleStreamDone]);
 
   // Mode change with premium gating
   const handleModeChange = (mode: ChatMode) => {
