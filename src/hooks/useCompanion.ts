@@ -17,6 +17,10 @@ export interface CompanionProfile {
   created_at: string;
 }
 
+// Module-level dedup for companion_profiles fetches
+let _companionFetchInFlight: Promise<CompanionProfile | null> | null = null;
+let _companionFetchUserId: string | null = null;
+
 export function useCompanion() {
   const { user } = useAuth();
   const [companion, setCompanion] = useState<CompanionProfile | null>(null);
@@ -26,20 +30,45 @@ export function useCompanion() {
     if (!user) {
       setCompanion(null);
       setIsLoading(false);
+      _companionFetchInFlight = null;
+      _companionFetchUserId = null;
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from("companion_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+    // If an in-flight fetch exists for the same user, piggyback on it
+    if (_companionFetchInFlight && _companionFetchUserId === user.id) {
+      try {
+        const result = await _companionFetchInFlight;
+        setCompanion(result);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
 
-      if (error) throw error;
-      setCompanion(data as CompanionProfile | null);
-    } catch (e) {
-      if (import.meta.env.DEV) console.warn("Failed to load companion:", e);
+    _companionFetchUserId = user.id;
+    const doFetch = async (): Promise<CompanionProfile | null> => {
+      try {
+        const { data, error } = await supabase
+          .from("companion_profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        return data as CompanionProfile | null;
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Failed to load companion:", e);
+        return null;
+      } finally {
+        _companionFetchInFlight = null;
+      }
+    };
+
+    _companionFetchInFlight = doFetch();
+    try {
+      const result = await _companionFetchInFlight;
+      setCompanion(result);
     } finally {
       setIsLoading(false);
     }
