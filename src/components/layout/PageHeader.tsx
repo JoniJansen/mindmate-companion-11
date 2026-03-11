@@ -17,7 +17,7 @@ interface PageHeaderProps {
 }
 
 export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
-  ({ title, subtitle, showBack = false, backTo, rightElement, showSettings = true, showLogo = false, className = "" }, ref) => {
+  ({ title, subtitle, showBack = false, backTo, rightElement, avatarElement, showSettings = true, showLogo = false, className = "" }, ref) => {
     const navigate = useNavigate();
 
     const handleBack = () => {
