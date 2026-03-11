@@ -148,7 +148,7 @@ export function GrowthDashboard({ patterns, weeklyStats, currentStreak, insightC
               <MessageSquare className="w-3 h-3 text-primary/60" />
               <p className="text-sm font-semibold text-foreground">{weeklyStats.chatSessions}</p>
             </div>
-            <p className="text-[9px] text-muted-foreground">{language === "de" ? "Gespräche" : "Chats"}</p>
+            <p className="text-[9px] text-muted-foreground">{t("growth.chats")}</p>
           </div>
           <div className="py-3 text-center">
             <div className="flex items-center justify-center gap-1 mb-0.5">

@@ -32,7 +32,7 @@ export function useCompanion() {
 
     try {
       const { data, error } = await supabase
-        .from("companion_profiles" as any)
+        .from("companion_profiles")
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle();

@@ -121,7 +121,7 @@ export function ChatMessages({
             <div className="bg-card border border-border/50 px-4 py-3 rounded-2xl rounded-bl-lg shadow-soft">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] text-muted-foreground/70 italic">
-                  {language === "de" ? `${companionName || "Soulvay"} reflektiert` : `${companionName || "Soulvay"} is reflecting`}
+                  {`${companionName || "Soulvay"} ${t("companion.isReflecting")}`}
                 </span>
                 <span className="inline-flex gap-0.5">
                   <span className="w-1 h-1 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
