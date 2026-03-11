@@ -117,9 +117,10 @@ export default function Chat() {
         composer.handleSend(initialMessage, false, undefined, handleStreamDone);
       } else {
         const personalLine = getPersonalizedGreeting();
+        const companionName = companion?.name || "Soulvay";
         const baseGreeting = savedLang === "de"
-          ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu."
-          : "Hello. I'm Soulvay, and\nI'm here to listen.";
+          ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.`
+          : `Hello. I'm ${companionName}, and\nI'm here to listen.`;
         const closingLine = savedLang === "de"
           ? "Nimm dir Zeit – teile, was dich bewegt."
           : "Take your time – share what's on your mind.";
