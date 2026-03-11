@@ -68,14 +68,25 @@ export default function Chat() {
   const { companion, incrementBond } = useCompanion();
   const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
 
-  // Voice hook
+  // Voice hook (turn-based)
   const voice = useChatVoice(companion?.archetype, composer.isLoading || composer.isStreamingActive);
+
+  // Real-time conversational voice (ElevenLabs Agent SDK)
+  const agentId = companion ? getCompanionAgentId(companion.archetype) : undefined;
+  const realtimeAvailable = companion ? hasRealtimeAgent(companion.archetype) : false;
+  const realtimeVoice = useConversationalVoice({
+    agentId,
+    onError: (msg) => toast({ title: language === "de" ? "Sprachfehler" : "Voice error", description: msg, variant: "destructive" }),
+  });
+
+  // Track if user is in real-time mode vs turn-based
+  const [useRealtimeMode, setUseRealtimeMode] = useState(false);
 
   // Companion visual state for animated avatar
   const companionState = useCompanionVisualState({
-    isListening: voice.isListening,
+    isListening: voice.isListening || (useRealtimeMode && realtimeVoice.phase === "listening"),
     isThinking: composer.isLoading && !composer.isStreamingActive,
-    isSpeaking: voice.isSpeaking || composer.isStreamingActive,
+    isSpeaking: voice.isSpeaking || composer.isStreamingActive || realtimeVoice.isSpeaking,
   });
 
   // Sync voice input → composer input
