@@ -418,14 +418,23 @@ export default function Chat() {
         </div>
       )}
 
-      {/* Voice Avatar */}
+      {/* Voice Conversation Panel — full-screen companion voice experience */}
       <AnimatePresence>
-        {voice.voiceModeEnabled && canUseVoice && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="border-b border-border/30 overflow-hidden bg-gradient-to-b from-background to-muted/20">
-            <div className="flex flex-col items-center py-8">
-              <VoiceAvatar isSpeaking={voice.isSpeaking} isListening={voice.isListening} avatarStyle={voice.voiceSettings.avatarStyle || "orb"} size="lg" onTap={handleToggleRecording} />
-            </div>
-          </motion.div>
+        {voice.voiceModeEnabled && canUseVoice && companion && (
+          <VoiceConversationPanel
+            companion={companion}
+            avatarUrl={companionAvatarUrl}
+            isListening={voice.isListening}
+            isSpeaking={voice.isSpeaking}
+            isThinking={composer.isLoading && !composer.isStreamingActive}
+            isStreamingActive={composer.isStreamingActive}
+            liveTranscript={voice.voiceInputValue}
+            lastAssistantMessage={
+              composer.messages.filter(m => m.role === "assistant" && !m.isError).slice(-1)[0]?.content || ""
+            }
+            onToggleRecording={handleToggleRecording}
+            onClose={handleToggleVoiceMode}
+          />
         )}
       </AnimatePresence>
 
