@@ -9,7 +9,7 @@ interface CompanionAvatarAnimatedProps {
   avatarUrl?: string | null;
   name?: string;
   state?: CompanionVisualState;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
   showPresenceDot?: boolean;
   className?: string;
 }
