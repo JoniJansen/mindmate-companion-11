@@ -39,6 +39,7 @@ const getToday = () => new Date().toISOString().split("T")[0];
 // firing concurrent subscription checks on mount.
 let _lastCheckAt = 0;
 let _checkInFlight: Promise<void> | null = null;
+let _lastServerResult = false; // cache last known server result for error fallback
 const CHECK_COOLDOWN_MS = 10_000; // 10s between checks
 
 const getDefaultState = (): StoredState => ({
