@@ -183,11 +183,59 @@ export default function Safety() {
           </div>
         </motion.div>
 
-        {/* Professional Contact - Jutta Jansen */}
+        {/* Crisis lines */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
+          className="mb-8"
+        >
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            {t("safety.crisisLines")}
+          </h2>
+          
+          <div className="space-y-3">
+            {crisisLines.map((line, index) => (
+              <motion.div
+                key={line.name}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 + index * 0.05 }}
+              >
+                <CalmCard variant="elevated">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-medium text-foreground mb-1">{line.name}</h3>
+                      <p className="text-lg font-bold text-primary mb-1">{line.number}</p>
+                      <p className="text-sm text-muted-foreground">{line.description}</p>
+                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3" />
+                        {line.available}
+                      </div>
+                    </div>
+                    <Button variant="calm" size="icon" asChild>
+                      <a href={line.tel} target={line.isLink ? "_blank" : undefined} rel={line.isLink ? "noopener noreferrer" : undefined}>
+                        {line.isText ? (
+                          <MessageCircle className="w-4 h-4" />
+                        ) : line.isLink ? (
+                          <ExternalLink className="w-4 h-4" />
+                        ) : (
+                          <Phone className="w-4 h-4" />
+                        )}
+                      </a>
+                    </Button>
+                  </div>
+                </CalmCard>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Professional Contact - Jutta Jansen */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
           className="mb-6"
         >
           <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -229,54 +277,6 @@ export default function Safety() {
               </Button>
             </div>
           </CalmCard>
-        </motion.div>
-
-        {/* Crisis lines */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
-        >
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            {t("safety.crisisLines")}
-          </h2>
-          
-          <div className="space-y-3">
-            {crisisLines.map((line, index) => (
-              <motion.div
-                key={line.name}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + index * 0.05 }}
-              >
-                <CalmCard variant="elevated">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground mb-1">{line.name}</h3>
-                      <p className="text-lg font-bold text-primary mb-1">{line.number}</p>
-                      <p className="text-sm text-muted-foreground">{line.description}</p>
-                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        {line.available}
-                      </div>
-                    </div>
-                    <Button variant="calm" size="icon" asChild>
-                      <a href={line.tel} target={line.isLink ? "_blank" : undefined} rel={line.isLink ? "noopener noreferrer" : undefined}>
-                        {line.isText ? (
-                          <MessageCircle className="w-4 h-4" />
-                        ) : line.isLink ? (
-                          <ExternalLink className="w-4 h-4" />
-                        ) : (
-                          <Phone className="w-4 h-4" />
-                        )}
-                      </a>
-                    </Button>
-                  </div>
-                </CalmCard>
-              </motion.div>
-            ))}
-          </div>
         </motion.div>
 
         {/* Reassurance message */}
