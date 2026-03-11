@@ -2,9 +2,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
-import { useVoiceSettings } from "@/hooks/useVoiceSettings";
+import { useVoiceSettings, voiceIds } from "@/hooks/useVoiceSettings";
 import { usePremium } from "@/hooks/usePremium";
 import { useToast } from "@/hooks/use-toast";
+import { getCompanionVoiceProfile } from "@/data/companionVoiceProfiles";
 
 interface Message {
   id: string;
@@ -14,7 +15,7 @@ interface Message {
   isError?: boolean;
 }
 
-export function useChatVoice() {
+export function useChatVoice(companionArchetypeId?: string) {
   const { t, language } = useTranslation();
   const { toast } = useToast();
   const { canUseVoice } = usePremium();
@@ -131,19 +132,29 @@ export function useChatVoice() {
     setShowTranscriptConfirm(false); setInputValue(""); setPendingTranscript(""); resetTranscript();
   }, [resetTranscript]);
 
+  // Resolve voice ID: companion profile overrides global setting
+  const resolveVoiceId = useCallback((): string => {
+    const effectiveLang = getEffectiveLanguage(language as "en" | "de");
+    if (companionArchetypeId) {
+      const profile = getCompanionVoiceProfile(companionArchetypeId);
+      return voiceIds[effectiveLang][profile.voiceType];
+    }
+    return getVoiceId(language as "en" | "de");
+  }, [companionArchetypeId, getVoiceId, getEffectiveLanguage, language]);
+
   const playMessage = useCallback((message: Message) => {
-    const voiceId = getVoiceId(language as "en" | "de");
+    const voiceId = resolveVoiceId();
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
     speakTTS(message.content, voiceId, effectiveLang, voiceSettings.speed, message.id);
-  }, [getVoiceId, getEffectiveLanguage, language, speakTTS, voiceSettings.speed]);
+  }, [resolveVoiceId, getEffectiveLanguage, language, speakTTS, voiceSettings.speed]);
 
   const speakResponse = useCallback((content: string, messageId: string) => {
     if (!canUseVoice || (!voiceModeEnabled && !voiceSettings.autoPlayReplies)) return;
     if (isListening) return;
-    const voiceId = getVoiceId(language as "en" | "de");
+    const voiceId = resolveVoiceId();
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
     speakTTS(content, voiceId, effectiveLang, voiceSettings.speed, messageId);
-  }, [canUseVoice, voiceModeEnabled, voiceSettings.autoPlayReplies, voiceSettings.speed, isListening, getVoiceId, getEffectiveLanguage, language, speakTTS]);
+  }, [canUseVoice, voiceModeEnabled, voiceSettings.autoPlayReplies, voiceSettings.speed, isListening, resolveVoiceId, getEffectiveLanguage, language, speakTTS]);
 
   return {
     // State

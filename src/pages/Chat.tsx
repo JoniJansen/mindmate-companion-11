@@ -66,7 +66,7 @@ export default function Chat() {
   const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
 
   // Voice hook
-  const voice = useChatVoice();
+  const voice = useChatVoice(companion?.archetype);
 
   // Companion visual state for animated avatar
   const companionState = useCompanionVisualState({

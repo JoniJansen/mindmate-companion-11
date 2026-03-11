@@ -589,6 +589,8 @@ function CompanionIntroStep({ t, archetype, language }: {
   archetype: CompanionArchetype;
   language: Language;
 }) {
+  const personalGreeting = language === "de" ? archetype.introGreetingDe : archetype.introGreeting;
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
       <motion.div
@@ -624,7 +626,7 @@ function CompanionIntroStep({ t, archetype, language }: {
         className="mt-8 bg-card rounded-2xl border border-border/50 p-5 max-w-xs shadow-sm"
       >
         <p className="text-foreground text-sm leading-relaxed italic">
-          "{t.greeting} {t.description}"
+          "{personalGreeting}"
         </p>
         <p className="text-muted-foreground text-xs mt-3">{t.ready}</p>
       </motion.div>
