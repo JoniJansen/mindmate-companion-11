@@ -21,7 +21,18 @@ import logoImage from "@/assets/logo.png";
 export default function Landing() {
   const navigate = useNavigate();
   const { isDark, setMode: setThemeMode } = useTheme();
-  const [language, setLanguage] = useState<"en" | "de">("en");
+  const [language, setLanguage] = useState<"en" | "de">(() => {
+    try {
+      const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+      if (stored) {
+        const prefs = JSON.parse(stored);
+        if (prefs.language === "en" || prefs.language === "de") return prefs.language;
+      }
+    } catch {}
+    const browserLang = navigator.language?.toLowerCase() || "";
+    if (browserLang.startsWith("en")) return "en";
+    return "de";
+  });
 
   // Detect native app to hide store badges
   const isNativeBuild = (() => {
