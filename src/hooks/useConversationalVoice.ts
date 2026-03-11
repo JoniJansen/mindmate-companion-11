@@ -220,8 +220,10 @@ export function useConversationalVoice({
     retryCountRef.current = 0;
 
     try {
-      // Request microphone permission first
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Request microphone permission first, then release the stream
+      // so the SDK can capture its own audio track without conflicts
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
       return await startSessionInternal();
     } catch (error: any) {
       console.error("[Voice2.0] Session start failed:", error);
