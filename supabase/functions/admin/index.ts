@@ -1,8 +1,8 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 Deno.serve(async (req) => {
@@ -15,12 +15,9 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Create admin client for privileged operations
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Create user client to verify the requesting user
+    // Validate auth via getClaims
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -31,20 +28,26 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
-    // Get the requesting user
-    const { data: { user }, error: userError } = await userClient.auth.getUser();
-    if (userError || !user) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+
+    if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Check if the user is an admin using direct query with service role
+    const userId = claimsData.claims.sub as string;
+
+    // Create admin client for privileged operations
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check if the user is an admin
     const { data: roleData, error: roleError } = await adminClient
       .from("user_roles")
       .select("role")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("role", "admin")
       .single();
 
@@ -59,7 +62,6 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case "list-users": {
-        // Get all users from auth.users
         const { data: users, error } = await adminClient.auth.admin.listUsers({
           page: params.page || 1,
           perPage: params.perPage || 50,
@@ -67,17 +69,14 @@ Deno.serve(async (req) => {
 
         if (error) throw error;
 
-        // Get all subscriptions
         const { data: subscriptions } = await adminClient
           .from("subscriptions")
           .select("*");
 
-        // Get all profiles
         const { data: profiles } = await adminClient
           .from("profiles")
           .select("*");
 
-        // Map users with their subscription and profile data
         const enrichedUsers = users.users.map((u) => {
           const sub = subscriptions?.find((s) => s.user_id === u.id);
           const profile = profiles?.find((p) => p.user_id === u.id);
@@ -108,7 +107,6 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Check if subscription exists
         const { data: existingSub } = await adminClient
           .from("subscriptions")
           .select("*")
@@ -139,7 +137,6 @@ Deno.serve(async (req) => {
             if (error) throw error;
           }
         } else {
-          // Revoke premium
           if (existingSub) {
             const { error } = await adminClient
               .from("subscriptions")
@@ -166,14 +163,12 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Search in auth.users by email
         const { data: allUsers } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
         
         const filteredUsers = allUsers?.users.filter(
           (u) => u.email?.toLowerCase().includes(query.toLowerCase())
         ) || [];
 
-        // Get subscriptions and profiles for filtered users
         const userIds = filteredUsers.map((u) => u.id);
         
         const { data: subscriptions } = await adminClient
