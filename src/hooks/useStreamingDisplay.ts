@@ -34,10 +34,10 @@ export function useStreamingDisplay(
   options: StreamingDisplayOptions = {}
 ) {
   const {
-    baseInterval = 22,
-    speedUpThreshold = 15,
-    minInterval = 8,
-    drainInterval = 6,
+    baseInterval = 18,
+    speedUpThreshold = 12,
+    minInterval = 6,
+    drainInterval = 4,
   } = options;
 
   // Queue of word-level chunks waiting to be displayed
@@ -95,14 +95,14 @@ export function useStreamingDisplay(
     const displayed = displayedLengthRef.current;
 
     // First-token acceleration: emit more words initially for perceived responsiveness
-    const isFirstBurst = displayed < 30;
+    const isFirstBurst = displayed < 60;
 
     let wordsPerTick = 1;
     if (isDraining) {
-      wordsPerTick = Math.min(4, queueLen);
+      wordsPerTick = Math.min(5, queueLen);
     } else if (isFirstBurst) {
-      // Faster start: emit 2-3 words at once for the first ~30 chars
-      wordsPerTick = Math.min(3, queueLen);
+      // Faster start: emit 3-4 words at once for the first ~60 chars
+      wordsPerTick = Math.min(4, queueLen);
     } else if (queueLen > speedUpThreshold * 2) {
       wordsPerTick = 3;
     } else if (queueLen > speedUpThreshold) {
@@ -121,7 +121,7 @@ export function useStreamingDisplay(
         interval = drainInterval;
       } else if (isFirstBurst) {
         // Faster initial rendering for perceived responsiveness
-        interval = Math.round(baseInterval * 0.4);
+        interval = Math.round(baseInterval * 0.3);
       } else if (queueLen > speedUpThreshold * 2) {
         interval = minInterval;
       } else if (queueLen > speedUpThreshold) {

@@ -18,28 +18,23 @@ interface Preferences {
 
 // Crisis keywords that trigger safety response
 const CRISIS_KEYWORDS = [
-  // Self-harm
   "self-harm", "self harm", "hurt myself", "hurting myself", "cut myself", "cutting myself",
   "harm myself", "harming myself", "injure myself", "burn myself",
-  // Suicidal thoughts
   "suicide", "suicidal", "kill myself", "end my life", "end it all", "want to die",
   "don't want to live", "dont want to live", "better off dead", "no reason to live",
   "take my own life", "not worth living", "can't go on", "cant go on",
-  // Immediate danger
   "in danger", "going to hurt", "someone is hurting me", "being abused", "being hurt",
   "not safe", "unsafe at home", "afraid for my life",
-  // Violence
   "hurt someone", "kill someone", "violent thoughts", "abuse", "domestic violence",
   "being beaten", "attacked"
 ];
 
 function detectCrisis(messages: { role: string; content: string }[]): boolean {
-  const recentMessages = messages.slice(-3); // Check last 3 messages
+  const recentMessages = messages.slice(-3);
   const lowerContent = recentMessages
     .filter(m => m.role === "user")
     .map(m => m.content.toLowerCase())
     .join(" ");
-  
   return CRISIS_KEYWORDS.some(keyword => lowerContent.includes(keyword));
 }
 
@@ -97,7 +92,6 @@ Help users explore different inner perspectives or emotional parts in a gentle, 
 `
     : "";
 
-  // Crisis-specific system prompt
   if (isCrisis) {
     return `You are Soulvay, a digital psychological companion developed to provide evidence-based emotional support. The user has expressed something that suggests they may be in crisis or distress. This is your TOP PRIORITY.
 
@@ -146,7 +140,6 @@ ${addressInstruction}
 Remember: You are a supportive digital tool, not a substitute for licensed mental health professionals. Your role is to provide immediate emotional support, conduct a basic safety assessment, and facilitate connection with appropriate professional resources.`;
   }
 
-  // Normal system prompt - Professional psychological companion
   const modeInstruction = preferences.modePrompt ? `\n## CURRENT CHAT MODE\n${preferences.modePrompt}\n` : "";
   
   const appKnowledge = `
@@ -269,7 +262,7 @@ Example structure:
 
 [Follow-up question — 1 sentence]
 
-Use blank lines (\n\n) to separate these sections. This creates visual breathing room and makes responses feel calm and easy to read — like a thoughtful text message, not an essay.
+Use blank lines (\\n\\n) to separate these sections. This creates visual breathing room and makes responses feel calm and easy to read — like a thoughtful text message, not an essay.
 
 ## FOLLOW-UP QUESTION RULE (Mandatory in Talk & Clarify mode)
 
@@ -392,6 +385,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const t0 = performance.now();
+
   try {
     // JWT auth: extract user from token
     let userId: string;
@@ -403,36 +398,68 @@ serve(async (req) => {
       throw authError;
     }
 
+    const tAuth = performance.now();
+
     const { messages, preferences } = await req.json();
 
-    // --- Server-side daily message limit enforcement ---
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
     const DAILY_LIMIT = 15;
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check if user has an active premium subscription
-    const { data: subData } = await adminClient
-      .from("subscriptions")
-      .select("status")
-      .eq("user_id", userId)
-      .in("status", ["active", "trialing"])
-      .limit(1);
+    // ── PARALLEL: subscription check + context loading simultaneously ──
+    const today = new Date().toISOString().split("T")[0];
 
-    const isPremium = subData && subData.length > 0;
-
-    if (!isPremium) {
-      const today = new Date().toISOString().split("T")[0];
-
-      // Upsert to increment message count atomically
-      const { data: usageRow } = await adminClient
+    const [subResult, usageResult, memoriesResult, patternsResult, insightsResult] = await Promise.all([
+      // 1. Subscription check
+      adminClient
+        .from("subscriptions")
+        .select("status")
+        .eq("user_id", userId)
+        .in("status", ["active", "trialing"])
+        .limit(1),
+      // 2. Daily usage check
+      adminClient
         .from("daily_chat_usage")
         .select("message_count")
         .eq("user_id", userId)
         .eq("usage_date", today)
-        .maybeSingle();
+        .maybeSingle(),
+      // 3. Memories (max 5 for speed)
+      adminClient
+        .from("user_memories")
+        .select("memory_type, content")
+        .eq("user_id", userId)
+        .order("confidence_score", { ascending: false })
+        .limit(5),
+      // 4. Patterns (max 3)
+      adminClient
+        .from("emotional_patterns")
+        .select("pattern_type, description, confidence")
+        .eq("user_id", userId)
+        .order("confidence", { ascending: false })
+        .limit(3),
+      // 5. Latest insight only
+      adminClient
+        .from("session_insights")
+        .select("insight_text")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1),
+    ]);
 
-      const currentCount = usageRow?.message_count ?? 0;
+    const tQueries = performance.now();
+
+    // ── Rate limit enforcement ──
+    const isPremium = subResult.data && subResult.data.length > 0;
+
+    if (!isPremium) {
+      const currentCount = usageResult.data?.message_count ?? 0;
 
       if (currentCount >= DAILY_LIMIT) {
         return new Response(
@@ -441,83 +468,40 @@ serve(async (req) => {
         );
       }
 
-      // Increment counter
-      await adminClient
+      // Fire-and-forget: increment counter (don't await to reduce latency)
+      adminClient
         .from("daily_chat_usage")
         .upsert(
           { user_id: userId, usage_date: today, message_count: currentCount + 1 },
           { onConflict: "user_id,usage_date" }
-        );
-    }
-    // --- End rate limit ---
-    
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+        )
+        .then(() => {})
+        .catch((e: unknown) => console.error("Usage upsert failed:", e));
     }
 
+    // ── Build context string from parallel results ──
+    const parts: string[] = [];
+    if (memoriesResult.data?.length) {
+      parts.push("### Personal memories:\n" + memoriesResult.data.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n"));
+    }
+    if (patternsResult.data?.length) {
+      parts.push("### Emotional patterns:\n" + patternsResult.data.map((p: any) => `- [${p.pattern_type}, ${Math.round((p.confidence || 0.5) * 100)}%] ${p.description}`).join("\n"));
+    }
+    if (insightsResult.data?.length) {
+      parts.push("### Latest insight:\n- " + insightsResult.data[0].insight_text);
+    }
+    const memoriesContext = parts.join("\n\n");
+
+    // ── Build prompt & call AI ──
     const userPreferences: Preferences = preferences || {
-      language: "en",
-      tone: "gentle",
-      addressForm: "du",
-      innerDialogue: false,
+      language: "en", tone: "gentle", addressForm: "du", innerDialogue: false,
     };
 
-    // Fetch user memories AND emotional patterns for richer personal context
-    let memoriesContext = "";
-    try {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-      
-      const [memoriesResult, patternsResult, insightsResult] = await Promise.all([
-        supabase
-          .from("user_memories")
-          .select("memory_type, content")
-          .eq("user_id", userId)
-          .order("confidence_score", { ascending: false })
-          .limit(10),
-        supabase
-          .from("emotional_patterns")
-          .select("pattern_type, description, confidence")
-          .eq("user_id", userId)
-          .order("confidence", { ascending: false })
-          .limit(5),
-        supabase
-          .from("session_insights")
-          .select("insight_text, created_at")
-          .eq("user_id", userId)
-          .order("created_at", { ascending: false })
-          .limit(3),
-      ]);
-
-      const parts: string[] = [];
-      
-      if (memoriesResult.data && memoriesResult.data.length > 0) {
-        parts.push("### Personal memories:\n" + memoriesResult.data.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n"));
-      }
-      
-      if (patternsResult.data && patternsResult.data.length > 0) {
-        parts.push("### Emotional patterns detected over time:\n" + patternsResult.data.map((p: any) => `- [${p.pattern_type}, confidence: ${Math.round((p.confidence || 0.5) * 100)}%] ${p.description}`).join("\n"));
-      }
-      
-      if (insightsResult.data && insightsResult.data.length > 0) {
-        parts.push("### Recent session insights:\n" + insightsResult.data.map((i: any) => `- ${i.insight_text}`).join("\n"));
-      }
-      
-      memoriesContext = parts.join("\n\n");
-    } catch (memError) {
-      console.error("Failed to fetch user context:", memError);
-    }
-
-    // Detect if this is a crisis situation
     const isCrisis = detectCrisis(messages || []);
     const systemPrompt = buildSystemPrompt(userPreferences, isCrisis, memoriesContext);
 
-    console.log(`Chat request from user ${userId} with ${messages?.length || 0} messages`);
-    console.log("Preferences:", userPreferences);
     if (isCrisis) {
-      console.log("CRISIS DETECTED - Using crisis response protocol");
+      console.log("CRISIS DETECTED for user", userId);
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -535,6 +519,11 @@ serve(async (req) => {
         stream: true,
       }),
     });
+
+    const tAI = performance.now();
+
+    // Performance logging
+    console.log(`[perf] auth=${Math.round(tAuth - t0)}ms queries=${Math.round(tQueries - tAuth)}ms ai_connect=${Math.round(tAI - tQueries)}ms total=${Math.round(tAI - t0)}ms msgs=${messages?.length || 0} ctx=${memoriesContext.length}chars`);
 
     if (!response.ok) {
       const errorText = await response.text();
