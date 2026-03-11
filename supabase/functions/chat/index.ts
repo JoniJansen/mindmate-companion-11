@@ -85,9 +85,10 @@ function truncateConversation(
     `Key themes you explored: ${assistantThemes.slice(-5).join(" | ")}`,
   ].join("\n");
 
+  // Inject summary as a system-level context hint (not as a fake user message)
+  // Using role "system" prevents the AI from thinking the user said this
   return [
-    { role: "user", content: summaryBlock },
-    { role: "assistant", content: "I remember our earlier conversation and the themes we explored. Let me continue from where we are." },
+    { role: "system", content: `[Earlier conversation context — ${olderMessages.length} messages condensed]\n${summaryBlock}` },
     ...recentMessages,
   ];
 }
