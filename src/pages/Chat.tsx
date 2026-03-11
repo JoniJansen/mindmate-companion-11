@@ -233,13 +233,19 @@ export default function Chat() {
           }).catch(() => {});
         }
       });
+
+      // Increment companion bond for meaningful conversations
+      if (userMsgCount >= 5) {
+        incrementBond();
+      }
     }
 
     composer.startNewConversation();
     const savedLang = composer.preferences.current.language || language;
+    const companionName = companion?.name || "Soulvay";
     const baseGreeting = savedLang === "de"
-      ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt."
-      : "Hello. I'm Soulvay, and\nI'm here to listen.\n\nTake your time – share what's on your mind.";
+      ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt.`
+      : `Hello. I'm ${companionName}, and\nI'm here to listen.\n\nTake your time – share what's on your mind.`;
     composer.setMessages([{ id: "greeting-" + Date.now(), content: baseGreeting, role: "assistant", timestamp: new Date() }]);
   };
 
