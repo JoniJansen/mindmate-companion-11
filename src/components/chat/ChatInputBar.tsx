@@ -21,7 +21,7 @@ interface ChatInputBarProps {
   onToggleRecording: () => void;
 }
 
-export function ChatInputBar({
+export const ChatInputBar = React.memo(function ChatInputBar({
   inputValue, onInputChange, onSend,
   isLoading, isOnline, isPremium, canSendMessage,
   canUseVoice, isListening, isSpeechSupported, autoPlayReplies,
