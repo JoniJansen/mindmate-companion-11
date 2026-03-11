@@ -26,7 +26,7 @@ interface OnboardingState {
   companionId: string;
 }
 
-const steps = ["welcome", "disclaimer", "preferences", "companion", "focus", "frequency", "goal"] as const;
+const steps = ["welcome", "disclaimer", "preferences", "companion", "companion-intro", "focus", "frequency", "goal"] as const;
 type Step = typeof steps[number];
 
 const focusOptions = {
