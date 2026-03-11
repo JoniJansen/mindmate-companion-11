@@ -3,6 +3,8 @@ import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { WelcomeEmail } from '../_shared/email-templates/welcome.tsx'
+import { WeeklyRecapEmail } from '../_shared/email-templates/weekly-recap.tsx'
+import { SubscriptionConfirmEmail } from '../_shared/email-templates/subscription-confirm.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
