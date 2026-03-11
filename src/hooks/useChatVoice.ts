@@ -15,7 +15,7 @@ interface Message {
   isError?: boolean;
 }
 
-export function useChatVoice(companionArchetypeId?: string) {
+export function useChatVoice(companionArchetypeId?: string, isComposerBusy = false) {
   const { t, language } = useTranslation();
   const { toast } = useToast();
   const { canUseVoice } = usePremium();
@@ -54,13 +54,13 @@ export function useChatVoice(companionArchetypeId?: string) {
     }
   }, [sttError, t, toast]);
 
-  // Auto-restart listening after AI finishes speaking (only if no STT error)
+  // Auto-restart listening after AI finishes speaking (only if no STT error and composer not busy)
   useEffect(() => {
-    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice && !sttError) {
+    if (!isSpeaking && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice && !sttError && !isComposerBusy) {
       const timeoutId = setTimeout(() => { resetTranscript(); setPendingTranscript(""); startListening(); }, 800);
       return () => clearTimeout(timeoutId);
     }
-  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice, sttError]);
+  }, [isSpeaking, voiceModeEnabled, isSpeechSupported, isListening, showTranscriptConfirm, resetTranscript, startListening, canUseVoice, sttError, isComposerBusy]);
 
   // Stop listening when speaking
   useEffect(() => { if (isSpeaking && isListening) stopListening(); }, [isSpeaking, isListening, stopListening]);
@@ -150,11 +150,16 @@ export function useChatVoice(companionArchetypeId?: string) {
 
   const speakResponse = useCallback((content: string, messageId: string) => {
     if (!canUseVoice || (!voiceModeEnabled && !voiceSettings.autoPlayReplies)) return;
-    if (isListening) return;
+    // In voice mode, stop listening first so TTS can play (don't bail)
+    if (isListening && voiceModeEnabled) {
+      stopListening();
+    } else if (isListening) {
+      return; // Non-voice-mode: don't interrupt active recording
+    }
     const voiceId = resolveVoiceId();
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
     speakTTS(content, voiceId, effectiveLang, voiceSettings.speed, messageId);
-  }, [canUseVoice, voiceModeEnabled, voiceSettings.autoPlayReplies, voiceSettings.speed, isListening, resolveVoiceId, getEffectiveLanguage, language, speakTTS]);
+  }, [canUseVoice, voiceModeEnabled, voiceSettings.autoPlayReplies, voiceSettings.speed, isListening, stopListening, resolveVoiceId, getEffectiveLanguage, language, speakTTS]);
 
   return {
     // State
