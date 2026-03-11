@@ -311,7 +311,7 @@ export function useChatComposer(chatMode: ChatMode) {
     // State
     messages, setMessages,
     inputValue, setInputValue,
-    isLoading, isStreamingActive,
+    isLoading, isStreamingActive, streamingContent,
     isRestoringConversation,
     conversationId,
     chatMessageCountRef,
