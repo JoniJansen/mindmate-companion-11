@@ -475,6 +475,8 @@ export default function Chat() {
             onStartSession={() => realtimeVoice.startSession()}
             onEndSession={() => realtimeVoice.endSession()}
             onClose={() => { realtimeVoice.endSession(); setUseRealtimeMode(false); }}
+            getInputVolume={realtimeVoice.getInputVolume}
+            getOutputVolume={realtimeVoice.getOutputVolume}
           />
         )}
       </AnimatePresence>

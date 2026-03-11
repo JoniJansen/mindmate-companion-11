@@ -189,5 +189,7 @@ export function useConversationalVoice({
     transcriptHistory,
     visualState,
     setVolume: conversation.setVolume,
+    getInputVolume: conversation.getInputVolume,
+    getOutputVolume: conversation.getOutputVolume,
   };
 }
