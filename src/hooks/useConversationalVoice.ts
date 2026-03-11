@@ -78,14 +78,14 @@ export function useConversationalVoice({
         setAgentTranscript(text);
       }
     },
-    onError: (error) => {
+    onError: (error, details) => {
       const errorMsg = typeof error === "object" && error !== null ? JSON.stringify(error) : String(error);
-      console.error("[Voice2.0] Agent error:", errorMsg);
+      console.error("[Voice2.0] Agent error:", errorMsg, details ? JSON.stringify(details) : "");
       isConnectingRef.current = false;
       
       // If we haven't exhausted retries, try again automatically
       if (retryCount < maxRetries) {
-        console.log(`[Voice2.0] Auto-retry ${retryCount + 1}/${maxRetries}`);
+        console.log(`[Voice2.0] Auto-retry ${retryCount + 1}/${maxRetries}, error: ${errorMsg}`);
         setRetryCount(prev => prev + 1);
         setStatus("connecting");
         setTimeout(() => {
@@ -97,11 +97,16 @@ export function useConversationalVoice({
       setStatus("error");
       setPhase("idle");
       
-      // Provide actionable error message
-      const is404 = errorMsg.includes("404") || errorMsg.includes("validate");
-      if (is404) {
-        console.error("[Voice2.0] LiveKit 404 — likely agent misconfiguration or ElevenLabs infrastructure issue. Agent ID:", agentId);
-        onError?.("Voice service temporarily unavailable. Please try again later.");
+      // Classify error for user-facing message
+      const isConnectionError = errorMsg.includes("ConnectionError") || errorMsg.includes("could not establish") || errorMsg.includes("connection");
+      const isAuthError = errorMsg.includes("401") || errorMsg.includes("403") || errorMsg.includes("NotAllowed");
+      
+      if (isAuthError) {
+        console.error("[Voice2.0] Auth error — check API key permissions (convai_write). Agent ID:", agentId);
+        onError?.("Voice service authentication failed. Please try again later.");
+      } else if (isConnectionError) {
+        console.error("[Voice2.0] WebRTC connection failed. Agent ID:", agentId);
+        onError?.("Voice connection failed. Please try again.");
       } else {
         onError?.("Voice connection failed. Please try again.");
       }
