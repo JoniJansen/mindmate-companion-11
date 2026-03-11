@@ -377,7 +377,20 @@ export const topicTranslations: Record<string, {
 };
 
 export function useTranslation() {
-  const [language, setLanguage] = useState<Language>("en");
+  const [language, setLanguage] = useState<Language>(() => {
+    // Default to German for DACH region, unless user explicitly chose English
+    try {
+      const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+      if (stored) {
+        const prefs = JSON.parse(stored);
+        if (prefs.language) return prefs.language;
+      }
+    } catch {}
+    // No stored preference: detect browser language, default to German
+    const browserLang = navigator.language?.toLowerCase() || "";
+    if (browserLang.startsWith("en")) return "en";
+    return "de"; // Default to German for DACH and all other locales
+  });
 
   useEffect(() => {
     const readLang = () => {

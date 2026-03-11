@@ -21,7 +21,18 @@ import logoImage from "@/assets/logo.png";
 export default function Landing() {
   const navigate = useNavigate();
   const { isDark, setMode: setThemeMode } = useTheme();
-  const [language, setLanguage] = useState<"en" | "de">("en");
+  const [language, setLanguage] = useState<"en" | "de">(() => {
+    try {
+      const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+      if (stored) {
+        const prefs = JSON.parse(stored);
+        if (prefs.language === "en" || prefs.language === "de") return prefs.language;
+      }
+    } catch {}
+    const browserLang = navigator.language?.toLowerCase() || "";
+    if (browserLang.startsWith("en")) return "en";
+    return "de";
+  });
 
   // Detect native app to hide store badges
   const isNativeBuild = (() => {
@@ -191,7 +202,7 @@ export default function Landing() {
   const t = content[language];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-y-auto">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/40">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -281,30 +292,25 @@ export default function Landing() {
             </Button>
           </motion.div>
 
-          {/* Store Badges - hidden on native apps */}
+          {/* Store Badges - Coming Soon */}
           {!isNativeBuild && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex items-center justify-center gap-4 mt-8"
+              className="flex flex-col items-center gap-2 mt-8"
             >
-              <a
-                href="https://apps.apple.com/app/soulvay"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="h-11 hover:opacity-80 transition-opacity"
-              >
-                <img src="/badges/app-store.svg" alt="Download on the App Store" className="h-full" />
-              </a>
-              <a
-                href="https://play.google.com/store/apps/details?id=com.soulvay.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="h-11 hover:opacity-80 transition-opacity"
-              >
-                <img src="/badges/google-play.svg" alt="Get it on Google Play" className="h-full" />
-              </a>
+              <div className="flex items-center justify-center gap-4 opacity-50 grayscale">
+                <div className="h-11">
+                  <img src="/badges/app-store.svg" alt="App Store" className="h-full" />
+                </div>
+                <div className="h-11">
+                  <img src="/badges/google-play.svg" alt="Google Play" className="h-full" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {language === "de" ? "Bald verfügbar im App Store & Google Play" : "Coming soon to App Store & Google Play"}
+              </p>
             </motion.div>
           )}
         </div>
@@ -458,15 +464,20 @@ export default function Landing() {
               <button onClick={() => navigate("/contact")} className="hover:text-foreground transition-colors">{t.footer.contact}</button>
             </div>
           </div>
-          {/* Store Badges - hidden on native apps */}
+          {/* Store Badges - Coming Soon */}
           {!isNativeBuild && (
-            <div className="flex items-center gap-4">
-              <a href="https://apps.apple.com/app/soulvay" target="_blank" rel="noopener noreferrer" className="h-9 hover:opacity-80 transition-opacity">
-                <img src="/badges/app-store.svg" alt="Download on the App Store" className="h-full" />
-              </a>
-              <a href="https://play.google.com/store/apps/details?id=com.soulvay.app" target="_blank" rel="noopener noreferrer" className="h-9 hover:opacity-80 transition-opacity">
-                <img src="/badges/google-play.svg" alt="Get it on Google Play" className="h-full" />
-              </a>
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-4 opacity-50 grayscale">
+                <div className="h-9">
+                  <img src="/badges/app-store.svg" alt="App Store" className="h-full" />
+                </div>
+                <div className="h-9">
+                  <img src="/badges/google-play.svg" alt="Google Play" className="h-full" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {language === "de" ? "Bald verfügbar" : "Coming soon"}
+              </p>
             </div>
           )}
           <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Soulvay. All rights reserved.</p>
