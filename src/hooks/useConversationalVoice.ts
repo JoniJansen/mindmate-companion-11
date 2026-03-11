@@ -57,6 +57,11 @@ export function useConversationalVoice({
   const conversation = useConversation({
     onConnect: () => {
       console.log("[Voice2.0] Connected to agent via WebRTC");
+      // Cancel any pending retry — connection succeeded
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
       setStatus("connected");
       setPhase("listening");
       retryCountRef.current = 0;
