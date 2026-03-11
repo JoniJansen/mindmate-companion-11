@@ -63,6 +63,7 @@ export default function Chat() {
 
   // Companion
   const { companion, incrementBond } = useCompanion();
+  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
 
   // Voice hook
   const voice = useChatVoice();
