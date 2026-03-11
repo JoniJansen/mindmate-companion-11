@@ -440,6 +440,7 @@ export default function Chat() {
             isSpeaking={voice.isSpeaking}
             isThinking={composer.isLoading && !composer.isStreamingActive}
             isStreamingActive={composer.isStreamingActive}
+            isTTSLoading={voice.isTTSLoading}
             liveTranscript={voice.voiceInputValue}
             lastAssistantMessage={
               composer.messages.filter(m => m.role === "assistant" && !m.isError).slice(-1)[0]?.content || ""
