@@ -13,6 +13,7 @@ interface CompanionCardProps {
 export function CompanionCard({ companion }: CompanionCardProps) {
   const navigate = useNavigate();
   const { language } = useTranslation();
+  const avatarSignedUrl = useAvatarUrl(companion.avatar_url);
 
   // Return greeting based on time + bond
   const getGreeting = () => {
