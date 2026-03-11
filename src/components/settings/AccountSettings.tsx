@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell, ImageIcon } from "lucide-react";
+import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { CalmCard } from "@/components/shared/CalmCard";
 
