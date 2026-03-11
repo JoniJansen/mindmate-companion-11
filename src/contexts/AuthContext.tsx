@@ -54,6 +54,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Create companion profile from onboarding data (runs once after first sign-in)
+  const ensureCompanionProfile = useCallback(async (userId: string) => {
+    try {
+      const stored = localStorage.getItem("soulvay-personalization");
+      if (!stored) return; // No onboarding data — skip
+
+      const personalization = JSON.parse(stored);
+      const archetypeId = personalization.companionId || "mira";
+      const arch = getArchetype(archetypeId);
+      if (!arch) return;
+
+      // Check if profile already exists
+      const { data: existing } = await supabase
+        .from("companion_profiles")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (existing) return; // Already has a companion
+
+      await supabase
+        .from("companion_profiles")
+        .insert({
+          user_id: userId,
+          name: arch.name,
+          archetype: arch.id,
+          personality_style: arch.personalityStyle,
+          tone: arch.tone,
+          appearance_prompt: arch.appearancePrompt,
+        } as any);
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("Auto companion creation failed:", e);
+    }
+  }, []);
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
