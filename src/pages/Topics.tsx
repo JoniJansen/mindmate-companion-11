@@ -94,7 +94,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
   const saveNotes = (topicId: string, content: string) => {
     const updated = { ...topicNotes, [topicId]: content };
     setTopicNotes(updated);
-    localStorage.setItem("mindmate-topic-notes", JSON.stringify(updated));
+    localStorage.setItem("soulvay-topic-notes", JSON.stringify(updated));
   };
 
   const saveNoteToJournal = async (topicId: string) => {

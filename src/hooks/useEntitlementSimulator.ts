@@ -7,7 +7,7 @@ import { useState, useCallback } from "react";
 
 export type SimulatedEntitlement = "real" | "free" | "trial" | "active" | "cancelled" | "expired" | "grace";
 
-const STORAGE_KEY = "mindmate-dev-entitlement-sim";
+const STORAGE_KEY = "soulvay-dev-entitlement-sim";
 
 function getStoredEntitlement(): SimulatedEntitlement {
   if (!import.meta.env.DEV) return "real";

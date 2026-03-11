@@ -51,10 +51,10 @@ export default function Chat() {
 
   // Chat mode
   const [chatMode, setChatMode] = useState<ChatMode>(() => {
-    const stored = localStorage.getItem("mindmate-chat-mode");
+    const stored = localStorage.getItem("soulvay-chat-mode") || localStorage.getItem("mindmate-chat-mode");
     return (stored as ChatMode) || "talk";
   });
-  useEffect(() => { localStorage.setItem("mindmate-chat-mode", chatMode); }, [chatMode]);
+  useEffect(() => { localStorage.setItem("soulvay-chat-mode", chatMode); }, [chatMode]);
 
   // Upgrade prompt state
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
