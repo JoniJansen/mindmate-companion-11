@@ -1,5 +1,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import * as React from 'npm:react@18.3.1'
+import { renderAsync } from 'npm:@react-email/components@0.0.22'
+import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
+import { SubscriptionConfirmEmail } from '../_shared/email-templates/subscription-confirm.tsx'
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -161,6 +165,39 @@ Deno.serve(async (req) => {
       planType,
       cancelAtPeriodEnd,
     });
+
+    // Send subscription confirmation email for new purchases
+    if (event.type === "INITIAL_PURCHASE") {
+      try {
+        const { data: { user: rcUser } } = await supabase.auth.admin.getUserById(userId);
+        if (rcUser?.email) {
+          const apiKey = Deno.env.get("LOVABLE_API_KEY");
+          if (apiKey) {
+            const templateProps = {
+              siteUrl: "https://soulvay.com",
+              planType,
+              amount: planType === "yearly" ? "79,00 €/Jahr" : "9,99 €/Monat",
+            };
+            const html = await renderAsync(React.createElement(SubscriptionConfirmEmail, templateProps));
+            const text = await renderAsync(React.createElement(SubscriptionConfirmEmail, templateProps), { plainText: true });
+            await sendLovableEmail({
+              to: rcUser.email,
+              from: "SOULVAY <hello@soulvay.com>",
+              sender_domain: "notify.soulvay.com",
+              subject: "Dein SOULVAY Plus Abo ist aktiv",
+              html,
+              text,
+              purpose: "transactional",
+              label: "subscription-confirm",
+              idempotency_key: crypto.randomUUID(),
+            }, { apiKey, sendUrl: Deno.env.get("LOVABLE_SEND_URL") });
+            console.log("Subscription confirmation email sent to", rcUser.email);
+          }
+        }
+      } catch (emailErr) {
+        console.error("Failed to send subscription email:", emailErr);
+      }
+    }
 
     return new Response(
       JSON.stringify({ 

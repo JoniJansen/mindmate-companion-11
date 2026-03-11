@@ -446,7 +446,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-border/40">
+      <footer className="py-8 pb-12 border-t border-border/40" style={{ paddingBottom: 'max(3rem, env(safe-area-inset-bottom, 3rem))' }}>
         <div className="max-w-6xl mx-auto px-4 flex flex-col items-center gap-6">
           <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4">
             <div className="flex items-center gap-3">
@@ -480,7 +480,7 @@ export default function Landing() {
               </p>
             </div>
           )}
-          <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Soulvay. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Soulvay. {language === "de" ? "Alle Rechte vorbehalten." : "All rights reserved."}</p>
         </div>
       </footer>
     </div>
