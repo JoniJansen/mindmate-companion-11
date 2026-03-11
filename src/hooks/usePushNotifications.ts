@@ -207,7 +207,7 @@ export function usePushNotifications() {
     const lang = getLang();
     const messages = notificationMessages.streakReminder[lang as "en" | "de"];
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    showNotification(randomMessage.title, randomMessage.body, { tag: "mindmate-streak" });
+    showNotification(randomMessage.title, randomMessage.body, { tag: "soulvay-streak" });
   }, [showNotification, getLang]);
 
   // Update settings
