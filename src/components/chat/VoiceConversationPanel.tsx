@@ -54,17 +54,20 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
   const voiceProfile = getCompanionVoiceProfile(companion.archetype);
   const lang = (language === "de" ? "de" : "en") as "en" | "de";
 
-  // Derive phase from state machine
-  const phase = useMemo(() => deriveVoicePhase({
-    voiceModeEnabled: true,
-    isListening,
-    isComposerBusy: isThinking,
-    isStreamingActive,
-    isTTSLoading,
-    isSpeaking,
-    hasPendingTranscript: false,
-    sttError: sttError || null,
-  }), [isListening, isThinking, isStreamingActive, isTTSLoading, isSpeaking, sttError]);
+  // Derive phase from state machine, with cooldown override
+  const phase = useMemo(() => {
+    if (isCooldown) return "cooldown" as const;
+    return deriveVoicePhase({
+      voiceModeEnabled: true,
+      isListening,
+      isComposerBusy: isThinking,
+      isStreamingActive,
+      isTTSLoading,
+      isSpeaking,
+      hasPendingTranscript: false,
+      sttError: sttError || null,
+    });
+  }, [isCooldown, isListening, isThinking, isStreamingActive, isTTSLoading, isSpeaking, sttError]);
 
   const visualState = phaseToVisualState(phase);
   const micActive = isMicActive(phase);

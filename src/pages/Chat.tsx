@@ -441,6 +441,7 @@ export default function Chat() {
             isThinking={composer.isLoading && !composer.isStreamingActive}
             isStreamingActive={composer.isStreamingActive}
             isTTSLoading={voice.isTTSLoading}
+            isCooldown={voice.isCooldown}
             sttError={voice.sttError || null}
             liveTranscript={voice.voiceInputValue}
             lastAssistantMessage={
