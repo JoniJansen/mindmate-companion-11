@@ -161,6 +161,7 @@ export default function Onboarding() {
       focusAreas: [],
       reflectionFrequency: "",
       personalGoal: "",
+      companionId: "mira",
     };
   });
   const navigate = useNavigate();
