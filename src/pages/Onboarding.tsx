@@ -285,6 +285,11 @@ export default function Onboarding() {
               <PreferencesStep t={t.preferences} language={state.language} tone={state.tone} addressForm={state.addressForm} onLanguageChange={(language) => setState(s => ({ ...s, language }))} onToneChange={(tone) => setState(s => ({ ...s, tone }))} onAddressFormChange={(addressForm) => setState(s => ({ ...s, addressForm }))} />
             </motion.div>
           )}
+          {currentStep === "companion" && (
+            <motion.div key="companion" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <CompanionStep t={(t as any).companion} language={state.language} selected={state.companionId} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} />
+            </motion.div>
+          )}
           {currentStep === "focus" && (
             <motion.div key="focus" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
               <FocusStep t={t.focus} options={focusOptions[state.language]} selected={state.focusAreas} onToggle={toggleFocus} />
