@@ -96,6 +96,11 @@ const translations = {
       title: "Choose your companion",
       subtitle: "Who should reflect with you?",
     },
+    companionIntro: {
+      greeting: "Nice to meet you.",
+      description: "I'll be your reflection companion — here to listen, think with you, and help you understand yourself better.",
+      ready: "Let's continue setting up.",
+    },
     focus: {
       title: "What's on your mind?",
       subtitle: "Choose what resonates — you can pick multiple.",
