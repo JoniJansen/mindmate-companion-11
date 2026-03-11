@@ -23,6 +23,7 @@ interface OnboardingState {
   focusAreas: string[];
   reflectionFrequency: string;
   personalGoal: string;
+  companionId: string;
 }
 
 const steps = ["welcome", "disclaimer", "preferences", "focus", "frequency", "goal"] as const;
