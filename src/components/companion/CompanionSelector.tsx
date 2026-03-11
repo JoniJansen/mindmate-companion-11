@@ -89,18 +89,17 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
           const isExpanded = expandedId === arch.id;
           const desc = language === "de" ? arch.descriptionDe : arch.description;
           return (
-            <motion.button
+            <motion.div
               key={arch.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.04 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => handleSelect(arch)}
-              disabled={isSaving}
-              className={`relative rounded-2xl border text-left transition-all overflow-hidden ${
+              className={`relative rounded-2xl border text-left transition-all overflow-hidden group cursor-pointer ${
+                isSaving ? "opacity-50 pointer-events-none" : ""
+              } ${
                 isSelected
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                  : "border-border/50 bg-card hover:border-border"
+                  ? "border-primary bg-primary/5 ring-1 ring-primary/30 shadow-[0_0_15px_-3px_hsl(var(--primary)/0.3)]"
+                  : "border-border/50 bg-card hover:border-primary/20 hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.15)]"
               }`}
             >
               {isSelected && (
@@ -109,8 +108,11 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
                 </div>
               )}
               
-              {/* Avatar Image */}
-              <div className="w-full aspect-[3/4] sm:aspect-[4/5] bg-muted/30 overflow-hidden">
+              {/* Avatar Image — clickable to select */}
+              <div
+                className="w-full aspect-[3/4] sm:aspect-[4/5] bg-muted/30 overflow-hidden active:scale-[0.97] transition-transform"
+                onClick={() => handleSelect(arch)}
+              >
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
@@ -121,7 +123,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               
               {/* Info */}
               <div className="p-3">
-                <p className="font-semibold text-foreground text-sm">{arch.name}</p>
+                <p className="font-semibold text-foreground text-sm cursor-pointer" onClick={() => handleSelect(arch)}>{arch.name}</p>
                 <AnimatePresence mode="wait">
                   {isExpanded ? (
                     <motion.p
@@ -162,7 +164,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
                   </span>
                 )}
               </div>
-            </motion.button>
+            </motion.div>
           );
         })}
       </div>

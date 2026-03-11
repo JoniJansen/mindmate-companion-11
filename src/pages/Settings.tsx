@@ -14,6 +14,7 @@ import { SettingsVoiceSection } from "@/components/settings/SettingsVoiceSection
 import { SettingsSupportSection } from "@/components/settings/SettingsSupportSection";
 import { SettingsAccountSection } from "@/components/settings/SettingsAccountSection";
 import { SettingsLegalSection } from "@/components/settings/SettingsLegalSection";
+import { SettingsCompanionSection } from "@/components/settings/SettingsCompanionSection";
 
 interface Preferences {
   language: "en" | "de";
@@ -88,6 +89,7 @@ export default function Settings() {
 
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
         <div className="px-4 py-4 pb-32 max-w-lg mx-auto space-y-6">
+          <SettingsCompanionSection />
           <SubscriptionSection onUpgradeClick={() => navigate("/upgrade")} />
           
           <SettingsLanguageSection
