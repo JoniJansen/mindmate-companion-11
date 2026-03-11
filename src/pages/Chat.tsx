@@ -393,18 +393,18 @@ export default function Chat() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" onClick={handleToggleVoiceMode}
-                    className={`relative shrink-0 ${voice.voiceModeEnabled && canUseVoice ? "text-primary" : "text-muted-foreground"}`}
+                    className={`relative shrink-0 ${voice.voiceModeEnabled && canUseVoice ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
                     aria-label={voice.voiceModeEnabled ? t("chat.voiceModeActive") : t("chat.startVoiceMode")}
                   >
                     {canUseVoice
-                      ? (voice.voiceModeEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />)
-                      : <><VolumeX className="w-5 h-5" /><Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-muted-foreground" /></>
+                      ? <User className="w-5 h-5" />
+                      : <><User className="w-5 h-5" /><Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-muted-foreground" /></>
                     }
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs">
                   {canUseVoice
-                    ? (voice.voiceModeEnabled ? t("chat.voiceModeActive") : t("chat.startVoiceMode"))
+                    ? (voice.voiceModeEnabled ? t("chat.voiceModeActive") : (language === "de" ? "Face-to-Face" : "Face to face"))
                     : t("chat.voiceConversationsPlus")}
                 </TooltipContent>
               </Tooltip>
