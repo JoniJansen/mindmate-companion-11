@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Moon, Sun, Monitor, Bell, Sparkles, Palette, ChevronRight, Check, Heart } from "lucide-react";
+import { Moon, Sun, Monitor, Bell, Sparkles, Palette, ChevronRight, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Switch } from "@/components/ui/switch";
