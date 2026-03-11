@@ -139,21 +139,25 @@ export function useCompanion() {
     }
   }, [user, companion]);
 
-  const incrementBond = useCallback(async () => {
-    if (!user || !companion) return;
+  const incrementBond = useCallback(async (): Promise<{ newLevel: number; previousLevel: number } | null> => {
+    if (!user || !companion) return null;
+    const previousLevel = companion.bond_level || 0;
+    const newLevel = previousLevel + 1;
     try {
       await supabase
         .from("companion_profiles")
         .update({
-          bond_level: (companion.bond_level || 0) + 1,
+          bond_level: newLevel,
           last_interaction: new Date().toISOString(),
         })
         .eq("user_id", user.id);
       setCompanion((prev) =>
-        prev ? { ...prev, bond_level: (prev.bond_level || 0) + 1, last_interaction: new Date().toISOString() } : prev
+        prev ? { ...prev, bond_level: newLevel, last_interaction: new Date().toISOString() } : prev
       );
+      return { newLevel, previousLevel };
     } catch (e) {
       if (import.meta.env.DEV) console.warn("Bond increment failed:", e);
+      return null;
     }
   }, [user, companion]);
 

@@ -90,6 +90,20 @@ export const contentTranslations: Translations = {
   "timeline.notEnoughDataDesc": { en: "Keep journaling and chatting to see insights here.", de: "Schreibe weiter Tagebuch und chatte, um hier Erkenntnisse zu sehen." },
   "timeline.insightError": { en: "Could not load insights. Please try again later.", de: "Erkenntnisse konnten nicht geladen werden. Bitte versuche es später erneut." },
 
+  // Safety page
+  "safety.title": { en: "Safety & Support", de: "Sicherheit & Unterstützung" },
+  "safety.subtitle": { en: "You're not alone", de: "Du bist nicht allein" },
+  "safety.immediateDANGER": { en: "In immediate danger?", de: "In akuter Gefahr?" },
+  "safety.callEmergency": { en: "If you or someone else is in immediate danger, please call emergency services right away.", de: "Wenn du oder jemand anderes in akuter Gefahr ist, rufe bitte sofort den Notdienst an." },
+  "safety.call112": { en: "Call 911", de: "112 anrufen" },
+  "safety.crisisLines": { en: "Crisis Helplines", de: "Krisentelefone" },
+  "safety.okToAskForHelp": { en: "It's okay to ask for help", de: "Es ist okay, um Hilfe zu bitten" },
+  "safety.reachingOut": { en: "Reaching out is a sign of strength, not weakness. You deserve support, and trained professionals are ready to listen — whenever you're ready.", de: "Sich Hilfe zu holen ist ein Zeichen von Stärke, nicht von Schwäche. Du verdienst Unterstützung, und ausgebildete Fachleute sind bereit zuzuhören — wann immer du bereit bist." },
+  "safety.additionalResources": { en: "Additional Resources", de: "Weitere Ressourcen" },
+  "safety.24_7": { en: "24/7", de: "Rund um die Uhr" },
+  "safety.variesByLocation": { en: "Varies by location", de: "Je nach Standort" },
+  "crisis.telefonseelsorgeDesc": { en: "Free, anonymous, 24/7 support", de: "Kostenlos, anonym, rund um die Uhr" },
+
   // Crisis
   "crisis.title": { en: "Support & Resources", de: "Unterstützung & Ressourcen" },
   "crisis.subtitle": { en: "You're not alone. Help is available.", de: "Du bist nicht allein. Hilfe ist verfügbar." },

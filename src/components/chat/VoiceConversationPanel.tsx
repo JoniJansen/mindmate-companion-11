@@ -250,14 +250,14 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
         <AnimatePresence>
           {isListening && (
             <motion.div
-              className="absolute bottom-[calc(2.5rem+32px-28px)] w-14 h-14 rounded-full border-2 border-primary/40"
-              initial={{ scale: 1, opacity: 0.5 }}
+              className="absolute bottom-[calc(1.5rem+32px-28px)] w-14 h-14 rounded-full border-2 border-primary/30"
+              initial={{ scale: 1, opacity: 0.4 }}
               animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.4, 0, 0.4],
+                scale: [1, 1.4, 1],
+                opacity: [0.3, 0, 0.3],
               }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+              exit={{ opacity: 0, transition: { duration: 0.2 } }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: [0.22, 1, 0.36, 1] }}
               style={{ pointerEvents: "none" }}
             />
           )}
