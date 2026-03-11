@@ -3,6 +3,16 @@ import { motion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useTranslation } from "@/hooks/useTranslation";
 import { companionArchetypes, CompanionArchetype } from "@/data/companions";
 import { usePremium } from "@/hooks/usePremium";
@@ -21,8 +31,22 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
   const [selectedId, setSelectedId] = useState(currentCompanion?.archetype || "mira");
   const [customName, setCustomName] = useState(currentCompanion?.name || "");
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmSwitch, setConfirmSwitch] = useState<CompanionArchetype | null>(null);
 
   const handleSelect = async (arch: CompanionArchetype) => {
+    // If already selected, do nothing
+    if (arch.id === selectedId) return;
+
+    // If user already has a companion, show confirmation
+    if (currentCompanion && currentCompanion.archetype !== arch.id) {
+      setConfirmSwitch(arch);
+      return;
+    }
+
+    await doSelect(arch);
+  };
+
+  const doSelect = async (arch: CompanionArchetype) => {
     setSelectedId(arch.id);
     setCustomName(arch.name);
     setIsSaving(true);
@@ -31,6 +55,12 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleConfirmSwitch = async () => {
+    if (!confirmSwitch) return;
+    setConfirmSwitch(null);
+    await doSelect(confirmSwitch);
   };
 
   const handleNameSave = async () => {
@@ -129,6 +159,30 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
           </button>
         )}
       </div>
+
+      {/* Switch Confirmation Dialog */}
+      <AlertDialog open={!!confirmSwitch} onOpenChange={(open) => !open && setConfirmSwitch(null)}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {language === "de" ? "Begleiter wechseln?" : "Switch companion?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === "de"
+                ? `Möchtest du von ${currentCompanion?.name || ""} zu ${confirmSwitch?.name || ""} wechseln? Dein Gesprächsverlauf bleibt erhalten, aber neue Gespräche werden mit ${confirmSwitch?.name || ""} geführt.`
+                : `Switch from ${currentCompanion?.name || ""} to ${confirmSwitch?.name || ""}? Your conversation history will be preserved, but new conversations will be with ${confirmSwitch?.name || ""}.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">
+              {language === "de" ? "Abbrechen" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSwitch} className="rounded-xl">
+              {language === "de" ? "Wechseln" : "Switch"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
