@@ -150,11 +150,16 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
 
   const speakResponse = useCallback((content: string, messageId: string) => {
     if (!canUseVoice || (!voiceModeEnabled && !voiceSettings.autoPlayReplies)) return;
-    if (isListening) return;
+    // In voice mode, stop listening first so TTS can play (don't bail)
+    if (isListening && voiceModeEnabled) {
+      stopListening();
+    } else if (isListening) {
+      return; // Non-voice-mode: don't interrupt active recording
+    }
     const voiceId = resolveVoiceId();
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
     speakTTS(content, voiceId, effectiveLang, voiceSettings.speed, messageId);
-  }, [canUseVoice, voiceModeEnabled, voiceSettings.autoPlayReplies, voiceSettings.speed, isListening, resolveVoiceId, getEffectiveLanguage, language, speakTTS]);
+  }, [canUseVoice, voiceModeEnabled, voiceSettings.autoPlayReplies, voiceSettings.speed, isListening, stopListening, resolveVoiceId, getEffectiveLanguage, language, speakTTS]);
 
   return {
     // State
