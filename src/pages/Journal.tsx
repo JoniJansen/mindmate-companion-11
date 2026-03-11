@@ -763,8 +763,17 @@ export default function Journal() {
             initialTitle={selectedEntry.title || ""}
             initialContent={selectedEntry.content}
             initialMood={selectedEntry.mood || ""}
+            isEditing={!!selectedEntry.id}
             onSave={handleSaveEntry}
             onClose={() => { setIsEditorOpen(false); setSelectedEntry(null); setSelectedTags([]); }}
+            onDelete={selectedEntry.id ? async () => {
+              await supabase.from("journal_entries").delete().eq("id", selectedEntry.id);
+              toast({ title: t("journal.entryDeleted") });
+              setIsEditorOpen(false);
+              setSelectedEntry(null);
+              setSelectedTags([]);
+              loadEntries();
+            } : undefined}
           />
         )}
       </AnimatePresence>
