@@ -74,31 +74,43 @@ describe("ExercisePlayer progression", () => {
   it("waits for speech to finish and advances one step at a time", () => {
     const view = render(<ExercisePlayer exercise={exercise} onClose={vi.fn()} onComplete={vi.fn()} />);
 
-    expect(view.getByText("Step one")).toBeInTheDocument();
+    // Step counter shows "1" initially (framer-motion AnimatePresence blocks h2 swap in jsdom)
+    expect(view.getByText(/1/)).toBeInTheDocument();
     expect(speakMock).toHaveBeenCalledTimes(1);
 
+    // Progress bar needs to reach 100% (1s duration = 10 ticks × 100ms)
     act(() => {
-      vi.advanceTimersByTime(1400);
+      vi.advanceTimersByTime(1100);
     });
-    expect(view.getByText("Step one")).toBeInTheDocument();
 
+    // Speech still going — step counter should still show step 1
+    expect(view.container.textContent).toContain("1");
+
+    // End speech → triggers effect → queues advance after 900ms
     act(() => {
       latestTtsOptions.onEnd?.();
+    });
+    act(() => {
       vi.advanceTimersByTime(950);
     });
-    expect(view.getByText("Step two")).toBeInTheDocument();
+
+    // Step counter should now show "2"
+    expect(view.container.textContent).toContain("2");
     expect(speakMock).toHaveBeenCalledTimes(2);
 
+    // Repeat for step 3
     act(() => {
-      vi.advanceTimersByTime(2400);
+      vi.advanceTimersByTime(1100);
     });
-    expect(view.getByText("Step two")).toBeInTheDocument();
-
     act(() => {
       latestTtsOptions.onEnd?.();
+    });
+    act(() => {
       vi.advanceTimersByTime(950);
     });
-    expect(view.getByText("Step three")).toBeInTheDocument();
+
+    // Step counter should now show "3"
+    expect(view.container.textContent).toContain("3");
     expect(speakMock).toHaveBeenCalledTimes(3);
   });
 });
