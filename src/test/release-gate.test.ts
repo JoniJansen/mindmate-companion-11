@@ -70,8 +70,8 @@ describe("Premium: Gating logic correctness", () => {
   });
 
   it("Chat send button respects premium gating", async () => {
-    const chatSource = await import("../pages/Chat.tsx?raw");
-    const src = (chatSource as any).default || chatSource;
+    const chatInputSource = await import("../components/chat/ChatInputBar.tsx?raw");
+    const src = (chatInputSource as any).default || chatInputSource;
     // The disabled condition should check canSendMessage AND isPremium
     expect(src).toContain("!canSendMessage() && !isPremium");
   });
