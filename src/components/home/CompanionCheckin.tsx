@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
-import { CompanionAvatar } from "@/components/companion/CompanionAvatar";
+import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import type { CheckinType } from "@/hooks/useCompanionCheckins";
 
 interface CompanionCheckinProps {
