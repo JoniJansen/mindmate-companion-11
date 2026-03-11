@@ -47,11 +47,11 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Requesting conversation token for agent: ${agentId}`);
+    console.log(`Requesting signed URL for agent: ${agentId}`);
 
-    // Use the conversation token endpoint for WebRTC support
+    // Use signed URL endpoint for WebSocket connection (avoids LiveKit /rtc/v1 404)
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${agentId}`,
+      `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${agentId}`,
       {
         headers: {
           "xi-api-key": ELEVENLABS_API_KEY,
@@ -62,7 +62,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
-        "ElevenLabs token error:",
+        "ElevenLabs signed URL error:",
         response.status,
         errorText
       );
@@ -89,7 +89,7 @@ serve(async (req) => {
     const data = await response.json();
 
     return new Response(
-      JSON.stringify({ token: data.token }),
+      JSON.stringify({ signed_url: data.signed_url }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
