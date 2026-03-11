@@ -19,6 +19,7 @@ const sizeMap = {
   md: { container: "w-12 h-12", glow: "w-20 h-20", ring: "w-16 h-16", dot: "w-3 h-3" },
   lg: { container: "w-20 h-20", glow: "w-28 h-28", ring: "w-24 h-24", dot: "w-3.5 h-3.5" },
   xl: { container: "w-28 h-28", glow: "w-40 h-40", ring: "w-36 h-36", dot: "w-4 h-4" },
+  "2xl": { container: "w-44 h-44", glow: "w-60 h-60", ring: "w-52 h-52", dot: "w-4 h-4" },
 };
 
 /**
