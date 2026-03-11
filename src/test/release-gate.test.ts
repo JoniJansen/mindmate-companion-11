@@ -166,10 +166,11 @@ describe("Security: No secrets leaked in client code", () => {
     }
   });
 
-  it("edge function auth helper uses getUser for JWT validation", async () => {
+  it("edge function auth helper validates JWT via claims or getUser", async () => {
     const src = await import("../../supabase/functions/_shared/auth.ts?raw");
     const content = (src as any).default || src;
-    expect(content).toContain("supabase.auth.getUser(token)");
+    // Auth helper uses getClaims for JWT validation
+    expect(content).toMatch(/auth\.(getUser|getClaims)\(/);
   });
 });
 
