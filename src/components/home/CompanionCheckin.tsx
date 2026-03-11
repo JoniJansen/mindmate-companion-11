@@ -3,18 +3,23 @@ import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { CompanionAvatar } from "@/components/companion/CompanionAvatar";
+import type { CheckinType } from "@/hooks/useCompanionCheckins";
 
 interface CompanionCheckinProps {
-  type: "insight" | "memory" | "pattern";
+  type: CheckinType;
   text: string;
+  companionName?: string;
+  companionArchetype?: string;
+  companionAvatarUrl?: string;
   onTalkAboutIt: () => void;
   onDismiss: () => void;
 }
 
-export function CompanionCheckin({ type, text, onTalkAboutIt, onDismiss }: CompanionCheckinProps) {
+export function CompanionCheckin({ type, text, companionName, companionArchetype, companionAvatarUrl, onTalkAboutIt, onDismiss }: CompanionCheckinProps) {
   const { t } = useTranslation();
 
-  const icon = type === "insight" ? "💡" : type === "memory" ? "💭" : "🌱";
+  const icon = type === "insight" ? "💡" : type === "memory" ? "💭" : type === "identity" ? "🌱" : type === "initiative" ? "✨" : "🌿";
 
   return (
     <motion.div
@@ -24,13 +29,23 @@ export function CompanionCheckin({ type, text, onTalkAboutIt, onDismiss }: Compa
       className="mb-6"
     >
       <div className="rounded-2xl overflow-hidden border bg-primary/5 border-primary/20">
-        {/* Companion avatar strip */}
-        <div className="px-4 pt-3 pb-0 flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center text-xs">
-            {icon}
-          </div>
+        {/* Companion identity strip */}
+        <div className="px-4 pt-3 pb-0 flex items-center gap-2.5">
+          {companionArchetype ? (
+            <CompanionAvatar
+              avatarUrl={companionAvatarUrl}
+              archetype={companionArchetype}
+              name={companionName}
+              size="sm"
+              animate={false}
+            />
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center text-xs">
+              {icon}
+            </div>
+          )}
           <span className="text-[11px] font-medium text-primary/80 tracking-wide">
-            {t("growth.companionCheckin")}
+            {companionName || t("growth.companionCheckin")}
           </span>
         </div>
 
