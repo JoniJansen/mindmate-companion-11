@@ -58,6 +58,9 @@ export default function Chat() {
   // Composer hook (messages, streaming, persistence)
   const composer = useChatComposer(chatMode);
 
+  // Companion
+  const { companion, incrementBond } = useCompanion();
+
   // Voice hook
   const voice = useChatVoice();
 

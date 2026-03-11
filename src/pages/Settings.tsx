@@ -431,6 +431,38 @@ export default function Settings() {
           )}
         </motion.div>
 
+        {/* Companion */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+        >
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
+            {language === "de" ? "Begleiter" : "Companion"}
+          </h2>
+          <CalmCard variant="elevated">
+            <button
+              onClick={() => navigate("/companion")}
+              className="w-full flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium text-foreground">
+                    {language === "de" ? "Dein Begleiter" : "Your Companion"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {language === "de" ? "Wähle & personalisiere" : "Choose & personalize"}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </CalmCard>
+        </motion.div>
+
         {/* Appearance - Theme & Colors */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
