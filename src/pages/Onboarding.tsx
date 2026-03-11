@@ -204,6 +204,7 @@ export default function Onboarding() {
       focusAreas: state.focusAreas,
       reflectionFrequency: state.reflectionFrequency || "3x_week",
       personalGoal: state.personalGoal,
+      companionId: state.companionId,
     }));
 
     completeOnboarding();
