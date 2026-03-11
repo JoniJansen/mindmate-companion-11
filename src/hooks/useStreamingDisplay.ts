@@ -95,14 +95,14 @@ export function useStreamingDisplay(
     const displayed = displayedLengthRef.current;
 
     // First-token acceleration: emit more words initially for perceived responsiveness
-    const isFirstBurst = displayed < 30;
+    const isFirstBurst = displayed < 60;
 
     let wordsPerTick = 1;
     if (isDraining) {
-      wordsPerTick = Math.min(4, queueLen);
+      wordsPerTick = Math.min(5, queueLen);
     } else if (isFirstBurst) {
-      // Faster start: emit 2-3 words at once for the first ~30 chars
-      wordsPerTick = Math.min(3, queueLen);
+      // Faster start: emit 3-4 words at once for the first ~60 chars
+      wordsPerTick = Math.min(4, queueLen);
     } else if (queueLen > speedUpThreshold * 2) {
       wordsPerTick = 3;
     } else if (queueLen > speedUpThreshold) {
