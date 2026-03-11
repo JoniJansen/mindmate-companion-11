@@ -7,6 +7,7 @@ export interface CompanionArchetype {
   tone: string;
   appearancePrompt: string;
   emoji: string;
+  defaultAvatar: string;
 }
 
 export const companionArchetypes: CompanionArchetype[] = [
@@ -19,6 +20,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "gentle",
     appearancePrompt: "A young woman with warm brown eyes, soft wavy brown hair, gentle smile, wearing a cozy earth-toned sweater",
     emoji: "🌸",
+    defaultAvatar: "/companions/mira.png",
   },
   {
     id: "noah",
@@ -29,6 +31,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "neutral",
     appearancePrompt: "A calm man with short dark hair, kind thoughtful eyes behind thin-framed glasses, clean neutral clothing",
     emoji: "🧠",
+    defaultAvatar: "/companions/noah.png",
   },
   {
     id: "elena",
@@ -39,6 +42,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "gentle",
     appearancePrompt: "A thoughtful woman with dark hair pulled back, expressive dark eyes, wearing a simple elegant blouse, contemplative expression",
     emoji: "🌙",
+    defaultAvatar: "/companions/elena.png",
   },
   {
     id: "kai",
@@ -49,6 +53,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "structured",
     appearancePrompt: "A sturdy man with short hair, warm tan skin, confident calm expression, wearing a simple henley shirt",
     emoji: "🪨",
+    defaultAvatar: "/companions/kai.png",
   },
   {
     id: "lina",
@@ -59,6 +64,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "gentle",
     appearancePrompt: "A soft-featured woman with long light hair, gentle blue-green eyes, calm serene expression, wearing a flowing light-colored top",
     emoji: "🕊️",
+    defaultAvatar: "/companions/lina.png",
   },
   {
     id: "theo",
@@ -69,6 +75,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "structured",
     appearancePrompt: "A distinguished older man with grey-streaked hair, warm brown eyes, slight wise smile, wearing a casual collared shirt",
     emoji: "📚",
+    defaultAvatar: "/companions/theo.png",
   },
   {
     id: "ava",
@@ -79,6 +86,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "neutral",
     appearancePrompt: "A bright-eyed young woman with curly auburn hair, freckles, an open curious expression, wearing a casual modern outfit",
     emoji: "✨",
+    defaultAvatar: "/companions/ava.png",
   },
   {
     id: "jonas",
@@ -89,6 +97,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "structured",
     appearancePrompt: "A composed man with neat dark hair, calm focused eyes, clean-shaven, wearing a minimalist crew-neck sweater",
     emoji: "🗂️",
+    defaultAvatar: "/companions/jonas.png",
   },
   {
     id: "sofia",
@@ -99,6 +108,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "gentle",
     appearancePrompt: "A perceptive woman with medium-length dark hair, deep warm eyes, subtle knowing expression, wearing a soft muted-tone wrap",
     emoji: "💫",
+    defaultAvatar: "/companions/sofia.png",
   },
   {
     id: "arin",
@@ -109,6 +119,7 @@ export const companionArchetypes: CompanionArchetype[] = [
     tone: "neutral",
     appearancePrompt: "An androgynous person with short natural hair, serene peaceful expression, minimal styling, wearing a simple neutral-toned turtleneck",
     emoji: "🍃",
+    defaultAvatar: "/companions/arin.png",
   },
 ];
 
