@@ -21,6 +21,7 @@ interface VoiceConversationPanelProps {
   isThinking: boolean;
   isStreamingActive: boolean;
   isTTSLoading: boolean;
+  isCooldown?: boolean;
   sttError?: string | null;
   liveTranscript: string;
   lastAssistantMessage: string;
@@ -41,6 +42,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
   isThinking,
   isStreamingActive,
   isTTSLoading,
+  isCooldown,
   sttError,
   liveTranscript,
   lastAssistantMessage,
@@ -52,17 +54,20 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
   const voiceProfile = getCompanionVoiceProfile(companion.archetype);
   const lang = (language === "de" ? "de" : "en") as "en" | "de";
 
-  // Derive phase from state machine
-  const phase = useMemo(() => deriveVoicePhase({
-    voiceModeEnabled: true,
-    isListening,
-    isComposerBusy: isThinking,
-    isStreamingActive,
-    isTTSLoading,
-    isSpeaking,
-    hasPendingTranscript: false,
-    sttError: sttError || null,
-  }), [isListening, isThinking, isStreamingActive, isTTSLoading, isSpeaking, sttError]);
+  // Derive phase from state machine, with cooldown override
+  const phase = useMemo(() => {
+    if (isCooldown) return "cooldown" as const;
+    return deriveVoicePhase({
+      voiceModeEnabled: true,
+      isListening,
+      isComposerBusy: isThinking,
+      isStreamingActive,
+      isTTSLoading,
+      isSpeaking,
+      hasPendingTranscript: false,
+      sttError: sttError || null,
+    });
+  }, [isCooldown, isListening, isThinking, isStreamingActive, isTTSLoading, isSpeaking, sttError]);
 
   const visualState = phaseToVisualState(phase);
   const micActive = isMicActive(phase);
@@ -216,7 +221,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
 
             {subtitleContent?.type === "response" && (
               <motion.div
-                key={`response-${phase}`}
+                key="response"
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
@@ -262,7 +267,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
           <motion.button
             whileTap={{ scale: 0.93 }}
             onClick={onToggleRecording}
-            disabled={hasSTTError || phase === "processing" || phase === "streaming" || phase === "tts_loading"}
+            disabled={hasSTTError || phase === "processing" || phase === "streaming" || phase === "tts_loading" || phase === "cooldown"}
             className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg disabled:opacity-50 ${
               micActive
                 ? "bg-primary shadow-primary/30"
