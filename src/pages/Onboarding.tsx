@@ -135,6 +135,10 @@ const translations = {
       addressForm: "Wie soll ich dich ansprechen?",
       addressForms: { du: "Du (informell)", sie: "Sie (formell)" },
     },
+    companion: {
+      title: "Wähle deinen Begleiter",
+      subtitle: "Wer soll mit dir reflektieren?",
+    },
     focus: {
       title: "Was beschäftigt dich?",
       subtitle: "Wähle, was sich richtig anfühlt — Mehrfachauswahl möglich.",
