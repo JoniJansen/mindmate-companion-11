@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionSelector } from "@/components/companion/CompanionSelector";
-import { CompanionAvatar } from "@/components/companion/CompanionAvatar";
+import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/usePremium";
