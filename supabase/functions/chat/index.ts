@@ -528,6 +528,7 @@ serve(async (req) => {
         companionName: companionData.name,
         companionPersonality: companionData.personality_style,
         companionTone: companionData.tone,
+        companionBondLevel: companionData.bond_level || 0,
       } : {}),
     };
 
