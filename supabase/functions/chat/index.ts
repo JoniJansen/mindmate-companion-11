@@ -172,6 +172,35 @@ const NEGATION_PATTERNS: RegExp[] = [
   /\b(nicht\s+mehr\s+so)\b/i,
 ];
 
+/**
+ * Check if a negation pattern is PROXIMATE to a crisis match.
+ * Only cancels the crisis match if the negation overlaps or is within
+ * ~40 characters of the crisis match position. This prevents global
+ * negation from cancelling unrelated crisis signals in the same message.
+ * 
+ * Example: "I used to cut myself years ago but now I want to die"
+ *  → "years ago" negation is near "cut myself" but NOT near "want to die"
+ *  → "want to die" should still trigger high severity
+ */
+function isNegationProximate(text: string, crisisMatch: RegExpMatchArray): boolean {
+  if (!crisisMatch.index && crisisMatch.index !== 0) return false;
+  const crisisStart = crisisMatch.index;
+  const crisisEnd = crisisStart + crisisMatch[0].length;
+  const PROXIMITY_CHARS = 50;
+
+  for (const negPattern of NEGATION_PATTERNS) {
+    const negMatch = text.match(negPattern);
+    if (!negMatch || (!negMatch.index && negMatch.index !== 0)) continue;
+    const negStart = negMatch.index;
+    const negEnd = negStart + negMatch[0].length;
+    // Check if negation overlaps or is within proximity of the crisis match
+    if (negEnd >= crisisStart - PROXIMITY_CHARS && negStart <= crisisEnd + PROXIMITY_CHARS) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function detectCrisis(messages: { role: string; content: string }[]): CrisisResult {
   const recentUserMessages = messages
     .slice(-4)
@@ -180,26 +209,23 @@ function detectCrisis(messages: { role: string; content: string }[]): CrisisResu
 
   if (recentUserMessages.length === 0) return { detected: false, severity: "none" };
 
-  // Analyze each message individually for proper context
   for (const content of recentUserMessages) {
     const lower = content.toLowerCase();
 
-    // Check negation/safe-context FIRST — if present, skip this message
-    const hasNegation = NEGATION_PATTERNS.some(p => p.test(lower));
-
-    // Check high severity
+    // Check high severity with proximity-aware negation
     for (const pattern of HIGH_SEVERITY_PATTERNS) {
-      if (pattern.test(lower)) {
-        // High severity is only overridden by explicit negation in same message
-        if (hasNegation) continue;
+      const match = lower.match(pattern);
+      if (match) {
+        if (isNegationProximate(lower, match)) continue;
         return { detected: true, severity: "high", matchedSignal: pattern.source };
       }
     }
 
-    // Check medium severity
+    // Check medium severity with proximity-aware negation
     for (const pattern of MEDIUM_SEVERITY_PATTERNS) {
-      if (pattern.test(lower)) {
-        if (hasNegation) continue;
+      const match = lower.match(pattern);
+      if (match) {
+        if (isNegationProximate(lower, match)) continue;
         return { detected: true, severity: "medium", matchedSignal: pattern.source };
       }
     }
