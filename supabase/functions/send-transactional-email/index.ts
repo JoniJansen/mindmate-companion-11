@@ -23,6 +23,14 @@ const TEMPLATES: Record<string, { subject: string; component: React.ComponentTyp
     subject: 'Welcome to SOULVAY — your quiet space awaits',
     component: WelcomeEmail,
   },
+  'weekly-recap': {
+    subject: 'Your SOULVAY weekly reflection',
+    component: WeeklyRecapEmail,
+  },
+  'subscription-confirm': {
+    subject: 'Your SOULVAY subscription is active',
+    component: SubscriptionConfirmEmail,
+  },
 }
 
 Deno.serve(async (req) => {
