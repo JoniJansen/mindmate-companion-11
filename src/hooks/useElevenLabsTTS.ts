@@ -192,6 +192,9 @@ export function useElevenLabsTTS(options: UseElevenLabsTTSOptions = {}) {
         audioRef.current.pause();
         audioRef.current = null;
       }
+      // Revoke all cached object URLs to prevent memory leaks
+      audioCache.forEach((url) => URL.revokeObjectURL(url));
+      audioCache.clear();
     };
   }, [clearRetryTimeout]);
 
