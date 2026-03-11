@@ -213,6 +213,7 @@ function AppContent() {
                   <Route path="/about" element={<About />} />
                   <Route path="/delete-account" element={<DeleteAccount />} />
                   <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
+                  <Route path="/companion" element={<OnboardingGuard><CompanionSettings /></OnboardingGuard>} />
                   
                   {/* Review Mode Pages */}
                   <Route path="/review-instructions" element={<ReviewInstructions />} />

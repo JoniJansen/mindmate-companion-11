@@ -348,6 +348,9 @@ export default function Home() {
           </p>
         </motion.div>
 
+        {/* Companion Card */}
+        {companion && <CompanionCard companion={companion} />}
+
         {/* Companion Check-in — memory moment or insight-based */}
         {memoryMoment && !companionCheckinDismissed && (
           <CompanionCheckin
