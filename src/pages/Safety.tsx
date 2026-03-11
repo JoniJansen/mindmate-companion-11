@@ -24,11 +24,6 @@ interface CrisisLine {
   isLink?: boolean;
 }
 
-interface Resource {
-  title: string;
-  description: string;
-  icon: typeof MapPin;
-}
 
 export default function Safety() {
   const { t, language } = useTranslation();
