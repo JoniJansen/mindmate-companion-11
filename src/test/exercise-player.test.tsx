@@ -77,27 +77,37 @@ describe("ExercisePlayer progression", () => {
     expect(view.getByText("Step one")).toBeInTheDocument();
     expect(speakMock).toHaveBeenCalledTimes(1);
 
+    // Progress bar needs to reach 100% (1s duration = 10 ticks × 100ms)
+    // AND speech must end before the effect queues an advance
     act(() => {
-      vi.advanceTimersByTime(1400);
+      vi.advanceTimersByTime(1100); // min duration met
     });
+
+    // Speech still going, should NOT advance
     expect(view.getByText("Step one")).toBeInTheDocument();
 
+    // End speech → triggers effect → queues advance after 900ms
     act(() => {
       latestTtsOptions.onEnd?.();
-      vi.advanceTimersByTime(950);
     });
+    act(() => {
+      vi.advanceTimersByTime(950); // advance delay
+    });
+
     expect(view.getByText("Step two")).toBeInTheDocument();
     expect(speakMock).toHaveBeenCalledTimes(2);
 
+    // Repeat for step 3
     act(() => {
-      vi.advanceTimersByTime(2400);
+      vi.advanceTimersByTime(1100);
     });
-    expect(view.getByText("Step two")).toBeInTheDocument();
-
     act(() => {
       latestTtsOptions.onEnd?.();
+    });
+    act(() => {
       vi.advanceTimersByTime(950);
     });
+
     expect(view.getByText("Step three")).toBeInTheDocument();
     expect(speakMock).toHaveBeenCalledTimes(3);
   });
