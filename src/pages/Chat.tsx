@@ -149,9 +149,13 @@ export default function Chat() {
   }, []);
 
   // Handle stream completion → trigger TTS
+  // Use a ref to always call the LATEST speakResponse, avoiding stale closures
+  const speakResponseRef = useRef(voice.speakResponse);
+  useEffect(() => { speakResponseRef.current = voice.speakResponse; }, [voice.speakResponse]);
+
   const handleStreamDone = useCallback((fullResponse: string, messageId: string, _convId: string | null) => {
-    voice.speakResponse(fullResponse, messageId);
-  }, [voice]);
+    speakResponseRef.current(fullResponse, messageId);
+  }, []);
 
   // Send message with voice TTS callback
   const handleSend = useCallback(async (content: string) => {
