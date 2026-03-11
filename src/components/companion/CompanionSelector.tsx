@@ -127,7 +127,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               
               {/* Info */}
               <div className="p-3">
-                <p className="font-semibold text-foreground text-sm">{arch.name}</p>
+                <p className="font-semibold text-foreground text-sm cursor-pointer" onClick={() => handleSelect(arch)}>{arch.name}</p>
                 <AnimatePresence mode="wait">
                   {isExpanded ? (
                     <motion.p
