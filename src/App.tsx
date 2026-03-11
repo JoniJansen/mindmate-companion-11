@@ -53,6 +53,7 @@ const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const DevQA = lazy(() => import("@/pages/DevQA"));
 const Diagnostics = lazy(() => import("@/pages/Diagnostics"));
+const CompanionSettings = lazy(() => import("@/pages/CompanionSettings"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
