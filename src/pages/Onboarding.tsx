@@ -9,6 +9,7 @@ import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
 import { companionArchetypes, CompanionArchetype } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
+import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 
 type Language = "en" | "de";
 type Tone = "gentle" | "neutral" | "structured";
@@ -596,14 +597,12 @@ function CompanionIntroStep({ t, archetype, language }: {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="relative mb-8"
       >
-        <motion.div
-          className="absolute inset-0 rounded-full bg-primary/20 blur-2xl"
-          animate={{ scale: [1.2, 1.5, 1.2], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        <CompanionAvatarAnimated
+          archetype={archetype.id}
+          name={archetype.name}
+          size="xl"
+          state="idle"
         />
-        <div className="relative w-32 h-32 rounded-full overflow-hidden ring-2 ring-primary/20 shadow-xl shadow-primary/15">
-          <img src={archetype.defaultAvatar} alt={archetype.name} className="w-full h-full object-cover" />
-        </div>
       </motion.div>
       
       <motion.div

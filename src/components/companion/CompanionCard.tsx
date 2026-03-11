@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { CompanionAvatar } from "./CompanionAvatar";
+import { CompanionAvatarAnimated } from "./CompanionAvatarAnimated";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CompanionProfile } from "@/hooks/useCompanion";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
@@ -46,12 +46,13 @@ export function CompanionCard({ companion }: CompanionCardProps) {
         className="w-full rounded-2xl p-4 border bg-card border-border/50 hover:border-primary/30 transition-all text-left"
       >
         <div className="flex items-center gap-3">
-          <CompanionAvatar
+          <CompanionAvatarAnimated
             avatarUrl={avatarSignedUrl}
             archetype={companion.archetype}
             name={companion.name}
             size="md"
-            animate={true}
+            state="idle"
+            showPresenceDot
           />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground">{companion.name}</p>

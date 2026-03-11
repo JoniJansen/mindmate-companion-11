@@ -26,17 +26,8 @@ import { SaveToJournalDialog } from "@/components/chat/SaveToJournalDialog";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 import { fullScreenWithNav } from "@/lib/safeArea";
-import { CompanionAvatar } from "@/components/companion/CompanionAvatar";
-
-function CompanionAvatarHeader({ archetype, name }: { archetype: string; name: string }) {
-  return (
-    <div className="relative shrink-0">
-      <CompanionAvatar archetype={archetype} name={name} size="sm" animate={false} />
-      {/* Subtle presence dot */}
-      <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-background" />
-    </div>
-  );
-}
+import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
+import { useCompanionVisualState } from "@/hooks/useCompanionVisualState";
 
 export default function Chat() {
   const location = useLocation();
@@ -74,6 +65,13 @@ export default function Chat() {
 
   // Voice hook
   const voice = useChatVoice();
+
+  // Companion visual state for animated avatar
+  const companionState = useCompanionVisualState({
+    isListening: voice.isListening,
+    isThinking: composer.isLoading && !composer.isStreamingActive,
+    isSpeaking: voice.isSpeaking || composer.isStreamingActive,
+  });
 
   // Sync voice input → composer input
   useEffect(() => {
@@ -351,7 +349,13 @@ export default function Chat() {
         showLogo={false}
         showBack={false}
         avatarElement={companion ? (
-          <CompanionAvatarHeader archetype={companion.archetype} name={companion.name} />
+          <CompanionAvatarAnimated
+            archetype={companion.archetype}
+            name={companion.name}
+            size="sm"
+            state={companionState}
+            showPresenceDot
+          />
         ) : undefined}
         rightElement={
           <div className="flex items-center gap-2 -mr-1.5">
