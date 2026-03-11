@@ -107,7 +107,7 @@ export function usePushNotifications() {
         const streakKey = `streak_${today}`;
         if (!lastData[streakKey]) {
           try {
-            const activityLog = localStorage.getItem("mindmate_today_active");
+            const activityLog = localStorage.getItem("soulvay_today_active") || localStorage.getItem("mindmate_today_active");
             if (!activityLog || activityLog !== today) {
               sendStreakReminder();
               lastData[streakKey] = true;
