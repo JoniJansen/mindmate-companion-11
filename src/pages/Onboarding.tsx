@@ -9,6 +9,7 @@ import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
 import { companionArchetypes, CompanionArchetype } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
+import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 
 type Language = "en" | "de";
 type Tone = "gentle" | "neutral" | "structured";
