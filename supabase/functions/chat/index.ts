@@ -507,8 +507,16 @@ serve(async (req) => {
     const memoriesContext = parts.join("\n\n");
 
     // ── Build prompt & call AI ──
-    const userPreferences: Preferences = preferences || {
+    const companionData = companionResult.data as any;
+    const userPreferences: Preferences = {
       language: "en", tone: "gentle", addressForm: "du", innerDialogue: false,
+      ...preferences,
+      // Inject companion identity from DB (server-side truth)
+      ...(companionData ? {
+        companionName: companionData.name,
+        companionPersonality: companionData.personality_style,
+        companionTone: companionData.tone,
+      } : {}),
     };
 
     const isCrisis = detectCrisis(messages || []);
