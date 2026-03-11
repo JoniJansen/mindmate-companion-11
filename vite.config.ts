@@ -76,6 +76,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Force all livekit-client imports to resolve to our pinned compatible version
+      // Prevents @elevenlabs/client from using its nested 2.17.2 which breaks ElevenLabs' LiveKit server
+      "livekit-client": path.resolve(__dirname, "node_modules/livekit-client"),
     },
     dedupe: ["livekit-client"],
   },
