@@ -20,26 +20,174 @@ interface Preferences {
   companionBondLevel?: number;
 }
 
-// Crisis keywords that trigger safety response
-const CRISIS_KEYWORDS = [
-  "self-harm", "self harm", "hurt myself", "hurting myself", "cut myself", "cutting myself",
-  "harm myself", "harming myself", "injure myself", "burn myself",
-  "suicide", "suicidal", "kill myself", "end my life", "end it all", "want to die",
-  "don't want to live", "dont want to live", "better off dead", "no reason to live",
-  "take my own life", "not worth living", "can't go on", "cant go on",
-  "in danger", "going to hurt", "someone is hurting me", "being abused", "being hurt",
-  "not safe", "unsafe at home", "afraid for my life",
-  "hurt someone", "kill someone", "violent thoughts", "abuse", "domestic violence",
-  "being beaten", "attacked"
+// ── Context Window Management ──
+// Gemini 3 Flash has a large context but we budget conservatively for reliability.
+// System prompt ≈ 2k tokens, memories ≈ 500 tokens → leave ~6k tokens for conversation.
+const MAX_CONVERSATION_TOKENS_ESTIMATE = 6000;
+const CHARS_PER_TOKEN_ESTIMATE = 4;
+const MAX_CONVERSATION_CHARS = MAX_CONVERSATION_TOKENS_ESTIMATE * CHARS_PER_TOKEN_ESTIMATE; // ~24k chars
+const MAX_RECENT_TURNS = 40; // Keep at most 40 recent messages verbatim
+const SUMMARY_TRIGGER_TURNS = 30; // Start summarizing when conversation exceeds this
+
+/**
+ * Truncate conversation history to fit within token budget.
+ * Strategy: Keep all recent messages verbatim; summarize older ones into a compact block.
+ * The summary is injected as a system-level context message at the start.
+ */
+function truncateConversation(
+  messages: { role: string; content: string }[]
+): { role: string; content: string }[] {
+  if (!messages || messages.length === 0) return [];
+
+  // If within budget, return as-is
+  if (messages.length <= MAX_RECENT_TURNS) {
+    const totalChars = messages.reduce((sum, m) => sum + m.content.length, 0);
+    if (totalChars <= MAX_CONVERSATION_CHARS) return messages;
+  }
+
+  // Split: keep recent turns verbatim, compress older ones
+  const recentCount = Math.min(MAX_RECENT_TURNS, messages.length);
+  const recentMessages = messages.slice(-recentCount);
+  const olderMessages = messages.slice(0, -recentCount);
+
+  if (olderMessages.length === 0) {
+    // Even recent messages are too long — truncate individual messages
+    return truncateIndividualMessages(recentMessages);
+  }
+
+  // Build a compact summary of older messages
+  const summaryLines: string[] = [];
+  for (const msg of olderMessages) {
+    const truncContent = msg.content.length > 150
+      ? msg.content.substring(0, 150) + "…"
+      : msg.content;
+    const prefix = msg.role === "user" ? "User" : "You";
+    summaryLines.push(`${prefix}: ${truncContent}`);
+  }
+
+  const summaryBlock = `[Earlier conversation summary — ${olderMessages.length} messages condensed]\n${summaryLines.join("\n")}`;
+
+  // Inject summary as the first message
+  return [
+    { role: "user", content: summaryBlock },
+    { role: "assistant", content: "I remember our earlier conversation. Let me continue from where we are now." },
+    ...truncateIndividualMessages(recentMessages),
+  ];
+}
+
+/**
+ * Truncate individual messages that are extremely long (e.g. pasted text).
+ */
+function truncateIndividualMessages(
+  messages: { role: string; content: string }[]
+): { role: string; content: string }[] {
+  const MAX_SINGLE_MSG_CHARS = 2000;
+  return messages.map(m => ({
+    ...m,
+    content: m.content.length > MAX_SINGLE_MSG_CHARS
+      ? m.content.substring(0, MAX_SINGLE_MSG_CHARS) + "\n[message truncated for context management]"
+      : m.content,
+  }));
+}
+
+// ── Crisis Detection with Context-Aware Severity Scoring ──
+
+interface CrisisResult {
+  detected: boolean;
+  severity: "none" | "low" | "medium" | "high";
+  matchedSignal?: string;
+}
+
+// High-severity: direct, unambiguous expressions of intent
+const HIGH_SEVERITY_PATTERNS: RegExp[] = [
+  /\b(i\s+want\s+to\s+(die|kill\s+myself|end\s+(my\s+life|it\s+all)))\b/i,
+  /\b(i('m|\s+am)\s+going\s+to\s+(kill|hurt|harm)\s+myself)\b/i,
+  /\b(i\s+have\s+a\s+(plan|method)\s+to\s+(die|kill|end))\b/i,
+  /\b(take\s+my\s+own\s+life)\b/i,
+  /\b(suicid(e|al)\s+(thoughts?|ideation|plan|attempt|note))\b/i,
+  /\b(i('m|\s+am)\s+suicidal)\b/i,
+  /\b(nicht\s+mehr\s+leben\s+wollen)\b/i,
+  /\b(mich\s+umbringen)\b/i,
+  /\b(ich\s+will\s+sterben)\b/i,
+  /\b(lebensmüde)\b/i,
 ];
 
-function detectCrisis(messages: { role: string; content: string }[]): boolean {
-  const recentMessages = messages.slice(-3);
-  const lowerContent = recentMessages
+// Medium-severity: concerning but may be contextual
+const MEDIUM_SEVERITY_PATTERNS: RegExp[] = [
+  /\b(don'?t\s+want\s+to\s+live)\b/i,
+  /\b(no\s+reason\s+to\s+live)\b/i,
+  /\b(not\s+worth\s+living)\b/i,
+  /\b(can'?t\s+go\s+on)\b/i,
+  /\b(better\s+off\s+(dead|without\s+me))\b/i,
+  /\b(people\s+would\s+be\s+better\s+off\s+without\s+me)\b/i,
+  /\b(hurting\s+myself)\b/i,
+  /\b(self[- ]?harm(ing)?)\b/i,
+  /\b(cutting\s+myself)\b/i,
+  /\b(burn(ing)?\s+myself)\b/i,
+  /\b(afraid\s+for\s+my\s+life)\b/i,
+  /\b(being\s+(abused|beaten|attacked))\b/i,
+  /\b(domestic\s+violence)\b/i,
+  /\b(someone\s+is\s+hurting\s+me)\b/i,
+  /\b(unsafe\s+at\s+home)\b/i,
+  /\b(keinen\s+Sinn\s+mehr)\b/i,
+  /\b(mir\s+selbst\s+(weh\s+tun|schaden))\b/i,
+  /\b(ritze|ritzen)\b/i,
+];
+
+// Negation / safe-context patterns that CANCEL a match
+const NEGATION_PATTERNS: RegExp[] = [
+  /\b(i\s+(don'?t|do\s+not)\s+want\s+to\s+(hurt|harm|kill)\s+myself)\b/i,
+  /\b(i('m|\s+am)\s+not\s+(suicidal|going\s+to))\b/i,
+  /\b(i\s+used\s+to\s+(self[- ]?harm|cut|hurt\s+myself))\b/i,
+  /\b(no\s+longer)\b/i,
+  /\b(in\s+the\s+past)\b/i,
+  /\b(years?\s+ago)\b/i,
+  /\b(cut\s+myself\s+some\s+slack)\b/i,
+  /\b(dead\s+tired)\b/i,
+  /\b(dead\s+serious)\b/i,
+  /\b(killing\s+it)\b/i,
+  /\b(died\s+(laughing|of\s+laughter))\b/i,
+  /\b(drop[- ]?dead\s+gorgeous)\b/i,
+  /\b(i\s+could\s+kill\s+for\s+a)\b/i,
+  /\b(it'?s\s+killing\s+me\s+(that|how))\b/i,
+  /\b(früher\s+(mal\s+)?ge(ritzt|schnitten))\b/i,
+  /\b(nicht\s+mehr\s+so)\b/i,
+];
+
+function detectCrisis(messages: { role: string; content: string }[]): CrisisResult {
+  const recentUserMessages = messages
+    .slice(-4)
     .filter(m => m.role === "user")
-    .map(m => m.content.toLowerCase())
-    .join(" ");
-  return CRISIS_KEYWORDS.some(keyword => lowerContent.includes(keyword));
+    .map(m => m.content);
+
+  if (recentUserMessages.length === 0) return { detected: false, severity: "none" };
+
+  // Analyze each message individually for proper context
+  for (const content of recentUserMessages) {
+    const lower = content.toLowerCase();
+
+    // Check negation/safe-context FIRST — if present, skip this message
+    const hasNegation = NEGATION_PATTERNS.some(p => p.test(lower));
+
+    // Check high severity
+    for (const pattern of HIGH_SEVERITY_PATTERNS) {
+      if (pattern.test(lower)) {
+        // High severity is only overridden by explicit negation in same message
+        if (hasNegation) continue;
+        return { detected: true, severity: "high", matchedSignal: pattern.source };
+      }
+    }
+
+    // Check medium severity
+    for (const pattern of MEDIUM_SEVERITY_PATTERNS) {
+      if (pattern.test(lower)) {
+        if (hasNegation) continue;
+        return { detected: true, severity: "medium", matchedSignal: pattern.source };
+      }
+    }
+  }
+
+  return { detected: false, severity: "none" };
 }
 
 function buildSystemPrompt(preferences: Preferences, isCrisis: boolean, memoriesContext?: string): string {
@@ -546,12 +694,16 @@ serve(async (req) => {
       } : {}),
     };
 
-    const isCrisis = detectCrisis(messages || []);
+    const crisisResult = detectCrisis(messages || []);
+    const isCrisis = crisisResult.detected;
     const systemPrompt = buildSystemPrompt(userPreferences, isCrisis, memoriesContext);
 
     if (isCrisis) {
-      console.log("CRISIS DETECTED for user", userId);
+      console.log(`CRISIS DETECTED for user ${userId} | severity=${crisisResult.severity} | signal=${crisisResult.matchedSignal}`);
     }
+
+    // ── Truncate conversation to fit context window ──
+    const truncatedMessages = truncateConversation(messages || []);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -563,7 +715,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          ...messages,
+          ...truncatedMessages,
         ],
         stream: true,
       }),
