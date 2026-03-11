@@ -337,8 +337,11 @@ export default function Chat() {
       <PageHeader
         title={companion?.name || t("chat.title")}
         subtitle={companion ? (language === "de" ? "Dein Reflexionsbegleiter" : "Your reflection companion") : t("chat.subtitle")}
-        showLogo={!companion}
+        showLogo={false}
         showBack={false}
+        avatarElement={companion ? (
+          <CompanionAvatarHeader archetype={companion.archetype} name={companion.name} />
+        ) : undefined}
         rightElement={
           <div className="flex items-center gap-2 -mr-1.5">
             <TooltipProvider delayDuration={300}>
