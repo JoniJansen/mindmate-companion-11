@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, Volume2, VolumeX, User } from "lucide-react";
@@ -149,9 +149,13 @@ export default function Chat() {
   }, []);
 
   // Handle stream completion → trigger TTS
+  // Use a ref to always call the LATEST speakResponse, avoiding stale closures
+  const speakResponseRef = useRef(voice.speakResponse);
+  useEffect(() => { speakResponseRef.current = voice.speakResponse; }, [voice.speakResponse]);
+
   const handleStreamDone = useCallback((fullResponse: string, messageId: string, _convId: string | null) => {
-    voice.speakResponse(fullResponse, messageId);
-  }, [voice]);
+    speakResponseRef.current(fullResponse, messageId);
+  }, []);
 
   // Send message with voice TTS callback
   const handleSend = useCallback(async (content: string) => {
@@ -164,7 +168,7 @@ export default function Chat() {
     voice.setVoiceInputValue("");
     voice.setPendingTranscript("");
     voice.setShowTranscriptConfirm(false);
-  }, [composer, handleStreamDone, voice]);
+  }, [composer, handleStreamDone]);
 
   // Mode change with premium gating
   const handleModeChange = (mode: ChatMode) => {

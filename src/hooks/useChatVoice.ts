@@ -28,8 +28,12 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
 
+  // Guard: prevent auto-restart for a brief window after sending
+  const justSentRef = useRef(false);
+
   const { speak: speakTTS, stop: stopTTS, isSpeaking, isLoading: isTTSLoading, isPlayingMessage, isLoadingMessage } = useElevenLabsTTS({
     onError: (error) => {
+      if (import.meta.env.DEV) console.warn("[Voice] TTS error:", error);
       toast({ title: t("chat.voiceFailed"), description: error, variant: "destructive" });
     },
   });
@@ -60,11 +64,9 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
 
   useEffect(() => {
     if (isSpeaking) {
-      // Clear any pending cooldown if speaking restarts
       if (cooldownRef.current) { window.clearTimeout(cooldownRef.current); cooldownRef.current = null; }
       setIsCooldown(false);
     } else if (!isSpeaking && voiceModeEnabled && !isComposerBusy && !isTTSLoading) {
-      // Speaking just ended → enter cooldown
       setIsCooldown(true);
       cooldownRef.current = window.setTimeout(() => {
         cooldownRef.current = null;
@@ -74,8 +76,10 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     return () => { if (cooldownRef.current) { window.clearTimeout(cooldownRef.current); cooldownRef.current = null; } };
   }, [isSpeaking, voiceModeEnabled, isComposerBusy, isTTSLoading]);
 
-  // Auto-restart listening after cooldown ends (only if no STT error, composer not busy, and TTS not loading)
+  // Auto-restart listening after cooldown ends
+  // Added justSentRef guard to prevent restart during the brief TTS initialization window
   useEffect(() => {
+    if (justSentRef.current) return;
     if (!isSpeaking && !isTTSLoading && !isCooldown && voiceModeEnabled && isSpeechSupported && !isListening && !showTranscriptConfirm && canUseVoice && !sttError && !isComposerBusy) {
       resetTranscript(); setPendingTranscript(""); startListening();
     }
@@ -96,13 +100,16 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
       autoSendTimeoutRef.current = window.setTimeout(() => {
         autoSendTimeoutRef.current = null;
         if (pendingTranscript.trim()) {
-          // Fire auto-send event for fluid voice conversation
+          // Set justSent guard to prevent auto-restart during TTS init
+          justSentRef.current = true;
           window.dispatchEvent(new CustomEvent("voice-send", { detail: pendingTranscript.trim() }));
           setPendingTranscript("");
           setInputValue("");
           setShowTranscriptConfirm(false);
+          // Clear guard after React has time to process isComposerBusy
+          window.setTimeout(() => { justSentRef.current = false; }, 300);
         }
-      }, 1200); // 1.2s pause before auto-send for natural feel
+      }, 1200);
     }
 
     return () => {
@@ -112,7 +119,7 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     };
   }, [pendingTranscript, isListening, voiceModeEnabled]);
 
-  // Show transcript confirm after stop (only when NOT in voice mode — fallback for non-panel use)
+  // Show transcript confirm after stop (only when NOT in voice mode)
   useEffect(() => {
     if (pendingTranscript && !isListening && !voiceModeEnabled) {
       const timeoutId = setTimeout(() => {
@@ -132,6 +139,7 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     if (isListening) stopListening();
     setVoiceModeEnabled(!voiceModeEnabled);
     setShowTranscriptConfirm(false); setPendingTranscript(""); setInputValue("");
+    justSentRef.current = false;
   }, [voiceModeEnabled, isSpeaking, isListening, stopTTS, stopListening]);
 
   const toggleRecording = useCallback(() => {
@@ -152,24 +160,41 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
   }, [resetTranscript]);
 
   // Resolve voice ID: companion profile overrides global setting
+  // Now supports directVoiceId and per-companion speed override
   const resolveVoiceId = useCallback((): string => {
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
     if (companionArchetypeId) {
       const profile = getCompanionVoiceProfile(companionArchetypeId);
+      // Use direct voice ID if specified (unique per companion)
+      if (profile.directVoiceId) return profile.directVoiceId;
       return voiceIds[effectiveLang][profile.voiceType];
     }
     return getVoiceId(language as "en" | "de");
   }, [companionArchetypeId, getVoiceId, getEffectiveLanguage, language]);
 
+  // Resolve speed: companion override > global setting
+  const resolveSpeed = useCallback((): number => {
+    if (companionArchetypeId) {
+      const profile = getCompanionVoiceProfile(companionArchetypeId);
+      if (profile.speedOverride) return profile.speedOverride;
+    }
+    return voiceSettings.speed;
+  }, [companionArchetypeId, voiceSettings.speed]);
+
   const playMessage = useCallback((message: Message) => {
     const voiceId = resolveVoiceId();
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
-    speakTTS(message.content, voiceId, effectiveLang, voiceSettings.speed, message.id);
-  }, [resolveVoiceId, getEffectiveLanguage, language, speakTTS, voiceSettings.speed]);
+    speakTTS(message.content, voiceId, effectiveLang, resolveSpeed() as any, message.id);
+  }, [resolveVoiceId, resolveSpeed, getEffectiveLanguage, language, speakTTS]);
 
   const speakResponse = useCallback((content: string, messageId: string) => {
-    if (!canUseVoice || (!voiceModeEnabled && !voiceSettings.autoPlayReplies)) return;
-    // In voice mode, stop listening first so TTS can play (don't bail)
+    if (!canUseVoice || (!voiceModeEnabled && !voiceSettings.autoPlayReplies)) {
+      if (import.meta.env.DEV && voiceModeEnabled) {
+        console.warn("[Voice] speakResponse skipped: canUseVoice=", canUseVoice);
+      }
+      return;
+    }
+    // In voice mode, stop listening first so TTS can play
     if (isListening && voiceModeEnabled) {
       stopListening();
     } else if (isListening) {
@@ -177,8 +202,11 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     }
     const voiceId = resolveVoiceId();
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
-    speakTTS(content, voiceId, effectiveLang, voiceSettings.speed, messageId);
-  }, [canUseVoice, voiceModeEnabled, voiceSettings.autoPlayReplies, voiceSettings.speed, isListening, stopListening, resolveVoiceId, getEffectiveLanguage, language, speakTTS]);
+    if (import.meta.env.DEV) {
+      console.log(`[Voice] Speaking response: voice=${voiceId}, lang=${effectiveLang}, speed=${resolveSpeed()}, chars=${content.length}`);
+    }
+    speakTTS(content, voiceId, effectiveLang, resolveSpeed() as any, messageId);
+  }, [canUseVoice, voiceModeEnabled, voiceSettings.autoPlayReplies, isListening, stopListening, resolveVoiceId, resolveSpeed, getEffectiveLanguage, language, speakTTS]);
 
   return {
     // State
