@@ -52,6 +52,7 @@ const getDefaultState = (): StoredState => ({
 
 export function usePremium() {
   const { user } = useAuth();
+  const { language } = useTranslation();
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
