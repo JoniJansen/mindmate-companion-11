@@ -355,11 +355,32 @@ export default function Home() {
         {/* Companion Card */}
         {companion && <CompanionCard companion={companion} />}
 
-        {/* Companion Check-in — memory moment or insight-based */}
-        {memoryMoment && !companionCheckinDismissed && (
+        {/* Companion Check-in — new system with memory, pattern, insight, initiative */}
+        {companionCheckin && !companionCheckinDismissed && (
+          <CompanionCheckin
+            type={companionCheckin.type}
+            text={companionCheckin.text}
+            companionName={companion?.name}
+            companionArchetype={companion?.archetype}
+            companionAvatarUrl={companionAvatarUrl}
+            onTalkAboutIt={() => {
+              dismissCheckin();
+              setCompanionCheckinDismissed(true);
+              localStorage.setItem('mindmate-initial-message', companionCheckin.chatPrompt);
+              navigate("/chat");
+            }}
+            onDismiss={() => { dismissCheckin(); setCompanionCheckinDismissed(true); }}
+          />
+        )}
+
+        {/* Legacy memory moment fallback (if no new checkin) */}
+        {!companionCheckin && memoryMoment && !companionCheckinDismissed && (
           <CompanionCheckin
             type="memory"
             text={`${t("home.memoryMomentIntro")} "${memoryMoment.content}" ${t("home.memoryMomentQuestion")}`}
+            companionName={companion?.name}
+            companionArchetype={companion?.archetype}
+            companionAvatarUrl={companionAvatarUrl}
             onTalkAboutIt={() => {
               startMomentConversation();
               const msg = `${t("home.memoryMomentMsg")} "${memoryMoment.content}". ${t("home.memoryMomentContinue")}`;
