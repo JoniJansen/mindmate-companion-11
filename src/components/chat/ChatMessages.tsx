@@ -23,7 +23,7 @@ interface ChatMessagesProps {
   companionName?: string;
 }
 
-export function ChatMessages({
+export const ChatMessages = React.memo(function ChatMessages({
   messages, isLoading, isStreamingActive, isRestoringConversation,
   onRetry, onContinue, onPlayMessage, onStopTTS, onSaveMessage,
   isPlayingMessage, isLoadingMessage, canUseVoice, companionName,
