@@ -62,6 +62,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (session?.user) {
           setTimeout(() => fetchProfile(session.user.id), 0);
+          // Auto-create companion profile from onboarding selection
+          if (_event === "SIGNED_IN") {
+            ensureCompanionProfile(session.user.id);
+          }
         } else {
           setProfile(null);
         }
