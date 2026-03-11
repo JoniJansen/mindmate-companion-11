@@ -158,7 +158,7 @@ export function usePushNotifications() {
         body,
         icon: "/logo.png",
         badge: "/logo.png",
-        tag: "mindmate",
+        tag: "soulvay",
         requireInteraction: false,
         silent: false,
         ...options,
