@@ -213,6 +213,19 @@ export default function Chat() {
   // Voice mode toggle with premium gate
   const handleToggleVoiceMode = () => {
     if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
+    
+    // If real-time agent is available, use that
+    if (realtimeAvailable && agentId) {
+      if (useRealtimeMode && realtimeVoice.isConnected) {
+        realtimeVoice.endSession();
+        setUseRealtimeMode(false);
+      } else {
+        setUseRealtimeMode(true);
+      }
+      return;
+    }
+    
+    // Fallback to turn-based
     if (!voice.isSpeechSupported) { toast({ title: t("voice.notSupported"), description: t("voice.tryChrome"), variant: "destructive" }); return; }
     voice.toggleVoiceMode();
   };
