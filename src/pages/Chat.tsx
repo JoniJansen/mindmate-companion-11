@@ -105,14 +105,17 @@ export default function Chat() {
   const getCompanionName = (): string => {
     if (companion?.name) return companion.name;
     try {
-      const stored = localStorage.getItem("soulvay-companion-archetype");
+      const stored = localStorage.getItem("soulvay-personalization");
       if (stored) {
-        // Map archetype to name from companions data
-        const archetypeNames: Record<string, string> = {
-          mira: "Mira", noah: "Noah", elena: "Elena", kai: "Kai", lina: "Lina",
-          theo: "Theo", ava: "Ava", jonas: "Jonas", sofia: "Sofia", arin: "Arin",
-        };
-        return archetypeNames[stored] || "Soulvay";
+        const p = JSON.parse(stored);
+        const archetypeId = p.companionId;
+        if (archetypeId) {
+          const archetypeNames: Record<string, string> = {
+            mira: "Mira", noah: "Noah", elena: "Elena", kai: "Kai", lina: "Lina",
+            theo: "Theo", ava: "Ava", jonas: "Jonas", sofia: "Sofia", arin: "Arin",
+          };
+          return archetypeNames[archetypeId] || "Soulvay";
+        }
       }
     } catch {}
     return "Soulvay";
