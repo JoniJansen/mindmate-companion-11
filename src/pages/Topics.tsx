@@ -59,7 +59,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
 
   // Load progress
   useEffect(() => {
-    const stored = localStorage.getItem("mindmate-topic-progress");
+    const stored = localStorage.getItem("soulvay-topic-progress") || localStorage.getItem("mindmate-topic-progress");
     if (stored) {
       try {
         setProgress(JSON.parse(stored));
