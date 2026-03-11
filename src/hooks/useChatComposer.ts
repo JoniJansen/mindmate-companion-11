@@ -40,6 +40,7 @@ export function useChatComposer(chatMode: ChatMode) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isStreamingActive, setIsStreamingActive] = useState(false);
+  const [streamingContent, setStreamingContent] = useState("");
   const [lastUserMessage, setLastUserMessage] = useState("");
   const [isRestoringConversation, setIsRestoringConversation] = useState(false);
 
@@ -220,6 +221,7 @@ export function useChatComposer(chatMode: ChatMode) {
     setIsLoading(true);
 
     streamingDisplay.reset();
+    setStreamingContent("");
     setIsStreamingActive(true);
 
     let activeConvId = overrideConvId !== undefined ? overrideConvId : conversationId;
@@ -244,7 +246,7 @@ export function useChatComposer(chatMode: ChatMode) {
     await streamChat({
       messages: messagesForAI,
       signal: controller.signal,
-      onDelta: (chunk) => { streamingDisplay.enqueueChunk(chunk); },
+      onDelta: (chunk) => { streamingDisplay.enqueueChunk(chunk); setStreamingContent(prev => prev + chunk); },
       onDone: async (fullResponse) => {
         await streamingDisplay.finalize();
         setIsStreamingActive(false);
@@ -309,7 +311,7 @@ export function useChatComposer(chatMode: ChatMode) {
     // State
     messages, setMessages,
     inputValue, setInputValue,
-    isLoading, isStreamingActive,
+    isLoading, isStreamingActive, streamingContent,
     isRestoringConversation,
     conversationId,
     chatMessageCountRef,
