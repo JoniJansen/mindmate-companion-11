@@ -30,6 +30,15 @@ export type AnalyticsEvent =
   | "signup_completed"
   | "login_completed"
   | "upgrade_clicked"
+  | "upgrade_view"
+  | "purchase_completed"
+  | "purchase_failed"
+  | "restore_completed"
+  | "delete_account"
+  | "crisis_resource_viewed"
+  | "onboarding_completed"
+  | "companion_selected"
+  | "chat_error"
   | "app_installed";
 
 interface EventProperties {

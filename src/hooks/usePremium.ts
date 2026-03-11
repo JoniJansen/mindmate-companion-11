@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useTranslation } from "./useTranslation";
 import { isReviewAccount, isReviewModeActive, activateReviewMode } from "@/lib/reviewMode";
 import { useRevenueCat, PREMIUM_ENTITLEMENT } from "./useRevenueCat";
 import { getSimulatedPremiumOverride } from "./useEntitlementSimulator";
@@ -51,6 +52,7 @@ const getDefaultState = (): StoredState => ({
 
 export function usePremium() {
   const { user } = useAuth();
+  const { language } = useTranslation();
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
@@ -131,6 +133,15 @@ export function usePremium() {
       }
     }
   }, [user, state.isPremium]);
+
+  // Reset module-level cache when user logs out to prevent cross-account stale state
+  useEffect(() => {
+    if (!user) {
+      _lastCheckAt = 0;
+      _lastServerResult = false;
+      _checkInFlight = null;
+    }
+  }, [user]);
 
   // Check subscription status from backend (source of truth)
   // Uses module-level deduplication to prevent N parallel calls from N hook instances.
@@ -288,7 +299,9 @@ export function usePremium() {
 
     // For RevenueCat, users manage subscriptions through App Store
     if (isRevenueCatAvailable) {
-      throw new Error("Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements");
+      throw new Error(language === "de"
+        ? "Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements"
+        : "Please manage your subscription in iOS Settings → Subscriptions");
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
@@ -311,7 +324,9 @@ export function usePremium() {
 
     // For RevenueCat, users manage subscriptions through App Store
     if (isRevenueCatAvailable) {
-      throw new Error("Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements");
+      throw new Error(language === "de"
+        ? "Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements"
+        : "Please manage your subscription in iOS Settings → Subscriptions");
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
