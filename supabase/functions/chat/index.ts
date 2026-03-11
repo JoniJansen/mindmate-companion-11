@@ -830,12 +830,14 @@ serve(async (req) => {
 
     if (isCrisis) {
       console.log(`CRISIS DETECTED for user ${userId} | severity=${crisisResult.severity} | signal=${crisisResult.matchedSignal}`);
-      // Persist crisis event for observability (fire-and-forget)
+      // Persist crisis event with severity context for observability (fire-and-forget)
+      const lastUserMsg = (messages || []).filter((m: any) => m.role === "user").slice(-1)[0]?.content?.substring(0, 200) || "";
       adminClient
         .from("user_activity_log")
         .insert({
           user_id: userId,
           activity_type: `crisis_${crisisResult.severity}`,
+          activity_date: today,
         })
         .then(() => {})
         .catch((e: unknown) => console.error("Crisis log failed:", e));
