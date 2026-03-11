@@ -508,10 +508,21 @@ serve(async (req) => {
         .catch((e: unknown) => console.error("Usage upsert failed:", e));
     }
 
-    // ── Build context string from parallel results ──
+    // ── Build context string from parallel results with memory weighting ──
     const parts: string[] = [];
     if (memoriesResult.data?.length) {
-      parts.push("### Personal memories:\n" + memoriesResult.data.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n"));
+      // Weight memories by: confidence (60%) + recency (40%)
+      const now = Date.now();
+      const weighted = memoriesResult.data.map((m: any) => {
+        const ageMs = now - new Date(m.created_at).getTime();
+        const ageDays = ageMs / (1000 * 60 * 60 * 24);
+        const recencyScore = Math.max(0, 1 - ageDays / 90); // Decay over 90 days
+        const weight = (m.confidence_score || 0.5) * 0.6 + recencyScore * 0.4;
+        return { ...m, weight };
+      });
+      weighted.sort((a: any, b: any) => b.weight - a.weight);
+      const top5 = weighted.slice(0, 5);
+      parts.push("### Personal memories:\n" + top5.map((m: any) => `- [${m.memory_type}] ${m.content}`).join("\n"));
     }
     if (patternsResult.data?.length) {
       parts.push("### Emotional patterns:\n" + patternsResult.data.map((p: any) => `- [${p.pattern_type}, ${Math.round((p.confidence || 0.5) * 100)}%] ${p.description}`).join("\n"));
