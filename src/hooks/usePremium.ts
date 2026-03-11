@@ -39,6 +39,7 @@ const getToday = () => new Date().toISOString().split("T")[0];
 // firing concurrent subscription checks on mount.
 let _lastCheckAt = 0;
 let _checkInFlight: Promise<void> | null = null;
+let _lastServerResult = false; // cache last known server result for error fallback
 const CHECK_COOLDOWN_MS = 10_000; // 10s between checks
 
 const getDefaultState = (): StoredState => ({
@@ -136,6 +137,12 @@ export function usePremium() {
   const checkSubscriptionStatus = useCallback(async (force = false) => {
     if (!user) return;
 
+    // Review accounts don't need backend subscription checks — they're locally granted
+    if (isReviewAccount(user.email) || isReviewModeActive()) {
+      setServerVerifiedPremium(true);
+      return;
+    }
+
     // Deduplication: skip if a recent check already ran (unless forced)
     const now = Date.now();
     if (!force && now - _lastCheckAt < CHECK_COOLDOWN_MS) return;
@@ -146,9 +153,11 @@ export function usePremium() {
       return;
     }
 
+    // Set cooldown BEFORE creating the async work to prevent races
+    _lastCheckAt = Date.now();
+
     const doCheck = async () => {
       setIsCheckingSubscription(true);
-      _lastCheckAt = Date.now();
       try {
         // First check RevenueCat if available (SDK does server-side validation)
         if (isRevenueCatAvailable) {
@@ -166,37 +175,52 @@ export function usePremium() {
 
         if (error) {
           if (import.meta.env.DEV) console.warn("Failed to check subscription:", error);
-          const cached = state.isPremium && state.subscriptionStatus === "active";
-          setServerVerifiedPremium(cached || false);
+          setServerVerifiedPremium(_lastServerResult);
           return;
         }
 
         if (data) {
           const isPremiumFromServer = data.isPremium || false;
+          _lastServerResult = isPremiumFromServer;
           setServerVerifiedPremium(isPremiumFromServer);
           
-          setState(prev => {
-            const newState: StoredState = {
-              ...prev,
-              isPremium: isPremiumFromServer,
-              planType: data.planType,
-              cancelAtPeriodEnd: data.cancelAtPeriodEnd,
-              currentPeriodEnd: data.currentPeriodEnd,
-              subscriptionStatus: data.status,
-            };
-            try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
-            } catch (e) {
-              if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
+          // Update localStorage cache for all hook instances to read
+          const newCachedState: StoredState = {
+            isPremium: isPremiumFromServer,
+            dailyMessagesUsed: 0,
+            lastResetDate: getToday(),
+            planType: data.planType,
+            cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+            currentPeriodEnd: data.currentPeriodEnd,
+            subscriptionStatus: data.status,
+          };
+          try {
+            // Merge with existing state to preserve dailyMessagesUsed
+            const existing = localStorage.getItem(STORAGE_KEY);
+            if (existing) {
+              const parsed = JSON.parse(existing);
+              newCachedState.dailyMessagesUsed = parsed.dailyMessagesUsed || 0;
+              newCachedState.lastResetDate = parsed.lastResetDate || getToday();
             }
-            return newState;
-          });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newCachedState));
+          } catch (e) {
+            if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
+          }
+          
+          setState(prev => ({
+            ...prev,
+            isPremium: isPremiumFromServer,
+            planType: data.planType,
+            cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+            currentPeriodEnd: data.currentPeriodEnd,
+            subscriptionStatus: data.status,
+          }));
         } else {
           setServerVerifiedPremium(false);
         }
       } catch (e) {
         if (import.meta.env.DEV) console.warn("Failed to check subscription status:", e);
-        setServerVerifiedPremium(false);
+        setServerVerifiedPremium(_lastServerResult);
       } finally {
         setIsCheckingSubscription(false);
         _checkInFlight = null;
@@ -205,7 +229,7 @@ export function usePremium() {
 
     _checkInFlight = doCheck();
     await _checkInFlight;
-  }, [user, isRevenueCatAvailable, checkEntitlements, state.isPremium, state.subscriptionStatus]);
+  }, [user, isRevenueCatAvailable, checkEntitlements]);
 
   // Check subscription on mount, when user changes, and every 15 minutes
   useEffect(() => {
