@@ -58,6 +58,7 @@ export default function Home() {
   const { loadRecentConversations } = useChatPersistence();
   const { companion } = useCompanion();
   const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
+  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
   
