@@ -300,6 +300,11 @@ export default function Onboarding() {
               <CompanionStep t={(t as any).companion} language={state.language} selected={state.companionId} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} />
             </motion.div>
           )}
+          {currentStep === "companion-intro" && (
+            <motion.div key="companion-intro" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CompanionIntroStep t={(t as any).companionIntro} archetype={companionArchetypes.find(a => a.id === state.companionId)!} language={state.language} />
+            </motion.div>
+          )}
           {currentStep === "focus" && (
             <motion.div key="focus" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
               <FocusStep t={t.focus} options={focusOptions[state.language]} selected={state.focusAreas} onToggle={toggleFocus} />
