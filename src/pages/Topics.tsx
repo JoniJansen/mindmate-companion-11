@@ -238,7 +238,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
       },
     };
     setProgress(newProgress);
-    localStorage.setItem("mindmate-topic-progress", JSON.stringify(newProgress));
+    localStorage.setItem("soulvay-topic-progress", JSON.stringify(newProgress));
   };
 
   const getTopicProgress = (topicId: string, totalSteps: number): number => {
