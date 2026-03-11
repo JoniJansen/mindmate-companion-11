@@ -240,6 +240,10 @@ export function useConversationalVoice({
 
   // End the current voice session
   const endSession = useCallback(async () => {
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
     try {
       await conversation.endSession();
     } catch (e) {
@@ -253,6 +257,10 @@ export function useConversationalVoice({
 
   // Reset error state so user can try again
   const resetError = useCallback(() => {
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
     setStatus("disconnected");
     setPhase("idle");
     retryCountRef.current = 0;
