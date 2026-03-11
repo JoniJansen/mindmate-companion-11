@@ -146,4 +146,4 @@ export const ChatMessages = React.memo(function ChatMessages({
       )}
     </div>
   );
-}
+});

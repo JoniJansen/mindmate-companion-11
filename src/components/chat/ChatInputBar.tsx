@@ -98,4 +98,4 @@ export const ChatInputBar = React.memo(function ChatInputBar({
       </div>
     </div>
   );
-}
+});
