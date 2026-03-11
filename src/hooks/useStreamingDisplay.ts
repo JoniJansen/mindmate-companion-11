@@ -34,10 +34,10 @@ export function useStreamingDisplay(
   options: StreamingDisplayOptions = {}
 ) {
   const {
-    baseInterval = 22,
-    speedUpThreshold = 15,
-    minInterval = 8,
-    drainInterval = 6,
+    baseInterval = 18,
+    speedUpThreshold = 12,
+    minInterval = 6,
+    drainInterval = 4,
   } = options;
 
   // Queue of word-level chunks waiting to be displayed
