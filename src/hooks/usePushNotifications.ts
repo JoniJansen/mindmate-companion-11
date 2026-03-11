@@ -199,7 +199,7 @@ export function usePushNotifications() {
   const sendWeeklyRecapReminder = useCallback(() => {
     const lang = getLang();
     const message = notificationMessages.weeklyRecap[lang as "en" | "de"];
-    showNotification(message.title, message.body, { tag: "mindmate-weekly" });
+    showNotification(message.title, message.body, { tag: "soulvay-weekly" });
   }, [showNotification, getLang]);
 
   // Send streak at-risk reminder
