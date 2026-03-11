@@ -380,48 +380,31 @@ export function useTranslation() {
   const [language, setLanguage] = useState<Language>("en");
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("mindmate-preferences");
-      if (stored) {
-        const prefs = JSON.parse(stored);
-        if (prefs.language) {
-          setLanguage(prefs.language);
-        }
-      }
-    } catch {
-      // Use default
-    }
-
-    // Listen for changes
-    const handleStorageChange = () => {
+    const readLang = () => {
       try {
-        const stored = localStorage.getItem("mindmate-preferences");
+        const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
         if (stored) {
           const prefs = JSON.parse(stored);
-          if (prefs.language) {
-            setLanguage(prefs.language);
-          }
+          if (prefs.language) setLanguage(prefs.language);
         }
-      } catch {
-        // Ignore
-      }
+      } catch {}
     };
 
+    readLang();
+
+    const handleStorageChange = () => readLang();
     window.addEventListener("storage", handleStorageChange);
     
-    // Also check periodically for same-tab changes
     const interval = setInterval(() => {
       try {
-        const stored = localStorage.getItem("mindmate-preferences");
+        const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
         if (stored) {
           const prefs = JSON.parse(stored);
           if (prefs.language && prefs.language !== language) {
             setLanguage(prefs.language);
           }
         }
-      } catch {
-        // Ignore
-      }
+      } catch {}
     }, 500);
 
     return () => {
