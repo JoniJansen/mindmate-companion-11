@@ -335,9 +335,9 @@ export default function Chat() {
     <div className="flex flex-col bg-background" style={fullScreenWithNav()}>
       {/* Header */}
       <PageHeader
-        title={t("chat.title")}
-        subtitle={t("chat.subtitle")}
-        showLogo
+        title={companion?.name || t("chat.title")}
+        subtitle={companion ? (language === "de" ? "Dein Reflexionsbegleiter" : "Your reflection companion") : t("chat.subtitle")}
+        showLogo={!companion}
         showBack={false}
         rightElement={
           <div className="flex items-center gap-2 -mr-1.5">
