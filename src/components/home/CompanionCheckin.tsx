@@ -32,12 +32,12 @@ export function CompanionCheckin({ type, text, companionName, companionArchetype
         {/* Companion identity strip */}
         <div className="px-4 pt-3 pb-0 flex items-center gap-2.5">
           {companionArchetype ? (
-            <CompanionAvatar
+            <CompanionAvatarAnimated
               avatarUrl={companionAvatarUrl}
               archetype={companionArchetype}
               name={companionName}
               size="sm"
-              animate={false}
+              state="idle"
             />
           ) : (
             <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center text-xs">

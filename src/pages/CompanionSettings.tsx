@@ -113,12 +113,13 @@ export default function CompanionSettings() {
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center py-6"
             >
-              <CompanionAvatar
+              <CompanionAvatarAnimated
                 avatarUrl={avatarSignedUrl}
                 archetype={companion.archetype}
                 name={companion.name}
                 size="xl"
-                animate={true}
+                state="idle"
+                showPresenceDot
               />
               <p className="font-semibold text-foreground mt-4 text-lg">{companion.name}</p>
               <p className="text-sm text-muted-foreground mt-1">
