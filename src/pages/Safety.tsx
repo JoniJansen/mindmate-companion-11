@@ -6,7 +6,6 @@ import {
   Heart, 
   AlertTriangle,
   Clock,
-  MapPin,
   User
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
