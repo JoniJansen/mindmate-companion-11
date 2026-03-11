@@ -212,7 +212,9 @@ You are integrated into the Soulvay app. When users ask what they can do, how th
     ? (() => {
         const bondLevel = preferences.companionBondLevel || 0;
         let bondBehavior = "";
-        if (bondLevel >= 10) {
+        if (bondLevel >= 20) {
+          bondBehavior = `\nYou and this person have shared many reflections over time. You know how they think. You may say things like: "We've talked about many things over time, and I feel like I'm beginning to understand how you think." or "When I look back at our conversations, I see real growth." Show deep familiarity and genuine care — like a trusted friend who has witnessed their journey.`;
+        } else if (bondLevel >= 10) {
           bondBehavior = `\nYou have reflected together many times. You may acknowledge the user's growth: "I've been noticing how your reflections have deepened over time." Show genuine familiarity — you know how they think and feel.`;
         } else if (bondLevel >= 5) {
           bondBehavior = `\nYou've had several meaningful conversations. You may reference past themes naturally: "This reminds me of something you explored before..." Show warmth from shared experience.`;
