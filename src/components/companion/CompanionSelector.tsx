@@ -83,7 +83,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
   return (
     <div className="space-y-6">
       {/* Archetype Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
         {companionArchetypes.map((arch, index) => {
           const isSelected = selectedId === arch.id;
           const isExpanded = expandedId === arch.id;
@@ -103,14 +103,14 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               }`}
             >
               {isSelected && (
-                <div className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="w-3 h-3 text-primary-foreground" />
+                <div className="absolute top-2 right-2 z-10 w-5 h-5 lg:w-6 lg:h-6 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="w-3 h-3 lg:w-3.5 lg:h-3.5 text-primary-foreground" />
                 </div>
               )}
               
               {/* Avatar Image — clickable to select */}
               <div
-                className="w-full aspect-[3/4] sm:aspect-[4/5] bg-muted/30 overflow-hidden active:scale-[0.97] transition-transform"
+                className="w-full aspect-[3/4] bg-muted/30 overflow-hidden active:scale-[0.97] transition-transform"
                 onClick={() => handleSelect(arch)}
               >
                 <img
@@ -122,8 +122,8 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               </div>
               
               {/* Info */}
-              <div className="p-3">
-                <p className="font-semibold text-foreground text-sm cursor-pointer" onClick={() => handleSelect(arch)}>{arch.name}</p>
+              <div className="p-3 lg:p-4">
+                <p className="font-semibold text-foreground text-sm lg:text-base cursor-pointer" onClick={() => handleSelect(arch)}>{arch.name}</p>
                 <AnimatePresence mode="wait">
                   {isExpanded ? (
                     <motion.p
@@ -131,7 +131,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed"
+                      className="text-[11px] lg:text-xs text-muted-foreground mt-1 leading-relaxed"
                     >
                       {desc}
                     </motion.p>
@@ -140,7 +140,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
                       key="truncated"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2"
+                      className="text-[11px] lg:text-xs text-muted-foreground mt-1 leading-relaxed line-clamp-2 lg:line-clamp-3"
                       onClick={(e) => toggleExpand(arch.id, e)}
                     >
                       {desc}
@@ -150,7 +150,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
                 {!isExpanded && desc.length > 50 && (
                   <span
                     onClick={(e) => toggleExpand(arch.id, e)}
-                    className="text-[10px] text-primary font-medium mt-0.5 inline-block cursor-pointer"
+                    className="text-[10px] lg:text-[11px] text-primary font-medium mt-1 inline-block cursor-pointer"
                   >
                     {language === "de" ? "Mehr →" : "More →"}
                   </span>
@@ -158,7 +158,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
                 {isExpanded && (
                   <span
                     onClick={(e) => toggleExpand(arch.id, e)}
-                    className="text-[10px] text-primary font-medium mt-0.5 inline-block cursor-pointer"
+                    className="text-[10px] lg:text-[11px] text-primary font-medium mt-1 inline-block cursor-pointer"
                   >
                     {language === "de" ? "Weniger" : "Less"}
                   </span>
