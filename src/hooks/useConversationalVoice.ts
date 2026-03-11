@@ -86,21 +86,21 @@ export function useConversationalVoice({
       setAgentTranscript("");
       isConnectingRef.current = false;
     },
-    onMessage: (message) => {
+    onMessage: (message: any) => {
       // Handle different message types for transcript display
-      if (message.type === "user_transcript") {
-        const text = (message as any).user_transcription_event?.user_transcript || "";
+      const msgType = message?.type;
+      if (msgType === "user_transcript") {
+        const text = message?.user_transcription_event?.user_transcript || "";
         setUserTranscript(text);
         setTranscriptHistory(prev => [...prev, { role: "user", text, timestamp: Date.now() }]);
       }
-      if (message.type === "agent_response") {
-        const text = (message as any).agent_response_event?.agent_response || "";
+      if (msgType === "agent_response") {
+        const text = message?.agent_response_event?.agent_response || "";
         setAgentTranscript(text);
         setTranscriptHistory(prev => [...prev, { role: "agent", text, timestamp: Date.now() }]);
       }
-      if (message.type === "agent_response_correction") {
-        // Agent was interrupted — update with corrected response
-        const text = (message as any).agent_response_correction_event?.corrected_agent_response || "";
+      if (msgType === "agent_response_correction") {
+        const text = message?.agent_response_correction_event?.corrected_agent_response || "";
         setAgentTranscript(text);
       }
     },
