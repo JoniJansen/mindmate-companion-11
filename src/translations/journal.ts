@@ -50,6 +50,10 @@ export const journalTranslations: Translations = {
   "journal.fromChat": { en: "Chat", de: "Chat" },
   "journal.discoverPatterns": { en: "Discover Patterns", de: "Muster entdecken" },
   "journal.continue": { en: "Continue", de: "Weiter" },
+  "journal.deleteEntry": { en: "Delete entry", de: "Eintrag löschen" },
+  "journal.deleteEntryTitle": { en: "Delete journal entry?", de: "Tagebucheintrag löschen?" },
+  "journal.deleteEntryDesc": { en: "This entry will be permanently deleted.", de: "Dieser Eintrag wird unwiderruflich gelöscht." },
+  "journal.entryDeleted": { en: "Entry deleted", de: "Eintrag gelöscht" },
 
   // Journal filter chips
   "journal.filter.all": { en: "All", de: "Alle" },

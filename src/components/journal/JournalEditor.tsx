@@ -1,7 +1,17 @@
 import { useState, forwardRef } from "react";
 import { motion } from "framer-motion";
-import { X, Save, Sparkles } from "lucide-react";
+import { X, Save, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -10,9 +20,11 @@ interface JournalEditorProps {
   initialTitle?: string;
   initialMood?: string;
   source?: string;
+  isEditing?: boolean;
   onSave: (entry: { title: string; content: string; mood: string }) => Promise<void>;
   onClose: () => void;
   onReflect?: (content: string) => void;
+  onDelete?: () => Promise<void>;
 }
 
 const moods = ["😊", "😌", "😢", "😤", "😰", "🙏", "💪", "🤔"];
@@ -22,14 +34,18 @@ export const JournalEditor = forwardRef<HTMLDivElement, JournalEditorProps>(
     initialContent = "", 
     initialTitle = "", 
     initialMood = "",
+    isEditing = false,
     onSave, 
     onClose,
-    onReflect
+    onReflect,
+    onDelete,
   }, ref) {
     const [title, setTitle] = useState(initialTitle);
     const [content, setContent] = useState(initialContent);
     const [mood, setMood] = useState(initialMood);
     const [isSaving, setIsSaving] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const { toast } = useToast();
     const { t } = useTranslation();
 
@@ -62,6 +78,20 @@ export const JournalEditor = forwardRef<HTMLDivElement, JournalEditorProps>(
       }
     };
 
+    const handleDelete = async () => {
+      if (!onDelete) return;
+      setIsDeleting(true);
+      try {
+        await onDelete();
+        onClose();
+      } catch {
+        toast({ title: t("common.error"), variant: "destructive" });
+      } finally {
+        setIsDeleting(false);
+        setShowDeleteConfirm(false);
+      }
+    };
+
     return (
       <motion.div
         ref={ref}
@@ -72,9 +102,22 @@ export const JournalEditor = forwardRef<HTMLDivElement, JournalEditorProps>(
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="w-5 h-5" />
+            </Button>
+            {isEditing && onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-muted-foreground hover:text-destructive"
+                aria-label={t("journal.deleteEntry")}
+              >
+                <Trash2 className="w-4.5 h-4.5" />
+              </Button>
+            )}
+          </div>
           <div className="flex gap-2">
             {onReflect && content.length > 50 && (
               <Button 
@@ -139,6 +182,26 @@ export const JournalEditor = forwardRef<HTMLDivElement, JournalEditorProps>(
             autoFocus
           />
         </div>
+
+        {/* Delete confirmation */}
+        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("journal.deleteEntryTitle")}</AlertDialogTitle>
+              <AlertDialogDescription>{t("journal.deleteEntryDesc")}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? t("common.loading") : t("common.delete")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </motion.div>
     );
   }
