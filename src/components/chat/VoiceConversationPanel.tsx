@@ -267,7 +267,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
           <motion.button
             whileTap={{ scale: 0.93 }}
             onClick={onToggleRecording}
-            disabled={hasSTTError || phase === "processing" || phase === "streaming" || phase === "tts_loading"}
+            disabled={hasSTTError || phase === "processing" || phase === "streaming" || phase === "tts_loading" || phase === "cooldown"}
             className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg disabled:opacity-50 ${
               micActive
                 ? "bg-primary shadow-primary/30"
