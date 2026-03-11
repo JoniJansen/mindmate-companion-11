@@ -22,7 +22,6 @@ export function useCompanion() {
   const [companion, setCompanion] = useState<CompanionProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load companion profile
   const loadCompanion = useCallback(async () => {
     if (!user) {
       setCompanion(null);
@@ -38,7 +37,7 @@ export function useCompanion() {
         .maybeSingle();
 
       if (error) throw error;
-      setCompanion(data as any);
+      setCompanion(data as CompanionProfile | null);
     } catch (e) {
       if (import.meta.env.DEV) console.warn("Failed to load companion:", e);
     } finally {
@@ -50,7 +49,6 @@ export function useCompanion() {
     loadCompanion();
   }, [loadCompanion]);
 
-  // Select archetype (creates or updates companion)
   const selectArchetype = useCallback(async (archetypeId: string) => {
     if (!user) return;
     const arch = getArchetype(archetypeId);
@@ -68,21 +66,21 @@ export function useCompanion() {
     try {
       if (companion) {
         const { data, error } = await supabase
-          .from("companion_profiles" as any)
+          .from("companion_profiles")
           .update(profileData)
           .eq("user_id", user.id)
           .select()
           .single();
         if (error) throw error;
-        setCompanion(data as any);
+        setCompanion(data as CompanionProfile);
       } else {
         const { data, error } = await supabase
-          .from("companion_profiles" as any)
+          .from("companion_profiles")
           .insert(profileData)
           .select()
           .single();
         if (error) throw error;
-        setCompanion(data as any);
+        setCompanion(data as CompanionProfile);
       }
     } catch (e) {
       if (import.meta.env.DEV) console.error("Failed to save companion:", e);
@@ -90,66 +88,62 @@ export function useCompanion() {
     }
   }, [user, companion]);
 
-  // Update companion name
   const updateName = useCallback(async (name: string) => {
     if (!user || !companion) return;
     try {
       const { data, error } = await supabase
-        .from("companion_profiles" as any)
+        .from("companion_profiles")
         .update({ name })
         .eq("user_id", user.id)
         .select()
         .single();
       if (error) throw error;
-      setCompanion(data as any);
+      setCompanion(data as CompanionProfile);
     } catch (e) {
       if (import.meta.env.DEV) console.error("Failed to update name:", e);
       throw e;
     }
   }, [user, companion]);
 
-  // Update appearance prompt (premium)
   const updateAppearance = useCallback(async (appearancePrompt: string) => {
     if (!user || !companion) return;
     try {
       const { data, error } = await supabase
-        .from("companion_profiles" as any)
+        .from("companion_profiles")
         .update({ appearance_prompt: appearancePrompt })
         .eq("user_id", user.id)
         .select()
         .single();
       if (error) throw error;
-      setCompanion(data as any);
+      setCompanion(data as CompanionProfile);
     } catch (e) {
       if (import.meta.env.DEV) console.error("Failed to update appearance:", e);
       throw e;
     }
   }, [user, companion]);
 
-  // Save avatar URL
   const saveAvatarUrl = useCallback(async (avatarUrl: string) => {
     if (!user || !companion) return;
     try {
       const { data, error } = await supabase
-        .from("companion_profiles" as any)
+        .from("companion_profiles")
         .update({ avatar_url: avatarUrl })
         .eq("user_id", user.id)
         .select()
         .single();
       if (error) throw error;
-      setCompanion(data as any);
+      setCompanion(data as CompanionProfile);
     } catch (e) {
       if (import.meta.env.DEV) console.error("Failed to save avatar:", e);
       throw e;
     }
   }, [user, companion]);
 
-  // Increment bond level
   const incrementBond = useCallback(async () => {
     if (!user || !companion) return;
     try {
       await supabase
-        .from("companion_profiles" as any)
+        .from("companion_profiles")
         .update({
           bond_level: (companion.bond_level || 0) + 1,
           last_interaction: new Date().toISOString(),
@@ -163,7 +157,6 @@ export function useCompanion() {
     }
   }, [user, companion]);
 
-  // Get the archetype definition for current companion
   const currentArchetype: CompanionArchetype | undefined = companion
     ? getArchetype(companion.archetype)
     : undefined;
