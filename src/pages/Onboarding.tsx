@@ -510,6 +510,56 @@ function GoalStep({ t, value, onChange }: {
   );
 }
 
+function CompanionStep({ t, language, selected, onSelect }: {
+  t: { title: string; subtitle: string };
+  language: Language;
+  selected: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col pt-4">
+      <div className="text-center mb-6">
+        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <Users className="w-7 h-7 text-primary" />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
+        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5 overflow-y-auto max-h-[50vh]">
+        {companionArchetypes.map((arch) => {
+          const isSelected = selected === arch.id;
+          return (
+            <button
+              key={arch.id}
+              onClick={() => onSelect(arch.id)}
+              className={`relative rounded-2xl border text-left transition-all overflow-hidden ${
+                isSelected
+                  ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                  : "border-border/40 bg-card hover:border-border/60"
+              }`}
+            >
+              {isSelected && (
+                <div className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="w-3 h-3 text-primary-foreground" />
+                </div>
+              )}
+              <div className="w-full aspect-square bg-muted/30 overflow-hidden">
+                <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover" loading="lazy" />
+              </div>
+              <div className="p-2.5">
+                <p className="font-semibold text-foreground text-xs">{arch.name}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
+                  {language === "de" ? arch.descriptionDe : arch.description}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // === Shared UI ===
 
 function PreferenceSection({ icon: Icon, title, children }: { icon: React.ComponentType<{ className?: string }>; title: string; children: React.ReactNode }) {
