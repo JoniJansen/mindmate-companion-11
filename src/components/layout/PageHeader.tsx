@@ -10,6 +10,7 @@ interface PageHeaderProps {
   showBack?: boolean;
   backTo?: string;
   rightElement?: React.ReactNode;
+  avatarElement?: React.ReactNode;
   showSettings?: boolean;
   showLogo?: boolean;
   className?: string;
