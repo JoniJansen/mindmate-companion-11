@@ -46,6 +46,48 @@ export type Database = {
           },
         ]
       }
+      companion_profiles: {
+        Row: {
+          appearance_prompt: string | null
+          archetype: string
+          avatar_url: string | null
+          bond_level: number
+          created_at: string
+          id: string
+          last_interaction: string | null
+          name: string
+          personality_style: string
+          tone: string
+          user_id: string
+        }
+        Insert: {
+          appearance_prompt?: string | null
+          archetype?: string
+          avatar_url?: string | null
+          bond_level?: number
+          created_at?: string
+          id?: string
+          last_interaction?: string | null
+          name?: string
+          personality_style?: string
+          tone?: string
+          user_id: string
+        }
+        Update: {
+          appearance_prompt?: string | null
+          archetype?: string
+          avatar_url?: string | null
+          bond_level?: number
+          created_at?: string
+          id?: string
+          last_interaction?: string | null
+          name?: string
+          personality_style?: string
+          tone?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           chat_mode: string | null
