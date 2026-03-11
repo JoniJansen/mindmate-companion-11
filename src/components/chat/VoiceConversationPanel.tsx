@@ -77,7 +77,11 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="fixed inset-0 z-50 flex flex-col bg-background"
-      style={{ willChange: "opacity" }}
+      style={{
+        willChange: "opacity",
+        paddingTop: "env(safe-area-inset-top, 0px)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
     >
       {/* Subtle ambient gradient */}
       <div className="absolute inset-0 pointer-events-none">
@@ -90,7 +94,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
       </div>
 
       {/* Close button */}
-      <div className="relative z-10 flex items-center justify-between px-5 pt-5 pb-2">
+      <div className="relative z-10 flex items-center justify-between px-5 pt-3 pb-2">
         <button
           onClick={onClose}
           className="w-10 h-10 rounded-full bg-muted/60 flex items-center justify-center transition-colors hover:bg-muted"
@@ -147,7 +151,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className="text-sm text-muted-foreground font-medium flex items-center gap-2"
             >
               {visualState === "speaking" && (
@@ -220,7 +224,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
       </div>
 
       {/* Bottom controls — minimal */}
-      <div className="relative z-10 flex flex-col items-center pb-10 pt-4 gap-4">
+      <div className="relative z-10 flex flex-col items-center pb-6 pt-4 gap-4">
         {/* Primary mic button */}
         <motion.button
           whileTap={{ scale: 0.93 }}
@@ -246,14 +250,14 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
         <AnimatePresence>
           {isListening && (
             <motion.div
-              className="absolute bottom-[calc(2.5rem+32px-28px)] w-14 h-14 rounded-full border-2 border-primary/40"
-              initial={{ scale: 1, opacity: 0.5 }}
+              className="absolute bottom-[calc(1.5rem+32px-28px)] w-14 h-14 rounded-full border-2 border-primary/30"
+              initial={{ scale: 1, opacity: 0.4 }}
               animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.4, 0, 0.4],
+                scale: [1, 1.4, 1],
+                opacity: [0.3, 0, 0.3],
               }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+              exit={{ opacity: 0, transition: { duration: 0.2 } }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: [0.22, 1, 0.36, 1] }}
               style={{ pointerEvents: "none" }}
             />
           )}

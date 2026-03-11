@@ -247,7 +247,19 @@ export default function Chat() {
 
       // Increment companion bond for meaningful conversations
       if (userMsgCount >= 5) {
-        incrementBond();
+        incrementBond().then((result) => {
+          if (result && result.newLevel > result.previousLevel) {
+            // Show subtle bond toast at milestone levels
+            const milestones = [3, 5, 10, 15, 20, 30, 50];
+            if (milestones.includes(result.newLevel)) {
+              const companionName = companion?.name || "Soulvay";
+              const msg = language === "de"
+                ? `Du und ${companionName} versteht euch immer besser.`
+                : `You and ${companionName} are understanding each other better.`;
+              toast({ title: `✨ ${language === "de" ? "Verbindungslevel" : "Bond level"} ${result.newLevel}`, description: msg });
+            }
+          }
+        });
       }
     }
 
