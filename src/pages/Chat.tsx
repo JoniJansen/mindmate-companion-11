@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, Volume2, VolumeX } from "lucide-react";
+import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, Volume2, VolumeX, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
