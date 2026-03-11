@@ -183,7 +183,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
               </motion.div>
             )}
 
-            {isSpeaking && lastAssistantMessage && (
+            {(isSpeaking || isTTSLoading) && lastAssistantMessage && (
               <motion.div
                 key="response"
                 initial={{ opacity: 0, y: 8 }}
@@ -197,7 +197,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
               </motion.div>
             )}
 
-            {(isThinking || isStreamingActive) && !isSpeaking && (
+            {(isThinking || isStreamingActive) && !isSpeaking && !isTTSLoading && (
               <motion.div
                 key="thinking"
                 initial={{ opacity: 0 }}
