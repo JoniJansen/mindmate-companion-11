@@ -9,6 +9,7 @@ import { useStreamingDisplay } from "@/hooks/useStreamingDisplay";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
+import { getPreferences as getCentralPreferences } from "@/lib/preferences";
 
 export interface Message {
   id: string;
@@ -18,19 +19,21 @@ export interface Message {
   isError?: boolean;
 }
 
-interface Preferences {
+interface ChatPreferences {
   language: "en" | "de";
   tone: "gentle" | "neutral" | "structured";
   addressForm: "du" | "sie";
   innerDialogue: boolean;
 }
 
-const getPreferences = (): Preferences => {
-  try {
-    const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  return { language: "en", tone: "gentle", addressForm: "du", innerDialogue: false };
+const getPreferences = (): ChatPreferences => {
+  const prefs = getCentralPreferences();
+  return {
+    language: prefs.language,
+    tone: prefs.tone,
+    addressForm: prefs.addressForm,
+    innerDialogue: prefs.innerDialogue,
+  };
 };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
