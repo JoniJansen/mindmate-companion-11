@@ -292,6 +292,7 @@ export function useConversationalVoice({
       const sessionDurationMs = sessionStartRef.current ? Date.now() - sessionStartRef.current : 0;
       logInfo("voice", "sdk_disconnect", { sessionDurationMs, currentStatus: statusRef.current });
       recordMetric("voice", "session_ended", { durationMs: sessionDurationMs, success: true });
+      finalizeSessionRecord("sdk_disconnect");
       
       // Clean up silence monitor
       if (silenceCleanupRef.current) { silenceCleanupRef.current(); silenceCleanupRef.current = null; }
