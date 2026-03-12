@@ -617,8 +617,9 @@ export function useConversationalVoice({
     retryCountRef.current = 0;
     isConnectingRef.current = false;
     
+    finalizeSessionRecord("user_ended");
     logInfo("voice", "session_ended_cleanup_complete");
-  }, [conversation, clearAllTimers, transitionTo]);
+  }, [conversation, clearAllTimers, transitionTo, finalizeSessionRecord]);
 
   // Cleanup on unmount
   useEffect(() => {
