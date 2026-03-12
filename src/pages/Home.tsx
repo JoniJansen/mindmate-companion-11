@@ -375,7 +375,7 @@ export default function Home() {
             onTalkAboutIt={() => {
               dismissCheckin();
               setCompanionCheckinDismissed(true);
-              localStorage.setItem('mindmate-initial-message', companionCheckin.chatPrompt);
+              localStorage.setItem('soulvay-initial-message', companionCheckin.chatPrompt);
               navigate("/chat");
             }}
             onDismiss={() => { dismissCheckin(); setCompanionCheckinDismissed(true); }}
