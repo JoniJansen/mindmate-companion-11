@@ -98,7 +98,7 @@ serve(async (req) => {
     console.error("Conversation token error:", error);
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: "Voice session initialization failed. Please try again.",
       }),
       {
         status: 500,
