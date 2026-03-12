@@ -524,7 +524,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     setIsExporting(true);
     try {
       // Fetch all user data including chat history (GDPR Art. 20 data portability)
-      const [journalResult, moodResult, recapResult, conversationsResult, chatMessagesResult, profileResult, memoriesResult, patternsResult, insightsResult] = await Promise.all([
+      const [journalResult, moodResult, recapResult, conversationsResult, chatMessagesResult, profileResult, memoriesResult, patternsResult, insightsResult, voiceSessionsResult] = await Promise.all([
         supabase.from("journal_entries").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("mood_checkins").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("weekly_recaps").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
@@ -534,6 +534,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         supabase.from("user_memories").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("emotional_patterns").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("session_insights").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("voice_sessions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
 
       const dateStr = new Date().toISOString().split("T")[0];
