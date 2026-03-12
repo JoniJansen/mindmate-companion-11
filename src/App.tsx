@@ -35,6 +35,7 @@ const Settings = lazy(() => import("@/pages/Settings"));
 const Safety = lazy(() => import("@/pages/Safety"));
 const Summary = lazy(() => import("@/pages/Summary"));
 const Install = lazy(() => import("@/pages/Install"));
+// Note: Install page is PWA-only; native builds redirect via isNativeApp() guard inside Install.tsx
 const Upgrade = lazy(() => import("@/pages/Upgrade"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
 const Terms = lazy(() => import("@/pages/Terms"));

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Download, Smartphone, Monitor, CheckCircle2, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import logoImage from "@/assets/logo.png";
+import { isNativeApp } from "@/lib/nativeDetect";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -18,8 +19,10 @@ export default function Install() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const isNative = isNativeApp();
 
   useEffect(() => {
+    if (isNative) return;
     // Check if already installed
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setIsInstalled(true);
@@ -40,7 +43,10 @@ export default function Install() {
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
     };
-  }, []);
+  }, [isNative]);
+
+  // Native builds should never show PWA install page (Apple Guideline 2.3.10)
+  if (isNative) return <Navigate to="/home" replace />;
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
