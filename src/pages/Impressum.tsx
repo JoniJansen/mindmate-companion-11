@@ -81,7 +81,7 @@ export default function Impressum() {
       copyrightDesc: "The content and works created by the site operators on these pages are subject to German copyright law. Duplication, processing, distribution, and any kind of exploitation outside the limits of copyright law require the written consent of the respective author or creator. Downloads and copies of this page are only permitted for private, non-commercial use. Insofar as the content on this page was not created by the operator, the copyrights of third parties are respected. In particular, third-party content is marked as such. Should you nevertheless become aware of a copyright infringement, please inform us accordingly. Upon becoming aware of legal violations, we will remove such content immediately.",
       medicalDisclaimer: "Medical Disclaimer",
       medicalDisclaimerDesc: "Soulvay is not a substitute for professional psychological or medical advice, diagnosis, or treatment. The app is intended solely to support personal well-being and self-reflection. If you are experiencing mental health problems or conditions, please consult qualified professionals.",
-      lastUpdate: "Last updated: January 2025",
+      lastUpdate: "Last updated: March 2026",
     },
   };
 

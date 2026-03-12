@@ -126,7 +126,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
           title: "3. Abonnements & Zahlungen",
           content: `**Kostenlose Stufe**: Soulvay bietet eine kostenlose Stufe mit eingeschränkten Funktionen (5 Nachrichten pro Tag, Basis-Tagebuch).
 
-**Plus-Abonnement**: Premium-Funktionen sind über ein monatliches Abonnement verfügbar (€9,99/Monat oder €89,99/Jahr).
+**Plus-Abonnement**: Premium-Funktionen sind über ein Abonnement verfügbar (€9,99/Monat mit 7-tägiger Testphase oder €79,00/Jahr).
 
 **Abrechnung**: 
 • Abonnements werden im Voraus auf wiederkehrender Basis abgerechnet
