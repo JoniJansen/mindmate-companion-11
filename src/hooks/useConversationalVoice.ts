@@ -79,6 +79,8 @@ export function useConversationalVoice({
   const [micWarning, setMicWarning] = useState<MicWarning>(null);
   const [micEnvironment, setMicEnvironment] = useState<MicEnvironment | null>(null);
   
+  const { settings: voiceSettings } = useVoiceSettings();
+  
   // Refs for latest values — prevents stale closures in SDK callbacks
   const statusRef = useRef<RealtimeVoiceStatus>("disconnected");
   const retryCountRef = useRef(0);
@@ -90,11 +92,13 @@ export function useConversationalVoice({
   const conversationRef = useRef<any>(null);
   const unmountedRef = useRef(false);
   const silenceCleanupRef = useRef<(() => void) | null>(null);
+  const sessionDbIdRef = useRef<string | null>(null);
 
   const maxRetries = 2;
   const MAX_SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes
   const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes idle
-  const SILENCE_DETECTION_DELAY_MS = 3000; // wait 3s after connect before monitoring silence
+  const SILENCE_DETECTION_DELAY_MS = 3000;
+  const MAX_DAILY_SESSIONS = 50; // per-user daily limit
   
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
