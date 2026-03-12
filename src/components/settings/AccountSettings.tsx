@@ -556,6 +556,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           memories: memoriesResult.data || [],
           emotionalPatterns: patternsResult.data || [],
           sessionInsights: insightsResult.data || [],
+          voiceSessions: (voiceSessionsResult.data || []).map(({ user_id, ...session }) => session),
         };
 
         const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
