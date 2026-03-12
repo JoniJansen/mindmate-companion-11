@@ -43,7 +43,9 @@ export function useConversationalVoice({
   const retryCountRef = useRef(0);
   const isConnectingRef = useRef(false);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxRetries = 2;
+  const MAX_SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes max session
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const agentIdRef = useRef(agentId);
