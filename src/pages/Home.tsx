@@ -410,7 +410,7 @@ export default function Home() {
           >
             <button
               onClick={() => {
-                localStorage.setItem('mindmate-initial-message', dailyPrompt.text);
+                localStorage.setItem('soulvay-initial-message', dailyPrompt.text);
                 navigate("/chat");
               }}
               className="w-full text-left rounded-2xl p-4 border bg-primary/5 border-primary/20 hover:border-primary/30 transition-colors"

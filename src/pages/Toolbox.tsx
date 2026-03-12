@@ -54,7 +54,7 @@ export default function Toolbox() {
     newCompleted.add(exerciseId);
     setCompletedExercises(newCompleted);
     localStorage.setItem(
-      "mindmate-completed-exercises",
+      "soulvay-completed-exercises",
       JSON.stringify([...newCompleted])
     );
 

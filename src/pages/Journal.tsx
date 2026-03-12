@@ -309,7 +309,7 @@ export default function Journal() {
 
       const recap = { ...data, created_at: new Date().toISOString() };
       setWeeklyRecap(recap);
-      localStorage.setItem("mindmate-weekly-recap", JSON.stringify(recap));
+      localStorage.setItem("soulvay-weekly-recap", JSON.stringify(recap));
 
       if (user) {
         await supabase.from("weekly_recaps").insert({

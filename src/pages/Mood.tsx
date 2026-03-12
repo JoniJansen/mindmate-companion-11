@@ -152,7 +152,7 @@ export default function Mood() {
         note: note.trim() || null,
         created_at: new Date().toISOString(),
       });
-      localStorage.setItem("mindmate-moods", JSON.stringify(localData.slice(0, 90)));
+      localStorage.setItem("soulvay-moods", JSON.stringify(localData.slice(0, 90)));
 
       toast({
         title: t("mood.saved"),
