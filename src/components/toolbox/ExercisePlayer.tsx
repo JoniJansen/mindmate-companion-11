@@ -24,7 +24,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const [isTransitioning, setIsTransitioning] = useState(false);
   const { t, language, getExerciseDisplay } = useTranslation();
   const { getVoiceId, speed } = useVoiceSettings();
-  const exerciseVoiceSpeed = (exercise.category === "breathing" || exercise.category === "grounding") ? 0.9 as const : (Math.min(speed, 1.0) as 0.9 | 1.0);
+  // All guided exercises use slow, calming pace for eyes-closed experience
+  const exerciseVoiceSpeed = 0.9 as const;
 
   
   const { speak, stop, isSpeaking, isLoading } = useElevenLabsTTS({
