@@ -510,10 +510,25 @@ export function useConversationalVoice({
     setMicWarning(null);
     retryCountRef.current = 0;
 
+    // ── Daily session limit check ──
+    const limitResult = await createSessionRecord(agentIdRef.current!);
+    if (limitResult === "LIMIT_REACHED") {
+      transitionTo("error");
+      isConnectingRef.current = false;
+      onErrorRef.current?.(language === "de"
+        ? "Tägliches Sitzungslimit erreicht. Bitte versuche es morgen erneut."
+        : "Daily session limit reached. Please try again tomorrow.");
+      return false;
+    }
+    if (typeof limitResult === "string") sessionDbIdRef.current = limitResult;
+
     try {
       // Request microphone permission — then STOP the stream immediately
       // The SDK will create its own audio capture; keeping ours open causes conflicts
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioConstraints: MediaStreamConstraints["audio"] = voiceSettings.preferredMicDeviceId
+        ? { deviceId: { ideal: voiceSettings.preferredMicDeviceId } }
+        : true;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
       
       // Validate the acquired track before releasing
       const trackInfo = validateAudioTracks(stream);
