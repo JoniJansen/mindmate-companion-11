@@ -10,7 +10,8 @@ import {
   Calendar,
   MessageSquare,
   Loader2,
-  RotateCcw
+  RotateCcw,
+  User
 } from "lucide-react";
 import { FeatureMatrix } from "@/components/premium/FeatureMatrix";
 import { ProgressUnlock } from "@/components/premium/ProgressUnlock";
