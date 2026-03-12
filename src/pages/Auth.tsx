@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, ArrowLeft, Loader2, Eye, EyeOff, Sun, Moon, Shield, Star } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -12,6 +12,7 @@ import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
 import { activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
 import { supabase } from "@/integrations/supabase/client";
+import { isNativeApp } from "@/lib/nativeDetect";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
