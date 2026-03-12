@@ -140,7 +140,7 @@ You have the right to request human review of any automated processing that affe
 • **Right to Restriction (Art. 18)**: Request restriction of processing in certain circumstances.
 • **Right to Withdraw Consent (Art. 7(3))**: Withdraw any given consent at any time without affecting the lawfulness of prior processing.
 
-To exercise these rights, go to Settings > Account or contact us at service@soulvay.com. We will respond within 30 days.
+To exercise these rights, go to Settings > Account or contact us at service@soulvay.com. We will respond without undue delay and in any event within one month of receipt of your request, in accordance with Art. 12(3) GDPR.
 
 **Right to Lodge a Complaint (Art. 77 GDPR)**: You have the right to lodge a complaint with a supervisory authority. The competent authority for Soulvay is:
 
@@ -304,7 +304,7 @@ Du hast das Recht, eine menschliche Überprüfung jeder automatisierten Verarbei
 • **Recht auf Einschränkung (Art. 18)**: Einschränkung der Verarbeitung unter bestimmten Umständen.
 • **Recht auf Widerruf der Einwilligung (Art. 7 Abs. 3)**: Widerruf jeder erteilten Einwilligung jederzeit, ohne dass die Rechtmäßigkeit der vorherigen Verarbeitung berührt wird.
 
-Um diese Rechte auszuüben, gehe zu Einstellungen > Konto oder kontaktiere uns unter service@soulvay.com. Wir antworten innerhalb von 30 Tagen.
+Um diese Rechte auszuüben, gehe zu Einstellungen > Konto oder kontaktiere uns unter service@soulvay.com. Wir antworten unverzüglich, in jedem Fall aber innerhalb eines Monats nach Eingang deiner Anfrage, gemäß Art. 12 Abs. 3 DSGVO.
 
 **Beschwerderecht (Art. 77 DSGVO)**: Du hast das Recht, Beschwerde bei einer Aufsichtsbehörde einzulegen. Die für Soulvay zuständige Behörde ist:
 

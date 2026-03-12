@@ -10,8 +10,20 @@ export default function Impressum() {
   const [language, setLanguage] = useState<"en" | "de">("de");
 
   useEffect(() => {
-    const stored = localStorage.getItem("mindmate_language") || "de";
-    setLanguage(stored as "en" | "de");
+    try {
+      const prefsRaw = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+      if (prefsRaw) {
+        const prefs = JSON.parse(prefsRaw);
+        if (prefs.language === "de" || prefs.language === "en") {
+          setLanguage(prefs.language);
+          return;
+        }
+      }
+      const browserLang = navigator.language || "";
+      setLanguage(browserLang.startsWith("de") ? "de" : "en");
+    } catch {
+      setLanguage("de");
+    }
   }, []);
 
   const texts = {
