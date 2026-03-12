@@ -565,7 +565,7 @@ function CompanionStep({ t, language, selected, onSelect }: {
                 </motion.div>
               )}
               <div className="w-full aspect-square bg-muted/30 overflow-hidden">
-                <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-[center_25%]" loading="lazy" />
+                <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-[50%_25%]" loading="lazy" />
               </div>
               <div className="p-2.5">
                 <div className="flex items-center gap-1.5 mb-0.5">
