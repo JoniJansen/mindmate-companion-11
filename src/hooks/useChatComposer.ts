@@ -10,6 +10,8 @@ import { useActivityLog } from "@/hooks/useActivityLog";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
 import { getPreferences as getCentralPreferences } from "@/lib/preferences";
+import { recordMetric } from "@/lib/diagnostics";
+import { logError, logInfo } from "@/lib/logger";
 
 export interface Message {
   id: string;
