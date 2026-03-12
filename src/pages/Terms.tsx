@@ -42,7 +42,7 @@ If you are experiencing a mental health crisis, please contact emergency service
           title: "3. Subscriptions & Payments",
           content: `**Free Tier**: Soulvay offers a free tier with limited features (5 messages per day, basic journaling).
 
-**Plus Subscription**: Premium features are available through a monthly subscription (€9.99/month or €89.99/year).
+**Plus Subscription**: Premium features are available through a subscription (€9.99/month with 7-day free trial, or €79.00/year).
 
 **Billing**: 
 • Subscriptions are billed in advance on a recurring basis
@@ -126,7 +126,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
           title: "3. Abonnements & Zahlungen",
           content: `**Kostenlose Stufe**: Soulvay bietet eine kostenlose Stufe mit eingeschränkten Funktionen (5 Nachrichten pro Tag, Basis-Tagebuch).
 
-**Plus-Abonnement**: Premium-Funktionen sind über ein monatliches Abonnement verfügbar (€9,99/Monat oder €89,99/Jahr).
+**Plus-Abonnement**: Premium-Funktionen sind über ein Abonnement verfügbar (€9,99/Monat mit 7-tägiger Testphase oder €79,00/Jahr).
 
 **Abrechnung**: 
 • Abonnements werden im Voraus auf wiederkehrender Basis abgerechnet

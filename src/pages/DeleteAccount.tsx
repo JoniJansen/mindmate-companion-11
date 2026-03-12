@@ -184,7 +184,7 @@ export default function DeleteAccount() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
-          Soulvay · MindMade by Jonathan Jansen
+          Soulvay · by Jonathan Jansen
         </p>
       </div>
     </div>

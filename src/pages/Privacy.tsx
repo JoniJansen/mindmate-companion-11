@@ -56,6 +56,28 @@ We will NEVER use your data for:
 • Training AI models with identifiable personal content`
         },
         {
+          icon: Shield,
+          title: "Legal Basis for Processing (Art. 6 GDPR)",
+          content: `We process your data based on the following legal grounds:
+
+• **Contract performance (Art. 6(1)(b))**: Processing necessary to provide the Soulvay service, including AI chat, journaling, and mood tracking.
+• **Consent (Art. 6(1)(a))**: For optional features like analytics, marketing cookies, and newsletter communications. You can withdraw consent at any time.
+• **Legitimate interest (Art. 6(1)(f))**: For service improvement, security monitoring, and fraud prevention.`
+        },
+        {
+          icon: Shield,
+          title: "Third-Party Service Providers",
+          content: `We use the following third-party providers to deliver our services:
+
+• **Supabase (Supabase Inc., USA)**: Cloud infrastructure for data storage, authentication, and backend functions. Data is processed under standard contractual clauses (SCCs) for EU-US data transfer.
+• **ElevenLabs (ElevenLabs Inc., USA)**: Voice synthesis for the Face-to-Face voice mode. Audio data is transmitted in real-time and not stored by ElevenLabs after processing. Data transfer is secured under SCCs.
+• **Stripe (Stripe Inc., USA)**: Payment processing for web subscriptions. Stripe processes payment data independently as a data controller.
+• **Apple / RevenueCat**: In-app purchase processing for iOS subscriptions.
+• **Resend (Resend Inc.)**: Transactional email delivery (welcome emails, weekly recaps).
+
+All providers are contractually obligated to process data exclusively for service delivery and maintain appropriate security measures.`
+        },
+        {
           icon: Download,
           title: "Your Rights",
           content: `You have full control over your data:
@@ -137,6 +159,28 @@ Wir werden deine Daten NIEMALS verwenden für:
 • Zielgerichtete Werbung
 • Profilbildung für externe Parteien
 • Training von KI-Modellen mit identifizierbaren persönlichen Inhalten`
+        },
+        {
+          icon: Shield,
+          title: "Rechtsgrundlagen der Verarbeitung (Art. 6 DSGVO)",
+          content: `Wir verarbeiten deine Daten auf folgenden Rechtsgrundlagen:
+
+• **Vertragserfüllung (Art. 6 Abs. 1 lit. b)**: Verarbeitung, die zur Erbringung des Soulvay-Dienstes erforderlich ist, einschließlich KI-Chat, Tagebuch und Stimmungstracking.
+• **Einwilligung (Art. 6 Abs. 1 lit. a)**: Für optionale Funktionen wie Analytics, Marketing-Cookies und Newsletter-Kommunikation. Du kannst deine Einwilligung jederzeit widerrufen.
+• **Berechtigtes Interesse (Art. 6 Abs. 1 lit. f)**: Zur Serviceverbesserung, Sicherheitsüberwachung und Betrugsprävention.`
+        },
+        {
+          icon: Shield,
+          title: "Drittanbieter und Auftragsverarbeiter",
+          content: `Wir nutzen folgende Drittanbieter zur Erbringung unserer Dienste:
+
+• **Supabase (Supabase Inc., USA)**: Cloud-Infrastruktur für Datenspeicherung, Authentifizierung und Backend-Funktionen. Die Datenverarbeitung erfolgt auf Basis von Standardvertragsklauseln (SCCs) für den EU-US-Datentransfer.
+• **ElevenLabs (ElevenLabs Inc., USA)**: Sprachsynthese für den Face-to-Face Sprachmodus. Audiodaten werden in Echtzeit übertragen und nach der Verarbeitung von ElevenLabs nicht gespeichert. Der Datentransfer ist durch SCCs abgesichert.
+• **Stripe (Stripe Inc., USA)**: Zahlungsabwicklung für Web-Abonnements. Stripe verarbeitet Zahlungsdaten eigenständig als Verantwortlicher.
+• **Apple / RevenueCat**: Verarbeitung von In-App-Käufen für iOS-Abonnements.
+• **Resend (Resend Inc.)**: Versand transaktionaler E-Mails (Willkommens-E-Mails, Wochenrückblicke).
+
+Alle Anbieter sind vertraglich verpflichtet, Daten ausschließlich zur Diensterbringung zu verarbeiten und angemessene Sicherheitsmaßnahmen einzuhalten.`
         },
         {
           icon: Download,

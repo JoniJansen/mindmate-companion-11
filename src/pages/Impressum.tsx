@@ -19,8 +19,9 @@ export default function Impressum() {
       title: "Impressum",
       subtitle: "Angaben gemäß § 5 TMG",
       provider: "Anbieter",
-      companyName: "MindMade",
-      businessType: "Kleingewerbe",
+      companyName: "Soulvay",
+      businessType: "Kleingewerbe (Jonathan Jansen)",
+      taxNote: "Umsatzsteuer-ID: Nicht vorhanden. Kleinunternehmer gemäß § 19 UStG.",
       address: "Petersbergstraße 11",
       city: "53604 Bad Honnef",
       country: "Deutschland",
@@ -46,14 +47,15 @@ export default function Impressum() {
       copyrightDesc: "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.",
       medicalDisclaimer: "Medizinischer Hinweis",
       medicalDisclaimerDesc: "Soulvay ist kein Ersatz für professionelle psychologische oder medizinische Beratung, Diagnose oder Behandlung. Die App dient ausschließlich zur Unterstützung des persönlichen Wohlbefindens und der Selbstreflexion. Bei psychischen Problemen oder Erkrankungen wenden Sie sich bitte an qualifizierte Fachpersonen.",
-      lastUpdate: "Stand: Januar 2025",
+      lastUpdate: "Stand: März 2026",
     },
     en: {
       title: "Legal Notice",
       subtitle: "Information according to § 5 TMG (German Telemedia Act)",
       provider: "Provider",
-      companyName: "MindMade",
-      businessType: "Small Business",
+      companyName: "Soulvay",
+      businessType: "Small Business (Jonathan Jansen)",
+      taxNote: "VAT ID: Not applicable. Small business pursuant to § 19 UStG (German VAT Act).",
       address: "Petersbergstraße 11",
       city: "53604 Bad Honnef",
       country: "Germany",
@@ -79,7 +81,7 @@ export default function Impressum() {
       copyrightDesc: "The content and works created by the site operators on these pages are subject to German copyright law. Duplication, processing, distribution, and any kind of exploitation outside the limits of copyright law require the written consent of the respective author or creator. Downloads and copies of this page are only permitted for private, non-commercial use. Insofar as the content on this page was not created by the operator, the copyrights of third parties are respected. In particular, third-party content is marked as such. Should you nevertheless become aware of a copyright infringement, please inform us accordingly. Upon becoming aware of legal violations, we will remove such content immediately.",
       medicalDisclaimer: "Medical Disclaimer",
       medicalDisclaimerDesc: "Soulvay is not a substitute for professional psychological or medical advice, diagnosis, or treatment. The app is intended solely to support personal well-being and self-reflection. If you are experiencing mental health problems or conditions, please consult qualified professionals.",
-      lastUpdate: "Last updated: January 2025",
+      lastUpdate: "Last updated: March 2026",
     },
   };
 
@@ -118,9 +120,11 @@ export default function Impressum() {
             </div>
             <div className="pl-12 space-y-1 text-foreground">
               <p className="font-medium">{t.companyName}</p>
+              <p className="text-sm text-muted-foreground">{t.businessType}</p>
               <p>{t.address}</p>
               <p>{t.city}</p>
               <p>{t.country}</p>
+              <p className="text-sm text-muted-foreground mt-2">{t.taxNote}</p>
             </div>
           </section>
 

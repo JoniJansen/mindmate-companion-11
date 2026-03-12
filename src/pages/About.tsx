@@ -49,7 +49,7 @@ export default function About() {
       },
       team: {
         title: "The Team",
-        content: "Soulvay is created by MindMade, a small team passionate about making mental wellness accessible to everyone.",
+        content: "Soulvay is created by Jonathan Jansen, passionate about making mental wellness accessible to everyone.",
         founder: "Jonathan Jansen",
         role: "Founder",
         location: "Bad Honnef, Germany",
@@ -94,7 +94,7 @@ export default function About() {
       },
       team: {
         title: "Das Team",
-        content: "Soulvay wird von MindMade entwickelt, einem kleinen Team, das sich leidenschaftlich dafür einsetzt, mentales Wohlbefinden für alle zugänglich zu machen.",
+        content: "Soulvay wird von Jonathan Jansen entwickelt, mit der Leidenschaft, mentales Wohlbefinden für alle zugänglich zu machen.",
         founder: "Jonathan Jansen",
         role: "Gründer",
         location: "Bad Honnef, Deutschland",

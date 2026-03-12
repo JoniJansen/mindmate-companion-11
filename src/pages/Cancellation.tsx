@@ -25,7 +25,7 @@ The withdrawal period will expire after **14 days from the day of the conclusion
 To exercise the right of withdrawal, you must inform us of your decision to withdraw from this contract by an unequivocal statement (e.g., a letter sent by post or email).
 
 **Contact for withdrawal:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
@@ -65,7 +65,7 @@ If you have requested that the provision of digital content (such as access to S
 ---
 
 **To:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
@@ -111,7 +111,7 @@ Die Widerrufsfrist beträgt **vierzehn Tage ab dem Tag des Vertragsabschlusses**
 Um Ihr Widerrufsrecht auszuüben, müssen Sie uns mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.
 
 **Kontakt für den Widerruf:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
@@ -151,7 +151,7 @@ Wenn Sie verlangt haben, dass die Bereitstellung digitaler Inhalte (wie der Zuga
 ---
 
 **An:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
