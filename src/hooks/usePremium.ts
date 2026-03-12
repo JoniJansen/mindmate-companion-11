@@ -180,8 +180,9 @@ export function usePremium() {
         }
 
         // Backend check via Edge Function (server-side Stripe validation)
+        // userId is derived from JWT on server — never sent in body
         const { data, error } = await supabase.functions.invoke("manage-subscription", {
-          body: { userId: user.id, action: "status" },
+          body: { action: "status" },
         });
 
         if (error) {
@@ -305,7 +306,7 @@ export function usePremium() {
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "cancel" },
+      body: { action: "cancel" },
     });
 
     if (error) {
@@ -330,7 +331,7 @@ export function usePremium() {
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "reactivate" },
+      body: { action: "reactivate" },
     });
 
     if (error) {
@@ -355,7 +356,7 @@ export function usePremium() {
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "portal" },
+      body: { action: "portal" },
     });
 
     if (error) {
@@ -386,7 +387,6 @@ export function usePremium() {
 
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
-        userId: user.id,
         planType,
         successUrl: `${window.location.origin}/settings?success=true`,
         cancelUrl: `${window.location.origin}/settings?canceled=true`,

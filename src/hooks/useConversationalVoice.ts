@@ -43,7 +43,9 @@ export function useConversationalVoice({
   const retryCountRef = useRef(0);
   const isConnectingRef = useRef(false);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxRetries = 2;
+  const MAX_SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes max session
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const agentIdRef = useRef(agentId);
@@ -63,6 +65,16 @@ export function useConversationalVoice({
       setPhase("listening");
       retryCountRef.current = 0;
       isConnectingRef.current = false;
+
+      // Start max session duration timer
+      if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+      sessionTimerRef.current = setTimeout(() => {
+        console.log("[Voice2.0] Max session duration reached, ending session");
+        conversation.endSession().catch(() => {});
+        setStatus("disconnected");
+        setPhase("idle");
+        onErrorRef.current?.("Session ended — maximum duration reached.");
+      }, MAX_SESSION_DURATION_MS);
     },
     onDisconnect: (details) => {
       console.log("[Voice2.0] Disconnected from agent", details ? JSON.stringify(details) : "");
@@ -235,6 +247,10 @@ export function useConversationalVoice({
       clearTimeout(retryTimerRef.current);
       retryTimerRef.current = null;
     }
+    if (sessionTimerRef.current) {
+      clearTimeout(sessionTimerRef.current);
+      sessionTimerRef.current = null;
+    }
     try {
       await conversation.endSession();
     } catch (e) {
@@ -244,6 +260,16 @@ export function useConversationalVoice({
     setPhase("idle");
     retryCountRef.current = 0;
     isConnectingRef.current = false;
+  }, [conversation]);
+
+  // Cleanup on unmount — prevent ghost sessions
+  useEffect(() => {
+    return () => {
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+      if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+      // Fire-and-forget cleanup
+      conversation.endSession().catch(() => {});
+    };
   }, [conversation]);
 
   // Reset error state
