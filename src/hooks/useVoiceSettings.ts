@@ -95,6 +95,10 @@ function sanitizeSettings(value: unknown): VoiceSettings {
     avatarStyle: validAvatarStyles.has(parsed.avatarStyle as AvatarStyle)
       ? (parsed.avatarStyle as AvatarStyle)
       : defaultSettings.avatarStyle,
+    preferredMicDeviceId:
+      typeof parsed.preferredMicDeviceId === "string"
+        ? parsed.preferredMicDeviceId
+        : defaultSettings.preferredMicDeviceId,
   };
 }
 
