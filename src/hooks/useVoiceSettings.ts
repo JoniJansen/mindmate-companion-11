@@ -18,6 +18,7 @@ export interface VoiceSettings {
   language: VoiceLanguage;
   autoPlayReplies: boolean;
   avatarStyle: AvatarStyle;
+  preferredMicDeviceId: string; // "" means system default
 }
 
 const defaultSettings: VoiceSettings = {
