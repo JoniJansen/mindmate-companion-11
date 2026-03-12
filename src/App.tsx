@@ -11,6 +11,7 @@ import { OnboardingGuard } from "@/components/routing/OnboardingGuard";
 import { CookieConsent } from "@/components/gdpr/CookieConsent";
 import { TourProvider } from "@/components/tour/TourProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 // Hooks
@@ -187,12 +188,12 @@ function AppContent() {
                   
                   {/* Main app with bottom navigation - Protected with OnboardingGuard */}
                   <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
-                    <Route path="/home" element={<Home />} />
-                    <Route path="/chat" element={<Chat />} />
-                    <Route path="/journal" element={<Journal />} />
-                    <Route path="/topics" element={<Topics />} />
-                    <Route path="/mood" element={<Mood />} />
-                    <Route path="/toolbox" element={<Toolbox />} />
+                    <Route path="/home" element={<SectionErrorBoundary section="home"><Home /></SectionErrorBoundary>} />
+                    <Route path="/chat" element={<SectionErrorBoundary section="chat"><Chat /></SectionErrorBoundary>} />
+                    <Route path="/journal" element={<SectionErrorBoundary section="journal"><Journal /></SectionErrorBoundary>} />
+                    <Route path="/topics" element={<SectionErrorBoundary section="topics"><Topics /></SectionErrorBoundary>} />
+                    <Route path="/mood" element={<SectionErrorBoundary section="mood"><Mood /></SectionErrorBoundary>} />
+                    <Route path="/toolbox" element={<SectionErrorBoundary section="toolbox"><Toolbox /></SectionErrorBoundary>} />
                   </Route>
                   
                   {/* Standalone protected pages */}

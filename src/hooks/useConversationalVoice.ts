@@ -8,6 +8,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { supabase } from "@/integrations/supabase/client";
+import { recordMetric } from "@/lib/diagnostics";
+import { logInfo, logError } from "@/lib/logger";
 
 export type RealtimeVoiceStatus = "disconnected" | "connecting" | "connected" | "error";
 
@@ -44,8 +46,11 @@ export function useConversationalVoice({
   const isConnectingRef = useRef(false);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionStartRef = useRef<number>(0);
   const maxRetries = 2;
   const MAX_SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes max session
+  const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes idle → auto-disconnect
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const agentIdRef = useRef(agentId);
@@ -53,10 +58,25 @@ export function useConversationalVoice({
 
   const startSessionInternalRef = useRef<() => Promise<boolean>>();
 
+  // Reset idle timer whenever there's voice activity
+  const resetIdleTimer = useCallback(() => {
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = setTimeout(() => {
+      logInfo("voice", "idle_timeout", { sessionDurationMs: Date.now() - sessionStartRef.current });
+      recordMetric("voice", "idle_disconnect", { success: true });
+      conversation.endSession().catch(() => {});
+      setStatus("disconnected");
+      setPhase("idle");
+      onErrorRef.current?.("Session ended — no activity detected.");
+    }, IDLE_TIMEOUT_MS);
+  }, []);
+
   // ElevenLabs useConversation hook
   const conversation = useConversation({
     onConnect: () => {
-      console.log("[Voice2.0] Connected to agent via WebSocket");
+      logInfo("voice", "connected", { agentId: agentIdRef.current });
+      sessionStartRef.current = Date.now();
+      recordMetric("voice", "session_started", { success: true });
       if (retryTimerRef.current) {
         clearTimeout(retryTimerRef.current);
         retryTimerRef.current = null;
@@ -65,11 +85,13 @@ export function useConversationalVoice({
       setPhase("listening");
       retryCountRef.current = 0;
       isConnectingRef.current = false;
+      resetIdleTimer();
 
       // Start max session duration timer
       if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
       sessionTimerRef.current = setTimeout(() => {
-        console.log("[Voice2.0] Max session duration reached, ending session");
+        logInfo("voice", "max_duration_reached");
+        recordMetric("voice", "max_duration_disconnect", { success: true, durationMs: MAX_SESSION_DURATION_MS });
         conversation.endSession().catch(() => {});
         setStatus("disconnected");
         setPhase("idle");
@@ -77,7 +99,10 @@ export function useConversationalVoice({
       }, MAX_SESSION_DURATION_MS);
     },
     onDisconnect: (details) => {
-      console.log("[Voice2.0] Disconnected from agent", details ? JSON.stringify(details) : "");
+      const sessionDurationMs = sessionStartRef.current ? Date.now() - sessionStartRef.current : 0;
+      logInfo("voice", "disconnected", { sessionDurationMs });
+      recordMetric("voice", "session_ended", { durationMs: sessionDurationMs, success: true });
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       setStatus(prev => {
         if (prev === "connecting") return prev;
         return "disconnected";
@@ -88,6 +113,8 @@ export function useConversationalVoice({
       isConnectingRef.current = false;
     },
     onMessage: (message: any) => {
+      // Reset idle timer on any message activity
+      resetIdleTimer();
       const msgType = message?.type;
       if (msgType === "user_transcript") {
         const text = message?.user_transcription_event?.user_transcript || "";
@@ -106,13 +133,14 @@ export function useConversationalVoice({
     },
     onError: (error, details) => {
       const errorMsg = typeof error === "object" && error !== null ? JSON.stringify(error) : String(error);
-      console.error("[Voice2.0] Agent error:", errorMsg, details ? JSON.stringify(details) : "");
+      logError("voice", "agent_error", { error: errorMsg, retryCount: retryCountRef.current });
+      recordMetric("voice", "agent_error", { success: false, meta: { error: errorMsg } });
       isConnectingRef.current = false;
       
       const currentRetry = retryCountRef.current;
       
       if (currentRetry < maxRetries) {
-        console.log(`[Voice2.0] Auto-retry ${currentRetry + 1}/${maxRetries}, error: ${errorMsg}`);
+        logInfo("voice", "auto_retry", { attempt: currentRetry + 1, maxRetries });
         retryCountRef.current = currentRetry + 1;
         setStatus("connecting");
         retryTimerRef.current = setTimeout(() => {
@@ -128,7 +156,7 @@ export function useConversationalVoice({
       const isAuthError = errorMsg.includes("401") || errorMsg.includes("403") || errorMsg.includes("NotAllowed");
       
       if (isAuthError) {
-        console.error("[Voice2.0] Auth error — check API key permissions. Agent ID:", agentIdRef.current);
+        logError("voice", "auth_error", { agentId: agentIdRef.current });
         onErrorRef.current?.("Voice service authentication failed. Please try again later.");
       } else {
         onErrorRef.current?.("Voice connection failed. Please try again.");
@@ -251,6 +279,10 @@ export function useConversationalVoice({
       clearTimeout(sessionTimerRef.current);
       sessionTimerRef.current = null;
     }
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = null;
+    }
     try {
       await conversation.endSession();
     } catch (e) {
@@ -267,6 +299,7 @@ export function useConversationalVoice({
     return () => {
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
       if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       // Fire-and-forget cleanup
       conversation.endSession().catch(() => {});
     };

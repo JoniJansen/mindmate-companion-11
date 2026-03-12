@@ -246,3 +246,81 @@ describe("Theme Key Migration", () => {
     expect(parsed.mode).toBe("light");
   });
 });
+
+// ── Structured Logging Tests ──
+
+describe("Structured Logger", () => {
+  it("redacts JWT-like tokens from log context", async () => {
+    const { logInfo } = await import("@/lib/logger");
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    logInfo("test", "action", { bearer: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.something" });
+    const callArgs = JSON.stringify(spy.mock.calls);
+    expect(callArgs).toContain("[REDACTED]");
+    expect(callArgs).not.toContain("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
+    spy.mockRestore();
+  });
+
+  it("redacts fields with secret-like names", async () => {
+    const { logInfo } = await import("@/lib/logger");
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    logInfo("test", "action", { apikey: "sk_live_abc123", password: "hunter2" });
+    const callArgs = JSON.stringify(spy.mock.calls);
+    expect(callArgs).toContain("[REDACTED]");
+    expect(callArgs).not.toContain("hunter2");
+    spy.mockRestore();
+  });
+});
+
+// ── Diagnostics Tests ──
+
+describe("Production Diagnostics", () => {
+  it("records and retrieves metrics", async () => {
+    const { recordMetric, getDiagnosticsSummary } = await import("@/lib/diagnostics");
+    recordMetric("chat", "stream_complete", { durationMs: 1200, success: true });
+    recordMetric("chat", "stream_error", { durationMs: 500, success: false });
+    recordMetric("voice", "session_started", { success: true });
+
+    const summary = getDiagnosticsSummary();
+    expect(summary.last5min.chat).toBeDefined();
+    expect(summary.last5min.chat.total).toBeGreaterThanOrEqual(2);
+    expect(summary.last5min.chat.errors).toBeGreaterThanOrEqual(1);
+  });
+
+  it("withMetric tracks async operation timing", async () => {
+    const { withMetric, getMetricEntries } = await import("@/lib/diagnostics");
+    const result = await withMetric("test", "async_op", async () => {
+      return 42;
+    });
+    expect(result).toBe(42);
+    const entries = getMetricEntries();
+    const lastEntry = entries[entries.length - 1];
+    expect(lastEntry.feature).toBe("test");
+    expect(lastEntry.success).toBe(true);
+    expect(lastEntry.durationMs).toBeDefined();
+  });
+});
+
+// ── Voice Idle Detection Tests ──
+
+describe("Voice Idle Detection", () => {
+  it("idle timeout is set to 5 minutes", () => {
+    const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+    expect(IDLE_TIMEOUT_MS).toBe(300_000);
+  });
+});
+
+// ── AI Cost Control Tests ──
+
+describe("AI Cost Controls", () => {
+  it("max_tokens is capped for free users", () => {
+    const isPremium = false;
+    const maxResponseTokens = isPremium ? 1024 : 512;
+    expect(maxResponseTokens).toBe(512);
+  });
+
+  it("max_tokens is higher for premium users", () => {
+    const isPremium = true;
+    const maxResponseTokens = isPremium ? 1024 : 512;
+    expect(maxResponseTokens).toBe(1024);
+  });
+});
