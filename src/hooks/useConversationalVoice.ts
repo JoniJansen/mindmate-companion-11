@@ -432,7 +432,7 @@ export function useConversationalVoice({
     logMicDiagnostics("session_start_requested");
 
     if (!env.hasMicSupport) {
-      logError("mic", "unsupported_environment", env);
+      logError("mic", "unsupported_environment", env as unknown as Record<string, unknown>);
       if (!unmountedRef.current) {
         setMicWarning("unsupported");
         setIsSupported(false);
