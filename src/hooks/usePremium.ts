@@ -387,7 +387,6 @@ export function usePremium() {
 
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
-        userId: user.id,
         planType,
         successUrl: `${window.location.origin}/settings?success=true`,
         cancelUrl: `${window.location.origin}/settings?canceled=true`,
