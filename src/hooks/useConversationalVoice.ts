@@ -442,7 +442,7 @@ export function useConversationalVoice({
     }
 
     if (!env.isSecureContext) {
-      logError("mic", "insecure_context", env);
+      logError("mic", "insecure_context", env as unknown as Record<string, unknown>);
       if (!unmountedRef.current) setMicWarning("env_blocked");
       onErrorRef.current?.("Microphone requires a secure (HTTPS) connection.");
       return false;

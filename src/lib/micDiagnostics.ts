@@ -160,7 +160,7 @@ export function createSilenceDetector(
 export function logMicDiagnostics(event: string, extra?: Record<string, unknown>) {
   const env = detectMicEnvironment();
   logInfo("mic", event, {
-    ...env,
+    ...(env as unknown as Record<string, unknown>),
     ...extra,
   });
 }
