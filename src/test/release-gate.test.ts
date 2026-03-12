@@ -9,9 +9,10 @@ import { describe, it, expect } from "vitest";
 describe("Auth Headers: All edge function fetches include auth", () => {
   // We verify by reading source patterns — these tests fail if someone removes auth headers
 
-  it("Chat.tsx streamChat includes Authorization header", async () => {
-    const chatSource = await import("../pages/Chat.tsx?raw");
-    const src = (chatSource as any).default || chatSource;
+  it("Chat streamChat includes Authorization header", async () => {
+    // After refactor, streamChat auth lives in useChatComposer and useChatSaveActions
+    const composerSource = await import("../hooks/useChatComposer.ts?raw");
+    const src = (composerSource as any).default || composerSource;
     expect(src).toContain('Authorization: `Bearer ${authToken}`');
     expect(src).toContain("apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY");
   });
