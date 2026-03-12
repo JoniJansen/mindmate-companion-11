@@ -219,6 +219,7 @@ export default function Upgrade() {
   const features = [
     { icon: MessageSquare, titleKey: "upgrade.feat.unlimitedTitle", descKey: "upgrade.feat.unlimitedDesc" },
     { icon: Volume2, titleKey: "upgrade.feat.voiceTitle", descKey: "upgrade.feat.voiceDesc" },
+    { icon: User, titleKey: "upgrade.feat.faceToFaceTitle", descKey: "upgrade.feat.faceToFaceDesc" },
     { icon: Brain, titleKey: "upgrade.feat.patternsTitle", descKey: "upgrade.feat.patternsDesc" },
     { icon: Calendar, titleKey: "upgrade.feat.recapsTitle", descKey: "upgrade.feat.recapsDesc" },
     { icon: Heart, titleKey: "upgrade.feat.journalingTitle", descKey: "upgrade.feat.journalingDesc" },
