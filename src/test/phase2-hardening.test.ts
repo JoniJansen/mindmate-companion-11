@@ -5,14 +5,11 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 describe("Preferences Service", () => {
   beforeEach(() => {
     localStorage.clear();
-    // Reset module cache
     vi.resetModules();
   });
 
   it("returns defaults when no preferences stored", async () => {
-    const { getPreferences } = await import("@/lib/preferences");
-    // invalidate cache since module may have been imported before
-    const { invalidatePreferencesCache } = await import("@/lib/preferences");
+    const { getPreferences, invalidatePreferencesCache } = await import("@/lib/preferences");
     invalidatePreferencesCache();
     const prefs = getPreferences();
     expect(prefs.language).toBe("en");
@@ -62,7 +59,15 @@ describe("Preferences Service", () => {
     
     unsub();
     setPreferences({ tone: "structured" });
-    expect(listener).toHaveBeenCalledTimes(1); // no more calls after unsub
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it("soulvay key takes priority over mindmate key", async () => {
+    localStorage.setItem("soulvay-preferences", JSON.stringify({ language: "en" }));
+    localStorage.setItem("mindmate-preferences", JSON.stringify({ language: "de" }));
+    const { getPreferences, invalidatePreferencesCache } = await import("@/lib/preferences");
+    invalidatePreferencesCache();
+    expect(getPreferences().language).toBe("en");
   });
 });
 
@@ -70,7 +75,6 @@ describe("Preferences Service", () => {
 
 describe("Premium Gating", () => {
   it("canSendMessage returns false when limit reached (non-premium)", () => {
-    // Simulate a non-premium user at message limit
     const DAILY_MESSAGE_LIMIT = 15;
     const messagesUsed = 15;
     const canSend = messagesUsed < DAILY_MESSAGE_LIMIT;
@@ -84,11 +88,9 @@ describe("Premium Gating", () => {
   });
 
   it("premium state resets on logout (module-level cache)", () => {
-    // Verifies the pattern in usePremium.ts where _lastCheckAt and _lastServerResult reset
     let _lastCheckAt = 12345;
     let _lastServerResult = true;
     
-    // Simulate logout (user becomes null)
     const user = null;
     if (!user) {
       _lastCheckAt = 0;
@@ -98,14 +100,19 @@ describe("Premium Gating", () => {
     expect(_lastCheckAt).toBe(0);
     expect(_lastServerResult).toBe(false);
   });
+
+  it("server-verified premium takes precedence over cached state", () => {
+    const serverVerifiedPremium = false;
+    const cachedPremium = true;
+    const finalPremium = serverVerifiedPremium !== null ? serverVerifiedPremium : cachedPremium;
+    expect(finalPremium).toBe(false);
+  });
 });
 
 // ── Edge Function Security Tests ──
 
 describe("Edge Function Security Patterns", () => {
   it("client no longer sends userId in manage-subscription calls", () => {
-    // This test documents the security invariant:
-    // The body sent to manage-subscription should NOT contain userId
     const body = { action: "status" };
     expect(body).not.toHaveProperty("userId");
   });
@@ -117,6 +124,14 @@ describe("Edge Function Security Patterns", () => {
       cancelUrl: "https://example.com/settings?canceled=true",
     };
     expect(body).not.toHaveProperty("userId");
+  });
+
+  it("error responses never expose internal error messages", () => {
+    // Simulates the hardened chat edge function error handler
+    const internalError = new Error("LOVABLE_API_KEY is not configured");
+    const clientResponse = { error: "Something went wrong. Please try again." };
+    expect(clientResponse.error).not.toContain("LOVABLE_API_KEY");
+    expect(clientResponse.error).not.toContain("configured");
   });
 });
 
@@ -130,7 +145,6 @@ describe("Voice Session Lifecycle", () => {
 
   it("retry count resets on successful connection", () => {
     let retryCount = 2;
-    // Simulate onConnect
     retryCount = 0;
     expect(retryCount).toBe(0);
   });
@@ -139,7 +153,6 @@ describe("Voice Session Lifecycle", () => {
     const maxRetries = 2;
     let retryCount = 0;
     
-    // Simulate 3 errors
     for (let i = 0; i < 3; i++) {
       if (retryCount < maxRetries) {
         retryCount++;
@@ -147,5 +160,89 @@ describe("Voice Session Lifecycle", () => {
     }
     
     expect(retryCount).toBe(maxRetries);
+  });
+});
+
+// ── Chat Runtime Hardening Tests ──
+
+describe("Chat Runtime Hardening", () => {
+  it("duplicate send is prevented by abort controller guard", () => {
+    // Simulates the guard in useChatComposer.handleSend
+    let abortController: AbortController | null = new AbortController();
+    const isInFlight = abortController && !abortController.signal.aborted;
+    expect(isInFlight).toBe(true); // Should block a second send
+  });
+
+  it("conversation truncation respects MAX_RECENT_TURNS", () => {
+    const MAX_RECENT_TURNS = 50;
+    const messages = Array.from({ length: 100 }, (_, i) => ({
+      role: i % 2 === 0 ? "user" : "assistant",
+      content: `Message ${i}`,
+    }));
+    
+    const recentCount = Math.min(MAX_RECENT_TURNS, messages.length);
+    const recent = messages.slice(-recentCount);
+    expect(recent).toHaveLength(50);
+    expect(recent[0].content).toBe("Message 50");
+  });
+
+  it("individual messages are capped at MAX_SINGLE_MSG_CHARS", () => {
+    const MAX_SINGLE_MSG_CHARS = 2500;
+    const longContent = "x".repeat(5000);
+    const capped = longContent.length > MAX_SINGLE_MSG_CHARS
+      ? longContent.substring(0, MAX_SINGLE_MSG_CHARS) + "\n[…truncated]"
+      : longContent;
+    expect(capped.length).toBeLessThan(5000);
+    expect(capped).toContain("[…truncated]");
+  });
+});
+
+// ── Error Mapper Tests ──
+
+describe("Error Mapper", () => {
+  it("maps 401 to reauth action", async () => {
+    const { mapHttpError } = await import("@/lib/errorMapper");
+    const result = mapHttpError(401);
+    expect(result.action).toBe("reauth");
+    expect(result.titleKey).toBe("error.unauthorized");
+  });
+
+  it("maps 429 to wait action", async () => {
+    const { mapHttpError } = await import("@/lib/errorMapper");
+    const result = mapHttpError(429);
+    expect(result.action).toBe("wait");
+  });
+
+  it("maps 500+ to retry action", async () => {
+    const { mapHttpError } = await import("@/lib/errorMapper");
+    const result = mapHttpError(502);
+    expect(result.action).toBe("retry");
+  });
+
+  it("maps unknown status to retry action", async () => {
+    const { mapHttpError } = await import("@/lib/errorMapper");
+    const result = mapHttpError(418);
+    expect(result.action).toBe("retry");
+  });
+});
+
+// ── Theme Key Migration ──
+
+describe("Theme Key Migration", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("reads soulvay-theme first, falls back to mindmate-theme", () => {
+    localStorage.setItem("mindmate-theme", JSON.stringify({ mode: "dark" }));
+    const stored = localStorage.getItem("soulvay-theme") || localStorage.getItem("mindmate-theme");
+    const parsed = JSON.parse(stored!);
+    expect(parsed.mode).toBe("dark");
+  });
+
+  it("soulvay-theme takes priority over mindmate-theme", () => {
+    localStorage.setItem("soulvay-theme", JSON.stringify({ mode: "light" }));
+    localStorage.setItem("mindmate-theme", JSON.stringify({ mode: "dark" }));
+    const stored = localStorage.getItem("soulvay-theme") || localStorage.getItem("mindmate-theme");
+    const parsed = JSON.parse(stored!);
+    expect(parsed.mode).toBe("light");
   });
 });

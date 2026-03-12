@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, Volume2, VolumeX, User } from "lucide-react";
+import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -15,6 +14,8 @@ import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { useChatComposer } from "@/hooks/useChatComposer";
 import { useCompanion } from "@/hooks/useCompanion";
 import { useChatVoice } from "@/hooks/useChatVoice";
+import { useChatIntelligence } from "@/hooks/useChatIntelligence";
+import { useChatSaveActions } from "@/hooks/useChatSaveActions";
 import { VoiceConversationPanel } from "@/components/chat/VoiceConversationPanel";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
@@ -55,17 +56,15 @@ export default function Chat() {
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState<"messages" | "voice" | "features">("features");
 
-  // Save dialog state
-  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [saveDialogVariant, setSaveDialogVariant] = useState<"message" | "conversation" | "summary">("message");
-  const [saveDialogDefaultTitle, setSaveDialogDefaultTitle] = useState("");
-  const [saveDialogCallback, setSaveDialogCallback] = useState<((title: string) => void) | null>(null);
-
   // Composer hook (messages, streaming, persistence)
   const composer = useChatComposer(chatMode);
 
+  // Extracted hooks
+  const { extractIntelligence } = useChatIntelligence();
+  const saveActions = useChatSaveActions();
+
   // Companion
-  const { companion, incrementBond } = useCompanion();
+  const { companion } = useCompanion();
   const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
 
   // Voice hook (turn-based)
@@ -188,7 +187,6 @@ export default function Chat() {
     if (!companion?.name || !initDone) return;
     const firstMsg = composer.messages[0];
     if (!firstMsg || firstMsg.role !== "assistant" || !firstMsg.id.startsWith("greeting")) return;
-    // Check if greeting contains "Soulvay" (fallback) and replace with actual companion name
     if (firstMsg.content.includes("Soulvay") || firstMsg.content.includes("Ich bin Soulway")) {
       const savedLang = composer.preferences.current.language || language;
       const updated = firstMsg.content
@@ -203,7 +201,6 @@ export default function Chat() {
   }, [companion?.name, initDone]);
 
   // Handle stream completion → trigger TTS
-  // Use a ref to always call the LATEST speakResponse, avoiding stale closures
   const speakResponseRef = useRef(voice.speakResponse);
   useEffect(() => { speakResponseRef.current = voice.speakResponse; }, [voice.speakResponse]);
 
@@ -253,8 +250,6 @@ export default function Chat() {
   // Voice mode toggle with premium gate
   const handleToggleVoiceMode = () => {
     if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
-    
-    // If real-time agent is available, use that
     if (realtimeAvailable && agentId) {
       if (useRealtimeMode && realtimeVoice.isConnected) {
         realtimeVoice.endSession();
@@ -264,8 +259,6 @@ export default function Chat() {
       }
       return;
     }
-    
-    // Fallback to turn-based
     if (!voice.isSpeechSupported) { toast({ title: t("voice.notSupported"), description: t("voice.tryChrome"), variant: "destructive" }); return; }
     voice.toggleVoiceMode();
   };
@@ -285,55 +278,9 @@ export default function Chat() {
     voice.playMessage(message);
   };
 
-  // New conversation with intelligence triggers
+  // New conversation with intelligence triggers (using extracted hook)
   const handleNewConversation = () => {
-    const userMsgCount = composer.messages.filter(m => m.role === "user" && !m.isError).length;
-    if (user && userMsgCount >= 4) {
-      const conversationContent = composer.messages.filter(m => !m.isError).map(m => `${m.role}: ${m.content}`).join("\n\n");
-      const chatMsgs = composer.messages.filter(m => !m.isError).map(m => ({ role: m.role, content: m.content }));
-
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-        const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY };
-
-        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-memories`, {
-          method: "POST", headers,
-          body: JSON.stringify({ content: conversationContent, source: "chat", language }),
-        }).catch(() => {});
-
-        if (userMsgCount >= 6) {
-          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/session-insight`, {
-            method: "POST", headers,
-            body: JSON.stringify({ messages: chatMsgs, conversation_id: composer.conversationId, language }),
-          }).catch(() => {});
-        }
-
-        if (userMsgCount >= 8) {
-          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/detect-patterns`, {
-            method: "POST", headers,
-            body: JSON.stringify({ language }),
-          }).catch(() => {});
-        }
-      });
-
-      // Increment companion bond for meaningful conversations
-      if (userMsgCount >= 5) {
-        incrementBond().then((result) => {
-          if (result && result.newLevel > result.previousLevel) {
-            // Show subtle bond toast at milestone levels
-            const milestones = [3, 5, 10, 15, 20, 30, 50];
-            if (milestones.includes(result.newLevel)) {
-              const companionName = companion?.name || "Soulvay";
-              const msg = language === "de"
-                ? `Du und ${companionName} versteht euch immer besser.`
-                : `You and ${companionName} are understanding each other better.`;
-              toast({ title: `✨ ${language === "de" ? "Verbindungslevel" : "Bond level"} ${result.newLevel}`, description: msg });
-            }
-          }
-        });
-      }
-    }
-
+    extractIntelligence(composer.messages, composer.conversationId);
     composer.startNewConversation();
     const savedLang = composer.preferences.current.language || language;
     const companionName = getCompanionName();
@@ -343,79 +290,10 @@ export default function Chat() {
     composer.setMessages([{ id: "greeting-" + Date.now(), content: baseGreeting, role: "assistant", timestamp: new Date() }]);
   };
 
-  // Summary handlers
+  // Summary/save handlers (using extracted hook)
   const handleSummary = () => {
     if (!composer.canUseSessionSummary) { setUpgradeReason("features"); setShowUpgradePrompt(true); return; }
-    localStorage.setItem("soulvay-chat-messages", JSON.stringify(composer.messages.map(m => ({ role: m.role, content: m.content }))));
-    navigate("/summary", { state: { messages: composer.messages.map(m => ({ role: m.role, content: m.content })) } });
-  };
-
-  const handleSaveChat = () => {
-    if (!user) return;
-    setSaveDialogVariant("conversation");
-    setSaveDialogDefaultTitle(t("chat.chatConversation"));
-    setSaveDialogCallback(() => async (title: string) => {
-      const chatContent = composer.messages.filter(m => !m.isError).map(m => `${m.role === "user" ? "🧑" : "🤖"} ${m.content}`).join("\n\n");
-      try {
-        await supabase.from("journal_entries").insert({
-          user_id: user.id, user_session_id: user.id,
-          content: chatContent,
-          title: title || t("chat.journalTitle.conversation"),
-          source: "chat", tags: ["chat"],
-        } as any);
-        toast({ title: t("chat.savedToJournal"), description: t("chat.chatSavedDesc") });
-      } catch { toast({ title: t("common.error"), variant: "destructive" }); }
-    });
-    setSaveDialogOpen(true);
-  };
-
-  const handleSaveSummary = async () => {
-    if (!user) return;
-    toast({ title: t("chat.generatingSummary"), description: t("chat.pleaseWait") });
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      const chatMsgs = composer.messages.filter(m => !m.isError).map(m => ({ role: m.role, content: m.content }));
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-summary`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-        body: JSON.stringify({ messages: chatMsgs, language }),
-      });
-      if (!resp.ok) throw new Error("Failed");
-      const summary = await resp.json();
-      const structuredContent = [
-        `## ${t("chat.summarySection.summary")}`, summary.summary || "", "",
-        `### ${t("chat.summarySection.themes")}`, ...(summary.emotionalThemes || []).map((th: string) => `• ${th}`), "",
-        `### ${t("chat.summarySection.moodJourney")}`,
-        `${summary.moodProgression?.start || "💭"} → ${summary.moodProgression?.end || "🙂"} ${summary.moodProgression?.insight || ""}`, "",
-        `### ${t("chat.summarySection.nextStep")}`, summary.nextStep || "",
-      ].join("\n");
-      await supabase.from("journal_entries").insert({
-        user_id: user.id, user_session_id: user.id,
-        content: structuredContent,
-        title: t("chat.journalTitle.summary"),
-        source: "chat-summary", tags: ["chat", "summary"],
-      } as any);
-      toast({ title: t("chat.savedToJournal"), description: t("chat.summarySavedDesc") });
-    } catch { toast({ title: t("common.error"), variant: "destructive" }); }
-  };
-
-  const handleSaveMessage = (message: { id: string; content: string; role: string }) => {
-    if (!user) return;
-    setSaveDialogVariant("message");
-    setSaveDialogDefaultTitle(t("chat.chatMessage"));
-    setSaveDialogCallback(() => async (title: string) => {
-      try {
-        await supabase.from("journal_entries").insert({
-          user_id: user.id, user_session_id: user.id,
-          content: message.content,
-          title: title || t("chat.journalTitle.message"),
-          source: "chat", tags: ["chat"],
-        } as any);
-        toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
-      } catch { toast({ title: t("common.error"), variant: "destructive" }); }
-    });
-    setSaveDialogOpen(true);
+    saveActions.handleSummary(composer.messages);
   };
 
   // Listen for voice-send custom event
@@ -501,7 +379,7 @@ export default function Chat() {
         </div>
       )}
 
-      {/* Real-time Voice Panel — ElevenLabs Conversational AI Agent */}
+      {/* Real-time Voice Panel */}
       <AnimatePresence>
         {useRealtimeMode && canUseVoice && companion && (
           <RealtimeVoicePanel
@@ -522,7 +400,7 @@ export default function Chat() {
         )}
       </AnimatePresence>
 
-      {/* Turn-based Voice Panel — fallback for companions without agents */}
+      {/* Turn-based Voice Panel */}
       <AnimatePresence>
         {voice.voiceModeEnabled && !useRealtimeMode && canUseVoice && companion && (
           <VoiceConversationPanel
@@ -567,7 +445,7 @@ export default function Chat() {
         onContinue={() => composer.handleContinue(handleStreamDone)}
         onPlayMessage={handlePlayMessage}
         onStopTTS={voice.stopTTS}
-        onSaveMessage={handleSaveMessage}
+        onSaveMessage={saveActions.handleSaveMessage}
         isPlayingMessage={voice.isPlayingMessage}
         isLoadingMessage={voice.isLoadingMessage}
         canUseVoice={canUseVoice}
@@ -610,8 +488,8 @@ export default function Chat() {
         messageCount={composer.messages.length}
         canUseSessionSummary={composer.canUseSessionSummary}
         onSummary={handleSummary}
-        onSaveChat={handleSaveChat}
-        onSaveSummary={handleSaveSummary}
+        onSaveChat={() => saveActions.handleSaveChat(composer.messages)}
+        onSaveSummary={() => saveActions.handleSaveSummary(composer.messages)}
         onCrisisHelp={() => navigate("/safety")}
       />
 
@@ -647,11 +525,11 @@ export default function Chat() {
       />
 
       <SaveToJournalDialog
-        open={saveDialogOpen}
-        onOpenChange={setSaveDialogOpen}
-        defaultTitle={saveDialogDefaultTitle}
-        variant={saveDialogVariant}
-        onSave={(title) => { if (saveDialogCallback) saveDialogCallback(title); }}
+        open={saveActions.saveDialogOpen}
+        onOpenChange={saveActions.setSaveDialogOpen}
+        defaultTitle={saveActions.saveDialogDefaultTitle}
+        variant={saveActions.saveDialogVariant}
+        onSave={(title) => { if (saveActions.saveDialogCallback) saveActions.saveDialogCallback(title); }}
       />
     </div>
   );
