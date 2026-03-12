@@ -19,11 +19,10 @@ export default function Install() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-
-  // Native builds should never show PWA install page (Apple Guideline 2.3.10)
-  if (isNativeApp()) return <Navigate to="/home" replace />;
+  const isNative = isNativeApp();
 
   useEffect(() => {
+    if (isNative) return;
     // Check if already installed
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setIsInstalled(true);
@@ -44,7 +43,10 @@ export default function Install() {
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
     };
-  }, []);
+  }, [isNative]);
+
+  // Native builds should never show PWA install page (Apple Guideline 2.3.10)
+  if (isNative) return <Navigate to="/home" replace />;
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
