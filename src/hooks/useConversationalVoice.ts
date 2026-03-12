@@ -99,7 +99,10 @@ export function useConversationalVoice({
       }, MAX_SESSION_DURATION_MS);
     },
     onDisconnect: (details) => {
-      console.log("[Voice2.0] Disconnected from agent", details ? JSON.stringify(details) : "");
+      const sessionDurationMs = sessionStartRef.current ? Date.now() - sessionStartRef.current : 0;
+      logInfo("voice", "disconnected", { sessionDurationMs });
+      recordMetric("voice", "session_ended", { durationMs: sessionDurationMs, success: true });
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       setStatus(prev => {
         if (prev === "connecting") return prev;
         return "disconnected";
@@ -110,6 +113,8 @@ export function useConversationalVoice({
       isConnectingRef.current = false;
     },
     onMessage: (message: any) => {
+      // Reset idle timer on any message activity
+      resetIdleTimer();
       const msgType = message?.type;
       if (msgType === "user_transcript") {
         const text = message?.user_transcription_event?.user_transcript || "";
