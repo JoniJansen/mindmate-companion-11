@@ -111,7 +111,7 @@ We will NEVER use your data for:
 • **Supabase (Supabase Inc., USA)**: Cloud infrastructure for data storage, authentication, and backend functions. Data processing agreement in place with SCCs for EU-US data transfer.
 • **ElevenLabs (ElevenLabs Inc., USA)**: Voice synthesis for the Face-to-Face voice mode. Audio data is transmitted in real-time and processed transiently — not stored by ElevenLabs after the session. Data transfer secured under SCCs.
 • **Stripe (Stripe Inc., USA)**: Payment processing for web subscriptions. Stripe processes payment data independently as a data controller under its own privacy policy. EU-US Data Privacy Framework certified.
-• **Apple Inc. (USA) / RevenueCat Inc. (USA)**: In-app purchase processing for iOS/Android subscriptions. Apple processes purchase data as an independent controller. RevenueCat acts as a processor under SCCs.
+• **Apple Inc. (USA) / RevenueCat Inc. (USA)**: In-app purchase processing for iOS subscriptions. Apple processes purchase data as an independent controller. RevenueCat acts as a processor under SCCs.
 • **Resend (Resend Inc., USA)**: Transactional email delivery (welcome emails, weekly recaps, password resets). Data processing agreement with SCCs in place.
 
 All providers are contractually obligated to process data exclusively for service delivery and maintain appropriate technical and organizational security measures. We regularly review and assess the adequacy of these safeguards.`
