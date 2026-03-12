@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Check, CreditCard, Crown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import { usePremium } from "@/hooks/usePremium";
 import { useToast } from "@/hooks/use-toast";
+import { isNativeApp } from "@/lib/nativeDetect";
 import {
   AlertDialog,
   AlertDialogAction,
