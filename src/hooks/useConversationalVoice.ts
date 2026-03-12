@@ -6,6 +6,12 @@
  * 
  * State machine: idle → connecting → connected → (streaming/listening) → disconnecting → idle
  * All transitions are guarded via statusRef to prevent stale closures.
+ * 
+ * Microphone hardening:
+ * - Environment detection (iframe, preview, secure context)
+ * - Permission pre-check with diagnostics
+ * - Input silence monitoring after connect
+ * - UX warning states for broken mic
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -13,6 +19,14 @@ import { useConversation } from "@elevenlabs/react";
 import { supabase } from "@/integrations/supabase/client";
 import { recordMetric } from "@/lib/diagnostics";
 import { logInfo, logError, logWarn } from "@/lib/logger";
+import {
+  detectMicEnvironment,
+  queryMicPermission,
+  validateAudioTracks,
+  createSilenceDetector,
+  logMicDiagnostics,
+  type MicEnvironment,
+} from "@/lib/micDiagnostics";
 
 export type RealtimeVoiceStatus = "disconnected" | "connecting" | "connected" | "disconnecting" | "error";
 
@@ -21,6 +35,15 @@ export type RealtimeVoicePhase =
   | "listening" 
   | "agent_speaking"
   | "processing";
+
+/** Microphone warning state surfaced to the UI */
+export type MicWarning =
+  | null
+  | "no_signal"          // mic connected but no audio signal
+  | "permission_denied"  // user denied mic
+  | "not_found"          // no mic device
+  | "env_blocked"        // iframe/preview may block mic
+  | "unsupported";       // browser doesn't support getUserMedia
 
 // Valid state transitions
 const VALID_TRANSITIONS: Record<RealtimeVoiceStatus, RealtimeVoiceStatus[]> = {
@@ -52,6 +75,8 @@ export function useConversationalVoice({
   const [agentTranscript, setAgentTranscript] = useState("");
   const [transcriptHistory, setTranscriptHistory] = useState<TranscriptEntry[]>([]);
   const [isSupported, setIsSupported] = useState(true);
+  const [micWarning, setMicWarning] = useState<MicWarning>(null);
+  const [micEnvironment, setMicEnvironment] = useState<MicEnvironment | null>(null);
   
   // Refs for latest values — prevents stale closures in SDK callbacks
   const statusRef = useRef<RealtimeVoiceStatus>("disconnected");
@@ -63,10 +88,12 @@ export function useConversationalVoice({
   const sessionStartRef = useRef<number>(0);
   const conversationRef = useRef<any>(null);
   const unmountedRef = useRef(false);
+  const silenceCleanupRef = useRef<(() => void) | null>(null);
 
   const maxRetries = 2;
   const MAX_SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes
   const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes idle
+  const SILENCE_DETECTION_DELAY_MS = 3000; // wait 3s after connect before monitoring silence
   
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
@@ -98,6 +125,7 @@ export function useConversationalVoice({
     if (retryTimerRef.current) { clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
     if (sessionTimerRef.current) { clearTimeout(sessionTimerRef.current); sessionTimerRef.current = null; }
     if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
+    if (silenceCleanupRef.current) { silenceCleanupRef.current(); silenceCleanupRef.current = null; }
   }, []);
 
   // Reset idle timer — uses ref to avoid stale conversation closure
@@ -114,16 +142,59 @@ export function useConversationalVoice({
       logInfo("voice", "idle_timeout", { sessionDurationMs: Date.now() - sessionStartRef.current });
       recordMetric("voice", "idle_disconnect", { success: true });
       
-      // Use ref to get latest conversation handle
       transitionTo("disconnecting");
       conversationRef.current?.endSession?.().catch(() => {});
       transitionTo("disconnected");
       if (!unmountedRef.current) {
         setPhase("idle");
+        setMicWarning(null);
       }
       onErrorRef.current?.("Session ended — no activity detected.");
     }, IDLE_TIMEOUT_MS);
   }, [transitionTo]);
+
+  // Start silence monitoring after connection
+  const startSilenceMonitoring = useCallback(() => {
+    // Clean up any existing monitor
+    if (silenceCleanupRef.current) {
+      silenceCleanupRef.current();
+      silenceCleanupRef.current = null;
+    }
+
+    // Delay monitoring start to let agent speak first
+    const delayTimer = setTimeout(() => {
+      if (statusRef.current !== "connected" || unmountedRef.current) return;
+      
+      const conv = conversationRef.current;
+      if (!conv?.getInputVolume) return;
+
+      logInfo("mic", "silence_monitor_started");
+      
+      silenceCleanupRef.current = createSilenceDetector(
+        () => conv.getInputVolume(),
+        {
+          silenceThresholdSec: 10,
+          signalThreshold: 0.005,
+          onSilenceDetected: () => {
+            if (unmountedRef.current || statusRef.current !== "connected") return;
+            logWarn("mic", "no_input_signal", { sessionDurationMs: Date.now() - sessionStartRef.current });
+            setMicWarning("no_signal");
+          },
+          onSignalDetected: () => {
+            if (unmountedRef.current) return;
+            setMicWarning(prev => prev === "no_signal" ? null : prev);
+          },
+        }
+      );
+    }, SILENCE_DETECTION_DELAY_MS);
+
+    // Return combined cleanup
+    const prevCleanup = silenceCleanupRef.current;
+    silenceCleanupRef.current = () => {
+      clearTimeout(delayTimer);
+      prevCleanup?.();
+    };
+  }, []);
 
   // ElevenLabs useConversation hook
   const conversation = useConversation({
@@ -141,9 +212,13 @@ export function useConversationalVoice({
       
       transitionTo("connected");
       setPhase("listening");
+      setMicWarning(null);
       retryCountRef.current = 0;
       isConnectingRef.current = false;
       resetIdleTimer();
+      
+      // Start monitoring mic input for silence
+      startSilenceMonitoring();
 
       // Max session duration timer
       if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
@@ -156,7 +231,10 @@ export function useConversationalVoice({
         transitionTo("disconnecting");
         conversationRef.current?.endSession?.().catch(() => {});
         transitionTo("disconnected");
-        if (!unmountedRef.current) setPhase("idle");
+        if (!unmountedRef.current) {
+          setPhase("idle");
+          setMicWarning(null);
+        }
         onErrorRef.current?.("Session ended — maximum duration reached.");
       }, MAX_SESSION_DURATION_MS);
     },
@@ -166,6 +244,8 @@ export function useConversationalVoice({
       logInfo("voice", "sdk_disconnect", { sessionDurationMs, currentStatus: statusRef.current });
       recordMetric("voice", "session_ended", { durationMs: sessionDurationMs, success: true });
       
+      // Clean up silence monitor
+      if (silenceCleanupRef.current) { silenceCleanupRef.current(); silenceCleanupRef.current = null; }
       if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
       if (sessionTimerRef.current) { clearTimeout(sessionTimerRef.current); sessionTimerRef.current = null; }
       
@@ -181,7 +261,6 @@ export function useConversationalVoice({
       if (statusRef.current === "connected" || statusRef.current === "disconnecting") {
         transitionTo("disconnected");
       } else if (statusRef.current === "connecting") {
-        // Connection failed before ever connecting
         transitionTo("disconnected");
       }
       
@@ -189,6 +268,7 @@ export function useConversationalVoice({
         setPhase("idle");
         setUserTranscript("");
         setAgentTranscript("");
+        setMicWarning(null);
       }
     },
     
@@ -203,6 +283,8 @@ export function useConversationalVoice({
         const text = message?.user_transcription_event?.user_transcript || "";
         setUserTranscript(text);
         setTranscriptHistory(prev => [...prev, { role: "user", text, timestamp: Date.now() }]);
+        // User transcript proves mic is working — clear any warning
+        setMicWarning(prev => prev === "no_signal" ? null : prev);
       }
       if (msgType === "agent_response") {
         const text = message?.agent_response_event?.agent_response || "";
@@ -219,6 +301,9 @@ export function useConversationalVoice({
       const errorMsg = typeof error === "object" && error !== null ? JSON.stringify(error) : String(error);
       logError("voice", "agent_error", { error: errorMsg, retryCount: retryCountRef.current, currentStatus: statusRef.current });
       recordMetric("voice", "agent_error", { success: false, meta: { error: errorMsg } });
+      
+      // Clean up silence monitor on error
+      if (silenceCleanupRef.current) { silenceCleanupRef.current(); silenceCleanupRef.current = null; }
       
       isConnectingRef.current = false;
       const currentRetry = retryCountRef.current;
@@ -266,7 +351,7 @@ export function useConversationalVoice({
     }
   }, [conversation.isSpeaking]);
 
-  // Internal session start
+  // Internal session start — fetches signed URL and connects SDK
   const startSessionInternal = useCallback(async () => {
     const currentAgentId = agentIdRef.current;
     if (!currentAgentId) return false;
@@ -316,8 +401,11 @@ export function useConversationalVoice({
       if (error?.name === "NotAllowedError") {
         transitionTo("error");
         isConnectingRef.current = false;
+        if (!unmountedRef.current) {
+          setIsSupported(false);
+          setMicWarning("permission_denied");
+        }
         onErrorRef.current?.("Microphone access denied. Please allow microphone access.");
-        if (!unmountedRef.current) setIsSupported(false);
         return false;
       }
       
@@ -333,37 +421,102 @@ export function useConversationalVoice({
 
   startSessionInternalRef.current = startSessionInternal;
 
-  // Start a real-time voice session
+  // Start a real-time voice session with full mic diagnostics
   const startSession = useCallback(async () => {
     if (!agentIdRef.current || isConnectingRef.current) return false;
     if (statusRef.current === "connecting" || statusRef.current === "connected") return false;
+
+    // ── Environment check ──
+    const env = detectMicEnvironment();
+    if (!unmountedRef.current) setMicEnvironment(env);
+    logMicDiagnostics("session_start_requested");
+
+    if (!env.hasMicSupport) {
+      logError("mic", "unsupported_environment", env);
+      if (!unmountedRef.current) {
+        setMicWarning("unsupported");
+        setIsSupported(false);
+      }
+      onErrorRef.current?.("This browser doesn't support microphone input.");
+      return false;
+    }
+
+    if (!env.isSecureContext) {
+      logError("mic", "insecure_context", env);
+      if (!unmountedRef.current) setMicWarning("env_blocked");
+      onErrorRef.current?.("Microphone requires a secure (HTTPS) connection.");
+      return false;
+    }
+
+    // ── Permission pre-check ──
+    const permBefore = await queryMicPermission();
+    logInfo("mic", "permission_state_before", { state: permBefore });
 
     isConnectingRef.current = true;
     transitionTo("connecting");
     setUserTranscript("");
     setAgentTranscript("");
     setTranscriptHistory([]);
+    setMicWarning(null);
     retryCountRef.current = 0;
 
     try {
       // Request microphone permission — then STOP the stream immediately
       // The SDK will create its own audio capture; keeping ours open causes conflicts
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
-      logInfo("voice", "mic_permission_granted");
+      
+      // Validate the acquired track before releasing
+      const trackInfo = validateAudioTracks(stream);
+      logInfo("mic", "stream_acquired", trackInfo);
+      recordMetric("mic", "permission_granted", { success: true, meta: trackInfo });
+
+      if (!trackInfo.valid) {
+        logWarn("mic", "track_not_live", trackInfo);
+      }
+
+      // Release immediately — SDK will capture its own
+      stream.getTracks().forEach(track => {
+        logInfo("mic", "releasing_probe_track", { label: track.label, state: track.readyState });
+        track.stop();
+      });
+
+      const permAfter = await queryMicPermission();
+      logInfo("mic", "permission_state_after", { state: permAfter });
+
+      // Warn about potentially degraded environments
+      if (env.mayRestrictMic) {
+        logWarn("mic", "env_may_restrict", { isIframe: env.isIframe, isLovablePreview: env.isLovablePreview });
+      }
 
       return await startSessionInternal();
     } catch (error: any) {
-      logError("voice", "session_start_failed", { error: error?.message, name: error?.name });
+      logError("mic", "acquisition_failed", { 
+        error: error?.message, 
+        name: error?.name,
+        isIframe: env.isIframe,
+        isLovablePreview: env.isLovablePreview,
+      });
+      recordMetric("mic", "acquisition_failed", { success: false, meta: { error: error?.name } });
+      
       transitionTo("error");
       isConnectingRef.current = false;
       
       if (error?.name === "NotAllowedError") {
+        if (!unmountedRef.current) {
+          setMicWarning("permission_denied");
+          setIsSupported(false);
+        }
         onErrorRef.current?.("Microphone access denied. Please allow microphone access.");
-        if (!unmountedRef.current) setIsSupported(false);
       } else if (error?.name === "NotFoundError") {
+        if (!unmountedRef.current) {
+          setMicWarning("not_found");
+          setIsSupported(false);
+        }
         onErrorRef.current?.("No microphone found. Please connect a microphone.");
-        if (!unmountedRef.current) setIsSupported(false);
+      } else if (error?.name === "NotReadableError" || error?.name === "AbortError") {
+        // Often means another app/tab has the mic, or hardware error
+        if (!unmountedRef.current) setMicWarning("env_blocked");
+        onErrorRef.current?.("Microphone is in use by another application or unavailable.");
       } else {
         onErrorRef.current?.(error?.message || "Failed to start voice session");
       }
@@ -396,9 +549,12 @@ export function useConversationalVoice({
     if (!unmountedRef.current) {
       setStatus("disconnected");
       setPhase("idle");
+      setMicWarning(null);
     }
     retryCountRef.current = 0;
     isConnectingRef.current = false;
+    
+    logInfo("voice", "session_ended_cleanup_complete");
   }, [conversation, clearAllTimers, transitionTo]);
 
   // Cleanup on unmount
@@ -408,6 +564,7 @@ export function useConversationalVoice({
       unmountedRef.current = true;
       clearAllTimers();
       conversationRef.current?.endSession?.().catch(() => {});
+      logInfo("voice", "unmount_cleanup");
     };
   }, [clearAllTimers]);
 
@@ -417,6 +574,7 @@ export function useConversationalVoice({
     statusRef.current = "disconnected";
     setStatus("disconnected");
     setPhase("idle");
+    setMicWarning(null);
     retryCountRef.current = 0;
     isConnectingRef.current = false;
   }, [clearAllTimers]);
@@ -442,6 +600,8 @@ export function useConversationalVoice({
     agentTranscript,
     transcriptHistory,
     visualState,
+    micWarning,
+    micEnvironment,
     setVolume: conversation.setVolume,
     getInputVolume: conversation.getInputVolume,
     getOutputVolume: conversation.getOutputVolume,
