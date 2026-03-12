@@ -78,7 +78,7 @@ const getPurchasesPlugin = async (): Promise<any | null> => {
 };
 
 // RevenueCat Public API Key (safe to include in client code)
-const REVENUECAT_PUBLIC_KEY = 'test_XfLDyAoqYoHpECgHSmWSaVkFwok';
+const REVENUECAT_PUBLIC_KEY = 'appl_VatNsFmCDlJPOPkBGnzmhHyZrYy';
 
 export const useRevenueCat = (): UseRevenueCatReturn => {
   const [isAvailable, setIsAvailable] = useState(false);
