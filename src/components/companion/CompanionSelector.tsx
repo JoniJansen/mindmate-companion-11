@@ -83,7 +83,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
   return (
     <div className="space-y-6">
       {/* Archetype Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {companionArchetypes.map((arch, index) => {
           const isSelected = selectedId === arch.id;
           const isExpanded = expandedId === arch.id;
@@ -94,7 +94,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.04 }}
-              className={`relative rounded-2xl border text-left transition-all overflow-hidden group cursor-pointer ${
+              className={`relative rounded-2xl border text-left transition-all group cursor-pointer min-h-[120px] flex flex-col ${
                 isSaving ? "opacity-50 pointer-events-none" : ""
               } ${
                 isSelected
@@ -103,21 +103,23 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               }`}
             >
               {isSelected && (
-                <div className="absolute top-2 right-2 z-10 w-5 h-5 lg:w-6 lg:h-6 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="w-3 h-3 lg:w-3.5 lg:h-3.5 text-primary-foreground" />
+                <div className="absolute top-2.5 right-2.5 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-md">
+                  <Check className="w-3.5 h-3.5 text-primary-foreground" />
                 </div>
               )}
               
-              {/* Avatar Image — clickable to select */}
+              {/* Avatar Image — 3:4 portrait, no cropping */}
               <div
-                className="w-full aspect-square bg-muted/30 overflow-hidden active:scale-[0.97] transition-transform"
+                className="w-full rounded-t-2xl bg-muted/30 overflow-hidden active:scale-[0.97] transition-transform"
+                style={{ aspectRatio: '3 / 4' }}
                 onClick={() => handleSelect(arch)}
               >
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
-                  className="w-full h-full object-cover object-[50%_25%]"
+                  className="w-full h-full object-cover object-[50%_20%]"
                   loading="lazy"
+                  draggable={false}
                 />
               </div>
               
