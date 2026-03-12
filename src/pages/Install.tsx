@@ -14,13 +14,14 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function Install() {
-  // Native builds should never show PWA install page (Apple Guideline 2.3.10)
-  if (isNativeApp()) return <Navigate to="/home" replace />;
-
   const navigate = useNavigate();
   const { language } = useTranslation();
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+
+  // Native builds should never show PWA install page (Apple Guideline 2.3.10)
+  if (isNativeApp()) return <Navigate to="/home" replace />;
 
   useEffect(() => {
     // Check if already installed
