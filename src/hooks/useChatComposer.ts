@@ -49,7 +49,7 @@ export function useChatComposer(chatMode: ChatMode) {
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatMessageCountRef = useRef(0);
-  const preferences = useRef<Preferences>(getPreferences());
+  const preferences = useRef<ChatPreferences>(getPreferences());
 
   const { user } = useAuth();
   const { t, language } = useTranslation();
