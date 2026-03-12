@@ -393,7 +393,7 @@ export default function Home() {
             onTalkAboutIt={() => {
               startMomentConversation();
               const msg = `${t("home.memoryMomentMsg")} "${memoryMoment.content}". ${t("home.memoryMomentContinue")}`;
-              localStorage.setItem('mindmate-initial-message', msg);
+              localStorage.setItem('soulvay-initial-message', msg);
               navigate("/chat");
             }}
             onDismiss={() => { dismissMoment(); setCompanionCheckinDismissed(true); }}
