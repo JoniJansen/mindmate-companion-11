@@ -823,6 +823,7 @@ serve(async (req) => {
 
     // ── Build prompt & call AI ──
     const companionData = companionResult.data as any;
+    const profileData = profileResult.data as any;
     const userPreferences: Preferences = {
       language: "en", tone: "gentle", addressForm: "du", innerDialogue: false,
       ...preferences,
@@ -833,6 +834,8 @@ serve(async (req) => {
         companionTone: companionData.tone,
         companionBondLevel: companionData.bond_level || 0,
       } : {}),
+      // Inject user's display name from profile
+      ...(profileData?.display_name ? { userName: profileData.display_name } : {}),
     };
 
     const crisisResult = detectCrisis(messages || []);
