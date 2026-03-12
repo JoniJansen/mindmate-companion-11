@@ -75,7 +75,7 @@ If you are experiencing a mental health crisis, please contact emergency service
 **Billing**: 
 • Subscriptions are billed in advance on a recurring basis
 • Monthly subscriptions renew automatically every month; yearly subscriptions renew automatically every year
-• Payments are processed securely through Stripe (web) or Apple/Google (mobile apps)
+• Payments are processed securely through the respective platform's payment system
 • You can cancel at any time from Settings; cancellation takes effect at the end of the current billing period
 
 **Automatic Renewal**: Your subscription renews automatically unless cancelled at least 24 hours before the end of the current billing period. The renewal price corresponds to the then-current price of the plan.
@@ -215,7 +215,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
 **Abrechnung**: 
 • Abonnements werden im Voraus auf wiederkehrender Basis abgerechnet
 • Monatsabonnements verlängern sich automatisch jeden Monat; Jahresabonnements verlängern sich automatisch jedes Jahr
-• Zahlungen werden sicher über Stripe (Web) oder Apple/Google (mobile Apps) abgewickelt
+• Zahlungen werden sicher über das jeweilige Zahlungssystem der Plattform abgewickelt
 • Du kannst jederzeit in den Einstellungen kündigen; die Kündigung wird zum Ende des aktuellen Abrechnungszeitraums wirksam
 
 **Automatische Verlängerung**: Dein Abonnement verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ablauf des aktuellen Abrechnungszeitraums gekündigt wird. Der Verlängerungspreis entspricht dem dann gültigen Preis des Plans.
