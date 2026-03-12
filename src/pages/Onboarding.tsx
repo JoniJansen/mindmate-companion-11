@@ -201,13 +201,16 @@ export default function Onboarding() {
   };
 
   const finishOnboarding = () => {
-    // Save preferences
-    localStorage.setItem("mindmate-preferences", JSON.stringify({
+    // Save preferences (unified soulvay-* key)
+    const prefsPayload = JSON.stringify({
       language: state.language,
       tone: state.tone,
       addressForm: state.addressForm,
       disclaimerAccepted: state.disclaimerAccepted,
-    }));
+    });
+    localStorage.setItem("soulvay-preferences", prefsPayload);
+    // Keep legacy key for backward compat during migration
+    localStorage.setItem("mindmate-preferences", prefsPayload);
 
     // Save personalization data separately (versioned)
     localStorage.setItem("soulvay-personalization", JSON.stringify({

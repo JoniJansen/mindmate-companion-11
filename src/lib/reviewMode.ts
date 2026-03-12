@@ -26,10 +26,9 @@ export const isReviewAccount = (email?: string | null): boolean => {
 // Check if review mode is active (based on localStorage flag or account)
 export const isReviewModeActive = (): boolean => {
   try {
-    // Check localStorage flag
-    if (localStorage.getItem("mindmate_review_mode") === "active") {
-      return true;
-    }
+    if (localStorage.getItem("soulvay_review_mode") === "active") return true;
+    // Legacy fallback
+    if (localStorage.getItem("mindmate_review_mode") === "active") return true;
     return false;
   } catch {
     return false;
@@ -39,8 +38,16 @@ export const isReviewModeActive = (): boolean => {
 // Activate review mode
 export const activateReviewMode = (): void => {
   try {
+    localStorage.setItem("soulvay_review_mode", "active");
+    localStorage.setItem("soulvay-premium-state", JSON.stringify({
+      isPremium: true,
+      dailyMessagesUsed: 0,
+      lastResetDate: new Date().toISOString().split("T")[0],
+      planType: "review",
+      subscriptionStatus: "active",
+    }));
+    // Legacy compat
     localStorage.setItem("mindmate_review_mode", "active");
-    // Also set premium state
     localStorage.setItem("mindmate-premium-state", JSON.stringify({
       isPremium: true,
       dailyMessagesUsed: 0,
@@ -56,6 +63,7 @@ export const activateReviewMode = (): void => {
 // Deactivate review mode
 export const deactivateReviewMode = (): void => {
   try {
+    localStorage.removeItem("soulvay_review_mode");
     localStorage.removeItem("mindmate_review_mode");
   } catch {
     if (import.meta.env.DEV) console.warn("Failed to deactivate review mode");

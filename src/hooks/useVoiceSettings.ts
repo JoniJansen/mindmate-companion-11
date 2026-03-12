@@ -28,7 +28,7 @@ const defaultSettings: VoiceSettings = {
   avatarStyle: "orb",
 };
 
-const STORAGE_KEY = "mindmate-voice-settings";
+const STORAGE_KEY = "soulvay-voice-settings";
 
 export const voiceIds: Record<VoiceLanguage, Record<VoiceType, string>> = {
   auto: {
