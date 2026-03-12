@@ -89,7 +89,7 @@ export default function Mood() {
       }
     } catch (error) {
       if (import.meta.env.DEV) console.error("Error loading checkins:", error);
-      const stored = localStorage.getItem("mindmate-moods");
+      const stored = localStorage.getItem("soulvay-moods") || localStorage.getItem("mindmate-moods");
       if (stored) {
         const localData = JSON.parse(stored);
         setCheckins(localData.map((d: any) => ({
