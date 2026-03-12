@@ -293,12 +293,9 @@ export default function Landing() {
                 <div className="h-11">
                   <img src="/badges/app-store.svg" alt="App Store" className="h-full" />
                 </div>
-                <div className="h-11">
-                  <img src="/badges/google-play.svg" alt="Google Play" className="h-full" />
-                </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                {language === "de" ? "Bald verfügbar im App Store & Google Play" : "Coming soon to App Store & Google Play"}
+                {language === "de" ? "Bald verfügbar im App Store" : "Coming soon to App Store"}
               </p>
             </motion.div>
           )}
