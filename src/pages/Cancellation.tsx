@@ -65,7 +65,7 @@ If you have requested that the provision of digital content (such as access to S
 ---
 
 **To:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
