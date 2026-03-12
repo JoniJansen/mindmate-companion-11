@@ -98,7 +98,7 @@ Date: _______________
     },
     de: {
       title: "Widerrufsbelehrung",
-      lastUpdated: "Zuletzt aktualisiert: Januar 2026",
+      lastUpdated: "Zuletzt aktualisiert: März 2026",
       intro: "Als Verbraucher in der Europäischen Union haben Sie bestimmte Rechte bezüglich des Widerrufs von Fernabsatzverträgen.",
       sections: [
         {
