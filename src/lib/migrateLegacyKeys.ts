@@ -21,6 +21,18 @@ const KEY_MAP: Record<string, string> = {
   "mindmate_today_active": "soulvay_today_active",
   "mindmate_ios_auto_restored": "soulvay_ios_auto_restored",
   "mindmate-dev-entitlement-sim": "soulvay-dev-entitlement-sim",
+  // Additional keys discovered in audit
+  "mindmate-voice-settings": "soulvay-voice-settings",
+  "mindmate-swipe-hint-shown": "soulvay-swipe-hint-shown",
+  "mindmate-last-export": "soulvay-last-export",
+  "mindmate-backup-interval": "soulvay-backup-interval",
+  "mindmate-moods": "soulvay-moods",
+  "mindmate-completed-exercises": "soulvay-completed-exercises",
+  "mindmate-chat-messages": "soulvay-chat-messages",
+  "mindmate-weekly-recap": "soulvay-weekly-recap",
+  "mindmate-theme": "soulvay-theme",
+  "mindmate-initial-message": "soulvay-initial-message",
+  "mindmate_review_mode": "soulvay_review_mode",
 };
 
 export function migrateLegacyKeys(): void {

@@ -152,7 +152,7 @@ export default function Journal() {
 
   // Load cached weekly recap
   useEffect(() => {
-    const cached = localStorage.getItem("mindmate-weekly-recap");
+    const cached = localStorage.getItem("soulvay-weekly-recap") || localStorage.getItem("mindmate-weekly-recap");
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
@@ -283,7 +283,7 @@ export default function Journal() {
     setIsLoadingRecap(true);
 
     try {
-      const moodStored = localStorage.getItem("mindmate-moods");
+      const moodStored = localStorage.getItem("soulvay-moods") || localStorage.getItem("mindmate-moods");
       const moodCheckins = moodStored ? JSON.parse(moodStored) : [];
 
       const { data: { session: recapSession } } = await supabase.auth.getSession();
@@ -309,7 +309,7 @@ export default function Journal() {
 
       const recap = { ...data, created_at: new Date().toISOString() };
       setWeeklyRecap(recap);
-      localStorage.setItem("mindmate-weekly-recap", JSON.stringify(recap));
+      localStorage.setItem("soulvay-weekly-recap", JSON.stringify(recap));
 
       if (user) {
         await supabase.from("weekly_recaps").insert({

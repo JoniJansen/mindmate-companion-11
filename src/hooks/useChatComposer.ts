@@ -27,7 +27,7 @@ interface Preferences {
 
 const getPreferences = (): Preferences => {
   try {
-    const stored = localStorage.getItem("mindmate-preferences");
+    const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
     if (stored) return JSON.parse(stored);
   } catch {}
   return { language: "en", tone: "gentle", addressForm: "du", innerDialogue: false };

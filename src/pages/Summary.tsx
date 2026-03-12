@@ -62,7 +62,7 @@ export default function Summary() {
       return location.state.messages;
     }
     try {
-      const stored = localStorage.getItem("mindmate-chat-messages");
+      const stored = localStorage.getItem("soulvay-chat-messages") || localStorage.getItem("mindmate-chat-messages");
       if (stored) {
         return JSON.parse(stored);
       }

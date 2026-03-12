@@ -89,7 +89,7 @@ export default function Mood() {
       }
     } catch (error) {
       if (import.meta.env.DEV) console.error("Error loading checkins:", error);
-      const stored = localStorage.getItem("mindmate-moods");
+      const stored = localStorage.getItem("soulvay-moods") || localStorage.getItem("mindmate-moods");
       if (stored) {
         const localData = JSON.parse(stored);
         setCheckins(localData.map((d: any) => ({
@@ -152,7 +152,7 @@ export default function Mood() {
         note: note.trim() || null,
         created_at: new Date().toISOString(),
       });
-      localStorage.setItem("mindmate-moods", JSON.stringify(localData.slice(0, 90)));
+      localStorage.setItem("soulvay-moods", JSON.stringify(localData.slice(0, 90)));
 
       toast({
         title: t("mood.saved"),

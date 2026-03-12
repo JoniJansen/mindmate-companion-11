@@ -46,7 +46,7 @@ const strings: Record<string, Record<Lang, string>> = {
 
 export function getAppLanguage(): Lang {
   try {
-    const stored = localStorage.getItem("mindmate-preferences");
+    const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
     if (stored) {
       const parsed = JSON.parse(stored);
       if (parsed.language === "de" || parsed.language === "en") return parsed.language;

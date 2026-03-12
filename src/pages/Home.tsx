@@ -174,7 +174,7 @@ export default function Home() {
 
   const handleTalkToSoulvay = () => {
     if (inputValue.trim()) {
-      localStorage.setItem('mindmate-initial-message', inputValue.trim());
+      localStorage.setItem('soulvay-initial-message', inputValue.trim());
     }
     navigate("/chat");
   };
@@ -375,7 +375,7 @@ export default function Home() {
             onTalkAboutIt={() => {
               dismissCheckin();
               setCompanionCheckinDismissed(true);
-              localStorage.setItem('mindmate-initial-message', companionCheckin.chatPrompt);
+              localStorage.setItem('soulvay-initial-message', companionCheckin.chatPrompt);
               navigate("/chat");
             }}
             onDismiss={() => { dismissCheckin(); setCompanionCheckinDismissed(true); }}
@@ -393,7 +393,7 @@ export default function Home() {
             onTalkAboutIt={() => {
               startMomentConversation();
               const msg = `${t("home.memoryMomentMsg")} "${memoryMoment.content}". ${t("home.memoryMomentContinue")}`;
-              localStorage.setItem('mindmate-initial-message', msg);
+              localStorage.setItem('soulvay-initial-message', msg);
               navigate("/chat");
             }}
             onDismiss={() => { dismissMoment(); setCompanionCheckinDismissed(true); }}
@@ -410,7 +410,7 @@ export default function Home() {
           >
             <button
               onClick={() => {
-                localStorage.setItem('mindmate-initial-message', dailyPrompt.text);
+                localStorage.setItem('soulvay-initial-message', dailyPrompt.text);
                 navigate("/chat");
               }}
               className="w-full text-left rounded-2xl p-4 border bg-primary/5 border-primary/20 hover:border-primary/30 transition-colors"
