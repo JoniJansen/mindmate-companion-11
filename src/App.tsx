@@ -71,7 +71,7 @@ function ThemeInitializer() {
   useEffect(() => {
     const root = document.documentElement;
     try {
-      const stored = localStorage.getItem("mindmate-theme");
+      const stored = localStorage.getItem("soulvay-theme") || localStorage.getItem("mindmate-theme");
       if (stored) {
         const theme = JSON.parse(stored);
         
