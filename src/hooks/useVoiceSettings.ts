@@ -27,6 +27,7 @@ const defaultSettings: VoiceSettings = {
   language: "auto",
   autoPlayReplies: false,
   avatarStyle: "orb",
+  preferredMicDeviceId: "",
 };
 
 const STORAGE_KEY = "soulvay-voice-settings";
