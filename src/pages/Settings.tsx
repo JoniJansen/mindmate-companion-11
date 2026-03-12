@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -7,6 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
+import { usePreferences } from "@/hooks/usePreferences";
 import { SubscriptionSection } from "@/components/premium/SubscriptionSection";
 import { SettingsLanguageSection } from "@/components/settings/SettingsLanguageSection";
 import { SettingsAppearanceSection } from "@/components/settings/SettingsAppearanceSection";
@@ -24,19 +25,11 @@ interface Preferences {
   innerDialogue: boolean;
 }
 
-const defaultPreferences: Preferences = {
-  language: "en",
-  tone: "gentle",
-  addressForm: "du",
-  notifications: true,
-  innerDialogue: false,
-};
-
 export default function Settings() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [preferences, setPreferences] = useState<Preferences>(defaultPreferences);
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const { preferences, updatePreference: updatePref } = usePreferences();
+  const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
   const { toast } = useToast();
   const { t, language } = useTranslation();
 
@@ -58,20 +51,8 @@ export default function Settings() {
     }
   }, [searchParams, toast, language, checkSubscriptionStatus]);
 
-  // Load preferences
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
-      if (stored) setPreferences({ ...defaultPreferences, ...JSON.parse(stored) });
-    } catch {}
-  }, []);
-
   const updatePreference = <K extends keyof Preferences>(key: K, value: Preferences[K]) => {
-    const updated = { ...preferences, [key]: value };
-    setPreferences(updated);
-    localStorage.setItem("soulvay-preferences", JSON.stringify(updated));
-    // Keep legacy key in sync for other consumers during migration
-    localStorage.setItem("mindmate-preferences", JSON.stringify(updated));
+    updatePref(key, value);
     
     const targetLang = key === "language" ? (value as string) : language;
     const savedTitle = targetLang === "de" ? "Einstellungen gespeichert" : "Settings saved";
