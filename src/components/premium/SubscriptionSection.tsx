@@ -37,6 +37,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
   } = usePremium();
 
   const [isLoading, setIsLoading] = useState(false);
+  const isNative = useMemo(() => isNativeApp(), []);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const formatDate = (dateString?: string) => {
