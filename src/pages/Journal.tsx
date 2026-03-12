@@ -152,7 +152,7 @@ export default function Journal() {
 
   // Load cached weekly recap
   useEffect(() => {
-    const cached = localStorage.getItem("mindmate-weekly-recap");
+    const cached = localStorage.getItem("soulvay-weekly-recap") || localStorage.getItem("mindmate-weekly-recap");
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
