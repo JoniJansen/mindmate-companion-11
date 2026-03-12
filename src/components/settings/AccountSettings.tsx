@@ -603,6 +603,41 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           })), recapHeaders);
           zip.push({ name: `weekly-recaps-${dateStr}.csv`, content: recapCSV });
         }
+
+        // Conversations CSV
+        if (conversationsResult.data && conversationsResult.data.length > 0) {
+          const convHeaders = ["id", "created_at", "updated_at", "title", "chat_mode"];
+          const convCSV = convertToCSV(conversationsResult.data.map(({ user_id, ...rest }) => rest), convHeaders);
+          zip.push({ name: `conversations-${dateStr}.csv`, content: convCSV });
+        }
+
+        // Chat messages CSV
+        if (chatMessagesResult.data && chatMessagesResult.data.length > 0) {
+          const msgHeaders = ["id", "conversation_id", "created_at", "role", "content"];
+          const msgCSV = convertToCSV((chatMessagesResult.data || []).map(({ conversations, ...msg }) => msg), msgHeaders);
+          zip.push({ name: `chat-messages-${dateStr}.csv`, content: msgCSV });
+        }
+
+        // Memories CSV
+        if (memoriesResult.data && memoriesResult.data.length > 0) {
+          const memHeaders = ["id", "created_at", "memory_type", "content", "confidence_score"];
+          const memCSV = convertToCSV(memoriesResult.data.map(({ user_id, ...rest }) => rest), memHeaders);
+          zip.push({ name: `memories-${dateStr}.csv`, content: memCSV });
+        }
+
+        // Emotional patterns CSV
+        if (patternsResult.data && patternsResult.data.length > 0) {
+          const patHeaders = ["id", "created_at", "pattern_type", "description", "confidence"];
+          const patCSV = convertToCSV(patternsResult.data.map(({ user_id, ...rest }) => rest), patHeaders);
+          zip.push({ name: `emotional-patterns-${dateStr}.csv`, content: patCSV });
+        }
+
+        // Voice sessions CSV
+        if (voiceSessionsResult.data && voiceSessionsResult.data.length > 0) {
+          const vsHeaders = ["id", "started_at", "ended_at", "duration_seconds", "agent_id", "disconnect_reason"];
+          const vsCSV = convertToCSV(voiceSessionsResult.data.map(({ user_id, ...rest }) => rest), vsHeaders);
+          zip.push({ name: `voice-sessions-${dateStr}.csv`, content: vsCSV });
+        }
         
         // Download each CSV file
         for (const file of zip) {
