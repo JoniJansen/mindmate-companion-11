@@ -11,6 +11,7 @@ import { OnboardingGuard } from "@/components/routing/OnboardingGuard";
 import { CookieConsent } from "@/components/gdpr/CookieConsent";
 import { TourProvider } from "@/components/tour/TourProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 // Hooks
