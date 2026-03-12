@@ -3,7 +3,7 @@ import { Info, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { motion, AnimatePresence } from "framer-motion";
 
-const DISCLAIMER_SHOWN_KEY = "mindmate_chat_disclaimer_shown";
+const DISCLAIMER_SHOWN_KEY = "soulvay_chat_disclaimer_shown";
 
 export function ChatDisclaimer() {
   const { language } = useTranslation();

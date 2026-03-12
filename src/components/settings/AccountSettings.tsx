@@ -524,7 +524,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     setIsExporting(true);
     try {
       // Fetch all user data including chat history (GDPR Art. 20 data portability)
-      const [journalResult, moodResult, recapResult, conversationsResult, chatMessagesResult, profileResult, memoriesResult, patternsResult, insightsResult] = await Promise.all([
+      const [journalResult, moodResult, recapResult, conversationsResult, chatMessagesResult, profileResult, memoriesResult, patternsResult, insightsResult, voiceSessionsResult] = await Promise.all([
         supabase.from("journal_entries").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("mood_checkins").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("weekly_recaps").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
@@ -534,6 +534,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         supabase.from("user_memories").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("emotional_patterns").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("session_insights").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("voice_sessions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
 
       const dateStr = new Date().toISOString().split("T")[0];
@@ -555,6 +556,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           memories: memoriesResult.data || [],
           emotionalPatterns: patternsResult.data || [],
           sessionInsights: insightsResult.data || [],
+          voiceSessions: (voiceSessionsResult.data || []).map(({ user_id, ...session }) => session),
         };
 
         const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
@@ -600,6 +602,41 @@ export function AccountSettings({ language }: AccountSettingsProps) {
             potential_needs: Array.isArray(entry.potential_needs) ? entry.potential_needs.join("; ") : entry.potential_needs
           })), recapHeaders);
           zip.push({ name: `weekly-recaps-${dateStr}.csv`, content: recapCSV });
+        }
+
+        // Conversations CSV
+        if (conversationsResult.data && conversationsResult.data.length > 0) {
+          const convHeaders = ["id", "created_at", "updated_at", "title", "chat_mode"];
+          const convCSV = convertToCSV(conversationsResult.data.map(({ user_id, ...rest }) => rest), convHeaders);
+          zip.push({ name: `conversations-${dateStr}.csv`, content: convCSV });
+        }
+
+        // Chat messages CSV
+        if (chatMessagesResult.data && chatMessagesResult.data.length > 0) {
+          const msgHeaders = ["id", "conversation_id", "created_at", "role", "content"];
+          const msgCSV = convertToCSV((chatMessagesResult.data || []).map(({ conversations, ...msg }) => msg), msgHeaders);
+          zip.push({ name: `chat-messages-${dateStr}.csv`, content: msgCSV });
+        }
+
+        // Memories CSV
+        if (memoriesResult.data && memoriesResult.data.length > 0) {
+          const memHeaders = ["id", "created_at", "memory_type", "content", "confidence_score"];
+          const memCSV = convertToCSV(memoriesResult.data.map(({ user_id, ...rest }) => rest), memHeaders);
+          zip.push({ name: `memories-${dateStr}.csv`, content: memCSV });
+        }
+
+        // Emotional patterns CSV
+        if (patternsResult.data && patternsResult.data.length > 0) {
+          const patHeaders = ["id", "created_at", "pattern_type", "description", "confidence"];
+          const patCSV = convertToCSV(patternsResult.data.map(({ user_id, ...rest }) => rest), patHeaders);
+          zip.push({ name: `emotional-patterns-${dateStr}.csv`, content: patCSV });
+        }
+
+        // Voice sessions CSV
+        if (voiceSessionsResult.data && voiceSessionsResult.data.length > 0) {
+          const vsHeaders = ["id", "started_at", "ended_at", "duration_seconds", "agent_id", "disconnect_reason"];
+          const vsCSV = convertToCSV(voiceSessionsResult.data.map(({ user_id, ...rest }) => rest), vsHeaders);
+          zip.push({ name: `voice-sessions-${dateStr}.csv`, content: vsCSV });
         }
         
         // Download each CSV file
