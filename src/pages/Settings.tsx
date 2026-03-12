@@ -29,7 +29,7 @@ export default function Settings() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { preferences, updatePreference: updatePref } = usePreferences();
-  const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const { toast } = useToast();
   const { t, language } = useTranslation();
 
