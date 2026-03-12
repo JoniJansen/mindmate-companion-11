@@ -304,7 +304,7 @@ Du hast das Recht, eine menschliche Überprüfung jeder automatisierten Verarbei
 • **Recht auf Einschränkung (Art. 18)**: Einschränkung der Verarbeitung unter bestimmten Umständen.
 • **Recht auf Widerruf der Einwilligung (Art. 7 Abs. 3)**: Widerruf jeder erteilten Einwilligung jederzeit, ohne dass die Rechtmäßigkeit der vorherigen Verarbeitung berührt wird.
 
-Um diese Rechte auszuüben, gehe zu Einstellungen > Konto oder kontaktiere uns unter service@soulvay.com. Wir antworten innerhalb von 30 Tagen.
+Um diese Rechte auszuüben, gehe zu Einstellungen > Konto oder kontaktiere uns unter service@soulvay.com. Wir antworten unverzüglich, in jedem Fall aber innerhalb eines Monats nach Eingang deiner Anfrage, gemäß Art. 12 Abs. 3 DSGVO.
 
 **Beschwerderecht (Art. 77 DSGVO)**: Du hast das Recht, Beschwerde bei einer Aufsichtsbehörde einzulegen. Die für Soulvay zuständige Behörde ist:
 

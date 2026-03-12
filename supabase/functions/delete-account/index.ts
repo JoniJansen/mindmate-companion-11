@@ -32,7 +32,34 @@ serve(async (req: Request) => {
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     // Delete order: child/leaf tables first, then profile, then auth user
+    // GDPR Art. 17: Must delete ALL user data across ALL tables
+
+    // 1. Delete chat_messages first (depends on conversations via FK)
+    const { data: userConversations } = await supabaseAdmin
+      .from("conversations")
+      .select("id")
+      .eq("user_id", userId);
+
+    if (userConversations && userConversations.length > 0) {
+      const conversationIds = userConversations.map((c: any) => c.id);
+      const { error: msgError } = await supabaseAdmin
+        .from("chat_messages")
+        .delete()
+        .in("conversation_id", conversationIds);
+      if (msgError) {
+        console.error("Error deleting chat_messages:", msgError);
+      }
+    }
+
+    // 2. Delete all other user-owned tables
     const tablesToDelete = [
+      "conversations",
+      "session_insights",
+      "emotional_patterns",
+      "user_memories",
+      "companion_profiles",
+      "voice_sessions",
+      "daily_chat_usage",
       "user_activity_log",
       "user_roles",
       "mood_checkins",
