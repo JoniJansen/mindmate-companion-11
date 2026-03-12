@@ -65,6 +65,16 @@ export function useConversationalVoice({
       setPhase("listening");
       retryCountRef.current = 0;
       isConnectingRef.current = false;
+
+      // Start max session duration timer
+      if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+      sessionTimerRef.current = setTimeout(() => {
+        console.log("[Voice2.0] Max session duration reached, ending session");
+        conversation.endSession().catch(() => {});
+        setStatus("disconnected");
+        setPhase("idle");
+        onErrorRef.current?.("Session ended — maximum duration reached.");
+      }, MAX_SESSION_DURATION_MS);
     },
     onDisconnect: (details) => {
       console.log("[Voice2.0] Disconnected from agent", details ? JSON.stringify(details) : "");
