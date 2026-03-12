@@ -74,7 +74,7 @@ export default function FAQ() {
             },
             {
               q: "What payment methods do you accept?",
-              a: "We accept all major credit cards (Visa, Mastercard, American Express) and some local payment methods through our secure payment provider Stripe."
+              a: "We accept all major credit cards (Visa, Mastercard, American Express) and some local payment methods through our secure payment processing."
             }
           ]
         },
