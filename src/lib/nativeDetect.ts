@@ -9,8 +9,8 @@
  * 
  * If ANY signal returns true, the app is considered native.
  * This prevents false negatives that could expose web-only UI
- * (e.g., Google Play badges, Stripe billing links) on native builds,
- * which would cause Apple App Store rejection.
+ * (e.g., store badges, Stripe billing links) on native builds,
+ * which would cause App Store rejection.
  */
 
 let _cachedResult: boolean | null = null;
