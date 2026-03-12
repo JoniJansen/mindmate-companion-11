@@ -202,7 +202,7 @@ Als Kleinunternehmen mit weniger als 250 Mitarbeitern, das keine besonderen Date
 • **Nutzungsdaten**: Deine Tagebucheinträge, Stimmungs-Check-ins und Chat-Gespräche für personalisierte Unterstützung (Art. 6 Abs. 1 lit. b DSGVO — Vertragserfüllung).
 • **Sprachdaten**: Wenn du den Face-to-Face-Sprachmodus nutzt, werden Audiodaten in Echtzeit an unseren Sprachanbieter zur Sprachsynthese übertragen. Audiodaten werden nur vorübergehend verarbeitet und nach der Sitzung nicht gespeichert.
 • **Technische Daten**: Gerätetyp, Browserversion und anonymisierte Nutzungsmuster zur App-Verbesserung (Art. 6 Abs. 1 lit. f DSGVO — berechtigtes Interesse an Serviceverbesserung).
-• **Zahlungsdaten**: Zahlungsinformationen werden direkt von unseren Zahlungsanbietern (Stripe, Apple, Google) verarbeitet und nicht von Soulvay gespeichert.
+• **Zahlungsdaten**: Zahlungsinformationen werden direkt von unseren Zahlungsanbietern verarbeitet und nicht von Soulvay gespeichert.
 
 Wir erheben NICHT:
 • Genaue Standortdaten
