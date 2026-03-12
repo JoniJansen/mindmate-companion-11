@@ -38,7 +38,7 @@ As a small business with fewer than 250 employees that does not process special 
 • **Usage Data**: Your journal entries, mood check-ins, and chat conversations to provide personalized support (Art. 6(1)(b) GDPR — contract performance).
 • **Voice Data**: If you use the Face-to-Face voice mode, audio data is transmitted in real-time to our voice provider for speech synthesis. Audio data is processed transiently and not stored after the session ends.
 • **Technical Data**: Device type, browser version, and anonymized usage patterns to improve the app (Art. 6(1)(f) GDPR — legitimate interest in service improvement).
-• **Payment Data**: Payment information is processed directly by our payment providers (Stripe, Apple, Google) and is not stored by Soulvay.
+• **Payment Data**: Payment information is processed directly by our payment providers and is not stored by Soulvay.
 
 We do NOT collect:
 • Precise location data
