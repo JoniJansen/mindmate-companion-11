@@ -16,6 +16,7 @@ export function SettingsSupportSection({ isAdmin }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isNative = useMemo(() => isNativeApp(), []);
 
   const handleRestartTour = () => {
     localStorage.removeItem("soulvay_tour_completed");
