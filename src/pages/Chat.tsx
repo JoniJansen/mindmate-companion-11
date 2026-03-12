@@ -394,6 +394,7 @@ export default function Chat() {
             onEndSession={() => realtimeVoice.endSession()}
             onClose={() => { realtimeVoice.endSession(); setUseRealtimeMode(false); }}
             onResetError={() => realtimeVoice.resetError()}
+            micWarning={realtimeVoice.micWarning}
             getInputVolume={realtimeVoice.getInputVolume}
             getOutputVolume={realtimeVoice.getOutputVolume}
           />

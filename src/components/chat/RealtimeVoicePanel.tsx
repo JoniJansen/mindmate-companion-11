@@ -1,12 +1,12 @@
 import { memo, useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, X, Volume2, Loader2, RefreshCw } from "lucide-react";
+import { Mic, X, Volume2, Loader2, RefreshCw, AlertTriangle } from "lucide-react";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { VoiceWaveform } from "@/components/chat/VoiceWaveform";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getCompanionVoiceProfile } from "@/data/companionVoiceProfiles";
 import type { CompanionProfile } from "@/hooks/useCompanion";
-import type { RealtimeVoiceStatus, RealtimeVoicePhase } from "@/hooks/useConversationalVoice";
+import type { RealtimeVoiceStatus, RealtimeVoicePhase, MicWarning } from "@/hooks/useConversationalVoice";
 
 interface RealtimeVoicePanelProps {
   companion: CompanionProfile;
@@ -20,6 +20,7 @@ interface RealtimeVoicePanelProps {
   onEndSession: () => void;
   onClose: () => void;
   onResetError?: () => void;
+  micWarning?: MicWarning;
   getInputVolume?: () => number;
   getOutputVolume?: () => number;
 }
@@ -162,6 +163,7 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
   onEndSession,
   onClose,
   onResetError,
+  micWarning,
   getInputVolume,
   getOutputVolume,
 }: RealtimeVoicePanelProps) {
@@ -362,6 +364,37 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
                 <RefreshCw className="w-4 h-4" />
                 {lang === "de" ? "Erneut versuchen" : "Try again"}
               </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mic warning banner */}
+        <AnimatePresence>
+          {micWarning && !isError && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mt-3 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive/10 max-w-sm"
+            >
+              <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+              <p className="text-xs text-destructive leading-snug">
+                {micWarning === "no_signal" && (lang === "de"
+                  ? "Kein Mikrofonsignal erkannt. Bitte überprüfe dein Mikrofon."
+                  : "No microphone signal detected. Please check your microphone.")}
+                {micWarning === "permission_denied" && (lang === "de"
+                  ? "Mikrofonzugriff wurde verweigert. Bitte erlaube den Zugriff in den Browsereinstellungen."
+                  : "Microphone access denied. Please allow access in browser settings.")}
+                {micWarning === "not_found" && (lang === "de"
+                  ? "Kein Mikrofon gefunden. Bitte schließe eines an."
+                  : "No microphone found. Please connect one.")}
+                {micWarning === "env_blocked" && (lang === "de"
+                  ? "Das Mikrofon ist in dieser Umgebung möglicherweise eingeschränkt. Bitte teste auf der echten App-Domain."
+                  : "Microphone may be restricted in this environment. Please test on the real app domain.")}
+                {micWarning === "unsupported" && (lang === "de"
+                  ? "Dieser Browser unterstützt keine Mikrofoneingabe."
+                  : "This browser doesn't support microphone input.")}
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
