@@ -47,7 +47,7 @@ export default function Impressum() {
       copyrightDesc: "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.",
       medicalDisclaimer: "Medizinischer Hinweis",
       medicalDisclaimerDesc: "Soulvay ist kein Ersatz für professionelle psychologische oder medizinische Beratung, Diagnose oder Behandlung. Die App dient ausschließlich zur Unterstützung des persönlichen Wohlbefindens und der Selbstreflexion. Bei psychischen Problemen oder Erkrankungen wenden Sie sich bitte an qualifizierte Fachpersonen.",
-      lastUpdate: "Stand: Januar 2025",
+      lastUpdate: "Stand: März 2026",
     },
     en: {
       title: "Legal Notice",
