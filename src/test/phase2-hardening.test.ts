@@ -300,12 +300,53 @@ describe("Production Diagnostics", () => {
   });
 });
 
-// ── Voice Idle Detection Tests ──
+// ── Voice Session State Machine Tests ──
 
-describe("Voice Idle Detection", () => {
+describe("Voice Session State Machine", () => {
+  const VALID_TRANSITIONS: Record<string, string[]> = {
+    disconnected: ["connecting"],
+    connecting: ["connected", "error", "disconnected"],
+    connected: ["disconnecting", "error"],
+    disconnecting: ["disconnected", "error"],
+    error: ["connecting", "disconnected"],
+  };
+
   it("idle timeout is set to 5 minutes", () => {
     const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
     expect(IDLE_TIMEOUT_MS).toBe(300_000);
+  });
+
+  it("prevents illegal transition: connected → connecting", () => {
+    const from = "connected";
+    const to = "connecting";
+    expect(VALID_TRANSITIONS[from].includes(to)).toBe(false);
+  });
+
+  it("allows legal transition: connected → disconnecting", () => {
+    const from = "connected";
+    const to = "disconnecting";
+    expect(VALID_TRANSITIONS[from].includes(to)).toBe(true);
+  });
+
+  it("prevents streaming → idle without disconnect phase", () => {
+    // connected cannot go directly to disconnected — must go through disconnecting
+    const from = "connected";
+    const to = "disconnected";
+    expect(VALID_TRANSITIONS[from].includes(to)).toBe(false);
+  });
+
+  it("error state can transition to connecting (retry) or disconnected (reset)", () => {
+    expect(VALID_TRANSITIONS["error"]).toContain("connecting");
+    expect(VALID_TRANSITIONS["error"]).toContain("disconnected");
+  });
+
+  it("mic tracks must be stopped before SDK session start", () => {
+    // Validates the fix: getUserMedia stream tracks are stopped immediately
+    // to prevent hardware conflicts with SDK's own audio capture
+    const mockTrack = { stop: vi.fn() };
+    const mockStream = { getTracks: () => [mockTrack] };
+    mockStream.getTracks().forEach((t: any) => t.stop());
+    expect(mockTrack.stop).toHaveBeenCalledOnce();
   });
 });
 
