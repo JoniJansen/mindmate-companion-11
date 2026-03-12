@@ -76,6 +76,7 @@ We will NEVER use your data for:
 • **Resend (Resend Inc.)**: Transactional email delivery (welcome emails, weekly recaps).
 
 All providers are contractually obligated to process data exclusively for service delivery and maintain appropriate security measures.`
+        },
         {
           icon: Download,
           title: "Your Rights",
