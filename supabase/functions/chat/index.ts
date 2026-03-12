@@ -860,6 +860,10 @@ serve(async (req) => {
     // ── Truncate conversation to fit context window ──
     const truncatedMessages = truncateConversation(messages || []);
 
+    // ── AI cost control: enforce max_tokens on response ──
+    // Premium users get longer responses; free users get capped output
+    const maxResponseTokens = isPremium ? 1024 : 512;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -873,6 +877,7 @@ serve(async (req) => {
           ...truncatedMessages,
         ],
         stream: true,
+        max_tokens: maxResponseTokens,
       }),
     });
 
