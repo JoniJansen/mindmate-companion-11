@@ -38,14 +38,14 @@ function isCapacitorIOS(): boolean {
 
 /**
  * Detects the user's preferred language from multiple sources:
- * 1. Saved preferences (mindmate-preferences.language)
+ * 1. Saved preferences (soulvay-preferences.language)
  * 2. Browser/system language (navigator.language)
  * 3. Fallback to English
  */
 function detectLanguage(): "en" | "de" {
   try {
     // First priority: Check saved preferences (from onboarding or settings)
-    const prefsRaw = localStorage.getItem("mindmate-preferences");
+    const prefsRaw = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
     if (prefsRaw) {
       const prefs = JSON.parse(prefsRaw);
       if (prefs.language === "de" || prefs.language === "en") {

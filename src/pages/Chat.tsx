@@ -346,7 +346,7 @@ export default function Chat() {
   // Summary handlers
   const handleSummary = () => {
     if (!composer.canUseSessionSummary) { setUpgradeReason("features"); setShowUpgradePrompt(true); return; }
-    localStorage.setItem("mindmate-chat-messages", JSON.stringify(composer.messages.map(m => ({ role: m.role, content: m.content }))));
+    localStorage.setItem("soulvay-chat-messages", JSON.stringify(composer.messages.map(m => ({ role: m.role, content: m.content }))));
     navigate("/summary", { state: { messages: composer.messages.map(m => ({ role: m.role, content: m.content })) } });
   };
 

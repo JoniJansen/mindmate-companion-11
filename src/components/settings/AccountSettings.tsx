@@ -548,7 +548,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `mindmate-export-${dateStr}.json`;
+        a.download = `soulvay-export-${dateStr}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

@@ -144,7 +144,7 @@ export function useTheme() {
   const setTheme = useCallback((updates: Partial<ThemeConfig>) => {
     setThemeState(prev => {
       const updated = { ...prev, ...updates };
-      localStorage.setItem("mindmate-theme", JSON.stringify(updated));
+      localStorage.setItem("soulvay-theme", JSON.stringify(updated));
       return updated;
     });
   }, []);
