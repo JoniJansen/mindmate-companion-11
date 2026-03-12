@@ -46,8 +46,11 @@ export function useConversationalVoice({
   const isConnectingRef = useRef(false);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionStartRef = useRef<number>(0);
   const maxRetries = 2;
   const MAX_SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes max session
+  const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes idle → auto-disconnect
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const agentIdRef = useRef(agentId);
@@ -55,10 +58,25 @@ export function useConversationalVoice({
 
   const startSessionInternalRef = useRef<() => Promise<boolean>>();
 
+  // Reset idle timer whenever there's voice activity
+  const resetIdleTimer = useCallback(() => {
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = setTimeout(() => {
+      logInfo("voice", "idle_timeout", { sessionDurationMs: Date.now() - sessionStartRef.current });
+      recordMetric("voice", "idle_disconnect", { success: true });
+      conversation.endSession().catch(() => {});
+      setStatus("disconnected");
+      setPhase("idle");
+      onErrorRef.current?.("Session ended — no activity detected.");
+    }, IDLE_TIMEOUT_MS);
+  }, []);
+
   // ElevenLabs useConversation hook
   const conversation = useConversation({
     onConnect: () => {
-      console.log("[Voice2.0] Connected to agent via WebSocket");
+      logInfo("voice", "connected", { agentId: agentIdRef.current });
+      sessionStartRef.current = Date.now();
+      recordMetric("voice", "session_started", { success: true });
       if (retryTimerRef.current) {
         clearTimeout(retryTimerRef.current);
         retryTimerRef.current = null;
@@ -67,11 +85,13 @@ export function useConversationalVoice({
       setPhase("listening");
       retryCountRef.current = 0;
       isConnectingRef.current = false;
+      resetIdleTimer();
 
       // Start max session duration timer
       if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
       sessionTimerRef.current = setTimeout(() => {
-        console.log("[Voice2.0] Max session duration reached, ending session");
+        logInfo("voice", "max_duration_reached");
+        recordMetric("voice", "max_duration_disconnect", { success: true, durationMs: MAX_SESSION_DURATION_MS });
         conversation.endSession().catch(() => {});
         setStatus("disconnected");
         setPhase("idle");
