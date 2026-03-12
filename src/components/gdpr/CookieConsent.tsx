@@ -27,13 +27,13 @@ export function openCookieSettings() {
   window.dispatchEvent(new CustomEvent(COOKIE_SETTINGS_EVENT));
 }
 
+import { isNativeApp } from "@/lib/nativeDetect";
+
 /**
- * Check if running on iOS native app (Capacitor)
+ * Check if running on native app (Capacitor) — skip cookie banner entirely
  */
-function isCapacitorIOS(): boolean {
-  return typeof window !== 'undefined' && 
-    'Capacitor' in window && 
-    (window as any).Capacitor?.getPlatform?.() === 'ios';
+function isCapacitorNative(): boolean {
+  return isNativeApp();
 }
 
 /**
