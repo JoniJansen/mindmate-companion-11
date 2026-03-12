@@ -12,7 +12,7 @@ export default function Cancellation() {
   const content = {
     en: {
       title: "Right of Withdrawal",
-      lastUpdated: "Last updated: January 2026",
+      lastUpdated: "Last updated: March 2026",
       intro: "As a consumer in the European Union, you have specific rights regarding the cancellation of contracts concluded at a distance.",
       sections: [
         {
