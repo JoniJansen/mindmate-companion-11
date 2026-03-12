@@ -244,9 +244,9 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="bg-background flex flex-col" style={{ minHeight: 'calc(100vh - env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <div className="bg-background flex flex-col h-[100dvh]" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top">
+      <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top shrink-0">
         <div className="w-10" />
         <div className="flex justify-center gap-2">
           {steps.map((step, index) => (
@@ -278,8 +278,8 @@ export default function Onboarding() {
         </button>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 flex flex-col px-6 pb-6 overflow-y-auto">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto px-6">
         <AnimatePresence mode="wait">
           {currentStep === "welcome" && (
             <motion.div key="welcome" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
@@ -322,28 +322,28 @@ export default function Onboarding() {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
 
-        {/* Continue button — extra padding for in-app browsers */}
-        <div className="mt-auto pt-6 pb-4 shrink-0">
-          {currentStep === "goal" ? (
-            <div className="space-y-3">
-              <Button size="xl" className="w-full" onClick={finishOnboarding}>
-                {t.getStarted}
-                <Sparkles className="w-5 h-5 ml-2" />
-              </Button>
-              {!state.personalGoal && (
-                <Button variant="ghost" className="w-full text-muted-foreground" onClick={finishOnboarding}>
-                  {t.goal.skip}
-                </Button>
-              )}
-            </div>
-          ) : (
-            <Button size="xl" className="w-full" onClick={handleNext} disabled={!canProceed()}>
-              {t.continue}
-              <ArrowRight className="w-5 h-5 ml-2" />
+      {/* Fixed bottom CTA — always visible */}
+      <div className="shrink-0 px-6 pt-3 pb-4 bg-background border-t border-border/30">
+        {currentStep === "goal" ? (
+          <div className="space-y-3">
+            <Button size="xl" className="w-full" onClick={finishOnboarding}>
+              {t.getStarted}
+              <Sparkles className="w-5 h-5 ml-2" />
             </Button>
-          )}
-        </div>
+            {!state.personalGoal && (
+              <Button variant="ghost" className="w-full text-muted-foreground" onClick={finishOnboarding}>
+                {t.goal.skip}
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Button size="xl" className="w-full" onClick={handleNext} disabled={!canProceed()}>
+            {t.continue}
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        )}
       </div>
     </div>
   );
