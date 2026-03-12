@@ -180,7 +180,7 @@ describe("Review: Apple review login accessible on native", () => {
   it("Auth.tsx review button shows on native platforms", async () => {
     const authSource = await import("../pages/Auth.tsx?raw");
     const src = (authSource as any).default || authSource;
-    expect(src).toContain("isNativePlatform");
+    expect(src).toContain("isNative");
   });
 });
 

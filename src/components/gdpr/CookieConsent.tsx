@@ -27,13 +27,13 @@ export function openCookieSettings() {
   window.dispatchEvent(new CustomEvent(COOKIE_SETTINGS_EVENT));
 }
 
+import { isNativeApp } from "@/lib/nativeDetect";
+
 /**
- * Check if running on iOS native app (Capacitor)
+ * Check if running on native app (Capacitor) — skip cookie banner entirely
  */
-function isCapacitorIOS(): boolean {
-  return typeof window !== 'undefined' && 
-    'Capacitor' in window && 
-    (window as any).Capacitor?.getPlatform?.() === 'ios';
+function isCapacitorNative(): boolean {
+  return isNativeApp();
 }
 
 /**
@@ -80,7 +80,7 @@ export function CookieConsent() {
     // IMPORTANT: Do NOT show cookie banner on iOS native app
     // Apple rejected the app for using cookies without AppTrackingTransparency
     // Since MindMate doesn't actually track users, we simply skip the cookie banner on iOS
-    if (isCapacitorIOS()) {
+    if (isCapacitorNative()) {
       // Auto-accept essential-only on iOS (no tracking, no banner needed)
       const essentialOnly: ConsentSettings = {
         essential: true,

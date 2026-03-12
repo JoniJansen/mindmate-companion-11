@@ -1,7 +1,7 @@
 /**
  * Review Mode Configuration
  * 
- * This module provides robust App Store review support for Apple and Google Play.
+ * This module provides robust App Store review support.
  * Review accounts get automatic premium access and bypass rate limits.
  */
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, ArrowLeft, Loader2, Eye, EyeOff, Sun, Moon, Shield, Star } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -12,6 +12,7 @@ import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
 import { activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
 import { supabase } from "@/integrations/supabase/client";
+import { isNativeApp } from "@/lib/nativeDetect";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
@@ -33,6 +34,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isReviewLoading, setIsReviewLoading] = useState(false);
+  const isNative = useMemo(() => isNativeApp(), []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -360,7 +362,7 @@ export default function Auth() {
           </div>
 
           {/* Review/Demo Login Button - only visible in dev or for review URLs */}
-          {authMode === "login" && (import.meta.env.DEV || window.location.hostname.includes('lovable') || (typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.())) && (
+          {authMode === "login" && (import.meta.env.DEV || window.location.hostname.includes('lovable') || isNative) && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

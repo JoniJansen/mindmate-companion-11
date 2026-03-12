@@ -1,36 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell } from "lucide-react";
-import { Capacitor } from "@capacitor/core";
 import { CalmCard } from "@/components/shared/CalmCard";
-
-// Native detection for iOS/Android builds (must be fail-closed for Apple review safety)
-const isNativeApp = (): boolean => {
-  if (typeof window === "undefined") return false;
-
-  try {
-    if (Capacitor.isNativePlatform()) return true;
-  } catch {
-    // Continue with fallbacks
-  }
-
-  try {
-    const platform = Capacitor.getPlatform?.();
-    if (platform === "ios" || platform === "android") return true;
-  } catch {
-    // Continue with fallbacks
-  }
-
-  const runtimeCapacitor = (window as any).Capacitor;
-  if (runtimeCapacitor?.isNativePlatform?.()) return true;
-
-  const runtimePlatform = runtimeCapacitor?.getPlatform?.() || runtimeCapacitor?.platform;
-  if (runtimePlatform === "ios" || runtimePlatform === "android") return true;
-
-  const webkitMessageHandlers = (window as any).webkit?.messageHandlers;
-  if (webkitMessageHandlers) return true;
-
-  return false;
-};
+import { isNativeApp } from "@/lib/nativeDetect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";

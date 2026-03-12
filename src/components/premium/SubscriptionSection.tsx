@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Check, CreditCard, Crown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import { usePremium } from "@/hooks/usePremium";
 import { useToast } from "@/hooks/use-toast";
+import { isNativeApp } from "@/lib/nativeDetect";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
   } = usePremium();
 
   const [isLoading, setIsLoading] = useState(false);
+  const isNative = useMemo(() => isNativeApp(), []);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const formatDate = (dateString?: string) => {
@@ -157,7 +159,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
               {planType && planType !== "review" && planType !== "revenuecat" && (
                 <div className="space-y-2 pt-1">
                   {/* Billing portal - hide on native iOS/Android (Apple Guideline 3.1.1) */}
-                  {!(window as any).Capacitor && (
+                  {!isNative && (
                     <Button 
                       variant="outline" 
                       size="sm" 

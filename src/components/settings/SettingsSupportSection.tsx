@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Heart, Shield, HelpCircle, Download, RotateCcw, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -5,6 +6,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
 import { useAdmin } from "@/hooks/useAdmin";
+import { isNativeApp } from "@/lib/nativeDetect";
 
 interface Props {
   isAdmin: boolean;
@@ -14,6 +16,7 @@ export function SettingsSupportSection({ isAdmin }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isNative = useMemo(() => isNativeApp(), []);
 
   const handleRestartTour = () => {
     localStorage.removeItem("soulvay_tour_completed");
@@ -76,7 +79,7 @@ export function SettingsSupportSection({ isAdmin }: Props) {
           </div>
         </CalmCard>
 
-        {!(window as any).Capacitor && (
+        {!isNative && (
           <CalmCard variant="default" className="cursor-pointer hover:shadow-card transition-shadow" onClick={() => navigate("/install")}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
