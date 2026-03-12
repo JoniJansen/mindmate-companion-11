@@ -160,6 +160,27 @@ Wir werden deine Daten NIEMALS verwenden für:
 • Training von KI-Modellen mit identifizierbaren persönlichen Inhalten`
         },
         {
+          icon: Shield,
+          title: "Rechtsgrundlagen der Verarbeitung (Art. 6 DSGVO)",
+          content: `Wir verarbeiten deine Daten auf folgenden Rechtsgrundlagen:
+
+• **Vertragserfüllung (Art. 6 Abs. 1 lit. b)**: Verarbeitung, die zur Erbringung des Soulvay-Dienstes erforderlich ist, einschließlich KI-Chat, Tagebuch und Stimmungstracking.
+• **Einwilligung (Art. 6 Abs. 1 lit. a)**: Für optionale Funktionen wie Analytics, Marketing-Cookies und Newsletter-Kommunikation. Du kannst deine Einwilligung jederzeit widerrufen.
+• **Berechtigtes Interesse (Art. 6 Abs. 1 lit. f)**: Zur Serviceverbesserung, Sicherheitsüberwachung und Betrugsprävention.`
+        },
+        {
+          icon: Shield,
+          title: "Drittanbieter und Auftragsverarbeiter",
+          content: `Wir nutzen folgende Drittanbieter zur Erbringung unserer Dienste:
+
+• **Supabase (Supabase Inc., USA)**: Cloud-Infrastruktur für Datenspeicherung, Authentifizierung und Backend-Funktionen. Die Datenverarbeitung erfolgt auf Basis von Standardvertragsklauseln (SCCs) für den EU-US-Datentransfer.
+• **ElevenLabs (ElevenLabs Inc., USA)**: Sprachsynthese für den Face-to-Face Sprachmodus. Audiodaten werden in Echtzeit übertragen und nach der Verarbeitung von ElevenLabs nicht gespeichert. Der Datentransfer ist durch SCCs abgesichert.
+• **Stripe (Stripe Inc., USA)**: Zahlungsabwicklung für Web-Abonnements. Stripe verarbeitet Zahlungsdaten eigenständig als Verantwortlicher.
+• **Apple / RevenueCat**: Verarbeitung von In-App-Käufen für iOS-Abonnements.
+• **Resend (Resend Inc.)**: Versand transaktionaler E-Mails (Willkommens-E-Mails, Wochenrückblicke).
+
+Alle Anbieter sind vertraglich verpflichtet, Daten ausschließlich zur Diensterbringung zu verarbeiten und angemessene Sicherheitsmaßnahmen einzuhalten.`
+        {
           icon: Download,
           title: "Deine Rechte",
           content: `Du hast volle Kontrolle über deine Daten:
