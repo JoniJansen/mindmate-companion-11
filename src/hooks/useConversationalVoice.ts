@@ -515,9 +515,7 @@ export function useConversationalVoice({
     if (limitResult === "LIMIT_REACHED") {
       transitionTo("error");
       isConnectingRef.current = false;
-      onErrorRef.current?.(language === "de"
-        ? "Tägliches Sitzungslimit erreicht. Bitte versuche es morgen erneut."
-        : "Daily session limit reached. Please try again tomorrow.");
+      onErrorRef.current?.("Daily session limit reached. Please try again tomorrow.");
       return false;
     }
     if (typeof limitResult === "string") sessionDbIdRef.current = limitResult;
