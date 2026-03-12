@@ -95,7 +95,7 @@ export function useTheme() {
   // Load theme from localStorage on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("mindmate-theme");
+      const stored = localStorage.getItem("soulvay-theme") || localStorage.getItem("mindmate-theme");
       if (stored) {
         setThemeState({ ...defaultTheme, ...JSON.parse(stored) });
       }
