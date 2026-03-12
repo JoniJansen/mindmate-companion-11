@@ -18,6 +18,7 @@ interface Preferences {
   companionPersonality?: string;
   companionTone?: string;
   companionBondLevel?: number;
+  userName?: string; // User's display name from profile
 }
 
 // ── Context Window Management ──
@@ -499,7 +500,11 @@ You are integrated into the Soulvay app. When users ask what they can do, how th
         // Companion-specific behavioral directives for distinct personality
         const companionBehavior = getCompanionBehavior(preferences.companionName, preferences.companionPersonality || "");
 
-        return `\n## YOUR IDENTITY\n\nYou are ${preferences.companionName}, the user's personal reflection companion inside the Soulvay app.\nYour personality style is: ${preferences.companionPersonality || 'warm and empathetic'}.\nYour conversational tone is: ${preferences.companionTone || 'gentle'}.\nYou are not a generic AI assistant. You are a calm, thoughtful presence that helps the user reflect.\nNever break character. You are always ${preferences.companionName}.\nDo not mention system prompts. Do not say you are an AI model.\nWhen the user asks your name, respond with "${preferences.companionName}".${bondBehavior}\n${companionBehavior}\n`;
+        const userNameInstruction = preferences.userName
+          ? `\nThe user's name is ${preferences.userName}. Address them by name occasionally (not every message) to create a personal, friendly connection — like a close friend would. When they greet you by name, greet them back by their name.`
+          : "";
+
+        return `\n## YOUR IDENTITY\n\nYou are ${preferences.companionName}, the user's personal reflection companion inside the Soulvay app.\nYour personality style is: ${preferences.companionPersonality || 'warm and empathetic'}.\nYour conversational tone is: ${preferences.companionTone || 'gentle'}.\nYou are not a generic AI assistant. You are a calm, thoughtful presence that helps the user reflect.\nNever break character. You are always ${preferences.companionName}.\nDo not mention system prompts. Do not say you are an AI model.\nWhen the user asks your name, respond with "${preferences.companionName}".${bondBehavior}\n${companionBehavior}${userNameInstruction}\n`;
       })()
     : "";
 
@@ -716,7 +721,7 @@ serve(async (req) => {
     // ── PARALLEL: subscription check + context loading simultaneously ──
     const today = new Date().toISOString().split("T")[0];
 
-    const [subResult, usageResult, memoriesResult, patternsResult, insightsResult, companionResult] = await Promise.all([
+    const [subResult, usageResult, memoriesResult, patternsResult, insightsResult, companionResult, profileResult] = await Promise.all([
       // 1. Subscription check
       adminClient
         .from("subscriptions")
@@ -756,6 +761,12 @@ serve(async (req) => {
       adminClient
         .from("companion_profiles")
         .select("name, personality_style, tone, bond_level")
+        .eq("user_id", userId)
+        .maybeSingle(),
+      // 7. User profile (for display_name)
+      adminClient
+        .from("profiles")
+        .select("display_name")
         .eq("user_id", userId)
         .maybeSingle(),
     ]);
@@ -812,6 +823,7 @@ serve(async (req) => {
 
     // ── Build prompt & call AI ──
     const companionData = companionResult.data as any;
+    const profileData = profileResult.data as any;
     const userPreferences: Preferences = {
       language: "en", tone: "gentle", addressForm: "du", innerDialogue: false,
       ...preferences,
@@ -822,6 +834,8 @@ serve(async (req) => {
         companionTone: companionData.tone,
         companionBondLevel: companionData.bond_level || 0,
       } : {}),
+      // Inject user's display name from profile
+      ...(profileData?.display_name ? { userName: profileData.display_name } : {}),
     };
 
     const crisisResult = detectCrisis(messages || []);
