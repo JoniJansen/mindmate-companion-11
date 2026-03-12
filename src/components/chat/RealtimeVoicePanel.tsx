@@ -20,6 +20,7 @@ interface RealtimeVoicePanelProps {
   onEndSession: () => void;
   onClose: () => void;
   onResetError?: () => void;
+  micWarning?: MicWarning;
   getInputVolume?: () => number;
   getOutputVolume?: () => number;
 }
