@@ -129,6 +129,16 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Authentication: require shared secret to prevent unauthorized access
+    const setupSecret = Deno.env.get("SETUP_SECRET");
+    const callerSecret = req.headers.get("x-setup-secret");
+    if (!setupSecret || callerSecret !== setupSecret) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -155,7 +165,7 @@ Deno.serve(async (req) => {
   } catch (error: any) {
     console.error("Setup review account error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: "Request failed. Please try again." }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

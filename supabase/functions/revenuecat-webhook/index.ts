@@ -210,11 +210,10 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("RevenueCat webhook error:", errorMessage);
+    console.error("RevenueCat webhook error:", error instanceof Error ? error.message : error);
     
     return new Response(
-      JSON.stringify({ error: errorMessage, success: false }),
+      JSON.stringify({ error: "Webhook processing failed.", success: false }),
       { 
         status: 500, 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
