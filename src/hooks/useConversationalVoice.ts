@@ -8,6 +8,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { supabase } from "@/integrations/supabase/client";
+import { recordMetric } from "@/lib/diagnostics";
+import { logInfo, logError } from "@/lib/logger";
 
 export type RealtimeVoiceStatus = "disconnected" | "connecting" | "connected" | "error";
 

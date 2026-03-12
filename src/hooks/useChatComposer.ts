@@ -253,12 +253,17 @@ export function useChatComposer(chatMode: ChatMode) {
     const messagesForAI = isSystemAction ? [...chatMessages, { role: "user" as const, content }] : chatMessages;
 
     const newMessageId = (Date.now() + 1).toString();
+    const streamStartTime = performance.now();
 
     await streamChat({
       messages: messagesForAI,
       signal: controller.signal,
       onDelta: (chunk) => { streamingDisplay.enqueueChunk(chunk); setStreamingContent(prev => prev + chunk); },
       onDone: async (fullResponse) => {
+        const durationMs = Math.round(performance.now() - streamStartTime);
+        recordMetric("chat", "stream_complete", { durationMs, success: true, meta: { chars: fullResponse.length } });
+        logInfo("chat", "stream_complete", { durationMs, responseChars: fullResponse.length });
+
         await streamingDisplay.finalize();
         setIsStreamingActive(false);
         setIsLoading(false);
@@ -266,6 +271,7 @@ export function useChatComposer(chatMode: ChatMode) {
 
         // Handle empty AI response gracefully
         if (!fullResponse || !fullResponse.trim()) {
+          recordMetric("chat", "empty_response", { durationMs, success: false });
           setMessages(prev => [...prev.filter(m => m.role !== "assistant" || m.content.trim()), {
             id: `empty-${Date.now()}`,
             content: language === "de"
@@ -285,6 +291,10 @@ export function useChatComposer(chatMode: ChatMode) {
         onStreamDone?.(fullResponse, newMessageId, activeConvId);
       },
       onError: (errorMsg) => {
+        const durationMs = Math.round(performance.now() - streamStartTime);
+        recordMetric("chat", "stream_error", { durationMs, success: false, meta: { error: errorMsg } });
+        logError("chat", "stream_error", { durationMs, error: errorMsg });
+
         streamingDisplay.abort();
         setIsStreamingActive(false);
         setIsLoading(false);
