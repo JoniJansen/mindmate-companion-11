@@ -80,7 +80,7 @@ export function CookieConsent() {
     // IMPORTANT: Do NOT show cookie banner on iOS native app
     // Apple rejected the app for using cookies without AppTrackingTransparency
     // Since MindMate doesn't actually track users, we simply skip the cookie banner on iOS
-    if (isCapacitorIOS()) {
+    if (isCapacitorNative()) {
       // Auto-accept essential-only on iOS (no tracking, no banner needed)
       const essentialOnly: ConsentSettings = {
         essential: true,

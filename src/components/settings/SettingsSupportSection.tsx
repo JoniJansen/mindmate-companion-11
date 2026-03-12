@@ -79,7 +79,7 @@ export function SettingsSupportSection({ isAdmin }: Props) {
           </div>
         </CalmCard>
 
-        {!(window as any).Capacitor && (
+        {!isNative && (
           <CalmCard variant="default" className="cursor-pointer hover:shadow-card transition-shadow" onClick={() => navigate("/install")}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

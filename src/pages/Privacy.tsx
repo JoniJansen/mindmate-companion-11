@@ -275,7 +275,7 @@ Wir werden deine Daten NIEMALS verwenden für:
 • **Supabase (Supabase Inc., USA)**: Cloud-Infrastruktur für Datenspeicherung, Authentifizierung und Backend-Funktionen. Auftragsverarbeitungsvertrag mit SCCs für den EU-US-Datentransfer abgeschlossen.
 • **ElevenLabs (ElevenLabs Inc., USA)**: Sprachsynthese für den Face-to-Face-Sprachmodus. Audiodaten werden in Echtzeit übertragen und nur vorübergehend verarbeitet — nach der Sitzung nicht von ElevenLabs gespeichert. Datentransfer durch SCCs abgesichert.
 • **Stripe (Stripe Inc., USA)**: Zahlungsabwicklung für Web-Abonnements. Stripe verarbeitet Zahlungsdaten eigenständig als Verantwortlicher unter seiner eigenen Datenschutzerklärung. EU-US Data Privacy Framework zertifiziert.
-• **Apple Inc. (USA) / RevenueCat Inc. (USA)**: Verarbeitung von In-App-Käufen für iOS/Android-Abonnements. Apple verarbeitet Kaufdaten als eigenständiger Verantwortlicher. RevenueCat agiert als Auftragsverarbeiter unter SCCs.
+• **Apple Inc. (USA) / RevenueCat Inc. (USA)**: Verarbeitung von In-App-Käufen für iOS-Abonnements. Apple verarbeitet Kaufdaten als eigenständiger Verantwortlicher. RevenueCat agiert als Auftragsverarbeiter unter SCCs.
 • **Resend (Resend Inc., USA)**: Versand transaktionaler E-Mails (Willkommens-E-Mails, Wochenrückblicke, Passwortzurücksetzungen). Auftragsverarbeitungsvertrag mit SCCs abgeschlossen.
 
 Alle Anbieter sind vertraglich verpflichtet, Daten ausschließlich zur Diensterbringung zu verarbeiten und angemessene technische und organisatorische Sicherheitsmaßnahmen einzuhalten. Wir überprüfen und bewerten regelmäßig die Angemessenheit dieser Garantien.`

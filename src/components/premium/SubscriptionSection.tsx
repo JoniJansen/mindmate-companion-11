@@ -159,7 +159,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
               {planType && planType !== "review" && planType !== "revenuecat" && (
                 <div className="space-y-2 pt-1">
                   {/* Billing portal - hide on native iOS/Android (Apple Guideline 3.1.1) */}
-                  {!(window as any).Capacitor && (
+                  {!isNative && (
                     <Button 
                       variant="outline" 
                       size="sm" 

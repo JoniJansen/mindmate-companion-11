@@ -457,9 +457,6 @@ export default function Landing() {
                 <div className="h-9">
                   <img src="/badges/app-store.svg" alt="App Store" className="h-full" />
                 </div>
-                <div className="h-9">
-                  <img src="/badges/google-play.svg" alt="Google Play" className="h-full" />
-                </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 {language === "de" ? "Bald verfügbar" : "Coming soon"}
