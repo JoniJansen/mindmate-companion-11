@@ -368,6 +368,37 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
           )}
         </AnimatePresence>
 
+        {/* Mic warning banner */}
+        <AnimatePresence>
+          {micWarning && !isError && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mt-3 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-destructive/10 max-w-sm"
+            >
+              <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+              <p className="text-xs text-destructive leading-snug">
+                {micWarning === "no_signal" && (lang === "de"
+                  ? "Kein Mikrofonsignal erkannt. Bitte überprüfe dein Mikrofon."
+                  : "No microphone signal detected. Please check your microphone.")}
+                {micWarning === "permission_denied" && (lang === "de"
+                  ? "Mikrofonzugriff wurde verweigert. Bitte erlaube den Zugriff in den Browsereinstellungen."
+                  : "Microphone access denied. Please allow access in browser settings.")}
+                {micWarning === "not_found" && (lang === "de"
+                  ? "Kein Mikrofon gefunden. Bitte schließe eines an."
+                  : "No microphone found. Please connect one.")}
+                {micWarning === "env_blocked" && (lang === "de"
+                  ? "Das Mikrofon ist in dieser Umgebung möglicherweise eingeschränkt. Bitte teste auf der echten App-Domain."
+                  : "Microphone may be restricted in this environment. Please test on the real app domain.")}
+                {micWarning === "unsupported" && (lang === "de"
+                  ? "Dieser Browser unterstützt keine Mikrofoneingabe."
+                  : "This browser doesn't support microphone input.")}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Subtitle area */}
         <SubtitleArea
           isSpeaking={isSpeaking}
