@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Download, Smartphone, Monitor, CheckCircle2, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import logoImage from "@/assets/logo.png";
+import { isNativeApp } from "@/lib/nativeDetect";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
