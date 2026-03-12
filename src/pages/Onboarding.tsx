@@ -532,8 +532,40 @@ function CompanionStep({ t, language, selected, onSelect }: {
   selected: string;
   onSelect: (id: string) => void;
 }) {
+  const checkInStyleLabel = {
+    en: {
+      warm: "Warm",
+      curious: "Curious",
+      reflective: "Reflective",
+      direct: "Direct",
+      gentle: "Gentle",
+      observant: "Observant",
+    },
+    de: {
+      warm: "Warm",
+      curious: "Neugierig",
+      reflective: "Reflektiert",
+      direct: "Direkt",
+      gentle: "Sanft",
+      observant: "Aufmerksam",
+    },
+  } as const;
+
+  const pacingLabel = {
+    en: {
+      slow: "Slow pace",
+      medium: "Balanced pace",
+      responsive: "Responsive",
+    },
+    de: {
+      slow: "Ruhiges Tempo",
+      medium: "Ausgewogen",
+      responsive: "Reaktionsstark",
+    },
+  } as const;
+
   return (
-    <div className="flex-1 flex flex-col pt-4">
+    <div className="flex-1 flex flex-col pt-3 md:pt-4">
       <div className="text-center mb-5">
         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
           <Users className="w-7 h-7 text-primary" />
@@ -541,15 +573,20 @@ function CompanionStep({ t, language, selected, onSelect }: {
         <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
         <p className="text-muted-foreground text-sm">{t.subtitle}</p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3 pb-2">
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 pb-4">
         {companionArchetypes.map((arch) => {
           const isSelected = selected === arch.id;
+          const description = language === "de" ? arch.descriptionDe : arch.description;
+          const primaryTrait = checkInStyleLabel[language][arch.checkInStyle];
+          const secondaryTrait = pacingLabel[language][arch.emotionalPacing];
+
           return (
             <motion.button
               key={arch.id}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => onSelect(arch.id)}
-              className={`relative rounded-2xl border text-left transition-all overflow-hidden ${
+              className={`relative rounded-2xl border text-left transition-all overflow-hidden min-w-0 ${
                 isSelected
                   ? "border-primary bg-primary/5 ring-2 ring-primary/30 shadow-sm"
                   : "border-border/40 bg-card hover:border-border/60"
@@ -564,16 +601,37 @@ function CompanionStep({ t, language, selected, onSelect }: {
                   <Check className="w-3.5 h-3.5 text-primary-foreground" />
                 </motion.div>
               )}
-              <div className="w-full aspect-square bg-muted/30 overflow-hidden">
-                <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-[50%_25%]" loading="lazy" />
+
+              <div className="w-full aspect-[4/5] bg-muted/30 overflow-hidden">
+                <img
+                  src={arch.defaultAvatar}
+                  alt={arch.name}
+                  className="w-full h-full object-contain object-center p-1.5 sm:p-2"
+                  loading="lazy"
+                />
               </div>
-              <div className="p-2.5">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-sm">{arch.emoji}</span>
-                  <p className="font-semibold text-foreground text-sm">{arch.name}</p>
+
+              <div className="p-3 space-y-2">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-sm shrink-0">{arch.emoji}</span>
+                  <p className="font-semibold text-foreground text-sm truncate">{arch.name}</p>
                 </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
-                  {language === "de" ? arch.descriptionDe : arch.description}
+
+                <div className="flex flex-wrap gap-1.5">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                    isSelected ? "bg-primary/15 text-foreground" : "bg-muted text-muted-foreground"
+                  }`}>
+                    {primaryTrait}
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                    isSelected ? "bg-primary/10 text-foreground" : "bg-muted/80 text-muted-foreground"
+                  }`}>
+                    {secondaryTrait}
+                  </span>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                  {description}
                 </p>
               </div>
             </motion.button>
