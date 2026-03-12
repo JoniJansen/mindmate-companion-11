@@ -215,7 +215,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
 **Abrechnung**: 
 • Abonnements werden im Voraus auf wiederkehrender Basis abgerechnet
 • Monatsabonnements verlängern sich automatisch jeden Monat; Jahresabonnements verlängern sich automatisch jedes Jahr
-• Zahlungen werden sicher über Stripe (Web) oder Apple/Google (mobile Apps) abgewickelt
+• Zahlungen werden sicher über das jeweilige Zahlungssystem der Plattform abgewickelt
 • Du kannst jederzeit in den Einstellungen kündigen; die Kündigung wird zum Ende des aktuellen Abrechnungszeitraums wirksam
 
 **Automatische Verlängerung**: Dein Abonnement verlängert sich automatisch, sofern es nicht mindestens 24 Stunden vor Ablauf des aktuellen Abrechnungszeitraums gekündigt wird. Der Verlängerungspreis entspricht dem dann gültigen Preis des Plans.
