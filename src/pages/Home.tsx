@@ -174,7 +174,7 @@ export default function Home() {
 
   const handleTalkToSoulvay = () => {
     if (inputValue.trim()) {
-      localStorage.setItem('mindmate-initial-message', inputValue.trim());
+      localStorage.setItem('soulvay-initial-message', inputValue.trim());
     }
     navigate("/chat");
   };
