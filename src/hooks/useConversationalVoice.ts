@@ -201,6 +201,50 @@ export function useConversationalVoice({
     };
   }, []);
 
+  // ── Voice session DB tracking ──
+  const createSessionRecord = useCallback(async (currentAgentId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) return null;
+
+      // Check daily limit
+      const today = new Date().toISOString().slice(0, 10);
+      const { count } = await supabase
+        .from("voice_sessions")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", session.user.id)
+        .gte("started_at", `${today}T00:00:00Z`);
+
+      if (count !== null && count >= MAX_DAILY_SESSIONS) {
+        logWarn("voice", "daily_limit_reached", { count, limit: MAX_DAILY_SESSIONS });
+        return "LIMIT_REACHED";
+      }
+
+      const { data, error } = await supabase
+        .from("voice_sessions")
+        .insert({ user_id: session.user.id, agent_id: currentAgentId })
+        .select("id")
+        .single();
+
+      if (error) { logError("voice", "session_record_failed", { error: error.message }); return null; }
+      return data?.id || null;
+    } catch { return null; }
+  }, []);
+
+  const finalizeSessionRecord = useCallback(async (reason: string) => {
+    const dbId = sessionDbIdRef.current;
+    if (!dbId) return;
+    sessionDbIdRef.current = null;
+    const durationSec = Math.round((Date.now() - sessionStartRef.current) / 1000);
+    try {
+      await supabase
+        .from("voice_sessions")
+        .update({ ended_at: new Date().toISOString(), duration_seconds: durationSec, disconnect_reason: reason })
+        .eq("id", dbId);
+      logInfo("voice", "session_record_finalized", { durationSec, reason });
+    } catch { /* best effort */ }
+  }, []);
+
   // ElevenLabs useConversation hook
   const conversation = useConversation({
     onConnect: () => {
