@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Heart, Shield, HelpCircle, Download, RotateCcw, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -5,6 +6,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
 import { useAdmin } from "@/hooks/useAdmin";
+import { isNativeApp } from "@/lib/nativeDetect";
 
 interface Props {
   isAdmin: boolean;
