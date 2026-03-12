@@ -356,7 +356,7 @@ export function usePremium() {
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "portal" },
+      body: { action: "portal" },
     });
 
     if (error) {
