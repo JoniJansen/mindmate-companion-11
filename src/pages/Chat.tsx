@@ -127,7 +127,7 @@ export default function Chat() {
     if (initDone) return;
     setInitDone(true);
 
-    const initialMessage = localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
+    const initialMessage = localStorage.getItem('soulvay-initial-message') || localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
     const resumeConvId = location.state?.conversationId;
     const savedLang = composer.preferences.current.language || language;
 
