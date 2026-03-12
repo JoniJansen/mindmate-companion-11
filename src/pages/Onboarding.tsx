@@ -541,7 +541,7 @@ function CompanionStep({ t, language, selected, onSelect }: {
         <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
         <p className="text-muted-foreground text-sm">{t.subtitle}</p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 overflow-y-auto max-h-[50vh] pr-0.5 -mx-1 px-1">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3 overflow-y-auto max-h-[60vh] sm:max-h-[65vh] pb-2 -mx-1 px-1">
         {companionArchetypes.map((arch) => {
           const isSelected = selected === arch.id;
           return (
@@ -564,8 +564,8 @@ function CompanionStep({ t, language, selected, onSelect }: {
                   <Check className="w-3.5 h-3.5 text-primary-foreground" />
                 </motion.div>
               )}
-              <div className="w-full aspect-square bg-muted/30 overflow-hidden">
-                <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-[center_15%]" loading="lazy" />
+              <div className="w-full aspect-[3/4] bg-muted/30 overflow-hidden">
+                <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-top" loading="lazy" />
               </div>
               <div className="p-2.5">
                 <div className="flex items-center gap-1.5 mb-0.5">
