@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
+import { isNativeApp } from "@/lib/nativeDetect";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -34,19 +35,7 @@ export default function Landing() {
     return "de";
   });
 
-  // Detect native app to hide store badges
-  const isNativeBuild = (() => {
-    try {
-      if (typeof (window as any).Capacitor !== 'undefined') {
-        const cap = (window as any).Capacitor;
-        if (cap.isNativePlatform?.()) return true;
-        const p = cap.getPlatform?.();
-        if (p === 'ios' || p === 'android') return true;
-      }
-      if (typeof window !== 'undefined' && (window as any).webkit?.messageHandlers) return true;
-    } catch {}
-    return false;
-  })();
+  const isNativeBuild = useMemo(() => isNativeApp(), []);
 
   const content = {
     en: {
