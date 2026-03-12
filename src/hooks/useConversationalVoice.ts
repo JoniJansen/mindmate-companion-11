@@ -247,6 +247,10 @@ export function useConversationalVoice({
       clearTimeout(retryTimerRef.current);
       retryTimerRef.current = null;
     }
+    if (sessionTimerRef.current) {
+      clearTimeout(sessionTimerRef.current);
+      sessionTimerRef.current = null;
+    }
     try {
       await conversation.endSession();
     } catch (e) {
@@ -256,6 +260,16 @@ export function useConversationalVoice({
     setPhase("idle");
     retryCountRef.current = 0;
     isConnectingRef.current = false;
+  }, [conversation]);
+
+  // Cleanup on unmount — prevent ghost sessions
+  useEffect(() => {
+    return () => {
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+      if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+      // Fire-and-forget cleanup
+      conversation.endSession().catch(() => {});
+    };
   }, [conversation]);
 
   // Reset error state
