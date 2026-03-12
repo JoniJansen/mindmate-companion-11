@@ -116,7 +116,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
-                  className="w-full h-full object-cover object-top"
+                  className="w-full h-full object-cover object-[center_15%]"
                   loading="lazy"
                 />
               </div>
