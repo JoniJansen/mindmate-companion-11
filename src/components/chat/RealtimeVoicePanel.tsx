@@ -1,12 +1,12 @@
 import { memo, useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, X, Volume2, Loader2, RefreshCw } from "lucide-react";
+import { Mic, X, Volume2, Loader2, RefreshCw, AlertTriangle } from "lucide-react";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { VoiceWaveform } from "@/components/chat/VoiceWaveform";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getCompanionVoiceProfile } from "@/data/companionVoiceProfiles";
 import type { CompanionProfile } from "@/hooks/useCompanion";
-import type { RealtimeVoiceStatus, RealtimeVoicePhase } from "@/hooks/useConversationalVoice";
+import type { RealtimeVoiceStatus, RealtimeVoicePhase, MicWarning } from "@/hooks/useConversationalVoice";
 
 interface RealtimeVoicePanelProps {
   companion: CompanionProfile;
