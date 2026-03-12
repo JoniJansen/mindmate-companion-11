@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { Volume2, Globe, MessageSquare, ChevronRight, Check } from "lucide-react";
+import { Volume2, Globe, MessageSquare, ChevronRight, Check, Mic } from "lucide-react";
 import { Circle, AudioLines, Smile } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Switch } from "@/components/ui/switch";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useVoiceSettings, VoiceType, VoiceSpeed, VoiceLanguage, AvatarStyle } from "@/hooks/useVoiceSettings";
 import { useToast } from "@/hooks/use-toast";
+import { MicrophoneSelector } from "@/components/settings/MicrophoneSelector";
 
 interface Props {
   expandedSection: string | null;
@@ -173,6 +174,33 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
                   {voiceSettings.avatarStyle === option.value && <Check className="w-5 h-5 text-primary" />}
                 </button>
               ))}
+            </motion.div>
+          )}
+        </CalmCard>
+        {/* Microphone Selection */}
+        <CalmCard variant="elevated">
+          <button onClick={() => toggleSection("micDevice")} className="w-full flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary-soft flex items-center justify-center">
+                <Mic className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-foreground">{language === "de" ? "Mikrofon" : "Microphone"}</p>
+                <p className="text-sm text-muted-foreground">
+                  {voiceSettings.preferredMicDeviceId
+                    ? (language === "de" ? "Benutzerdefiniert" : "Custom")
+                    : (language === "de" ? "Systemstandard" : "System default")}
+                </p>
+              </div>
+            </div>
+            <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSection === "micDevice" ? "rotate-90" : ""}`} />
+          </button>
+          {expandedSection === "micDevice" && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-4 pt-4 border-t border-border/50">
+              <MicrophoneSelector
+                selectedDeviceId={voiceSettings.preferredMicDeviceId}
+                onSelect={(deviceId) => { updateVoiceSetting("preferredMicDeviceId", deviceId); saved(); }}
+              />
             </motion.div>
           )}
         </CalmCard>

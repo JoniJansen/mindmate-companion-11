@@ -19,6 +19,7 @@ import { useConversation } from "@elevenlabs/react";
 import { supabase } from "@/integrations/supabase/client";
 import { recordMetric } from "@/lib/diagnostics";
 import { logInfo, logError, logWarn } from "@/lib/logger";
+import { useVoiceSettings } from "@/hooks/useVoiceSettings";
 import {
   detectMicEnvironment,
   queryMicPermission,
@@ -78,6 +79,8 @@ export function useConversationalVoice({
   const [micWarning, setMicWarning] = useState<MicWarning>(null);
   const [micEnvironment, setMicEnvironment] = useState<MicEnvironment | null>(null);
   
+  const { settings: voiceSettings } = useVoiceSettings();
+  
   // Refs for latest values — prevents stale closures in SDK callbacks
   const statusRef = useRef<RealtimeVoiceStatus>("disconnected");
   const retryCountRef = useRef(0);
@@ -89,11 +92,13 @@ export function useConversationalVoice({
   const conversationRef = useRef<any>(null);
   const unmountedRef = useRef(false);
   const silenceCleanupRef = useRef<(() => void) | null>(null);
+  const sessionDbIdRef = useRef<string | null>(null);
 
   const maxRetries = 2;
   const MAX_SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes
   const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes idle
-  const SILENCE_DETECTION_DELAY_MS = 3000; // wait 3s after connect before monitoring silence
+  const SILENCE_DETECTION_DELAY_MS = 3000;
+  const MAX_DAILY_SESSIONS = 50; // per-user daily limit
   
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
@@ -196,6 +201,50 @@ export function useConversationalVoice({
     };
   }, []);
 
+  // ── Voice session DB tracking ──
+  const createSessionRecord = useCallback(async (currentAgentId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) return null;
+
+      // Check daily limit
+      const today = new Date().toISOString().slice(0, 10);
+      const { count } = await supabase
+        .from("voice_sessions")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", session.user.id)
+        .gte("started_at", `${today}T00:00:00Z`);
+
+      if (count !== null && count >= MAX_DAILY_SESSIONS) {
+        logWarn("voice", "daily_limit_reached", { count, limit: MAX_DAILY_SESSIONS });
+        return "LIMIT_REACHED";
+      }
+
+      const { data, error } = await supabase
+        .from("voice_sessions")
+        .insert({ user_id: session.user.id, agent_id: currentAgentId })
+        .select("id")
+        .single();
+
+      if (error) { logError("voice", "session_record_failed", { error: error.message }); return null; }
+      return data?.id || null;
+    } catch { return null; }
+  }, []);
+
+  const finalizeSessionRecord = useCallback(async (reason: string) => {
+    const dbId = sessionDbIdRef.current;
+    if (!dbId) return;
+    sessionDbIdRef.current = null;
+    const durationSec = Math.round((Date.now() - sessionStartRef.current) / 1000);
+    try {
+      await supabase
+        .from("voice_sessions")
+        .update({ ended_at: new Date().toISOString(), duration_seconds: durationSec, disconnect_reason: reason })
+        .eq("id", dbId);
+      logInfo("voice", "session_record_finalized", { durationSec, reason });
+    } catch { /* best effort */ }
+  }, []);
+
   // ElevenLabs useConversation hook
   const conversation = useConversation({
     onConnect: () => {
@@ -243,6 +292,7 @@ export function useConversationalVoice({
       const sessionDurationMs = sessionStartRef.current ? Date.now() - sessionStartRef.current : 0;
       logInfo("voice", "sdk_disconnect", { sessionDurationMs, currentStatus: statusRef.current });
       recordMetric("voice", "session_ended", { durationMs: sessionDurationMs, success: true });
+      finalizeSessionRecord("sdk_disconnect");
       
       // Clean up silence monitor
       if (silenceCleanupRef.current) { silenceCleanupRef.current(); silenceCleanupRef.current = null; }
@@ -460,10 +510,23 @@ export function useConversationalVoice({
     setMicWarning(null);
     retryCountRef.current = 0;
 
+    // ── Daily session limit check ──
+    const limitResult = await createSessionRecord(agentIdRef.current!);
+    if (limitResult === "LIMIT_REACHED") {
+      transitionTo("error");
+      isConnectingRef.current = false;
+      onErrorRef.current?.("Daily session limit reached. Please try again tomorrow.");
+      return false;
+    }
+    if (typeof limitResult === "string") sessionDbIdRef.current = limitResult;
+
     try {
       // Request microphone permission — then STOP the stream immediately
       // The SDK will create its own audio capture; keeping ours open causes conflicts
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioConstraints: MediaStreamConstraints["audio"] = voiceSettings.preferredMicDeviceId
+        ? { deviceId: { ideal: voiceSettings.preferredMicDeviceId } }
+        : true;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
       
       // Validate the acquired track before releasing
       const trackInfo = validateAudioTracks(stream);
@@ -554,8 +617,9 @@ export function useConversationalVoice({
     retryCountRef.current = 0;
     isConnectingRef.current = false;
     
+    finalizeSessionRecord("user_ended");
     logInfo("voice", "session_ended_cleanup_complete");
-  }, [conversation, clearAllTimers, transitionTo]);
+  }, [conversation, clearAllTimers, transitionTo, finalizeSessionRecord]);
 
   // Cleanup on unmount
   useEffect(() => {

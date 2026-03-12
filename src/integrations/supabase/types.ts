@@ -544,6 +544,39 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_sessions: {
+        Row: {
+          agent_id: string
+          created_at: string
+          disconnect_reason: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          disconnect_reason?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          disconnect_reason?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       weekly_recaps: {
         Row: {
           created_at: string

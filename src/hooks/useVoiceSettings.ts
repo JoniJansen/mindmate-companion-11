@@ -18,6 +18,7 @@ export interface VoiceSettings {
   language: VoiceLanguage;
   autoPlayReplies: boolean;
   avatarStyle: AvatarStyle;
+  preferredMicDeviceId: string; // "" means system default
 }
 
 const defaultSettings: VoiceSettings = {
@@ -26,6 +27,7 @@ const defaultSettings: VoiceSettings = {
   language: "auto",
   autoPlayReplies: false,
   avatarStyle: "orb",
+  preferredMicDeviceId: "",
 };
 
 const STORAGE_KEY = "soulvay-voice-settings";
@@ -93,6 +95,10 @@ function sanitizeSettings(value: unknown): VoiceSettings {
     avatarStyle: validAvatarStyles.has(parsed.avatarStyle as AvatarStyle)
       ? (parsed.avatarStyle as AvatarStyle)
       : defaultSettings.avatarStyle,
+    preferredMicDeviceId:
+      typeof parsed.preferredMicDeviceId === "string"
+        ? parsed.preferredMicDeviceId
+        : defaultSettings.preferredMicDeviceId,
   };
 }
 
