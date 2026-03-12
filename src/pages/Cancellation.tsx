@@ -111,7 +111,7 @@ Die Widerrufsfrist beträgt **vierzehn Tage ab dem Tag des Vertragsabschlusses**
 Um Ihr Widerrufsrecht auszuüben, müssen Sie uns mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.
 
 **Kontakt für den Widerruf:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef

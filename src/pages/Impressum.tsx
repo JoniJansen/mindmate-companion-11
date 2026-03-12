@@ -120,9 +120,11 @@ export default function Impressum() {
             </div>
             <div className="pl-12 space-y-1 text-foreground">
               <p className="font-medium">{t.companyName}</p>
+              <p className="text-sm text-muted-foreground">{t.businessType}</p>
               <p>{t.address}</p>
               <p>{t.city}</p>
               <p>{t.country}</p>
+              <p className="text-sm text-muted-foreground mt-2">{t.taxNote}</p>
             </div>
           </section>
 
