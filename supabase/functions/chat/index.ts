@@ -18,6 +18,7 @@ interface Preferences {
   companionPersonality?: string;
   companionTone?: string;
   companionBondLevel?: number;
+  userName?: string; // User's display name from profile
 }
 
 // ── Context Window Management ──
