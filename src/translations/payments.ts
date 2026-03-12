@@ -52,6 +52,8 @@ export const paymentsTranslations: Translations = {
   "upgrade.feat.unlimitedDesc": { en: "Chat as much as you need, whenever you need", de: "Chatte so viel du willst, wann immer du willst" },
   "upgrade.feat.voiceTitle": { en: "Voice conversations", de: "Sprachgespräche" },
   "upgrade.feat.voiceDesc": { en: "Speak naturally with warm AI voice responses", de: "Sprich natürlich mit warmen KI-Sprachantworten" },
+  "upgrade.feat.faceToFaceTitle": { en: "Face-to-Face mode", de: "Face-to-Face Modus" },
+  "upgrade.feat.faceToFaceDesc": { en: "Real-time voice conversations with your companion", de: "Echtzeit-Gespräche mit deinem Begleiter" },
   "upgrade.feat.patternsTitle": { en: "Pattern insights", de: "Musteranalysen" },
   "upgrade.feat.patternsDesc": { en: "Discover trends in your emotional journey", de: "Entdecke Trends in deiner emotionalen Reise" },
   "upgrade.feat.recapsTitle": { en: "Weekly recaps", de: "Wochenrückblicke" },
