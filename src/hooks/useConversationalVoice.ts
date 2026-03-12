@@ -133,13 +133,14 @@ export function useConversationalVoice({
     },
     onError: (error, details) => {
       const errorMsg = typeof error === "object" && error !== null ? JSON.stringify(error) : String(error);
-      console.error("[Voice2.0] Agent error:", errorMsg, details ? JSON.stringify(details) : "");
+      logError("voice", "agent_error", { error: errorMsg, retryCount: retryCountRef.current });
+      recordMetric("voice", "agent_error", { success: false, meta: { error: errorMsg } });
       isConnectingRef.current = false;
       
       const currentRetry = retryCountRef.current;
       
       if (currentRetry < maxRetries) {
-        console.log(`[Voice2.0] Auto-retry ${currentRetry + 1}/${maxRetries}, error: ${errorMsg}`);
+        logInfo("voice", "auto_retry", { attempt: currentRetry + 1, maxRetries });
         retryCountRef.current = currentRetry + 1;
         setStatus("connecting");
         retryTimerRef.current = setTimeout(() => {
@@ -155,7 +156,7 @@ export function useConversationalVoice({
       const isAuthError = errorMsg.includes("401") || errorMsg.includes("403") || errorMsg.includes("NotAllowed");
       
       if (isAuthError) {
-        console.error("[Voice2.0] Auth error — check API key permissions. Agent ID:", agentIdRef.current);
+        logError("voice", "auth_error", { agentId: agentIdRef.current });
         onErrorRef.current?.("Voice service authentication failed. Please try again later.");
       } else {
         onErrorRef.current?.("Voice connection failed. Please try again.");
