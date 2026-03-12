@@ -25,7 +25,7 @@ The withdrawal period will expire after **14 days from the day of the conclusion
 To exercise the right of withdrawal, you must inform us of your decision to withdraw from this contract by an unequivocal statement (e.g., a letter sent by post or email).
 
 **Contact for withdrawal:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
