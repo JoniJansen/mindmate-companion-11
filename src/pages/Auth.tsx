@@ -34,6 +34,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isReviewLoading, setIsReviewLoading] = useState(false);
+  const isNative = useMemo(() => isNativeApp(), []);
 
   // Redirect if already authenticated
   useEffect(() => {
