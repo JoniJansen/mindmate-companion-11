@@ -163,6 +163,7 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
   onEndSession,
   onClose,
   onResetError,
+  micWarning,
   getInputVolume,
   getOutputVolume,
 }: RealtimeVoicePanelProps) {
