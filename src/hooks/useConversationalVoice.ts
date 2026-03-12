@@ -3,15 +3,18 @@
  * 
  * Uses WebSocket via @elevenlabs/react useConversation for
  * full-duplex voice conversations with companion characters.
+ * 
+ * State machine: idle → connecting → connected → (streaming/listening) → disconnecting → idle
+ * All transitions are guarded via statusRef to prevent stale closures.
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { supabase } from "@/integrations/supabase/client";
 import { recordMetric } from "@/lib/diagnostics";
-import { logInfo, logError } from "@/lib/logger";
+import { logInfo, logError, logWarn } from "@/lib/logger";
 
-export type RealtimeVoiceStatus = "disconnected" | "connecting" | "connected" | "error";
+export type RealtimeVoiceStatus = "disconnected" | "connecting" | "connected" | "disconnecting" | "error";
 
 export type RealtimeVoicePhase = 
   | "idle"
@@ -19,8 +22,16 @@ export type RealtimeVoicePhase =
   | "agent_speaking"
   | "processing";
 
+// Valid state transitions
+const VALID_TRANSITIONS: Record<RealtimeVoiceStatus, RealtimeVoiceStatus[]> = {
+  disconnected: ["connecting"],
+  connecting: ["connected", "error", "disconnected"],
+  connected: ["disconnecting", "error"],
+  disconnecting: ["disconnected", "error"],
+  error: ["connecting", "disconnected"],
+};
+
 interface UseConversationalVoiceOptions {
-  /** ElevenLabs Agent ID */
   agentId?: string;
   onError?: (error: string) => void;
 }
@@ -42,15 +53,21 @@ export function useConversationalVoice({
   const [transcriptHistory, setTranscriptHistory] = useState<TranscriptEntry[]>([]);
   const [isSupported, setIsSupported] = useState(true);
   
+  // Refs for latest values — prevents stale closures in SDK callbacks
+  const statusRef = useRef<RealtimeVoiceStatus>("disconnected");
   const retryCountRef = useRef(0);
   const isConnectingRef = useRef(false);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionStartRef = useRef<number>(0);
+  const conversationRef = useRef<any>(null);
+  const unmountedRef = useRef(false);
+
   const maxRetries = 2;
-  const MAX_SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes max session
-  const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes idle → auto-disconnect
+  const MAX_SESSION_DURATION_MS = 30 * 60 * 1000; // 30 minutes
+  const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes idle
+  
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const agentIdRef = useRef(agentId);
@@ -58,63 +75,129 @@ export function useConversationalVoice({
 
   const startSessionInternalRef = useRef<() => Promise<boolean>>();
 
-  // Reset idle timer whenever there's voice activity
+  // Guarded state transition — prevents illegal jumps
+  const transitionTo = useCallback((next: RealtimeVoiceStatus) => {
+    const current = statusRef.current;
+    if (current === next) return; // no-op
+    
+    const allowed = VALID_TRANSITIONS[current];
+    if (!allowed?.includes(next)) {
+      logWarn("voice", "blocked_transition", { from: current, to: next });
+      return;
+    }
+    
+    logInfo("voice", "state_transition", { from: current, to: next });
+    statusRef.current = next;
+    if (!unmountedRef.current) {
+      setStatus(next);
+    }
+  }, []);
+
+  // Clear all timers
+  const clearAllTimers = useCallback(() => {
+    if (retryTimerRef.current) { clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
+    if (sessionTimerRef.current) { clearTimeout(sessionTimerRef.current); sessionTimerRef.current = null; }
+    if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
+  }, []);
+
+  // Reset idle timer — uses ref to avoid stale conversation closure
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    
+    // Only set timer if session is active
+    if (statusRef.current !== "connected") return;
+    
     idleTimerRef.current = setTimeout(() => {
+      // Guard: only fire if still connected and not speaking
+      if (statusRef.current !== "connected") return;
+      
       logInfo("voice", "idle_timeout", { sessionDurationMs: Date.now() - sessionStartRef.current });
       recordMetric("voice", "idle_disconnect", { success: true });
-      conversation.endSession().catch(() => {});
-      setStatus("disconnected");
-      setPhase("idle");
+      
+      // Use ref to get latest conversation handle
+      transitionTo("disconnecting");
+      conversationRef.current?.endSession?.().catch(() => {});
+      transitionTo("disconnected");
+      if (!unmountedRef.current) {
+        setPhase("idle");
+      }
       onErrorRef.current?.("Session ended — no activity detected.");
     }, IDLE_TIMEOUT_MS);
-  }, []);
+  }, [transitionTo]);
 
   // ElevenLabs useConversation hook
   const conversation = useConversation({
     onConnect: () => {
+      if (unmountedRef.current) return;
+      
       logInfo("voice", "connected", { agentId: agentIdRef.current });
       sessionStartRef.current = Date.now();
       recordMetric("voice", "session_started", { success: true });
+      
       if (retryTimerRef.current) {
         clearTimeout(retryTimerRef.current);
         retryTimerRef.current = null;
       }
-      setStatus("connected");
+      
+      transitionTo("connected");
       setPhase("listening");
       retryCountRef.current = 0;
       isConnectingRef.current = false;
       resetIdleTimer();
 
-      // Start max session duration timer
+      // Max session duration timer
       if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
       sessionTimerRef.current = setTimeout(() => {
+        if (statusRef.current !== "connected") return;
+        
         logInfo("voice", "max_duration_reached");
         recordMetric("voice", "max_duration_disconnect", { success: true, durationMs: MAX_SESSION_DURATION_MS });
-        conversation.endSession().catch(() => {});
-        setStatus("disconnected");
-        setPhase("idle");
+        
+        transitionTo("disconnecting");
+        conversationRef.current?.endSession?.().catch(() => {});
+        transitionTo("disconnected");
+        if (!unmountedRef.current) setPhase("idle");
         onErrorRef.current?.("Session ended — maximum duration reached.");
       }, MAX_SESSION_DURATION_MS);
     },
-    onDisconnect: (details) => {
+    
+    onDisconnect: () => {
       const sessionDurationMs = sessionStartRef.current ? Date.now() - sessionStartRef.current : 0;
-      logInfo("voice", "disconnected", { sessionDurationMs });
+      logInfo("voice", "sdk_disconnect", { sessionDurationMs, currentStatus: statusRef.current });
       recordMetric("voice", "session_ended", { durationMs: sessionDurationMs, success: true });
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      setStatus(prev => {
-        if (prev === "connecting") return prev;
-        return "disconnected";
-      });
-      setPhase("idle");
-      setUserTranscript("");
-      setAgentTranscript("");
+      
+      if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
+      if (sessionTimerRef.current) { clearTimeout(sessionTimerRef.current); sessionTimerRef.current = null; }
+      
+      // Don't reset state if we're currently in the middle of a retry
+      if (statusRef.current === "connecting" && retryCountRef.current > 0) {
+        logInfo("voice", "ignoring_disconnect_during_retry", { retryCount: retryCountRef.current });
+        return;
+      }
+      
       isConnectingRef.current = false;
+      
+      // Only transition if we haven't already moved to disconnected/error
+      if (statusRef.current === "connected" || statusRef.current === "disconnecting") {
+        transitionTo("disconnected");
+      } else if (statusRef.current === "connecting") {
+        // Connection failed before ever connecting
+        transitionTo("disconnected");
+      }
+      
+      if (!unmountedRef.current) {
+        setPhase("idle");
+        setUserTranscript("");
+        setAgentTranscript("");
+      }
     },
+    
     onMessage: (message: any) => {
+      if (unmountedRef.current) return;
+      
       // Reset idle timer on any message activity
       resetIdleTimer();
+      
       const msgType = message?.type;
       if (msgType === "user_transcript") {
         const text = message?.user_transcription_event?.user_transcript || "";
@@ -131,30 +214,36 @@ export function useConversationalVoice({
         setAgentTranscript(text);
       }
     },
-    onError: (error, details) => {
+    
+    onError: (error) => {
       const errorMsg = typeof error === "object" && error !== null ? JSON.stringify(error) : String(error);
-      logError("voice", "agent_error", { error: errorMsg, retryCount: retryCountRef.current });
+      logError("voice", "agent_error", { error: errorMsg, retryCount: retryCountRef.current, currentStatus: statusRef.current });
       recordMetric("voice", "agent_error", { success: false, meta: { error: errorMsg } });
-      isConnectingRef.current = false;
       
+      isConnectingRef.current = false;
       const currentRetry = retryCountRef.current;
       
-      if (currentRetry < maxRetries) {
+      if (currentRetry < maxRetries && statusRef.current !== "disconnected") {
         logInfo("voice", "auto_retry", { attempt: currentRetry + 1, maxRetries });
         retryCountRef.current = currentRetry + 1;
-        setStatus("connecting");
+        
+        // Stay in connecting state for retry
+        statusRef.current = "connecting";
+        if (!unmountedRef.current) setStatus("connecting");
+        
         retryTimerRef.current = setTimeout(() => {
           retryTimerRef.current = null;
-          startSessionInternalRef.current?.();
+          if (!unmountedRef.current) {
+            startSessionInternalRef.current?.();
+          }
         }, 1500);
         return;
       }
       
-      setStatus("error");
-      setPhase("idle");
+      transitionTo("error");
+      if (!unmountedRef.current) setPhase("idle");
       
       const isAuthError = errorMsg.includes("401") || errorMsg.includes("403") || errorMsg.includes("NotAllowed");
-      
       if (isAuthError) {
         logError("voice", "auth_error", { agentId: agentIdRef.current });
         onErrorRef.current?.("Voice service authentication failed. Please try again later.");
@@ -164,14 +253,18 @@ export function useConversationalVoice({
     },
   });
 
+  // Keep conversation ref in sync
+  useEffect(() => {
+    conversationRef.current = conversation;
+  }, [conversation]);
+
   // Derive phase from conversation state
   useEffect(() => {
-    if (status !== "connected") {
-      setPhase("idle");
-      return;
+    if (statusRef.current !== "connected") return;
+    if (!unmountedRef.current) {
+      setPhase(conversation.isSpeaking ? "agent_speaking" : "listening");
     }
-    setPhase(conversation.isSpeaking ? "agent_speaking" : "listening");
-  }, [status, conversation.isSpeaking]);
+  }, [conversation.isSpeaking]);
 
   // Internal session start
   const startSessionInternal = useCallback(async () => {
@@ -179,7 +272,6 @@ export function useConversationalVoice({
     if (!currentAgentId) return false;
 
     try {
-      // Get signed URL from edge function (WebSocket connection)
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
@@ -201,121 +293,133 @@ export function useConversationalVoice({
       }
 
       const data = await response.json();
-
       if (!data.signed_url) {
         throw new Error("No signed URL received");
       }
 
-      console.log("[Voice2.0] Starting WebSocket session for agent:", currentAgentId);
+      // Abort if we've been unmounted or status changed during async work
+      if (unmountedRef.current || statusRef.current === "disconnected") {
+        logWarn("voice", "session_start_aborted", { reason: "unmounted_or_disconnected" });
+        return false;
+      }
 
-      // Start WebSocket conversation session (avoids LiveKit RTC path issues)
+      logInfo("voice", "starting_websocket", { agentId: currentAgentId });
+
       await conversation.startSession({
         signedUrl: data.signed_url,
       });
 
       return true;
     } catch (error: any) {
-      console.error("[Voice2.0] Session start failed:", error);
+      logError("voice", "session_start_failed", { error: error?.message });
       
       if (error?.name === "NotAllowedError") {
-        setStatus("error");
+        transitionTo("error");
         isConnectingRef.current = false;
         onErrorRef.current?.("Microphone access denied. Please allow microphone access.");
-        setIsSupported(false);
+        if (!unmountedRef.current) setIsSupported(false);
         return false;
       }
       
+      // Don't set error here if retries are still pending — onError handler manages retries
       if (retryCountRef.current >= maxRetries) {
-        setStatus("error");
+        transitionTo("error");
         isConnectingRef.current = false;
         onErrorRef.current?.(error?.message || "Failed to start voice session");
       }
       return false;
     }
-  }, [conversation]);
+  }, [conversation, transitionTo]);
 
   startSessionInternalRef.current = startSessionInternal;
 
   // Start a real-time voice session
   const startSession = useCallback(async () => {
     if (!agentIdRef.current || isConnectingRef.current) return false;
+    if (statusRef.current === "connecting" || statusRef.current === "connected") return false;
 
     isConnectingRef.current = true;
-    setStatus("connecting");
+    transitionTo("connecting");
     setUserTranscript("");
     setAgentTranscript("");
     setTranscriptHistory([]);
     retryCountRef.current = 0;
 
     try {
-      // Request microphone permission — SDK needs it for audio capture
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Request microphone permission — then STOP the stream immediately
+      // The SDK will create its own audio capture; keeping ours open causes conflicts
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
+      logInfo("voice", "mic_permission_granted");
+
       return await startSessionInternal();
     } catch (error: any) {
-      console.error("[Voice2.0] Session start failed:", error);
-      setStatus("error");
+      logError("voice", "session_start_failed", { error: error?.message, name: error?.name });
+      transitionTo("error");
       isConnectingRef.current = false;
       
       if (error?.name === "NotAllowedError") {
         onErrorRef.current?.("Microphone access denied. Please allow microphone access.");
-        setIsSupported(false);
+        if (!unmountedRef.current) setIsSupported(false);
       } else if (error?.name === "NotFoundError") {
         onErrorRef.current?.("No microphone found. Please connect a microphone.");
-        setIsSupported(false);
+        if (!unmountedRef.current) setIsSupported(false);
       } else {
         onErrorRef.current?.(error?.message || "Failed to start voice session");
       }
       return false;
     }
-  }, [startSessionInternal]);
+  }, [startSessionInternal, transitionTo]);
 
   // End the current voice session
   const endSession = useCallback(async () => {
-    if (retryTimerRef.current) {
-      clearTimeout(retryTimerRef.current);
-      retryTimerRef.current = null;
+    clearAllTimers();
+    
+    // Guard: only disconnect if we're in a state that allows it
+    const current = statusRef.current;
+    if (current === "disconnected" || current === "disconnecting") {
+      return;
     }
-    if (sessionTimerRef.current) {
-      clearTimeout(sessionTimerRef.current);
-      sessionTimerRef.current = null;
+    
+    if (current === "connected") {
+      transitionTo("disconnecting");
     }
-    if (idleTimerRef.current) {
-      clearTimeout(idleTimerRef.current);
-      idleTimerRef.current = null;
-    }
+    
     try {
       await conversation.endSession();
     } catch (e) {
       // Ignore end errors
     }
-    setStatus("disconnected");
-    setPhase("idle");
+    
+    // Ensure final state
+    statusRef.current = "disconnected";
+    if (!unmountedRef.current) {
+      setStatus("disconnected");
+      setPhase("idle");
+    }
     retryCountRef.current = 0;
     isConnectingRef.current = false;
-  }, [conversation]);
+  }, [conversation, clearAllTimers, transitionTo]);
 
-  // Cleanup on unmount — prevent ghost sessions
+  // Cleanup on unmount
   useEffect(() => {
+    unmountedRef.current = false;
     return () => {
-      if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
-      if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      // Fire-and-forget cleanup
-      conversation.endSession().catch(() => {});
+      unmountedRef.current = true;
+      clearAllTimers();
+      conversationRef.current?.endSession?.().catch(() => {});
     };
-  }, [conversation]);
+  }, [clearAllTimers]);
 
   // Reset error state
   const resetError = useCallback(() => {
-    if (retryTimerRef.current) {
-      clearTimeout(retryTimerRef.current);
-      retryTimerRef.current = null;
-    }
+    clearAllTimers();
+    statusRef.current = "disconnected";
     setStatus("disconnected");
     setPhase("idle");
     retryCountRef.current = 0;
     isConnectingRef.current = false;
-  }, []);
+  }, [clearAllTimers]);
 
   const visualState = phase === "agent_speaking" 
     ? "speaking" as const
