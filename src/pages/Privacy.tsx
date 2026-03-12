@@ -181,6 +181,7 @@ Wir werden deine Daten NIEMALS verwenden für:
 • **Resend (Resend Inc.)**: Versand transaktionaler E-Mails (Willkommens-E-Mails, Wochenrückblicke).
 
 Alle Anbieter sind vertraglich verpflichtet, Daten ausschließlich zur Diensterbringung zu verarbeiten und angemessene Sicherheitsmaßnahmen einzuhalten.`
+        },
         {
           icon: Download,
           title: "Deine Rechte",
