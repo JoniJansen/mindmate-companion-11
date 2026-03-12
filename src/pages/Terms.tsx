@@ -75,7 +75,7 @@ If you are experiencing a mental health crisis, please contact emergency service
 **Billing**: 
 • Subscriptions are billed in advance on a recurring basis
 • Monthly subscriptions renew automatically every month; yearly subscriptions renew automatically every year
-• Payments are processed securely through Stripe (web) or Apple/Google (mobile apps)
+• Payments are processed securely through the respective platform's payment system
 • You can cancel at any time from Settings; cancellation takes effect at the end of the current billing period
 
 **Automatic Renewal**: Your subscription renews automatically unless cancelled at least 24 hours before the end of the current billing period. The renewal price corresponds to the then-current price of the plan.
