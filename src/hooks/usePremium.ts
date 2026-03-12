@@ -180,8 +180,9 @@ export function usePremium() {
         }
 
         // Backend check via Edge Function (server-side Stripe validation)
+        // userId is derived from JWT on server — never sent in body
         const { data, error } = await supabase.functions.invoke("manage-subscription", {
-          body: { userId: user.id, action: "status" },
+          body: { action: "status" },
         });
 
         if (error) {
