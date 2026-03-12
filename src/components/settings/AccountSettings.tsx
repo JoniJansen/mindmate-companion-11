@@ -523,11 +523,17 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
     setIsExporting(true);
     try {
-      // Fetch all user data
-      const [journalResult, moodResult, recapResult] = await Promise.all([
+      // Fetch all user data including chat history (GDPR Art. 20 data portability)
+      const [journalResult, moodResult, recapResult, conversationsResult, chatMessagesResult, profileResult, memoriesResult, patternsResult, insightsResult] = await Promise.all([
         supabase.from("journal_entries").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("mood_checkins").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("weekly_recaps").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("conversations").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("chat_messages").select("*, conversations!inner(user_id)").eq("conversations.user_id", user.id).order("created_at", { ascending: true }),
+        supabase.from("profiles").select("*").eq("user_id", user.id).single(),
+        supabase.from("user_memories").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("emotional_patterns").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("session_insights").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
 
       const dateStr = new Date().toISOString().split("T")[0];
@@ -535,13 +541,20 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       if (format === "json") {
         const exportData = {
           exportedAt: new Date().toISOString(),
+          exportFormat: "Soulvay GDPR Data Export (Art. 20 DSGVO)",
           user: {
             email: user.email,
             displayName: profile?.display_name,
           },
+          profile: profileResult.data || null,
           journalEntries: journalResult.data || [],
           moodCheckins: moodResult.data || [],
           weeklyRecaps: recapResult.data || [],
+          conversations: conversationsResult.data || [],
+          chatMessages: (chatMessagesResult.data || []).map(({ conversations, ...msg }) => msg),
+          memories: memoriesResult.data || [],
+          emotionalPatterns: patternsResult.data || [],
+          sessionInsights: insightsResult.data || [],
         };
 
         const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
