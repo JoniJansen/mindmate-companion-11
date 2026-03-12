@@ -19,6 +19,7 @@ import { useConversation } from "@elevenlabs/react";
 import { supabase } from "@/integrations/supabase/client";
 import { recordMetric } from "@/lib/diagnostics";
 import { logInfo, logError, logWarn } from "@/lib/logger";
+import { useVoiceSettings } from "@/hooks/useVoiceSettings";
 import {
   detectMicEnvironment,
   queryMicPermission,
