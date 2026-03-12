@@ -534,47 +534,29 @@ function CompanionStep({ t, language, selected, onSelect }: {
 }) {
   const checkInStyleLabel = {
     en: {
-      warm: "Warm",
-      curious: "Curious",
-      reflective: "Reflective",
-      direct: "Direct",
-      gentle: "Gentle",
-      observant: "Observant",
+      warm: "Warm", curious: "Curious", reflective: "Reflective",
+      direct: "Direct", gentle: "Gentle", observant: "Observant",
     },
     de: {
-      warm: "Warm",
-      curious: "Neugierig",
-      reflective: "Reflektiert",
-      direct: "Direkt",
-      gentle: "Sanft",
-      observant: "Aufmerksam",
+      warm: "Warm", curious: "Neugierig", reflective: "Reflektiert",
+      direct: "Direkt", gentle: "Sanft", observant: "Aufmerksam",
     },
   } as const;
 
   const pacingLabel = {
-    en: {
-      slow: "Slow pace",
-      medium: "Balanced pace",
-      responsive: "Responsive",
-    },
-    de: {
-      slow: "Ruhiges Tempo",
-      medium: "Ausgewogen",
-      responsive: "Reaktionsstark",
-    },
+    en: { slow: "Slow pace", medium: "Balanced pace", responsive: "Responsive" },
+    de: { slow: "Ruhiges Tempo", medium: "Ausgewogen", responsive: "Reaktionsstark" },
   } as const;
 
   return (
-    <div className="flex-1 flex flex-col pt-3 md:pt-4">
-      <div className="text-center mb-5">
-        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-          <Users className="w-7 h-7 text-primary" />
-        </div>
-        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
+    <div className="flex-1 flex flex-col pt-2">
+      <div className="text-center mb-4">
+        <h2 className="text-xl font-semibold text-foreground mb-1">{t.title}</h2>
         <p className="text-muted-foreground text-sm">{t.subtitle}</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 pb-4">
+      {/* Single-column scrollable list for maximum clarity */}
+      <div className="flex flex-col gap-3 pb-4">
         {companionArchetypes.map((arch) => {
           const isSelected = selected === arch.id;
           const description = language === "de" ? arch.descriptionDe : arch.description;
@@ -584,15 +566,15 @@ function CompanionStep({ t, language, selected, onSelect }: {
           return (
             <motion.button
               key={arch.id}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => onSelect(arch.id)}
-              className={`relative rounded-2xl border text-left transition-all min-w-0 min-h-[120px] flex flex-col ${
+              className={`relative w-full rounded-2xl border text-left transition-all flex flex-row items-stretch overflow-hidden ${
                 isSelected
                   ? "border-primary bg-primary/5 ring-2 ring-primary/30 shadow-sm"
                   : "border-border/40 bg-card hover:border-border/60"
               }`}
-              style={{ maxWidth: '100%' }}
             >
+              {/* Selection badge */}
               {isSelected && (
                 <motion.div
                   initial={{ scale: 0 }}
@@ -603,38 +585,38 @@ function CompanionStep({ t, language, selected, onSelect }: {
                 </motion.div>
               )}
 
-              {/* Avatar — 3:4 portrait ratio, no cropping */}
-              <div className="w-full rounded-t-2xl bg-muted/20 overflow-hidden" style={{ aspectRatio: '3 / 4' }}>
+              {/* Avatar — fixed width, full height, no cropping */}
+              <div className="w-24 sm:w-28 shrink-0 bg-muted/20">
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
-                  className="w-full h-full object-cover object-[50%_20%]"
+                  className="w-full h-full object-cover object-top"
                   loading="lazy"
                   draggable={false}
                 />
               </div>
 
               {/* Info section */}
-              <div className="p-3 flex flex-col gap-1.5 flex-1">
+              <div className="p-3 sm:p-4 flex flex-col gap-1.5 flex-1 min-w-0 justify-center">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-sm shrink-0">{arch.emoji}</span>
-                  <p className="font-semibold text-foreground text-sm truncate">{arch.name}</p>
+                  <span className="text-base shrink-0">{arch.emoji}</span>
+                  <p className="font-semibold text-foreground text-sm sm:text-base truncate">{arch.name}</p>
                 </div>
 
                 <div className="flex flex-wrap gap-1">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium ${
                     isSelected ? "bg-primary/15 text-foreground" : "bg-muted text-muted-foreground"
                   }`}>
                     {primaryTrait}
                   </span>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium ${
                     isSelected ? "bg-primary/10 text-foreground" : "bg-muted/80 text-muted-foreground"
                   }`}>
                     {secondaryTrait}
                   </span>
                 </div>
 
-                <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 sm:line-clamp-3">
+                <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed line-clamp-3">
                   {description}
                 </p>
               </div>

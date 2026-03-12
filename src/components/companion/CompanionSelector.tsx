@@ -82,25 +82,25 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
 
   return (
     <div className="space-y-6">
-      {/* Archetype Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* Archetype List */}
+      <div className="flex flex-col gap-3">
         {companionArchetypes.map((arch, index) => {
           const isSelected = selectedId === arch.id;
-          const isExpanded = expandedId === arch.id;
           const desc = language === "de" ? arch.descriptionDe : arch.description;
           return (
             <motion.div
               key={arch.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.04 }}
-              className={`relative rounded-2xl border text-left transition-all group cursor-pointer min-h-[120px] flex flex-col ${
+              transition={{ delay: index * 0.03 }}
+              className={`relative rounded-2xl border text-left transition-all cursor-pointer flex flex-row items-stretch overflow-hidden ${
                 isSaving ? "opacity-50 pointer-events-none" : ""
               } ${
                 isSelected
                   ? "border-primary bg-primary/5 ring-1 ring-primary/30 shadow-[0_0_15px_-3px_hsl(var(--primary)/0.3)]"
                   : "border-border/50 bg-card hover:border-primary/20 hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.15)]"
               }`}
+              onClick={() => handleSelect(arch)}
             >
               {isSelected && (
                 <div className="absolute top-2.5 right-2.5 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-md">
@@ -108,63 +108,23 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
                 </div>
               )}
               
-              {/* Avatar Image — 3:4 portrait, no cropping */}
-              <div
-                className="w-full rounded-t-2xl bg-muted/30 overflow-hidden active:scale-[0.97] transition-transform"
-                style={{ aspectRatio: '3 / 4' }}
-                onClick={() => handleSelect(arch)}
-              >
+              {/* Avatar — fixed width, full height */}
+              <div className="w-24 sm:w-28 lg:w-32 shrink-0 bg-muted/30">
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
-                  className="w-full h-full object-cover object-[50%_20%]"
+                  className="w-full h-full object-cover object-top"
                   loading="lazy"
                   draggable={false}
                 />
               </div>
               
               {/* Info */}
-              <div className="p-3 lg:p-4">
-                <p className="font-semibold text-foreground text-sm lg:text-base cursor-pointer" onClick={() => handleSelect(arch)}>{arch.name}</p>
-                <AnimatePresence mode="wait">
-                  {isExpanded ? (
-                    <motion.p
-                      key="full"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="text-[11px] lg:text-xs text-muted-foreground mt-1 leading-relaxed"
-                    >
-                      {desc}
-                    </motion.p>
-                  ) : (
-                    <motion.p
-                      key="truncated"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-[11px] lg:text-xs text-muted-foreground mt-1 leading-relaxed line-clamp-2 lg:line-clamp-3"
-                      onClick={(e) => toggleExpand(arch.id, e)}
-                    >
-                      {desc}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-                {!isExpanded && desc.length > 50 && (
-                  <span
-                    onClick={(e) => toggleExpand(arch.id, e)}
-                    className="text-[10px] lg:text-[11px] text-primary font-medium mt-1 inline-block cursor-pointer"
-                  >
-                    {language === "de" ? "Mehr →" : "More →"}
-                  </span>
-                )}
-                {isExpanded && (
-                  <span
-                    onClick={(e) => toggleExpand(arch.id, e)}
-                    className="text-[10px] lg:text-[11px] text-primary font-medium mt-1 inline-block cursor-pointer"
-                  >
-                    {language === "de" ? "Weniger" : "Less"}
-                  </span>
-                )}
+              <div className="p-3 lg:p-4 flex flex-col gap-1.5 flex-1 min-w-0 justify-center">
+                <p className="font-semibold text-foreground text-sm lg:text-base">{arch.emoji} {arch.name}</p>
+                <p className="text-[11px] lg:text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                  {desc}
+                </p>
               </div>
             </motion.div>
           );
