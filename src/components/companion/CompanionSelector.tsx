@@ -110,7 +110,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               
               {/* Avatar Image — clickable to select */}
               <div
-                className="w-full aspect-[3/4] bg-muted/30 overflow-hidden active:scale-[0.97] transition-transform"
+                className="w-full aspect-square bg-muted/30 overflow-hidden active:scale-[0.97] transition-transform"
                 onClick={() => handleSelect(arch)}
               >
                 <img
