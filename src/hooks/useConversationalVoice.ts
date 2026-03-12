@@ -279,6 +279,10 @@ export function useConversationalVoice({
       clearTimeout(sessionTimerRef.current);
       sessionTimerRef.current = null;
     }
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = null;
+    }
     try {
       await conversation.endSession();
     } catch (e) {
@@ -295,6 +299,7 @@ export function useConversationalVoice({
     return () => {
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
       if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       // Fire-and-forget cleanup
       conversation.endSession().catch(() => {});
     };
