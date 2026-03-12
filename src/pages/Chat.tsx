@@ -158,6 +158,7 @@ export default function Chat() {
       }
 
       if (initialMessage) {
+        localStorage.removeItem('soulvay-initial-message');
         localStorage.removeItem('mindmate-initial-message');
         composer.handleSend(initialMessage, false, undefined, handleStreamDone);
       } else {
