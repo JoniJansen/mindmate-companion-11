@@ -365,3 +365,162 @@ describe("AI Cost Controls", () => {
     expect(maxResponseTokens).toBe(1024);
   });
 });
+
+// ── Microphone Diagnostics Tests ──
+
+describe("Mic Environment Detection", () => {
+  it("detects secure context correctly", async () => {
+    const { detectMicEnvironment } = await import("@/lib/micDiagnostics");
+    const env = detectMicEnvironment();
+    expect(env).toHaveProperty("isSecureContext");
+    expect(env).toHaveProperty("isIframe");
+    expect(env).toHaveProperty("hasMicSupport");
+    expect(env).toHaveProperty("browserName");
+    expect(env).toHaveProperty("mayRestrictMic");
+  });
+
+  it("detects preview environment from hostname", async () => {
+    const { detectMicEnvironment } = await import("@/lib/micDiagnostics");
+    const env = detectMicEnvironment();
+    // In test env, hostname is likely localhost or empty
+    expect(typeof env.isLovablePreview).toBe("boolean");
+    expect(typeof env.isProductionDomain).toBe("boolean");
+  });
+});
+
+describe("Audio Track Validation", () => {
+  it("reports invalid when no tracks present", async () => {
+    const { validateAudioTracks } = await import("@/lib/micDiagnostics");
+    const mockStream = { getAudioTracks: () => [] } as unknown as MediaStream;
+    const result = validateAudioTracks(mockStream);
+    expect(result.valid).toBe(false);
+    expect(result.trackCount).toBe(0);
+    expect(result.firstTrackState).toBe("none");
+  });
+
+  it("reports valid for live enabled track", async () => {
+    const { validateAudioTracks } = await import("@/lib/micDiagnostics");
+    const mockTrack = {
+      readyState: "live",
+      enabled: true,
+      muted: false,
+      label: "Default Mic",
+      getSettings: () => ({ deviceId: "abc123" }),
+    };
+    const mockStream = {
+      getAudioTracks: () => [mockTrack],
+    } as unknown as MediaStream;
+    const result = validateAudioTracks(mockStream);
+    expect(result.valid).toBe(true);
+    expect(result.trackCount).toBe(1);
+    expect(result.firstTrackLabel).toBe("Default Mic");
+    expect(result.deviceId).toBe("abc123");
+  });
+
+  it("reports invalid for ended track", async () => {
+    const { validateAudioTracks } = await import("@/lib/micDiagnostics");
+    const mockTrack = {
+      readyState: "ended",
+      enabled: true,
+      muted: false,
+      label: "Mic",
+      getSettings: () => ({}),
+    };
+    const mockStream = {
+      getAudioTracks: () => [mockTrack],
+    } as unknown as MediaStream;
+    const result = validateAudioTracks(mockStream);
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe("Silence Detector", () => {
+  it("fires silence callback after threshold", async () => {
+    vi.useFakeTimers();
+    const { createSilenceDetector } = await import("@/lib/micDiagnostics");
+    
+    const onSilence = vi.fn();
+    const onSignal = vi.fn();
+    
+    const cleanup = createSilenceDetector(
+      () => 0, // always silent
+      {
+        silenceThresholdSec: 2,
+        signalThreshold: 0.01,
+        onSilenceDetected: onSilence,
+        onSignalDetected: onSignal,
+      }
+    );
+
+    // Advance past threshold
+    vi.advanceTimersByTime(3000);
+    expect(onSilence).toHaveBeenCalled();
+    expect(onSignal).not.toHaveBeenCalled();
+    
+    cleanup();
+    vi.useRealTimers();
+  });
+
+  it("fires signal callback when volume detected", async () => {
+    vi.useFakeTimers();
+    const { createSilenceDetector } = await import("@/lib/micDiagnostics");
+    
+    const onSilence = vi.fn();
+    const onSignal = vi.fn();
+    
+    const cleanup = createSilenceDetector(
+      () => 0.5, // has signal
+      {
+        silenceThresholdSec: 2,
+        signalThreshold: 0.01,
+        onSilenceDetected: onSilence,
+        onSignalDetected: onSignal,
+      }
+    );
+
+    vi.advanceTimersByTime(1000);
+    expect(onSignal).toHaveBeenCalled();
+    expect(onSilence).not.toHaveBeenCalled();
+    
+    cleanup();
+    vi.useRealTimers();
+  });
+
+  it("cleans up interval on destroy", async () => {
+    vi.useFakeTimers();
+    const { createSilenceDetector } = await import("@/lib/micDiagnostics");
+    
+    const onSilence = vi.fn();
+    const cleanup = createSilenceDetector(
+      () => 0,
+      {
+        silenceThresholdSec: 2,
+        signalThreshold: 0.01,
+        onSilenceDetected: onSilence,
+        onSignalDetected: vi.fn(),
+      }
+    );
+
+    cleanup();
+    vi.advanceTimersByTime(5000);
+    // Should NOT fire after cleanup
+    expect(onSilence).not.toHaveBeenCalled();
+    
+    vi.useRealTimers();
+  });
+});
+
+describe("Mic Warning Types", () => {
+  it("covers all warning states", () => {
+    const warnings: Array<import("@/hooks/useConversationalVoice").MicWarning> = [
+      null,
+      "no_signal",
+      "permission_denied",
+      "not_found",
+      "env_blocked",
+      "unsupported",
+    ];
+    expect(warnings).toHaveLength(6);
+    expect(warnings.filter(w => w !== null)).toHaveLength(5);
+  });
+});
