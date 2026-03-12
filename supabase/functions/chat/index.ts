@@ -716,7 +716,7 @@ serve(async (req) => {
     // ── PARALLEL: subscription check + context loading simultaneously ──
     const today = new Date().toISOString().split("T")[0];
 
-    const [subResult, usageResult, memoriesResult, patternsResult, insightsResult, companionResult] = await Promise.all([
+    const [subResult, usageResult, memoriesResult, patternsResult, insightsResult, companionResult, profileResult] = await Promise.all([
       // 1. Subscription check
       adminClient
         .from("subscriptions")
@@ -756,6 +756,12 @@ serve(async (req) => {
       adminClient
         .from("companion_profiles")
         .select("name, personality_style, tone, bond_level")
+        .eq("user_id", userId)
+        .maybeSingle(),
+      // 7. User profile (for display_name)
+      adminClient
+        .from("profiles")
+        .select("display_name")
         .eq("user_id", userId)
         .maybeSingle(),
     ]);
