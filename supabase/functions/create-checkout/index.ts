@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error("Checkout error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Checkout failed. Please try again." }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

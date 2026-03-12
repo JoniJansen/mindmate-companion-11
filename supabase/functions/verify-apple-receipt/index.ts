@@ -162,10 +162,9 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Apple receipt verification error:", errorMessage);
+    console.error("Apple receipt verification error:", error instanceof Error ? error.message : error);
     return new Response(
-      JSON.stringify({ error: errorMessage, success: false }),
+      JSON.stringify({ error: "Receipt verification failed. Please try again.", success: false }),
       {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

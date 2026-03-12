@@ -176,7 +176,7 @@ Respond ONLY with valid JSON, no markdown or additional text.`;
   } catch (error) {
     console.error("Summary generation error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "Summary generation failed. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
