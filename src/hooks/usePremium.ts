@@ -306,7 +306,7 @@ export function usePremium() {
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "cancel" },
+      body: { action: "cancel" },
     });
 
     if (error) {
