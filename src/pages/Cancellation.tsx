@@ -151,7 +151,7 @@ Wenn Sie verlangt haben, dass die Bereitstellung digitaler Inhalte (wie der Zuga
 ---
 
 **An:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
