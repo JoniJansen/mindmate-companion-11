@@ -81,9 +81,6 @@ export default function CompanionSettings() {
             currentCompanion={companion}
             onSelect={async (id) => {
               await selectArchetype(id);
-              // Update local appearance prompt
-              const arch = (await import("@/data/companions")).getArchetype(id);
-              if (arch) setAppearancePrompt(arch.appearancePrompt);
               toast({
                 title: language === "de" ? "Begleiter aktualisiert" : "Companion updated",
                 description: language === "de" ? "Dein Begleiter wurde geändert." : "Your companion has been changed.",
