@@ -16,61 +16,8 @@ export default function CompanionSettings() {
   const { language } = useTranslation();
   const { toast } = useToast();
   const { isPremium } = usePremium();
-  const { companion, isLoading, selectArchetype, updateName, updateAppearance, saveAvatarUrl, reload } = useCompanion();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [appearancePrompt, setAppearancePrompt] = useState(companion?.appearance_prompt || "");
+  const { companion, isLoading, selectArchetype, updateName } = useCompanion();
   const avatarSignedUrl = useAvatarUrl(companion?.avatar_url);
-
-  // Sync appearance prompt when companion loads
-  const handleGenerateAvatar = async () => {
-    if (!companion || !isPremium) return;
-    const prompt = appearancePrompt.trim() || companion.appearance_prompt;
-    if (!prompt) {
-      toast({ title: language === "de" ? "Beschreibe zuerst das Aussehen" : "Describe the appearance first", variant: "destructive" });
-      return;
-    }
-
-    setIsGenerating(true);
-    try {
-      // Save the appearance prompt first
-      if (appearancePrompt.trim()) {
-        await updateAppearance(appearancePrompt.trim());
-      }
-
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-companion`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify({ appearance_prompt: prompt }),
-      });
-
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({}));
-        throw new Error(err.error || "Generation failed");
-      }
-
-      const result = await resp.json();
-      if (result.avatar_path) {
-        await saveAvatarUrl(result.avatar_path);
-        await reload();
-        toast({ title: language === "de" ? "Portrait generiert!" : "Portrait generated!" });
-      }
-    } catch (e: any) {
-      toast({
-        title: language === "de" ? "Fehler" : "Error",
-        description: e.message || "Failed to generate",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   if (isLoading) {
     return (
