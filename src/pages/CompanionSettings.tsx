@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionSelector } from "@/components/companion/CompanionSelector";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
@@ -12,7 +9,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/usePremium";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 
 export default function CompanionSettings() {
