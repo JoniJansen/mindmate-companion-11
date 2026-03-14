@@ -336,6 +336,7 @@ export default function Onboarding() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
 
       {/* Fixed bottom CTA — always visible */}
