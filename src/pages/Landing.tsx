@@ -222,7 +222,7 @@ export default function Landing() {
             </button>
 
             {/* CTA */}
-            <Button onClick={() => navigate("/auth")} size="sm" className="hidden sm:flex">
+            <Button onClick={() => navigate("/auth")} size="sm" className="shrink-0">
               {language === "de" ? "Anmelden" : "Sign In"}
             </Button>
           </div>
