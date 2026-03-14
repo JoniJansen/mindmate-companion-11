@@ -295,6 +295,15 @@ export default function Chat() {
     saveActions.handleSummary(composer.messages);
   };
 
+  // Memoize last assistant message to avoid filtering on every streaming render
+  const lastAssistantContent = useMemo(() => {
+    for (let i = composer.messages.length - 1; i >= 0; i--) {
+      const m = composer.messages[i];
+      if (m.role === "assistant" && !m.isError) return m.content;
+    }
+    return "";
+  }, [composer.messages]);
+
   // Listen for voice-send custom event
   useEffect(() => {
     const handler = (e: CustomEvent) => { if (e.detail) handleSend(e.detail); };
