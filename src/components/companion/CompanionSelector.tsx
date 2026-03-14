@@ -109,7 +109,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               )}
               
               {/* Avatar — fixed width, full height */}
-              <div className="w-24 sm:w-28 lg:w-32 shrink-0 bg-muted/30">
+              <div className="w-24 sm:w-28 lg:w-32 shrink-0 bg-muted/30 min-h-[100px]">
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
