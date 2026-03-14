@@ -341,6 +341,7 @@ export default function Onboarding() {
 
       {/* Fixed bottom CTA — always visible */}
       <div className="shrink-0 px-6 pt-3 pb-4 bg-background border-t border-border/30">
+        <div className="max-w-lg mx-auto">
         {currentStep === "goal" ? (
           <div className="space-y-3">
             <Button size="xl" className="w-full" onClick={finishOnboarding}>
