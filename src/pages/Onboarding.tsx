@@ -366,12 +366,12 @@ export default function Onboarding() {
 
 function WelcomeStep({ t }: { t: typeof translations.en.welcome }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-      <div className="relative mb-12">
+    <div className="flex-1 flex flex-col items-center pt-8 sm:pt-16 text-center px-4">
+      <div className="relative mb-8 sm:mb-12">
         <motion.div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-2xl scale-150" animate={{ opacity: [0.5, 0.8, 0.5], scale: [1.4, 1.6, 1.4] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
-        <motion.div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10 dark:from-primary/25 dark:to-primary/10 dark:shadow-primary/30" animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
-          <div className="w-24 h-24 rounded-full overflow-hidden">
-            <img src={logoImage} alt="Soulvay Logo" className="w-24 h-24 object-cover rounded-full" />
+        <motion.div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10 dark:from-primary/25 dark:to-primary/10 dark:shadow-primary/30" animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden">
+            <img src={logoImage} alt="Soulvay Logo" className="w-full h-full object-cover rounded-full" />
           </div>
         </motion.div>
       </div>
