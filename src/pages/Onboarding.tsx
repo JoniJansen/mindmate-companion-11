@@ -293,6 +293,7 @@ export default function Onboarding() {
 
       {/* Scrollable Content */}
       <div className="flex-1 min-h-0 overflow-y-auto px-6">
+        <div className="max-w-lg mx-auto">
         <AnimatePresence mode="wait">
           {currentStep === "welcome" && (
             <motion.div key="welcome" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
