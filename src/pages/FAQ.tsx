@@ -58,7 +58,7 @@ export default function FAQ() {
           questions: [
             {
               q: "What's included in the free version?",
-              a: "The free version includes 5 AI chat messages per day, basic journaling, mood tracking, and access to our toolbox exercises."
+              a: "The free version includes 15 AI chat messages per day, basic journaling, mood tracking, and access to our toolbox exercises."
             },
             {
               q: "What does Soulvay Plus include?",
