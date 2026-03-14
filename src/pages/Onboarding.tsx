@@ -202,7 +202,9 @@ export default function Onboarding() {
     }
   };
 
-  const finishOnboarding = () => {
+  const [isFinishing, setIsFinishing] = useState(false);
+
+  const finishOnboarding = async () => {
     // Save preferences (unified soulvay-* key)
     const prefsPayload = JSON.stringify({
       language: state.language,
@@ -226,8 +228,16 @@ export default function Onboarding() {
     completeOnboarding();
 
     if (isAuthenticated) {
-      // Directly update persisted companion for authenticated users
-      selectArchetype(state.companionId).catch(() => {});
+      // Await persistence before navigating to prevent stale companion on /home
+      setIsFinishing(true);
+      try {
+        await selectArchetype(state.companionId);
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Companion persistence failed during onboarding:", e);
+        // localStorage is saved — ensureCompanionProfile will retry on next session
+      } finally {
+        setIsFinishing(false);
+      }
       navigate("/", { replace: true });
     } else {
       navigate("/auth?from=onboarding", { replace: true });
