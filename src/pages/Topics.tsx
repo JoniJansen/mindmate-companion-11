@@ -254,10 +254,14 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
       setLastTopic({ topicId: topic.id, stepIndex: nextStepIndex });
     }
 
+    // Get translated step display for the current language
+    const topicDisplay = getDisplay(topic);
+    const stepDisplay = topicDisplay.steps[stepIndex] || { title: step.title, description: step.description };
+
     switch (step.type) {
       case "chat":
         navigate("/chat", {
-          state: { initialMessage: step.description },
+          state: { initialMessage: stepDisplay.description },
         });
         break;
       case "journal":
