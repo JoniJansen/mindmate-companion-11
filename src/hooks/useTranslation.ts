@@ -405,26 +405,16 @@ export function useTranslation() {
 
     readLang();
 
+    // Listen for cross-tab and same-tab preference changes
     const handleStorageChange = () => readLang();
     window.addEventListener("storage", handleStorageChange);
-    
-    const interval = setInterval(() => {
-      try {
-        const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
-        if (stored) {
-          const prefs = JSON.parse(stored);
-          if (prefs.language && prefs.language !== language) {
-            setLanguage(prefs.language);
-          }
-        }
-      } catch {}
-    }, 500);
+    window.addEventListener("soulvay-preferences-changed", handleStorageChange);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
+      window.removeEventListener("soulvay-preferences-changed", handleStorageChange);
     };
-  }, [language]);
+  }, []);
 
   const t = (key: string): string => {
     const translation = translations[key];

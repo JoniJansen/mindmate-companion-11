@@ -100,12 +100,16 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
   const saveNoteToJournal = async (topicId: string) => {
     if (!user || !topicNotes[topicId]?.trim()) return;
     const topic = topics.find(tp => tp.id === topicId);
+    const topicDisplay = topic ? getTopicDisplay(topicId, {
+      title: topic.title,
+      description: topic.description,
+    }) : null;
     try {
       await supabase.from("journal_entries").insert({
         user_id: user.id,
         user_session_id: user.id,
         content: topicNotes[topicId],
-        title: `${topic?.icon || ""} ${topic?.title || topicId}`,
+        title: `${topic?.icon || ""} ${topicDisplay?.title || topicId}`,
         source: "topic-notes",
         tags: [topicId],
       } as any);
@@ -254,10 +258,14 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
       setLastTopic({ topicId: topic.id, stepIndex: nextStepIndex });
     }
 
+    // Get translated step display for the current language
+    const topicDisplay = getDisplay(topic);
+    const stepDisplay = topicDisplay.steps[stepIndex] || { title: step.title, description: step.description };
+
     switch (step.type) {
       case "chat":
         navigate("/chat", {
-          state: { initialMessage: step.description },
+          state: { initialMessage: stepDisplay.description },
         });
         break;
       case "journal":
