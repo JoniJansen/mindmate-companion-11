@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { useCompanion } from "@/hooks/useCompanion";
 import { companionArchetypes, CompanionArchetype } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
@@ -187,6 +188,7 @@ export default function Onboarding() {
   const { isDark, setMode: setThemeMode } = useTheme();
   const { completeOnboarding } = useOnboardingStatus();
   const { isAuthenticated } = useAuth();
+  const { selectArchetype } = useCompanion();
 
   const currentStepIndex = steps.indexOf(currentStep);
   const t = translations[state.language];
@@ -224,6 +226,8 @@ export default function Onboarding() {
     completeOnboarding();
 
     if (isAuthenticated) {
+      // Directly update persisted companion for authenticated users
+      selectArchetype(state.companionId).catch(() => {});
       navigate("/", { replace: true });
     } else {
       navigate("/auth?from=onboarding", { replace: true });

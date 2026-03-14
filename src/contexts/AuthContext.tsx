@@ -86,22 +86,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Check if profile already exists
       const { data: existing } = await supabase
         .from("companion_profiles")
-        .select("id")
+        .select("id, archetype")
         .eq("user_id", userId)
         .maybeSingle();
 
-      if (existing) return; // Already has a companion
+      const profileData = {
+        name: arch.name,
+        archetype: arch.id,
+        personality_style: arch.personalityStyle,
+        tone: arch.tone,
+        appearance_prompt: arch.appearancePrompt,
+      };
+
+      if (existing) {
+        // If onboarding selected a different companion, update the persisted profile
+        if (existing.archetype !== arch.id) {
+          await supabase
+            .from("companion_profiles")
+            .update(profileData as any)
+            .eq("user_id", userId);
+        }
+        return;
+      }
 
       await supabase
         .from("companion_profiles")
-        .insert({
-          user_id: userId,
-          name: arch.name,
-          archetype: arch.id,
-          personality_style: arch.personalityStyle,
-          tone: arch.tone,
-          appearance_prompt: arch.appearancePrompt,
-        } as any);
+        .insert({ user_id: userId, ...profileData } as any);
     } catch (e) {
       if (import.meta.env.DEV) console.warn("Auto companion creation failed:", e);
     }
