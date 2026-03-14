@@ -14,7 +14,7 @@ export const REVIEW_EMAILS_CONFIG = {
 // All review emails for checking
 const REVIEW_EMAILS = [
   REVIEW_EMAILS_CONFIG.apple.toLowerCase(),
-  REVIEW_EMAILS_CONFIG.google.toLowerCase(),
+  REVIEW_EMAILS_CONFIG.secondary.toLowerCase(),
 ];
 
 // Check if current user is a review account (Apple or Google)
