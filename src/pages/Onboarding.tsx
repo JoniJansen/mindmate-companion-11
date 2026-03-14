@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Globe, Loader2, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
@@ -202,7 +202,9 @@ export default function Onboarding() {
     }
   };
 
-  const finishOnboarding = () => {
+  const [isFinishing, setIsFinishing] = useState(false);
+
+  const finishOnboarding = async () => {
     // Save preferences (unified soulvay-* key)
     const prefsPayload = JSON.stringify({
       language: state.language,
@@ -226,8 +228,16 @@ export default function Onboarding() {
     completeOnboarding();
 
     if (isAuthenticated) {
-      // Directly update persisted companion for authenticated users
-      selectArchetype(state.companionId).catch(() => {});
+      // Await persistence before navigating to prevent stale companion on /home
+      setIsFinishing(true);
+      try {
+        await selectArchetype(state.companionId);
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Companion persistence failed during onboarding:", e);
+        // localStorage is saved — ensureCompanionProfile will retry on next session
+      } finally {
+        setIsFinishing(false);
+      }
       navigate("/", { replace: true });
     } else {
       navigate("/auth?from=onboarding", { replace: true });
@@ -348,11 +358,12 @@ export default function Onboarding() {
         <div className="max-w-lg mx-auto">
           {currentStep === "goal" ? (
             <div className="space-y-3">
-              <Button size="xl" className="w-full" onClick={finishOnboarding}>
+              <Button size="xl" className="w-full" onClick={finishOnboarding} disabled={isFinishing}>
+                {isFinishing ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
                 {t.getStarted}
-                <Sparkles className="w-5 h-5 ml-2" />
+                {!isFinishing && <Sparkles className="w-5 h-5 ml-2" />}
               </Button>
-              {!state.personalGoal && (
+              {!state.personalGoal && !isFinishing && (
                 <Button variant="ghost" className="w-full text-muted-foreground" onClick={finishOnboarding}>
                   {t.goal.skip}
                 </Button>
