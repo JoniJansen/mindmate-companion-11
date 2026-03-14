@@ -100,8 +100,8 @@ export default function Chat() {
     return () => { composer.cleanup(); };
   }, []);
 
-  // Helper: resolve companion name from hook or localStorage fallback
-  const getCompanionName = (): string => {
+  // Helper: resolve companion name from hook or localStorage fallback (memoized)
+  const companionName = useMemo((): string => {
     if (companion?.name) return companion.name;
     try {
       const stored = localStorage.getItem("soulvay-personalization");
@@ -118,7 +118,7 @@ export default function Chat() {
       }
     } catch {}
     return "Soulvay";
-  };
+  }, [companion?.name]);
 
   // Initialize: greeting, restore conversation, or handle initial message
   const [initDone, setInitDone] = useState(false);
