@@ -110,7 +110,7 @@ export default function FAQ() {
             },
             {
               q: "Is there a mobile app?",
-              a: "Soulvay is available as a mobile app on iOS as well as a progressive web app that you can install directly from your browser."
+              a: "Yes! Soulvay is available as a mobile app on iOS. You can download it from the App Store."
             },
             {
               q: "How do I change the language?",
