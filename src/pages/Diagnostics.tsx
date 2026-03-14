@@ -107,7 +107,7 @@ export default function Diagnostics() {
     { label: "Plan Type", value: planType || "none" },
     { label: "Sub Status", value: subscriptionStatus || "none" },
     { label: "User ID", value: user?.id?.slice(0, 8) + "..." || "not logged in" },
-    { label: "Platform", value: navigator.userAgent.includes("iPhone") ? "iOS" : navigator.userAgent.includes("Android") ? "Android" : "Web" },
+    { label: "Platform", value: navigator.userAgent.includes("iPhone") || navigator.userAgent.includes("iPad") ? "iOS" : "Web" },
     { label: "Screen", value: `${window.innerWidth}×${window.innerHeight} (${window.devicePixelRatio}x)` },
     { label: "Safe Area Top", value: safeAreas.top || "0px" },
     { label: "Safe Area Bottom", value: safeAreas.bottom || "0px" },

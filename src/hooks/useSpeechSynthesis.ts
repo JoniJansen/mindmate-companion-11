@@ -54,8 +54,8 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
 
     // Try to find a voice matching the preferred type
     const preferredNames = voiceType === "female" 
-      ? ["Google Deutsch", "Anna", "Helena", "Petra", "female", "Frau", "Microsoft Katja", "Vicki"]
-      : ["Google Deutsch", "Hans", "Stefan", "male", "Herr", "Microsoft Stefan", "Markus"];
+      ? ["Anna", "Helena", "Petra", "female", "Frau", "Microsoft Katja", "Vicki"]
+      : ["Hans", "Stefan", "male", "Herr", "Microsoft Stefan", "Markus"];
 
     for (const name of preferredNames) {
       const found = langVoices.find((v) => 
