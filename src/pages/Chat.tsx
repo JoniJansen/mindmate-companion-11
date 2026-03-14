@@ -242,10 +242,10 @@ export default function Chat() {
     return keyMap[chatMode].map(k => t(k));
   };
 
-  const calmExercises = [
+  const calmExercises = useMemo(() => [
     { id: "breathing-60", label: t("chat.exercise.breathing"), icon: Wind },
     { id: "grounding-54321", label: t("chat.exercise.grounding"), icon: Anchor },
-  ];
+  ], [t]);
 
   // Voice mode toggle with premium gate
   const handleToggleVoiceMode = () => {
