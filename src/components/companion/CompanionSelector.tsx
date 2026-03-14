@@ -122,7 +122,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               {/* Info */}
               <div className="p-3 lg:p-4 flex flex-col gap-1.5 flex-1 min-w-0 justify-center">
                 <p className="font-semibold text-foreground text-sm lg:text-base">{arch.emoji} {arch.name}</p>
-                <p className="text-[11px] lg:text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                <p className="text-[11px] lg:text-xs text-muted-foreground leading-relaxed">
                   {desc}
                 </p>
               </div>
