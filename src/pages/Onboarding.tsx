@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
@@ -250,7 +250,17 @@ export default function Onboarding() {
     <div className="bg-background flex flex-col h-[100dvh]" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top shrink-0">
-        <div className="w-10" />
+        {currentStepIndex > 0 ? (
+          <button
+            onClick={() => setCurrentStep(steps[currentStepIndex - 1])}
+            className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+            aria-label="Back"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        ) : (
+          <div className="w-10" />
+        )}
         <div className="flex justify-center gap-2">
           {steps.map((step, index) => (
             <motion.div
@@ -356,12 +366,12 @@ export default function Onboarding() {
 
 function WelcomeStep({ t }: { t: typeof translations.en.welcome }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-      <div className="relative mb-12">
+    <div className="flex-1 flex flex-col items-center pt-8 sm:pt-16 text-center px-4">
+      <div className="relative mb-8 sm:mb-12">
         <motion.div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-2xl scale-150" animate={{ opacity: [0.5, 0.8, 0.5], scale: [1.4, 1.6, 1.4] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
-        <motion.div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10 dark:from-primary/25 dark:to-primary/10 dark:shadow-primary/30" animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
-          <div className="w-24 h-24 rounded-full overflow-hidden">
-            <img src={logoImage} alt="Soulvay Logo" className="w-24 h-24 object-cover rounded-full" />
+        <motion.div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10 dark:from-primary/25 dark:to-primary/10 dark:shadow-primary/30" animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden">
+            <img src={logoImage} alt="Soulvay Logo" className="w-full h-full object-cover rounded-full" />
           </div>
         </motion.div>
       </div>
@@ -559,7 +569,7 @@ function CompanionStep({ t, language, selected, onSelect }: {
       </div>
 
       {/* Single-column scrollable list for maximum clarity */}
-      <div className="flex flex-col gap-3 pb-4">
+      <div className="flex flex-col gap-3 pb-6">
         {companionArchetypes.map((arch) => {
           const isSelected = selected === arch.id;
           const description = language === "de" ? arch.descriptionDe : arch.description;
@@ -588,8 +598,8 @@ function CompanionStep({ t, language, selected, onSelect }: {
                 </motion.div>
               )}
 
-              {/* Avatar — fixed width, full height, no cropping */}
-              <div className="w-24 sm:w-28 shrink-0 bg-muted/20">
+              {/* Avatar — fixed width with min-height for consistent appearance */}
+              <div className="w-24 sm:w-28 shrink-0 bg-muted/20 min-h-[100px]">
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
@@ -619,7 +629,7 @@ function CompanionStep({ t, language, selected, onSelect }: {
                   </span>
                 </div>
 
-                <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
                   {description}
                 </p>
               </div>
@@ -639,7 +649,7 @@ function CompanionIntroStep({ t, archetype, language }: {
   const personalGreeting = language === "de" ? archetype.introGreetingDe : archetype.introGreeting;
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+    <div className="flex-1 flex flex-col items-center pt-8 sm:pt-16 text-center px-4">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
