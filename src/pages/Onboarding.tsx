@@ -250,7 +250,17 @@ export default function Onboarding() {
     <div className="bg-background flex flex-col h-[100dvh]" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top shrink-0">
-        <div className="w-10" />
+        {currentStepIndex > 0 ? (
+          <button
+            onClick={() => setCurrentStep(steps[currentStepIndex - 1])}
+            className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+            aria-label="Back"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        ) : (
+          <div className="w-10" />
+        )}
         <div className="flex justify-center gap-2">
           {steps.map((step, index) => (
             <motion.div
