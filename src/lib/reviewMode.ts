@@ -8,7 +8,7 @@
 // Review account emails only — passwords are stored server-side as secrets
 export const REVIEW_EMAILS_CONFIG = {
   apple: "apple-review@mindmate.de",
-  secondary: "google-review@mindmate.de",
+  secondary: "backup-review@mindmate.de",
 } as const;
 
 // All review emails for checking
@@ -17,7 +17,7 @@ const REVIEW_EMAILS = [
   REVIEW_EMAILS_CONFIG.secondary.toLowerCase(),
 ];
 
-// Check if current user is a review account (Apple or Google)
+// Check if current user is a review account
 export const isReviewAccount = (email?: string | null): boolean => {
   if (!email) return false;
   return REVIEW_EMAILS.includes(email.toLowerCase().trim());

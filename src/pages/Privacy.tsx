@@ -271,7 +271,7 @@ Wir werden deine Daten NIEMALS verwenden für:
           title: "Drittanbieter und internationale Datenübermittlung",
           content: `Wir nutzen folgende Auftragsverarbeiter (Art. 28 DSGVO) zur Erbringung unserer Dienste. Einige Anbieter haben ihren Sitz in den USA, für die die Europäische Kommission kein angemessenes Datenschutzniveau festgestellt hat. Wir haben daher geeignete Garantien implementiert:
 
-• **Google (Alphabet Inc., USA)**: KI-Sprachmodell-Anbieter (Gemini) zur Generierung von Chat-Antworten. Gespräche werden in Echtzeit verarbeitet. Der Datentransfer ist über den EU-US Data Privacy Framework und ergänzende Standardvertragsklauseln (SCCs) abgesichert.
+• **KI-Sprachmodell-Anbieter (USA)**: KI-Sprachmodell-Dienste zur Generierung von Chat-Antworten. Gespräche werden in Echtzeit verarbeitet. Der Datentransfer ist über den EU-US Data Privacy Framework und ergänzende Standardvertragsklauseln (SCCs) abgesichert.
 • **Supabase (Supabase Inc., USA)**: Cloud-Infrastruktur für Datenspeicherung, Authentifizierung und Backend-Funktionen. Auftragsverarbeitungsvertrag mit SCCs für den EU-US-Datentransfer abgeschlossen.
 • **ElevenLabs (ElevenLabs Inc., USA)**: Sprachsynthese für den Face-to-Face-Sprachmodus. Audiodaten werden in Echtzeit übertragen und nur vorübergehend verarbeitet — nach der Sitzung nicht von ElevenLabs gespeichert. Datentransfer durch SCCs abgesichert.
 • **Stripe (Stripe Inc., USA)**: Zahlungsabwicklung für Web-Abonnements. Stripe verarbeitet Zahlungsdaten eigenständig als Verantwortlicher unter seiner eigenen Datenschutzerklärung. EU-US Data Privacy Framework zertifiziert.

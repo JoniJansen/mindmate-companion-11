@@ -53,8 +53,8 @@ const ChatHistory = lazy(() => import("@/pages/ChatHistory"));
 const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
-const DevQA = lazy(() => import("@/pages/DevQA"));
-const Diagnostics = lazy(() => import("@/pages/Diagnostics"));
+const DevQA = import.meta.env.DEV ? lazy(() => import("@/pages/DevQA")) : () => null;
+const Diagnostics = import.meta.env.DEV ? lazy(() => import("@/pages/Diagnostics")) : () => null;
 const CompanionSettings = lazy(() => import("@/pages/CompanionSettings"));
 
 const queryClient = new QueryClient({

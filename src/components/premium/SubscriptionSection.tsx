@@ -158,7 +158,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
               {/* Action buttons - only show for real Stripe subscriptions, not review/manual accounts */}
               {planType && planType !== "review" && planType !== "revenuecat" && (
                 <div className="space-y-2 pt-1">
-                  {/* Billing portal - hide on native iOS/Android (Apple Guideline 3.1.1) */}
+                  {/* Billing portal - hide on native builds (Apple Guideline 3.1.1) */}
                   {!isNative && (
                     <Button 
                       variant="outline" 
