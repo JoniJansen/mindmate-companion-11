@@ -188,6 +188,7 @@ export default function Onboarding() {
   const { isDark, setMode: setThemeMode } = useTheme();
   const { completeOnboarding } = useOnboardingStatus();
   const { isAuthenticated } = useAuth();
+  const { selectArchetype } = useCompanion();
 
   const currentStepIndex = steps.indexOf(currentStep);
   const t = translations[state.language];
