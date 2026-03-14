@@ -110,7 +110,7 @@ export default function FAQ() {
             },
             {
               q: "Is there a mobile app?",
-              a: "Soulvay is available as a mobile app on iOS as well as a progressive web app that you can install directly from your browser."
+              a: "Yes! Soulvay is available as a mobile app on iOS. You can download it from the App Store."
             },
             {
               q: "How do I change the language?",
@@ -230,7 +230,7 @@ export default function FAQ() {
             },
             {
               q: "Gibt es eine mobile App?",
-              a: "Soulvay ist als mobile App für iOS verfügbar sowie als Progressive Web App, die du direkt über deinen Browser installieren kannst."
+              a: "Ja! Soulvay ist als mobile App für iOS verfügbar. Du kannst sie im App Store herunterladen."
             },
             {
               q: "Wie ändere ich die Sprache?",
