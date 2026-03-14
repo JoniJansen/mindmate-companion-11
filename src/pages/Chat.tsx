@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -100,8 +100,8 @@ export default function Chat() {
     return () => { composer.cleanup(); };
   }, []);
 
-  // Helper: resolve companion name from hook or localStorage fallback
-  const getCompanionName = (): string => {
+  // Helper: resolve companion name from hook or localStorage fallback (memoized)
+  const companionName = useMemo((): string => {
     if (companion?.name) return companion.name;
     try {
       const stored = localStorage.getItem("soulvay-personalization");
@@ -118,7 +118,7 @@ export default function Chat() {
       }
     } catch {}
     return "Soulvay";
-  };
+  }, [companion?.name]);
 
   // Initialize: greeting, restore conversation, or handle initial message
   const [initDone, setInitDone] = useState(false);
@@ -162,10 +162,10 @@ export default function Chat() {
         composer.handleSend(initialMessage, false, undefined, handleStreamDone);
       } else {
         const personalLine = getPersonalizedGreeting();
-        const companionName = getCompanionName();
+        const cName = companionName;
         const baseGreeting = savedLang === "de"
-          ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.`
-          : `Hello. I'm ${companionName}, and\nI'm here to listen.`;
+          ? `Hallo. Ich bin ${cName} und\nhöre dir gerne zu.`
+          : `Hello. I'm ${cName}, and\nI'm here to listen.`;
         const closingLine = savedLang === "de"
           ? "Nimm dir Zeit – teile, was dich bewegt."
           : "Take your time – share what's on your mind.";
@@ -242,10 +242,10 @@ export default function Chat() {
     return keyMap[chatMode].map(k => t(k));
   };
 
-  const calmExercises = [
+  const calmExercises = useMemo(() => [
     { id: "breathing-60", label: t("chat.exercise.breathing"), icon: Wind },
     { id: "grounding-54321", label: t("chat.exercise.grounding"), icon: Anchor },
-  ];
+  ], [t]);
 
   // Voice mode toggle with premium gate
   const handleToggleVoiceMode = () => {
@@ -283,7 +283,6 @@ export default function Chat() {
     extractIntelligence(composer.messages, composer.conversationId);
     composer.startNewConversation();
     const savedLang = composer.preferences.current.language || language;
-    const companionName = getCompanionName();
     const baseGreeting = savedLang === "de"
       ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt.`
       : `Hello. I'm ${companionName}, and\nI'm here to listen.\n\nTake your time – share what's on your mind.`;
@@ -295,6 +294,15 @@ export default function Chat() {
     if (!composer.canUseSessionSummary) { setUpgradeReason("features"); setShowUpgradePrompt(true); return; }
     saveActions.handleSummary(composer.messages);
   };
+
+  // Memoize last assistant message to avoid filtering on every streaming render
+  const lastAssistantContent = useMemo(() => {
+    for (let i = composer.messages.length - 1; i >= 0; i--) {
+      const m = composer.messages[i];
+      if (m.role === "assistant" && !m.isError) return m.content;
+    }
+    return "";
+  }, [composer.messages]);
 
   // Listen for voice-send custom event
   useEffect(() => {
@@ -415,9 +423,7 @@ export default function Chat() {
             isCooldown={voice.isCooldown}
             sttError={voice.sttError || null}
             liveTranscript={voice.voiceInputValue}
-            lastAssistantMessage={
-              composer.messages.filter(m => m.role === "assistant" && !m.isError).slice(-1)[0]?.content || ""
-            }
+            lastAssistantMessage={lastAssistantContent}
             streamingContent={composer.streamingContent}
             onToggleRecording={handleToggleRecording}
             onClose={handleToggleVoiceMode}
