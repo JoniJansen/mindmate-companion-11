@@ -569,7 +569,7 @@ function CompanionStep({ t, language, selected, onSelect }: {
       </div>
 
       {/* Single-column scrollable list for maximum clarity */}
-      <div className="flex flex-col gap-3 pb-4">
+      <div className="flex flex-col gap-3 pb-6">
         {companionArchetypes.map((arch) => {
           const isSelected = selected === arch.id;
           const description = language === "de" ? arch.descriptionDe : arch.description;
@@ -598,8 +598,8 @@ function CompanionStep({ t, language, selected, onSelect }: {
                 </motion.div>
               )}
 
-              {/* Avatar — fixed width, full height, no cropping */}
-              <div className="w-24 sm:w-28 shrink-0 bg-muted/20">
+              {/* Avatar — fixed width with min-height for consistent appearance */}
+              <div className="w-24 sm:w-28 shrink-0 bg-muted/20 min-h-[100px]">
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
@@ -629,7 +629,7 @@ function CompanionStep({ t, language, selected, onSelect }: {
                   </span>
                 </div>
 
-                <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
                   {description}
                 </p>
               </div>
