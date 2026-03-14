@@ -283,7 +283,6 @@ export default function Chat() {
     extractIntelligence(composer.messages, composer.conversationId);
     composer.startNewConversation();
     const savedLang = composer.preferences.current.language || language;
-    const companionName = getCompanionName();
     const baseGreeting = savedLang === "de"
       ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt.`
       : `Hello. I'm ${companionName}, and\nI'm here to listen.\n\nTake your time – share what's on your mind.`;
