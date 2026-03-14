@@ -74,6 +74,10 @@ export function setPreferences(partial: Partial<AppPreferences>): AppPreferences
 
   _cached = updated;
   _listeners.forEach(fn => fn(updated));
+  
+  // Dispatch custom event for same-tab reactivity (useTranslation, etc.)
+  try { window.dispatchEvent(new Event("soulvay-preferences-changed")); } catch {}
+  
   return updated;
 }
 
