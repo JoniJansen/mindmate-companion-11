@@ -164,8 +164,8 @@ export default function Chat() {
         const personalLine = getPersonalizedGreeting();
         const cName = companionName;
         const baseGreeting = savedLang === "de"
-          ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.`
-          : `Hello. I'm ${companionName}, and\nI'm here to listen.`;
+          ? `Hallo. Ich bin ${cName} und\nhöre dir gerne zu.`
+          : `Hello. I'm ${cName}, and\nI'm here to listen.`;
         const closingLine = savedLang === "de"
           ? "Nimm dir Zeit – teile, was dich bewegt."
           : "Take your time – share what's on your mind.";
