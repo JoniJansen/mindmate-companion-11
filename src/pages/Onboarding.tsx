@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Globe, Loader2, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
