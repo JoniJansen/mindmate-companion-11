@@ -107,7 +107,7 @@ We will NEVER use your data for:
           title: "Third-Party Service Providers & International Transfers",
           content: `We use the following third-party processors (Art. 28 GDPR) to deliver our services. Some providers are based in the USA, which the European Commission does not consider to provide an adequate level of data protection. We have therefore implemented appropriate safeguards:
 
-• **Google (Alphabet Inc., USA)**: AI language model provider (Gemini) for generating chat responses. Conversations are processed in real-time. Data transfer is secured under the EU-US Data Privacy Framework and supplementary Standard Contractual Clauses (SCCs).
+• **AI Language Model Provider (USA)**: AI language model services for generating chat responses. Conversations are processed in real-time. Data transfer is secured under the EU-US Data Privacy Framework and supplementary Standard Contractual Clauses (SCCs).
 • **Supabase (Supabase Inc., USA)**: Cloud infrastructure for data storage, authentication, and backend functions. Data processing agreement in place with SCCs for EU-US data transfer.
 • **ElevenLabs (ElevenLabs Inc., USA)**: Voice synthesis for the Face-to-Face voice mode. Audio data is transmitted in real-time and processed transiently — not stored by ElevenLabs after the session. Data transfer secured under SCCs.
 • **Stripe (Stripe Inc., USA)**: Payment processing for web subscriptions. Stripe processes payment data independently as a data controller under its own privacy policy. EU-US Data Privacy Framework certified.
