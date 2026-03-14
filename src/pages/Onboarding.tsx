@@ -226,6 +226,8 @@ export default function Onboarding() {
     completeOnboarding();
 
     if (isAuthenticated) {
+      // Directly update persisted companion for authenticated users
+      selectArchetype(state.companionId).catch(() => {});
       navigate("/", { replace: true });
     } else {
       navigate("/auth?from=onboarding", { replace: true });
