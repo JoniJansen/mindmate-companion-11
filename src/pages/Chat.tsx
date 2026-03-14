@@ -75,7 +75,15 @@ export default function Chat() {
   const realtimeAvailable = companion ? hasRealtimeAgent(companion.archetype) : false;
   const realtimeVoice = useConversationalVoice({
     agentId,
-    onError: (msg) => toast({ title: language === "de" ? "Sprachfehler" : "Voice error", description: msg, variant: "destructive" }),
+    onError: (msg) => {
+      const localizedMsg = language === "de" ? ({
+        "No microphone found. Please connect a microphone.": "Kein Mikrofon gefunden. Bitte schließe ein Mikrofon an.",
+        "Microphone access denied. Please allow microphone access.": "Mikrofonzugriff verweigert. Bitte erlaube den Mikrofonzugriff.",
+        "Microphone is in use by another application or unavailable.": "Das Mikrofon wird von einer anderen App verwendet oder ist nicht verfügbar.",
+        "Failed to start voice session": "Sprachsitzung konnte nicht gestartet werden",
+      }[msg] ?? msg) : msg;
+      toast({ title: language === "de" ? "Sprachfehler" : "Voice error", description: localizedMsg, variant: "destructive" });
+    },
   });
 
   // Track if user is in real-time mode vs turn-based
