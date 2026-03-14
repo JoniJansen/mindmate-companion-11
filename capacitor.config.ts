@@ -17,15 +17,11 @@ const config: CapacitorConfig = {
     // Smooth keyboard handling
     scrollEnabled: true,
   },
-  android: {
-    backgroundColor: "#000000",
-  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
       launchAutoHide: true,
       backgroundColor: "#1a1a1a",
-      androidSplashResourceName: "splash",
       showSpinner: false,
     },
     StatusBar: {
