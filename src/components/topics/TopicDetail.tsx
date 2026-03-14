@@ -148,7 +148,7 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
                   <CalmCard 
                     variant={isComplete ? "calm" : "elevated"}
                     className={`cursor-pointer ${isComplete ? 'opacity-70' : ''}`}
-                    onClick={() => !isComplete && handleStartStep(step)}
+                    onClick={() => !isComplete && handleStartStep(step, index)}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
