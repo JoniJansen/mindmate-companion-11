@@ -414,9 +414,7 @@ export default function Chat() {
             isCooldown={voice.isCooldown}
             sttError={voice.sttError || null}
             liveTranscript={voice.voiceInputValue}
-            lastAssistantMessage={
-              composer.messages.filter(m => m.role === "assistant" && !m.isError).slice(-1)[0]?.content || ""
-            }
+            lastAssistantMessage={lastAssistantContent}
             streamingContent={composer.streamingContent}
             onToggleRecording={handleToggleRecording}
             onClose={handleToggleVoiceMode}
