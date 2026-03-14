@@ -162,7 +162,7 @@ export default function Chat() {
         composer.handleSend(initialMessage, false, undefined, handleStreamDone);
       } else {
         const personalLine = getPersonalizedGreeting();
-        const companionName = getCompanionName();
+        const cName = companionName;
         const baseGreeting = savedLang === "de"
           ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.`
           : `Hello. I'm ${companionName}, and\nI'm here to listen.`;
