@@ -358,11 +358,12 @@ export default function Onboarding() {
         <div className="max-w-lg mx-auto">
           {currentStep === "goal" ? (
             <div className="space-y-3">
-              <Button size="xl" className="w-full" onClick={finishOnboarding}>
+              <Button size="xl" className="w-full" onClick={finishOnboarding} disabled={isFinishing}>
+                {isFinishing ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
                 {t.getStarted}
-                <Sparkles className="w-5 h-5 ml-2" />
+                {!isFinishing && <Sparkles className="w-5 h-5 ml-2" />}
               </Button>
-              {!state.personalGoal && (
+              {!state.personalGoal && !isFinishing && (
                 <Button variant="ghost" className="w-full text-muted-foreground" onClick={finishOnboarding}>
                   {t.goal.skip}
                 </Button>
