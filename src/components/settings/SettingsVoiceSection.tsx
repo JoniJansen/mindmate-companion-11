@@ -185,11 +185,11 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
                 <Mic className="w-5 h-5 text-primary" />
               </div>
               <div className="text-left">
-                <p className="font-medium text-foreground">{language === "de" ? "Mikrofon" : "Microphone"}</p>
+                <p className="font-medium text-foreground">{t("voice.microphone")}</p>
                 <p className="text-sm text-muted-foreground">
                   {voiceSettings.preferredMicDeviceId
-                    ? (language === "de" ? "Benutzerdefiniert" : "Custom")
-                    : (language === "de" ? "Systemstandard" : "System default")}
+                    ? t("voice.micCustom")
+                    : t("voice.micDefault")}
                 </p>
               </div>
             </div>
