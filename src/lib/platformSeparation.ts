@@ -90,9 +90,9 @@ export function shouldShowGoogleAuth(): boolean {
 
 /** True when Apple Sign-In should be available as an auth option */
 export function shouldShowAppleAuth(): boolean {
-  // iOS only (required by Apple) — Android must not show Apple branding
-  // Web could show it too in the future, but currently iOS-only
-  return isIOSApp();
+  // Show on web (both options available) and iOS (required by Apple)
+  // Never on Android (no Apple branding allowed)
+  return isWeb() || isIOSApp();
 }
 
 /** True when store messaging ("Coming soon to App Store / Play Store") should be shown */
