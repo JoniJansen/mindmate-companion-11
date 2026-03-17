@@ -425,7 +425,7 @@ export function DemoChat({ language }: DemoChatProps) {
               key={msg.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-[14.5px] leading-relaxed ${
@@ -435,14 +435,9 @@ export function DemoChat({ language }: DemoChatProps) {
                     ? "bg-primary text-primary-foreground rounded-br-lg"
                     : "bg-muted/50 border border-border/30 text-foreground rounded-bl-lg"
               }`}>
-                {msg.content.split("\n").map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    {i < msg.content.split("\n").length - 1 && <br />}
-                  </span>
-                ))}
+                <MessageRenderer content={msg.content} />
                 {isStreaming && msg.role === "assistant" && msg === messages[messages.length - 1] && msg.content !== "" && !msg.isError && (
-                  <span className="inline-block w-[3px] h-[16px] bg-primary/60 rounded-full align-text-bottom ml-0.5" style={{ animation: "cursor-blink 0.8s ease-in-out infinite" }} />
+                  <span className="inline-block w-[3px] h-[16px] bg-primary/60 rounded-full align-text-bottom ml-0.5 animate-[cursor-blink_0.8s_ease-in-out_infinite]" />
                 )}
               </div>
             </motion.div>
