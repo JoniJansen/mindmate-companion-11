@@ -155,7 +155,11 @@ export function DemoChat({ language }: DemoChatProps) {
       return [...prev, { id, role: "assistant", content: contMsg }];
     });
 
-    const timer = setTimeout(() => setShowSignupForm(true), 800);
+    const timer = setTimeout(() => {
+      setShowSignupForm(true);
+      // Autofocus email field after form renders
+      setTimeout(() => emailInputRef.current?.focus(), 100);
+    }, 800);
     return () => clearTimeout(timer);
   }, [showLimit, language]);
 
