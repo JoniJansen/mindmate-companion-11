@@ -26,6 +26,7 @@ export function JournalChatBridge({ entryContent, onDismiss }: JournalChatBridge
   }, []);
 
   const handleStartChat = () => {
+    analytics.track("journal_to_chat_clicked");
     const preview = entryContent.slice(0, 200);
     const contextMsg = language === "de"
       ? `Ich habe gerade etwas in mein Tagebuch geschrieben: "${preview}". Kannst du mir helfen, das einzuordnen?`

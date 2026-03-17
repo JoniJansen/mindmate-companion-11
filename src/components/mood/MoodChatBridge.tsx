@@ -46,6 +46,7 @@ export function MoodChatBridge({ moodValue, feelings, note, onDismiss }: MoodCha
   };
 
   const handleStartChat = () => {
+    analytics.track("mood_to_chat_clicked", { mood_value: moodValue });
     // Build context message for chat
     const emoji = getMoodEmoji(moodValue);
     const feelingList = feelings.length > 0 ? feelings.join(", ") : "";
