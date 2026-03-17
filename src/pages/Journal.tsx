@@ -229,6 +229,13 @@ export default function Journal() {
       setSelectedTags([]);
       setSelectedEntry(null);
       clearPart("journalDraft");
+
+      // Show chat bridge for new entries with meaningful content
+      if (!selectedEntry?.id && entry.content.length > 50) {
+        setLastSavedContent(entry.content);
+        setShowChatBridge(true);
+      }
+
       loadEntries();
     } catch (error) {
       if (import.meta.env.DEV) console.error("Error saving entry:", error);
