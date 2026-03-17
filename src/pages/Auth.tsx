@@ -187,7 +187,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="h-[100dvh] bg-background flex flex-col overflow-hidden">
+    <div className="min-h-[100dvh] bg-background flex flex-col" style={{ minHeight: '-webkit-fill-available' }}>
       {/* Header */}
       <div className="p-4 flex items-center justify-between safe-top">
         <button
@@ -216,11 +216,11 @@ export default function Auth() {
       </div>
 
       {/* Form */}
-      <div className="flex-1 flex items-center justify-center px-6 pb-8 overflow-y-auto">
+      <div className="flex-1 flex items-start justify-center px-6 pt-2 pb-8 overflow-y-auto overscroll-none">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm md:max-w-md space-y-6"
+          className="w-full max-w-sm md:max-w-md space-y-6 my-auto"
         >
           {/* Logo & Title */}
           <div className="text-center space-y-4">
