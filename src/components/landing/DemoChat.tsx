@@ -1,8 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, ArrowRight, Mail, Lock, User, Loader2, Shield } from "lucide-react";
+import { Send, ArrowRight, Mail, Lock, User, Loader2, Shield, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { analytics } from "@/hooks/useAnalytics";
@@ -17,6 +16,7 @@ interface DemoMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  isError?: boolean;
 }
 
 const DEMO_LIMIT = 3;
@@ -34,6 +34,23 @@ const INPUT_PLACEHOLDER = {
 const CONTINUATION_MSG = {
   en: "I'm here for you.\n\nIf you'd like, you can simply keep talking.",
   de: "Ich bin hier für dich.\n\nWenn du möchtest, kannst du einfach weiterschreiben.",
+};
+
+const ERROR_MESSAGES = {
+  en: {
+    offline: "It seems like you're offline right now. Check your connection and try again — I'll be right here.",
+    timeout: "I'm taking a bit longer than usual. Would you like to try again?",
+    generic: "I couldn't respond just now. Let's try again — I'm still here for you.",
+    retry: "Try again",
+    continueSignup: "Create account instead",
+  },
+  de: {
+    offline: "Du scheinst gerade offline zu sein. Prüfe deine Verbindung und versuch es nochmal — ich bin gleich wieder da.",
+    timeout: "Ich brauche gerade etwas länger als üblich. Möchtest du es nochmal versuchen?",
+    generic: "Ich konnte gerade nicht antworten. Lass es uns nochmal versuchen — ich bin weiterhin für dich da.",
+    retry: "Nochmal versuchen",
+    continueSignup: "Stattdessen Konto erstellen",
+  },
 };
 
 const TEXTS = {
@@ -71,7 +88,9 @@ export function DemoChat({ language }: DemoChatProps) {
   const [userMessageCount, setUserMessageCount] = useState(0);
   const [showLimit, setShowLimit] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
+  const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const demoStartedRef = useRef(false);
   const greetingShownRef = useRef(false);
@@ -85,6 +104,7 @@ export function DemoChat({ language }: DemoChatProps) {
   const [showLoginMode, setShowLoginMode] = useState(false);
 
   const t = TEXTS[language];
+  const errorTexts = ERROR_MESSAGES[language];
 
   // Auto-show greeting with typing effect
   useEffect(() => {
@@ -106,12 +126,16 @@ export function DemoChat({ language }: DemoChatProps) {
   }, [language]);
 
   const scrollToBottom = useCallback(() => {
-    // Only scroll inside the messages container, not the outer page
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // Scroll only the messages container, not the outer page
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, []);
 
   useEffect(() => {
-    // Only auto-scroll after user interaction (not during greeting animation)
     if (userMessageCount > 0) {
       scrollToBottom();
     }
@@ -124,16 +148,25 @@ export function DemoChat({ language }: DemoChatProps) {
     const contMsg = CONTINUATION_MSG[language];
     const id = "continuation";
 
-    // Check if already added
     setMessages(prev => {
       if (prev.find(m => m.id === id)) return prev;
       return [...prev, { id, role: "assistant", content: contMsg }];
     });
 
-    // Delay showing the form slightly for emotional pacing
     const timer = setTimeout(() => setShowSignupForm(true), 800);
     return () => clearTimeout(timer);
   }, [showLimit, language]);
+
+  const handleRetry = useCallback(() => {
+    if (!lastFailedInput) return;
+    // Remove the error message
+    setMessages(prev => prev.filter(m => !m.isError));
+    // Decrement user message count to allow retry
+    setUserMessageCount(prev => Math.max(0, prev - 1));
+    // Re-set the input
+    setInput(lastFailedInput);
+    setLastFailedInput(null);
+  }, [lastFailedInput]);
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
@@ -163,13 +196,18 @@ export function DemoChat({ language }: DemoChatProps) {
 
     try {
       abortRef.current = new AbortController();
-      const history = messages.filter(m => m.id !== "greeting" && m.id !== "continuation").map(m => ({
+
+      // Check online status before fetch
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        throw Object.assign(new Error("offline"), { type: "offline" });
+      }
+
+      const history = messages.filter(m => m.id !== "greeting" && m.id !== "continuation" && !m.isError).map(m => ({
         role: m.role,
         content: m.content,
       }));
       history.push({ role: "user", content: text });
 
-      // For the last message, instruct the AI to end with an open question
       const isLastMessage = newCount >= DEMO_LIMIT;
       const extraInstruction = isLastMessage
         ? (language === "de"
@@ -185,6 +223,11 @@ export function DemoChat({ language }: DemoChatProps) {
           content: lastMsg.content + extraInstruction,
         };
       }
+
+      // 20s timeout for demo chat
+      const timeoutId = setTimeout(() => {
+        abortRef.current?.abort();
+      }, 20000);
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`,
@@ -211,6 +254,8 @@ export function DemoChat({ language }: DemoChatProps) {
           signal: abortRef.current.signal,
         }
       );
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) throw new Error("Chat failed");
 
@@ -256,14 +301,26 @@ export function DemoChat({ language }: DemoChatProps) {
           );
         }
       }
+
+      setLastFailedInput(null);
     } catch (e: any) {
-      if (e.name !== "AbortError") {
-        const fallback = language === "de"
-          ? "Ich bin gerade nicht erreichbar. Erstelle ein Konto, um jederzeit mit mir zu sprechen."
-          : "I'm not available right now. Create an account to talk with me anytime.";
+      if (e.name === "AbortError") {
+        // Could be timeout or user abort
+        const errorMsg = e.type === "offline" ? errorTexts.offline : errorTexts.timeout;
         setMessages(prev =>
-          prev.map(m => m.id === assistantId ? { ...m, content: fallback } : m)
+          prev.map(m => m.id === assistantId ? { ...m, content: errorMsg, isError: true } : m)
         );
+        setLastFailedInput(text);
+      } else if (e.type === "offline") {
+        setMessages(prev =>
+          prev.map(m => m.id === assistantId ? { ...m, content: errorTexts.offline, isError: true } : m)
+        );
+        setLastFailedInput(text);
+      } else {
+        setMessages(prev =>
+          prev.map(m => m.id === assistantId ? { ...m, content: errorTexts.generic, isError: true } : m)
+        );
+        setLastFailedInput(text);
       }
     } finally {
       setIsStreaming(false);
@@ -273,7 +330,7 @@ export function DemoChat({ language }: DemoChatProps) {
         setTimeout(() => setShowLimit(true), 1500);
       }
     }
-  }, [input, isStreaming, userMessageCount, messages, language]);
+  }, [input, isStreaming, userMessageCount, messages, language, errorTexts]);
 
   const handleSignup = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -289,10 +346,8 @@ export function DemoChat({ language }: DemoChatProps) {
         const result = await signUp(signupEmail.trim().toLowerCase(), signupPassword, signupName.trim() || undefined);
         analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language, method: "signup" });
         if (result?.session) {
-          // Auto-confirmed signup — go to home
           navigate("/home", { replace: true });
         } else {
-          // Email confirmation required — show success message
           toast({
             title: language === "de" ? "Fast geschafft!" : "Almost there!",
             description: language === "de"
@@ -334,7 +389,11 @@ export function DemoChat({ language }: DemoChatProps) {
         </div>
 
         {/* Messages */}
-        <div className="px-4 py-4 space-y-3 max-h-[260px] sm:max-h-[340px] overflow-y-auto" style={{ minHeight: 120 }}>
+        <div
+          ref={messagesContainerRef}
+          className="px-4 py-4 space-y-3 max-h-[240px] sm:max-h-[320px] overflow-y-auto overscroll-contain"
+          style={{ minHeight: 120, WebkitOverflowScrolling: "touch" }}
+        >
           {messages.map((msg) => (
             <motion.div
               key={msg.id}
@@ -344,9 +403,11 @@ export function DemoChat({ language }: DemoChatProps) {
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-[14.5px] leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-primary text-primary-foreground rounded-br-lg"
-                  : "bg-muted/50 border border-border/30 text-foreground rounded-bl-lg"
+                msg.isError
+                  ? "bg-muted/50 border border-border/30 text-muted-foreground rounded-bl-lg"
+                  : msg.role === "user"
+                    ? "bg-primary text-primary-foreground rounded-br-lg"
+                    : "bg-muted/50 border border-border/30 text-foreground rounded-bl-lg"
               }`}>
                 {msg.content.split("\n").map((line, i) => (
                   <span key={i}>
@@ -354,12 +415,44 @@ export function DemoChat({ language }: DemoChatProps) {
                     {i < msg.content.split("\n").length - 1 && <br />}
                   </span>
                 ))}
-                {isStreaming && msg.role === "assistant" && msg === messages[messages.length - 1] && msg.content !== "" && (
+                {isStreaming && msg.role === "assistant" && msg === messages[messages.length - 1] && msg.content !== "" && !msg.isError && (
                   <span className="inline-block w-[3px] h-[16px] bg-primary/60 rounded-full align-text-bottom ml-0.5" style={{ animation: "cursor-blink 0.8s ease-in-out infinite" }} />
                 )}
               </div>
             </motion.div>
           ))}
+
+          {/* Error recovery actions */}
+          {lastFailedInput && !isStreaming && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-start"
+            >
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs gap-1.5 rounded-full"
+                  onClick={handleRetry}
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  {errorTexts.retry}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 text-xs rounded-full text-muted-foreground"
+                  onClick={() => {
+                    setLastFailedInput(null);
+                    setShowLimit(true);
+                  }}
+                >
+                  {errorTexts.continueSignup}
+                </Button>
+              </div>
+            </motion.div>
+          )}
 
           {/* Thinking indicator */}
           {isStreaming && messages[messages.length - 1]?.content === "" && (
@@ -400,7 +493,7 @@ export function DemoChat({ language }: DemoChatProps) {
                       value={signupName}
                       onChange={(e) => setSignupName(e.target.value)}
                       placeholder={t.namePlaceholder}
-                      className="w-full h-11 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
+                      className="w-full h-11 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] text-foreground focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
                     />
                   </div>
                 )}
@@ -412,7 +505,7 @@ export function DemoChat({ language }: DemoChatProps) {
                     onChange={(e) => setSignupEmail(e.target.value)}
                     placeholder={t.emailPlaceholder}
                     required
-                    className="w-full h-11 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
+                    className="w-full h-11 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] text-foreground focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
                   />
                 </div>
                 <div className="relative">
@@ -424,7 +517,7 @@ export function DemoChat({ language }: DemoChatProps) {
                     placeholder={t.passwordPlaceholder}
                     required
                     minLength={6}
-                    className="w-full h-11 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
+                    className="w-full h-11 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] text-foreground focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
                   />
                 </div>
 
@@ -469,7 +562,7 @@ export function DemoChat({ language }: DemoChatProps) {
                 onFocus={() => setInputFocused(true)}
                 onBlur={() => setInputFocused(false)}
                 placeholder={INPUT_PLACEHOLDER[language]}
-                className="flex-1 h-12 bg-muted/30 border border-border/40 rounded-full px-5 text-[15px] focus:outline-none focus:border-primary/50 focus:bg-muted/50 transition-all placeholder:text-muted-foreground/50"
+                className="flex-1 h-12 bg-muted/30 border border-border/40 rounded-full px-5 text-[15px] text-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/50 transition-all placeholder:text-muted-foreground/50"
                 disabled={isStreaming}
               />
               <Button
