@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
 import { isNativeApp } from "@/lib/nativeDetect";
+import { DemoChat } from "@/components/landing/DemoChat";
 
 export default function Landing() {
   const navigate = useNavigate();
