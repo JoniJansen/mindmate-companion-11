@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface JournalChatBridgeProps {
   entryContent: string;
