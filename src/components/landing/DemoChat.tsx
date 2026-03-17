@@ -7,6 +7,7 @@ import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarA
 import { analytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { lovable } from "@/integrations/lovable/index";
 
 interface DemoChatProps {
   language: "en" | "de";
