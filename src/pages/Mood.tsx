@@ -268,6 +268,16 @@ export default function Mood() {
             </div>
           </CalmCard>
 
+          {/* Mood → Chat Bridge */}
+          {showChatBridge && savedMoodContext && (
+            <MoodChatBridge
+              moodValue={savedMoodContext.mood}
+              feelings={savedMoodContext.feelings}
+              note={savedMoodContext.note}
+              onDismiss={() => setShowChatBridge(false)}
+            />
+          )}
+
           {/* Time Filter */}
           <div className="flex gap-2">
             {(["7d", "30d", "90d"] as TimeFilter[]).map(filter => (
