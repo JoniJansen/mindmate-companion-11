@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { getMoodEmoji } from "@/components/mood/MoodSelector";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface MoodChatBridgeProps {
   moodValue: number;
