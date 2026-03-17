@@ -187,7 +187,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="h-[100dvh] bg-background flex flex-col overflow-hidden">
+    <div className="min-h-[100dvh] bg-background flex flex-col" style={{ minHeight: '-webkit-fill-available' }}>
       {/* Header */}
       <div className="p-4 flex items-center justify-between safe-top">
         <button
