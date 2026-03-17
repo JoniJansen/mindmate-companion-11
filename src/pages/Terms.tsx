@@ -66,7 +66,7 @@ If you are experiencing a mental health crisis, please contact emergency service
         {
           icon: CreditCard,
           title: "4. Subscriptions & Payments",
-          content: `**Free Tier**: Soulvay offers a free tier with limited features (5 messages per day, basic journaling).
+          content: `**Free Tier**: Soulvay offers a free tier with limited features (15 messages per day, basic journaling).
 
 **Soulvay Plus Subscription**: Premium features are available through a paid subscription:
 • **Monthly**: €9.99/month (including a 7-day free trial for first-time subscribers)
@@ -206,7 +206,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
         {
           icon: CreditCard,
           title: "4. Abonnements & Zahlungen",
-          content: `**Kostenlose Stufe**: Soulvay bietet eine kostenlose Stufe mit eingeschränkten Funktionen (5 Nachrichten pro Tag, Basis-Tagebuch).
+          content: `**Kostenlose Stufe**: Soulvay bietet eine kostenlose Stufe mit eingeschränkten Funktionen (15 Nachrichten pro Tag, Basis-Tagebuch).
 
 **Soulvay Plus-Abonnement**: Premium-Funktionen sind über ein kostenpflichtiges Abonnement verfügbar:
 • **Monatlich**: €9,99/Monat (einschließlich einer 7-tägigen kostenlosen Testphase für Erstabonnenten)
