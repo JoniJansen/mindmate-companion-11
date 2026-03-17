@@ -37,7 +37,7 @@ export default function Landing() {
     return "de";
   });
 
-  const isNativeBuild = useMemo(() => isNativeApp(), []);
+  const showBadges = useMemo(() => shouldShowStoreBadges(), []);
 
   const content = {
     en: {
