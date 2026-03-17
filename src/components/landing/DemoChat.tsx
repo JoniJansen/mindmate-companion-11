@@ -330,7 +330,7 @@ export function DemoChat({ language }: DemoChatProps) {
         </div>
 
         {/* Messages */}
-        <div className="px-4 py-4 space-y-3 max-h-[340px] overflow-y-auto" style={{ minHeight: 140 }}>
+        <div className="px-4 py-4 space-y-3 max-h-[260px] sm:max-h-[340px] overflow-y-auto" style={{ minHeight: 120 }}>
           {messages.map((msg) => (
             <motion.div
               key={msg.id}
