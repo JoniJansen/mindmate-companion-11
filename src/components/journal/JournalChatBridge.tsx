@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface JournalChatBridgeProps {
   entryContent: string;
@@ -19,7 +21,12 @@ export function JournalChatBridge({ entryContent, onDismiss }: JournalChatBridge
   const avatarUrl = useAvatarUrl(companion?.avatar_url);
   const companionName = companion?.name || "Soulvay";
 
+  useEffect(() => {
+    analytics.track("journal_to_chat_prompt_shown", {}, "journal_bridge_shown");
+  }, []);
+
   const handleStartChat = () => {
+    analytics.track("journal_to_chat_clicked");
     const preview = entryContent.slice(0, 200);
     const contextMsg = language === "de"
       ? `Ich habe gerade etwas in mein Tagebuch geschrieben: "${preview}". Kannst du mir helfen, das einzuordnen?`

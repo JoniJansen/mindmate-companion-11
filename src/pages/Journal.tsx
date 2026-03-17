@@ -217,6 +217,10 @@ export default function Journal() {
       });
 
       logActivity("journal_entry");
+      try { 
+        const { analytics } = await import("@/hooks/useAnalytics");
+        analytics.track("journal_saved", { content_length: entry.content.length });
+      } catch {}
 
       if (!selectedEntry?.id && entry.content.length > 30) {
         runSentimentAnalysis(entry.content);

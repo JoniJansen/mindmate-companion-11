@@ -1,6 +1,8 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface SoftPremiumBannerProps {
   language: "en" | "de";
@@ -25,13 +27,24 @@ const COPY = {
 export function SoftPremiumBanner({ language, variant = "home" }: SoftPremiumBannerProps) {
   const navigate = useNavigate();
   const copy = COPY[variant][language];
+  const trackedRef = useRef(false);
+
+  useEffect(() => {
+    if (!trackedRef.current) {
+      trackedRef.current = true;
+      analytics.track("premium_cta_viewed", { variant }, `premium_banner_${variant}`);
+    }
+  }, [variant]);
 
   return (
     <motion.button
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.5 }}
-      onClick={() => navigate("/upgrade")}
+      onClick={() => {
+        analytics.track("premium_cta_clicked", { variant, source: "soft_banner" });
+        navigate("/upgrade");
+      }}
       className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 bg-primary/5 border border-primary/10 hover:border-primary/20 transition-all text-left group mb-6"
     >
       <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">

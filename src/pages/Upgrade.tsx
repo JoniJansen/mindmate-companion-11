@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { 
   Sparkles, 
@@ -26,6 +26,7 @@ import { REVENUECAT_PRODUCTS } from "@/hooks/useRevenueCat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { StandalonePage } from "@/components/layout/StandalonePage";
+import { analytics } from "@/hooks/useAnalytics";
 
 export default function Upgrade() {
   const navigate = useNavigate();
@@ -85,6 +86,16 @@ export default function Upgrade() {
       });
     }
   }, [searchParams, navigate, toast, t, checkSubscriptionStatus]);
+
+  // Track paywall view once
+  const paywallTrackedRef = useRef(false);
+  useEffect(() => {
+    if (!paywallTrackedRef.current) {
+      paywallTrackedRef.current = true;
+      analytics.track("paywall_viewed", { source: "upgrade_page" }, "paywall_viewed");
+      analytics.track("premium_cta_viewed", { source: "upgrade_page" }, "premium_cta_upgrade");
+    }
+  }, []);
 
   // Redirect if already premium
   useEffect(() => {

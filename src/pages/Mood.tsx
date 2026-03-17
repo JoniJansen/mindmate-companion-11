@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { toStableTagIds } from "@/lib/tagUtils";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { MoodChatBridge } from "@/components/mood/MoodChatBridge";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface MoodCheckin {
   id: string;
@@ -167,6 +168,7 @@ export default function Mood() {
       setSavedMoodContext({ mood: selectedMood, feelings: selectedFeelings, note: note.trim() || null });
       setShowChatBridge(true);
       logActivity("mood_checkin");
+      analytics.track("mood_logged", { mood_value: selectedMood, feelings_count: selectedFeelings.length });
       loadCheckins();
     } catch (error) {
       if (import.meta.env.DEV) console.error("Error saving:", error);

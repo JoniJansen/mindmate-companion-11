@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { getMoodEmoji } from "@/components/mood/MoodSelector";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface MoodChatBridgeProps {
   moodValue: number;
@@ -21,6 +23,11 @@ export function MoodChatBridge({ moodValue, feelings, note, onDismiss }: MoodCha
   const navigate = useNavigate();
   const avatarUrl = useAvatarUrl(companion?.avatar_url);
   const companionName = companion?.name || "Soulvay";
+
+  // Track prompt shown once
+  useEffect(() => {
+    analytics.track("mood_to_chat_prompt_shown", { mood_value: moodValue }, "mood_bridge_shown");
+  }, []);
 
   const getMessage = () => {
     if (moodValue <= 2) {
@@ -39,6 +46,7 @@ export function MoodChatBridge({ moodValue, feelings, note, onDismiss }: MoodCha
   };
 
   const handleStartChat = () => {
+    analytics.track("mood_to_chat_clicked", { mood_value: moodValue });
     // Build context message for chat
     const emoji = getMoodEmoji(moodValue);
     const feelingList = feelings.length > 0 ? feelings.join(", ") : "";

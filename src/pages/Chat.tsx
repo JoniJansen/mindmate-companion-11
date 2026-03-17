@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { analytics } from "@/hooks/useAnalytics";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -221,8 +222,15 @@ export default function Chat() {
   // Send message with voice TTS callback
   const handleSend = useCallback(async (content: string) => {
     if (!content.trim()) return;
+
+    // Track first chat message per session
+    if (composer.messages.filter(m => m.role === "user").length === 0) {
+      analytics.track("first_chat_sent", {}, "first_chat_sent");
+    }
+
     const result = await composer.handleSend(content, false, undefined, handleStreamDone);
     if (result === "upgrade_needed") {
+      analytics.track("chat_limit_reached", {}, "chat_limit_reached");
       setUpgradeReason("messages");
       setShowUpgradePrompt(true);
     }

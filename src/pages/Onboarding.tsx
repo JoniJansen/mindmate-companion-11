@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles, Sun, Moon, MessageCircle, Heart, BookOpen } from "lucide-react";
@@ -11,6 +11,7 @@ import { useCompanion } from "@/hooks/useCompanion";
 import { companionArchetypes, CompanionArchetype } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
+import { analytics } from "@/hooks/useAnalytics";
 
 type Language = "en" | "de";
 
@@ -110,6 +111,20 @@ export default function Onboarding() {
   const { selectArchetype } = useCompanion();
   const [isFinishing, setIsFinishing] = useState(false);
 
+  // Track onboarding started once
+  useEffect(() => {
+    analytics.track("onboarding_started", {}, "onboarding_started");
+  }, []);
+
+  // Track step transitions
+  const prevStepRef = useRef(currentStep);
+  useEffect(() => {
+    if (prevStepRef.current !== currentStep) {
+      analytics.track("onboarding_step_completed", { step: prevStepRef.current, next_step: currentStep });
+      prevStepRef.current = currentStep;
+    }
+  }, [currentStep]);
+
   const currentStepIndex = steps.indexOf(currentStep);
   const t = translations[state.language];
 
@@ -129,6 +144,12 @@ export default function Onboarding() {
   const finishOnboarding = async () => {
     if (!state.disclaimerAccepted) return;
     setIsFinishing(true);
+
+    analytics.track("onboarding_completed", {
+      companion: state.companionId,
+      need: state.need,
+      language: state.language,
+    });
 
     // Save preferences
     const prefsPayload = JSON.stringify({

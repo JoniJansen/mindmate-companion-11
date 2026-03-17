@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -37,12 +37,42 @@ export type AnalyticsEvent =
   | "delete_account"
   | "crisis_resource_viewed"
   | "onboarding_completed"
+  | "onboarding_started"
+  | "onboarding_step_completed"
   | "companion_selected"
   | "chat_error"
   | "app_installed"
-  // Phase 2 retention events
+  // Demo chat
+  | "demo_chat_started"
+  | "demo_chat_message_sent"
+  | "demo_chat_limit_reached"
+  | "demo_chat_converted"
+  | "landing_demo_started"
+  | "landing_demo_message_sent"
+  | "landing_demo_limit_reached"
+  | "landing_demo_signup_clicked"
+  // Chat
+  | "first_chat_sent"
+  | "chat_limit_approaching"
+  | "chat_limit_reached"
+  // Voice
+  | "voice_trial_prompt_shown"
+  | "voice_trial_entry_clicked"
+  | "voice_trial_started"
+  | "voice_trial_completed"
+  // Premium
+  | "premium_cta_viewed"
+  | "premium_cta_clicked"
+  | "premium_subscribed"
+  | "paywall_viewed"
+  // Insights
+  | "insight_preview_shown"
+  | "insight_unlock_clicked"
+  // Retention bridges
+  | "mood_logged"
   | "mood_to_chat_prompt_shown"
   | "mood_to_chat_clicked"
+  | "journal_saved"
   | "journal_to_chat_prompt_shown"
   | "journal_to_chat_clicked"
   | "morning_prompt_viewed"
@@ -52,33 +82,17 @@ export type AnalyticsEvent =
   | "bond_milestone_seen"
   | "returning_user_detected"
   | "return_state_shown"
-  | "chat_saved_to_journal"
-  | "voice_trial_entry_clicked"
-  | "voice_trial_started"
-  | "voice_trial_completed"
-  | "landing_demo_started"
-  | "landing_demo_message_sent"
-  | "landing_demo_limit_reached"
-  | "landing_demo_signup_clicked"
-  // Phase 3 conversion events
-  | "demo_chat_started"
-  | "demo_chat_converted"
-  | "first_chat_sent"
-  | "premium_cta_clicked"
-  | "premium_cta_viewed"
-  | "premium_subscribed"
-  | "chat_limit_approaching"
-  | "chat_limit_reached"
-  | "insight_preview_shown";
+  | "chat_saved_to_journal";
 
 interface EventProperties {
   [key: string]: string | number | boolean | undefined;
 }
 
-// Simple in-memory analytics store (sends to console in dev, could be extended to send to a backend)
+// Simple in-memory analytics store
 class Analytics {
   private events: Array<{ event: AnalyticsEvent; properties: EventProperties; timestamp: Date }> = [];
   private sessionId: string;
+  private firedOnce = new Set<string>();
 
   constructor() {
     this.sessionId = this.getOrCreateSessionId();
@@ -93,49 +107,62 @@ class Analytics {
     return newId;
   }
 
-  track(event: AnalyticsEvent, properties: EventProperties = {}) {
-    // Check if analytics is allowed by GDPR consent
-    if (!isAnalyticsAllowed() && event !== "page_view") {
-      // Always allow page views for essential functionality, but skip other tracking
-      if (import.meta.env.DEV) {
-        console.log("📊 Analytics blocked (no consent):", event);
+  /**
+   * Track an event. Safe to call anywhere — fails silently.
+   * @param dedupeKey Optional key to prevent duplicate fires (e.g. "voice_trial_prompt_shown")
+   */
+  track(event: AnalyticsEvent, properties: EventProperties = {}, dedupeKey?: string) {
+    try {
+      // Deduplication guard
+      if (dedupeKey) {
+        if (this.firedOnce.has(dedupeKey)) return;
+        this.firedOnce.add(dedupeKey);
       }
-      return;
+
+      // GDPR consent check (page_view always allowed)
+      if (!isAnalyticsAllowed() && event !== "page_view") {
+        if (import.meta.env.DEV) {
+          console.log("[Analytics] blocked (no consent):", event);
+        }
+        return;
+      }
+
+      const eventData = {
+        event,
+        properties: {
+          ...properties,
+          session_id: this.sessionId,
+          timestamp: new Date().toISOString(),
+          url: window.location.pathname,
+          referrer: document.referrer || undefined,
+          consent_given: isAnalyticsAllowed(),
+        },
+        timestamp: new Date(),
+      };
+
+      this.events.push(eventData);
+
+      if (import.meta.env.DEV) {
+        console.log("[Analytics]", event, properties);
+      }
+
+      this.persistEvents();
+    } catch {
+      // Fail silently — never break UI
     }
+  }
 
-    const eventData = {
-      event,
-      properties: {
-        ...properties,
-        session_id: this.sessionId,
-        timestamp: new Date().toISOString(),
-        url: window.location.pathname,
-        referrer: document.referrer || undefined,
-        consent_given: isAnalyticsAllowed(),
-      },
-      timestamp: new Date(),
-    };
-
-    this.events.push(eventData);
-
-    // Log in development
-    if (import.meta.env.DEV) {
-      console.log("📊 Analytics:", event, properties);
-    }
-
-    // Store in localStorage for persistence
-    this.persistEvents();
+  /** Reset session dedup keys (e.g. on navigation) */
+  resetDedup() {
+    this.firedOnce.clear();
   }
 
   private persistEvents() {
     try {
-      const stored = localStorage.getItem("soulvay_analytics") || localStorage.getItem("mindmate_analytics") || "[]";
+      const stored = localStorage.getItem("soulvay_analytics") || "[]";
       const existingEvents = JSON.parse(stored);
-      
-      // Keep last 100 events
       const allEvents = [...existingEvents, ...this.events.slice(-10)].slice(-100);
       localStorage.setItem("soulvay_analytics", JSON.stringify(allEvents));
-      
       this.events = [];
     } catch {
       // Ignore storage errors
@@ -144,27 +171,31 @@ class Analytics {
 
   getStoredEvents() {
     try {
-      return JSON.parse(localStorage.getItem("mindmate_analytics") || "[]");
+      return JSON.parse(localStorage.getItem("soulvay_analytics") || "[]");
     } catch {
       return [];
     }
   }
 
   async getSessionStats() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
 
-    const [moodResult, journalResult, recapResult] = await Promise.all([
-      supabase.from("mood_checkins").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("journal_entries").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("weekly_recaps").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-    ]);
+      const [moodResult, journalResult, recapResult] = await Promise.all([
+        supabase.from("mood_checkins").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("journal_entries").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("weekly_recaps").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+      ]);
 
-    return {
-      moodCheckins: moodResult.count || 0,
-      journalEntries: journalResult.count || 0,
-      weeklyRecaps: recapResult.count || 0,
-    };
+      return {
+        moodCheckins: moodResult.count || 0,
+        journalEntries: journalResult.count || 0,
+        weeklyRecaps: recapResult.count || 0,
+      };
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -175,23 +206,29 @@ const analytics = new Analytics();
 export function useAnalytics() {
   const location = useLocation();
 
-  // Track page views automatically
+  // Track page views automatically & reset dedup on route change
   useEffect(() => {
-    analytics.track("page_view", {
-      path: location.pathname,
-    });
+    analytics.resetDedup();
+    analytics.track("page_view", { path: location.pathname });
   }, [location.pathname]);
 
-  const track = useCallback((event: AnalyticsEvent, properties?: EventProperties) => {
-    analytics.track(event, properties || {});
+  const track = useCallback((event: AnalyticsEvent, properties?: EventProperties, dedupeKey?: string) => {
+    analytics.track(event, properties || {}, dedupeKey);
+  }, []);
+
+  /**
+   * Track an event only once per session (uses event name as dedup key).
+   */
+  const trackOnce = useCallback((event: AnalyticsEvent, properties?: EventProperties) => {
+    analytics.track(event, properties || {}, event);
   }, []);
 
   const getStats = useCallback(async () => {
     return analytics.getSessionStats();
   }, []);
 
-  return { track, getStats };
+  return { track, trackOnce, getStats };
 }
 
-// Export for direct usage
+// Export for direct usage (non-hook contexts)
 export { analytics };

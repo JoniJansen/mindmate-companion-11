@@ -1,6 +1,8 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface InsightPreviewCardProps {
   insightText: string;
@@ -13,9 +15,18 @@ interface InsightPreviewCardProps {
  */
 export function InsightPreviewCard({ insightText, isPremium, language }: InsightPreviewCardProps) {
   const navigate = useNavigate();
+  const trackedRef = useRef(false);
 
-  // Premium users see the full insight elsewhere
-  if (isPremium || !insightText) return null;
+  const shouldShow = !isPremium && !!insightText;
+
+  useEffect(() => {
+    if (shouldShow && !trackedRef.current) {
+      trackedRef.current = true;
+      analytics.track("insight_preview_shown", {}, "insight_preview");
+    }
+  }, [shouldShow]);
+
+  if (!shouldShow) return null;
 
   const copy = language === "de"
     ? { label: "Wöchentlicher Einblick", cta: "Vollständig lesen mit Plus" }
@@ -40,7 +51,11 @@ export function InsightPreviewCard({ insightText, isPremium, language }: Insight
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-card" />
         </div>
         <button
-          onClick={() => navigate("/upgrade")}
+          onClick={() => {
+            analytics.track("insight_unlock_clicked", { source: "home" });
+            analytics.track("premium_cta_clicked", { source: "insight_preview" });
+            navigate("/upgrade");
+          }}
           className="w-full flex items-center justify-center gap-1.5 py-3 border-t border-border/30 text-xs text-primary font-medium hover:bg-primary/5 transition-colors"
         >
           <Lock className="w-3 h-3" />
