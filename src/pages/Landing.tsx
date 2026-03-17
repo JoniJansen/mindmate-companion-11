@@ -41,61 +41,24 @@ export default function Landing() {
   const content = {
     en: {
       hero: {
-        title: "Your psychological companion",
-        subtitle: "Soulvay helps you reflect, breathe, and find clarity—whenever you need it.",
+        tagline: "Your psychological companion",
         cta: "Start Your Journey",
-        secondary: "Learn More",
       },
       features: {
         title: "Everything you need for emotional wellness",
         items: [
-          {
-            icon: MessageCircle,
-            title: "Thoughtful Conversations",
-            description: "Chat with an AI that truly listens. No judgment, just understanding.",
-          },
-          {
-            icon: BookOpen,
-            title: "Guided Journaling",
-            description: "Reflective prompts to help you explore your thoughts and feelings.",
-          },
-          {
-            icon: Heart,
-            title: "Mood Tracking",
-            description: "Notice patterns in your emotions and celebrate your progress.",
-          },
-          {
-            icon: Sparkles,
-            title: "Calming Exercises",
-            description: "Breathing techniques, grounding exercises, and more.",
-          },
-          {
-            icon: Mic,
-            title: "Voice Conversations",
-            description: "Speak naturally and hear warm, thoughtful responses.",
-          },
-          {
-            icon: Shield,
-            title: "Private & Safe",
-            description: "Your thoughts stay yours. Privacy-focused and securely stored.",
-          },
+          { icon: MessageCircle, title: "Thoughtful Conversations", description: "Chat with an AI that truly listens. No judgment, just understanding." },
+          { icon: BookOpen, title: "Guided Journaling", description: "Reflective prompts to help you explore your thoughts and feelings." },
+          { icon: Heart, title: "Mood Tracking", description: "Notice patterns in your emotions and celebrate your progress." },
+          { icon: Sparkles, title: "Calming Exercises", description: "Breathing techniques, grounding exercises, and more." },
+          { icon: Mic, title: "Voice Conversations", description: "Speak naturally and hear warm, thoughtful responses." },
+          { icon: Shield, title: "Private & Safe", description: "Your thoughts stay yours. Privacy-focused and securely stored." },
         ],
       },
       pricing: {
         title: "Simple, transparent pricing",
-        free: {
-          name: "Free",
-          price: "€0",
-          features: ["15 messages per day", "Basic journaling", "Mood tracking", "Community exercises"],
-        },
-        plus: {
-          name: "Plus",
-          price: "€9.99",
-          period: "/month",
-          trial: "7-day free trial",
-          features: ["Unlimited messages", "Voice conversations", "Weekly insights", "Premium exercises", "Priority support"],
-          cta: "Start Free Trial",
-        },
+        free: { name: "Free", price: "€0", features: ["15 messages per day", "Basic journaling", "Mood tracking", "Community exercises"] },
+        plus: { name: "Plus", price: "€9.99", period: "/month", trial: "7-day free trial", features: ["Unlimited messages", "Voice conversations", "Weekly insights", "Premium exercises", "Priority support"], cta: "Start Free Trial" },
       },
       testimonials: {
         title: "What our users say",
@@ -105,71 +68,28 @@ export default function Landing() {
           { text: "Finally an app that doesn't feel clinical. It's warm, human, and genuinely helpful.", author: "Emma L." },
         ],
       },
-      footer: {
-        tagline: "Made with care for your wellbeing",
-        privacy: "Privacy",
-        terms: "Terms",
-        impressum: "Legal Notice",
-        contact: "Contact",
-      },
+      footer: { tagline: "Made with care for your wellbeing", privacy: "Privacy", terms: "Terms", impressum: "Legal Notice", contact: "Contact" },
     },
     de: {
       hero: {
-        title: "Dein psychologischer Begleiter",
-        subtitle: "Soulvay hilft dir zu reflektieren, zu atmen und Klarheit zu finden—wann immer du es brauchst.",
+        tagline: "Dein psychologischer Begleiter",
         cta: "Starte deine Reise",
-        secondary: "Mehr erfahren",
       },
       features: {
         title: "Alles für dein emotionales Wohlbefinden",
         items: [
-          {
-            icon: MessageCircle,
-            title: "Einfühlsame Gespräche",
-            description: "Chatte mit einer KI, die wirklich zuhört. Ohne Urteil, nur Verständnis.",
-          },
-          {
-            icon: BookOpen,
-            title: "Geführtes Tagebuch",
-            description: "Reflektierende Impulse, um deine Gedanken und Gefühle zu erkunden.",
-          },
-          {
-            icon: Heart,
-            title: "Stimmungstracking",
-            description: "Erkenne Muster in deinen Emotionen und feiere deine Fortschritte.",
-          },
-          {
-            icon: Sparkles,
-            title: "Beruhigende Übungen",
-            description: "Atemtechniken, Erdungsübungen und mehr.",
-          },
-          {
-            icon: Mic,
-            title: "Sprachgespräche",
-            description: "Sprich natürlich und höre warme, durchdachte Antworten.",
-          },
-          {
-            icon: Shield,
-            title: "Privat & Sicher",
-            description: "Deine Gedanken bleiben deine. Datenschutzorientiert und sicher gespeichert.",
-          },
+          { icon: MessageCircle, title: "Einfühlsame Gespräche", description: "Chatte mit einer KI, die wirklich zuhört. Ohne Urteil, nur Verständnis." },
+          { icon: BookOpen, title: "Geführtes Tagebuch", description: "Reflektierende Impulse, um deine Gedanken und Gefühle zu erkunden." },
+          { icon: Heart, title: "Stimmungstracking", description: "Erkenne Muster in deinen Emotionen und feiere deine Fortschritte." },
+          { icon: Sparkles, title: "Beruhigende Übungen", description: "Atemtechniken, Erdungsübungen und mehr." },
+          { icon: Mic, title: "Sprachgespräche", description: "Sprich natürlich und höre warme, durchdachte Antworten." },
+          { icon: Shield, title: "Privat & Sicher", description: "Deine Gedanken bleiben deine. Datenschutzorientiert und sicher gespeichert." },
         ],
       },
       pricing: {
         title: "Einfache, transparente Preise",
-        free: {
-          name: "Kostenlos",
-          price: "€0",
-          features: ["15 Nachrichten pro Tag", "Basis-Tagebuch", "Stimmungstracking", "Community-Übungen"],
-        },
-        plus: {
-          name: "Plus",
-          price: "€9,99",
-          period: "/Monat",
-          trial: "7 Tage kostenlos testen",
-          features: ["Unbegrenzte Nachrichten", "Sprachgespräche", "Wöchentliche Einblicke", "Premium-Übungen", "Prioritäts-Support"],
-          cta: "Kostenlos testen",
-        },
+        free: { name: "Kostenlos", price: "€0", features: ["15 Nachrichten pro Tag", "Basis-Tagebuch", "Stimmungstracking", "Community-Übungen"] },
+        plus: { name: "Plus", price: "€9,99", period: "/Monat", trial: "7 Tage kostenlos testen", features: ["Unbegrenzte Nachrichten", "Sprachgespräche", "Wöchentliche Einblicke", "Premium-Übungen", "Prioritäts-Support"], cta: "Kostenlos testen" },
       },
       testimonials: {
         title: "Was unsere Nutzer sagen",
@@ -179,13 +99,7 @@ export default function Landing() {
           { text: "Endlich eine App, die sich nicht klinisch anfühlt. Sie ist warm, menschlich und wirklich hilfreich.", author: "Emma L." },
         ],
       },
-      footer: {
-        tagline: "Mit Sorgfalt für dein Wohlbefinden erstellt",
-        privacy: "Datenschutz",
-        terms: "AGB",
-        impressum: "Impressum",
-        contact: "Kontakt",
-      },
+      footer: { tagline: "Mit Sorgfalt für dein Wohlbefinden erstellt", privacy: "Datenschutz", terms: "AGB", impressum: "Impressum", contact: "Kontakt" },
     },
   };
 
@@ -193,140 +107,99 @@ export default function Landing() {
 
   return (
     <div className="bg-background overflow-y-auto" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, WebkitOverflowScrolling: 'touch' }}>
-      {/* Header */}
+      {/* Header — compact */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/40">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg shadow-primary/20">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full overflow-hidden shadow-md shadow-primary/20">
               <img src={logoImage} alt="Soulvay" className="w-full h-full object-cover" />
             </div>
-            <span className="font-semibold text-lg text-foreground">Soulvay</span>
+            <span className="font-semibold text-foreground">Soulvay</span>
           </div>
-
-          {/* Controls */}
           <div className="flex items-center gap-2">
-            {/* Language toggle */}
             <button
               onClick={() => setLanguage(language === "en" ? "de" : "en")}
-              className="px-3 py-1.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+              className="px-2.5 py-1 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
             >
               {language === "en" ? "DE" : "EN"}
             </button>
-
-            {/* Theme toggle */}
             <button
               onClick={() => setThemeMode(isDark ? "light" : "dark")}
-              className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+              className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
             </button>
-
-            {/* CTA */}
-            <Button onClick={() => navigate("/auth")} size="sm" className="shrink-0">
+            <Button onClick={() => navigate("/auth")} size="sm" variant="ghost" className="text-xs">
               {language === "de" ? "Anmelden" : "Sign In"}
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-        
-        <div className="relative max-w-5xl mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left: Copy */}
-            <div className="text-center lg:text-left">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6 }}
-                className="relative mx-auto lg:mx-0 w-20 h-20 mb-6"
-              >
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-transparent blur-2xl scale-150" />
-                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-xl shadow-primary/15 ring-1 ring-primary/10">
-                  <img src={logoImage} alt="Soulvay" className="w-14 h-14 rounded-full object-cover" />
-                </div>
-              </motion.div>
+      {/* Hero — Chat-first, minimal copy */}
+      <section className="relative pt-6 pb-10 md:pt-10 md:pb-16">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
-                className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 text-balance"
-              >
-                {t.hero.title}
-              </motion.h1>
+        <div className="relative max-w-lg mx-auto px-4">
+          {/* Minimal tagline */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="text-center mb-5"
+          >
+            <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1.5">
+              {t.hero.tagline}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {language === "de" ? "Probier es aus — ohne Anmeldung" : "Try it — no signup needed"}
+            </p>
+          </motion.div>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-                className="text-base md:text-lg text-muted-foreground mb-8 max-w-md mx-auto lg:mx-0 text-balance"
-              >
-                {t.hero.subtitle}
-              </motion.p>
+          {/* Demo Chat — hero element */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.5 }}
+          >
+            <DemoChat language={language} />
+          </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-                className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
-              >
-                <Button size="lg" onClick={() => navigate("/welcome")} className="gap-2">
-                  {t.hero.cta}
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </motion.div>
-
-              {/* Try it label */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="text-xs text-muted-foreground/60 mt-6 lg:hidden"
-              >
-                {language === "de" ? "↓ Oder probier es direkt aus" : "↓ Or try it right now"}
-              </motion.p>
-            </div>
-
-            {/* Right: Demo Chat */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.7 }}
-            >
-              <p className="text-xs text-muted-foreground text-center mb-3 hidden lg:block">
-                {language === "de" ? "Probier es aus — ohne Anmeldung" : "Try it — no signup needed"}
-              </p>
-              <DemoChat language={language} />
-            </motion.div>
-          </div>
+          {/* Secondary CTA below chat */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="flex justify-center mt-5"
+          >
+            <Button variant="ghost" size="sm" onClick={() => navigate("/welcome")} className="text-xs text-muted-foreground gap-1.5">
+              {t.hero.cta}
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </motion.div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-muted/30">
+      <section id="features" className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-16">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-12">
             {t.features.title}
           </h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {t.features.items.map((feature, index) => (
               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="bg-card rounded-2xl p-6 shadow-soft border border-border/40 hover:shadow-card transition-shadow"
+                transition={{ delay: index * 0.08, duration: 0.5 }}
+                className="bg-card rounded-2xl p-5 shadow-soft border border-border/40 hover:shadow-card transition-shadow"
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                  <feature.icon className="w-6 h-6 text-primary" />
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+                  <feature.icon className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                <h3 className="text-base font-semibold text-foreground mb-1.5">{feature.title}</h3>
                 <p className="text-muted-foreground text-sm">{feature.description}</p>
               </motion.div>
             ))}
@@ -335,22 +208,19 @@ export default function Landing() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20">
+      <section className="py-16">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-16">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-12">
             {t.pricing.title}
           </h2>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Free Plan */}
-            <div className="bg-card rounded-2xl p-8 border border-border/40 shadow-soft">
-              <h3 className="text-xl font-semibold text-foreground mb-2">{t.pricing.free.name}</h3>
-              <div className="text-4xl font-bold text-foreground mb-6">{t.pricing.free.price}</div>
-              <ul className="space-y-3 mb-8">
-                {t.pricing.free.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-muted-foreground">
-                    <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                    {feature}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-card rounded-2xl p-7 border border-border/40 shadow-soft">
+              <h3 className="text-lg font-semibold text-foreground mb-2">{t.pricing.free.name}</h3>
+              <div className="text-3xl font-bold text-foreground mb-5">{t.pricing.free.price}</div>
+              <ul className="space-y-2.5 mb-6">
+                {t.pricing.free.features.map((f) => (
+                  <li key={f} className="flex items-center gap-2.5 text-muted-foreground text-sm">
+                    <Check className="w-4 h-4 text-primary flex-shrink-0" /> {f}
                   </li>
                 ))}
               </ul>
@@ -358,43 +228,33 @@ export default function Landing() {
                 {language === "de" ? "Kostenlos starten" : "Get Started Free"}
               </Button>
             </div>
-
-            {/* Plus Plan */}
-            <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 border border-primary/20 shadow-card relative overflow-hidden">
-              <div className="absolute top-4 right-4">
-                <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-medium">
-                  {t.pricing.plus.trial}
-                </span>
+            <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-7 border border-primary/20 shadow-card relative overflow-hidden">
+              <div className="absolute top-3 right-3">
+                <span className="px-2.5 py-1 rounded-full bg-primary/20 text-primary text-xs font-medium">{t.pricing.plus.trial}</span>
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">{t.pricing.plus.name}</h3>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-foreground">{t.pricing.plus.price}</span>
-                <span className="text-muted-foreground">{t.pricing.plus.period}</span>
+              <h3 className="text-lg font-semibold text-foreground mb-2">{t.pricing.plus.name}</h3>
+              <div className="flex items-baseline gap-1 mb-5">
+                <span className="text-3xl font-bold text-foreground">{t.pricing.plus.price}</span>
+                <span className="text-muted-foreground text-sm">{t.pricing.plus.period}</span>
               </div>
-              <ul className="space-y-3 mb-8">
-                {t.pricing.plus.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-foreground">
-                    <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                    {feature}
+              <ul className="space-y-2.5 mb-6">
+                {t.pricing.plus.features.map((f) => (
+                  <li key={f} className="flex items-center gap-2.5 text-foreground text-sm">
+                    <Check className="w-4 h-4 text-primary flex-shrink-0" /> {f}
                   </li>
                 ))}
               </ul>
-              <Button className="w-full" onClick={() => navigate("/upgrade")}>
-                {t.pricing.plus.cta}
-              </Button>
+              <Button className="w-full" onClick={() => navigate("/upgrade")}>{t.pricing.plus.cta}</Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-muted/30">
+      {/* Testimonials */}
+      <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-16">
-            {t.testimonials.title}
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-12">{t.testimonials.title}</h2>
+          <div className="grid md:grid-cols-3 gap-5">
             {t.testimonials.items.map((testimonial, index) => (
               <motion.div
                 key={testimonial.author}
@@ -402,15 +262,15 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="bg-card rounded-2xl p-6 shadow-soft border border-border/40"
+                className="bg-card rounded-2xl p-5 shadow-soft border border-border/40"
               >
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-0.5 mb-3">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                    <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />
                   ))}
                 </div>
-                <p className="text-foreground mb-4 italic">"{testimonial.text}"</p>
-                <p className="text-muted-foreground text-sm font-medium">— {testimonial.author}</p>
+                <p className="text-foreground text-sm mb-3 italic">"{testimonial.text}"</p>
+                <p className="text-muted-foreground text-xs font-medium">— {testimonial.author}</p>
               </motion.div>
             ))}
           </div>
@@ -418,34 +278,31 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
+      <section className="py-16">
         <div className="max-w-2xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
             {language === "de" ? "Bereit, loszulegen?" : "Ready to get started?"}
           </h2>
-          <p className="text-muted-foreground text-lg mb-8">
-            {language === "de" 
-              ? "Starte noch heute deine Reise zu mehr innerer Ruhe."
-              : "Start your journey to inner peace today."}
+          <p className="text-muted-foreground mb-6">
+            {language === "de" ? "Starte noch heute deine Reise zu mehr innerer Ruhe." : "Start your journey to inner peace today."}
           </p>
-          <Button size="xl" onClick={() => navigate("/welcome")} className="gap-2">
-            {t.hero.cta}
-            <ArrowRight className="w-5 h-5" />
+          <Button size="lg" onClick={() => navigate("/welcome")} className="gap-2">
+            {t.hero.cta} <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="py-8 pb-12 border-t border-border/40" style={{ paddingBottom: 'max(3rem, env(safe-area-inset-bottom, 3rem))' }}>
-        <div className="max-w-6xl mx-auto px-4 flex flex-col items-center gap-6">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col items-center gap-5">
           <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full overflow-hidden">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-full overflow-hidden">
                 <img src={logoImage} alt="Soulvay" className="w-full h-full object-cover" />
               </div>
               <span className="text-sm text-muted-foreground">{t.footer.tagline}</span>
             </div>
-            <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 md:gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 md:gap-5 text-sm text-muted-foreground">
               <button onClick={() => navigate("/privacy")} className="hover:text-foreground transition-colors">{t.footer.privacy}</button>
               <button onClick={() => navigate("/terms")} className="hover:text-foreground transition-colors">{t.footer.terms}</button>
               <button onClick={() => navigate("/impressum")} className="hover:text-foreground transition-colors">{t.footer.impressum}</button>
@@ -454,17 +311,12 @@ export default function Landing() {
               <button onClick={() => navigate("/contact")} className="hover:text-foreground transition-colors">{t.footer.contact}</button>
             </div>
           </div>
-          {/* Store Badges - Coming Soon */}
           {!isNativeBuild && (
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center gap-4 opacity-50 grayscale">
-                <div className="h-9">
-                  <img src="/badges/app-store.svg" alt="App Store" className="h-full" />
-                </div>
+                <div className="h-8"><img src="/badges/app-store.svg" alt="App Store" className="h-full" /></div>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {language === "de" ? "Bald verfügbar" : "Coming soon"}
-              </p>
+              <p className="text-xs text-muted-foreground">{language === "de" ? "Bald verfügbar" : "Coming soon"}</p>
             </div>
           )}
           <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Soulvay. {language === "de" ? "Alle Rechte vorbehalten." : "All rights reserved."}</p>
