@@ -149,10 +149,10 @@ export default function Landing() {
             transition={{ duration: 0.4 }}
             className="text-center mb-4"
           >
-            <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1.5">
+            <h1 className="text-lg md:text-2xl font-bold text-foreground mb-0.5">
               {t.hero.tagline}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground">
               {language === "de" ? "Probier es aus — ohne Anmeldung" : "Try it — no signup needed"}
             </p>
           </motion.div>
