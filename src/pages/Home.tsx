@@ -8,6 +8,8 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { VoiceTrialCard, hasUsedVoiceTrial } from "@/components/premium/VoiceTrialCard";
+import { SoftPremiumBanner } from "@/components/premium/SoftPremiumBanner";
 import { useStreak } from "@/hooks/useStreak";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { StreakCounter } from "@/components/streak/StreakCounter";
