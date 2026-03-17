@@ -391,12 +391,6 @@ export default function Chat() {
       <ChatDisclaimer />
       <MessageLimitIndicator messagesRemaining={composer.messagesRemaining} dailyLimit={composer.dailyMessageLimit} isPremium={composer.isPremium} />
 
-      {!composer.isPremium && (
-        <div className="shrink-0 px-4 py-2">
-          <UpgradePrompt reason="general" variant="banner" onUpgrade={() => navigate("/upgrade")} />
-        </div>
-      )}
-
       {/* Real-time Voice Panel */}
       <AnimatePresence>
         {useRealtimeMode && canUseVoice && companion && (
