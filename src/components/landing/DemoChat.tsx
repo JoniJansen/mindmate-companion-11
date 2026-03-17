@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 import { DEMO_MESSAGE_LIMIT, saveDemoConversation } from "@/lib/demoConfig";
-import { shouldShowGoogleAuth } from "@/lib/platformSeparation";
+import { shouldShowGoogleAuth, shouldShowAppleAuth } from "@/lib/platformSeparation";
 
 interface DemoChatProps {
   language: "en" | "de";
