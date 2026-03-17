@@ -9,7 +9,7 @@ import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 
 export function SettingsCompanionSection() {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { companion, isLoading } = useCompanion();
   const avatarSignedUrl = useAvatarUrl(companion?.avatar_url);
 
@@ -18,7 +18,7 @@ export function SettingsCompanionSection() {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
-        {language === "de" ? "Dein Begleiter" : "Your Companion"}
+        {t("settings.yourCompanion")}
       </h2>
       <CalmCard
         variant="elevated"
@@ -37,9 +37,7 @@ export function SettingsCompanionSection() {
           <div className="flex-1 min-w-0">
             <p className="font-medium text-foreground">{companion.name}</p>
             <p className="text-sm text-muted-foreground">
-              {language === "de"
-                ? `Verbindungslevel ${companion.bond_level}`
-                : `Bond level ${companion.bond_level}`}
+              {`${t("settings.bondLevel")} ${companion.bond_level}`}
             </p>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />

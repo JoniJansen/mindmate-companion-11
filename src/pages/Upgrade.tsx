@@ -355,9 +355,9 @@ export default function Upgrade() {
             <span className="text-center text-primary">Plus</span>
           </div>
           {[
-            { label: language === "de" ? "Nachrichten" : "Messages", free: "15/Tag", plus: "∞" },
+            { label: language === "de" ? "Nachrichten" : "Messages", free: language === "de" ? "15/Tag" : "15/day", plus: "∞" },
             { label: "Face-to-Face", free: "1×", plus: "∞" },
-            { label: language === "de" ? "Erinnerung" : "Memory", free: "7 Tage", plus: "∞" },
+            { label: language === "de" ? "Erinnerung" : "Memory", free: language === "de" ? "7 Tage" : "7 days", plus: "∞" },
             { label: language === "de" ? "Wochenrückblick" : "Weekly recap", free: "—", plus: "✓" },
             { label: language === "de" ? "Muster" : "Patterns", free: "—", plus: "✓" },
           ].map((row, i) => (

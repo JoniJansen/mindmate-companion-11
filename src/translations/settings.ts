@@ -80,8 +80,15 @@ export const settingsTranslations: Translations = {
   // Voice
   "settings.avatarStyle": { en: "Avatar Style", de: "Avatar-Stil" },
 
+  // Companion section
+  "settings.yourCompanion": { en: "Your Companion", de: "Dein Begleiter" },
+  "settings.bondLevel": { en: "Bond level", de: "Verbindungslevel" },
+
   // Voice Settings
-  "voice.title": { en: "Voice", de: "Stimme" },
+  "voice.title": { en: "Face-to-Face Conversations", de: "Face-to-Face-Gespräche" },
+  "voice.microphone": { en: "Microphone", de: "Mikrofon" },
+  "voice.micCustom": { en: "Custom", de: "Benutzerdefiniert" },
+  "voice.micDefault": { en: "System default", de: "Systemstandard" },
   "voice.subtitle": { en: "Voice interaction settings", de: "Spracheinstellungen" },
   "voice.voiceType": { en: "Voice Type", de: "Stimmtyp" },
   "voice.voiceTypeDesc": { en: "Choose the AI voice style", de: "Wähle den KI-Stimmstil" },
