@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { StandalonePage } from "@/components/layout/StandalonePage";
+import { getMobileAppFAQ } from "@/lib/platformSeparation";
 import {
   Accordion,
   AccordionContent,
