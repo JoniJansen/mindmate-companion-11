@@ -66,7 +66,7 @@ If you are experiencing a mental health crisis, please contact emergency service
         {
           icon: CreditCard,
           title: "4. Subscriptions & Payments",
-          content: `**Free Tier**: Soulvay offers a free tier with limited features (5 messages per day, basic journaling).
+          content: `**Free Tier**: Soulvay offers a free tier with limited features (15 messages per day, basic journaling).
 
 **Soulvay Plus Subscription**: Premium features are available through a paid subscription:
 • **Monthly**: €9.99/month (including a 7-day free trial for first-time subscribers)
