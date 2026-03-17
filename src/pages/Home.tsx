@@ -452,8 +452,17 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Shareable Insight Card */}
+        {/* Insight Preview (blurred for free users) */}
         {latestInsight && (
+          <InsightPreviewCard
+            insightText={latestInsight.insight_text}
+            isPremium={false}
+            language={language as "en" | "de"}
+          />
+        )}
+
+        {/* Shareable Insight Card (premium users) */}
+        {false && latestInsight && (
           <ShareableInsightCard
             insightText={latestInsight.insight_text}
             date={latestInsight.created_at}
