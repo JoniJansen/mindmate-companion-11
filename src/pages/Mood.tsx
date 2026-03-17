@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toStableTagIds } from "@/lib/tagUtils";
 import { useActivityLog } from "@/hooks/useActivityLog";
+import { MoodChatBridge } from "@/components/mood/MoodChatBridge";
 
 interface MoodCheckin {
   id: string;
