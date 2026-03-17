@@ -16,7 +16,7 @@ interface ChatMessageContentProps {
  */
 export function ChatMessageContent({ content, isUser, isStreaming = false }: ChatMessageContentProps) {
   if (isUser) {
-    return <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p>;
+    return <p className="text-[15px] leading-[1.65] whitespace-pre-wrap">{content}</p>;
   }
 
   const lines = content.split("\n");
@@ -27,10 +27,10 @@ export function ChatMessageContent({ content, isUser, isStreaming = false }: Cha
   const flushList = () => {
     if (currentList.length === 0) return;
     elements.push(
-      <ul key={key++} className="space-y-1.5 my-2">
+      <ul key={key++} className="space-y-1.5 my-2.5 ml-0.5">
         {currentList.map((item, i) => (
-          <li key={i} className="flex gap-2 text-[15px] leading-relaxed">
-            <span className="shrink-0 mt-0.5">•</span>
+          <li key={i} className="flex gap-2.5 text-[15px] leading-[1.65]">
+            <span className="shrink-0 mt-[3px] text-primary/50">•</span>
             <span>{renderInline(item)}</span>
           </li>
         ))}
@@ -48,13 +48,12 @@ export function ChatMessageContent({ content, isUser, isStreaming = false }: Cha
     } else {
       flushList();
       if (line.trim() === "") {
-        // Only add spacer if not at start/end
         if (i > 0 && i < lines.length - 1) {
-          elements.push(<div key={key++} className="h-2" />);
+          elements.push(<div key={key++} className="h-3" />);
         }
       } else {
         elements.push(
-          <p key={key++} className="text-[15px] leading-relaxed">
+          <p key={key++} className="text-[15px] leading-[1.65]">
             {renderInline(line)}
           </p>
         );
@@ -64,7 +63,7 @@ export function ChatMessageContent({ content, isUser, isStreaming = false }: Cha
   flushList();
 
   return (
-    <div className="space-y-0.5">
+    <div className="space-y-1">
       {elements}
       {isStreaming && <StreamingCursor />}
     </div>
