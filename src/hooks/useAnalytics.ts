@@ -59,7 +59,17 @@ export type AnalyticsEvent =
   | "landing_demo_started"
   | "landing_demo_message_sent"
   | "landing_demo_limit_reached"
-  | "landing_demo_signup_clicked";
+  | "landing_demo_signup_clicked"
+  // Phase 3 conversion events
+  | "demo_chat_started"
+  | "demo_chat_converted"
+  | "first_chat_sent"
+  | "premium_cta_clicked"
+  | "premium_cta_viewed"
+  | "premium_subscribed"
+  | "chat_limit_approaching"
+  | "chat_limit_reached"
+  | "insight_preview_shown";
 
 interface EventProperties {
   [key: string]: string | number | boolean | undefined;

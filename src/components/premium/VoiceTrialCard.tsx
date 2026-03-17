@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
-import { Mic, Sparkles, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Mic, Sparkles, ArrowRight, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface VoiceTrialCardProps {
   language: "en" | "de";
   hasUsedTrial: boolean;
   isPremium: boolean;
+  companionName?: string;
 }
 
 const VOICE_TRIAL_KEY = "soulvay-voice-trial-used";
@@ -29,11 +29,23 @@ export function canUseVoiceTrial(): boolean {
   return !hasUsedVoiceTrial();
 }
 
-export function VoiceTrialCard({ language, hasUsedTrial, isPremium }: VoiceTrialCardProps) {
+export function VoiceTrialCard({ language, hasUsedTrial, isPremium, companionName = "Soulvay" }: VoiceTrialCardProps) {
   const navigate = useNavigate();
 
   // Don't show if premium or already used
   if (isPremium || hasUsedTrial) return null;
+
+  const copy = language === "de"
+    ? {
+        title: `Sprich einmal mit ${companionName}`,
+        subtitle: "Erlebe ein persönliches Gespräch — kostenlos.",
+        cta: "Jetzt ausprobieren",
+      }
+    : {
+        title: `Speak with ${companionName}`,
+        subtitle: "Experience a personal conversation — free.",
+        cta: "Try it now",
+      };
 
   return (
     <motion.div
@@ -44,26 +56,22 @@ export function VoiceTrialCard({ language, hasUsedTrial, isPremium }: VoiceTrial
     >
       <button
         onClick={() => navigate("/chat", { state: { startVoiceTrial: true } })}
-        className="w-full text-left rounded-2xl p-4 border bg-gradient-to-r from-primary/8 via-primary/5 to-transparent border-primary/15 hover:border-primary/25 transition-all group"
+        className="w-full text-left rounded-2xl p-5 border bg-gradient-to-br from-primary/8 via-primary/4 to-transparent border-primary/15 hover:border-primary/25 transition-all group"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
-            <Mic className="w-5 h-5 text-primary" />
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+            <Heart className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-0.5">
-              <p className="text-sm font-semibold text-foreground">
-                {language === "de" ? "Face-to-Face erleben" : "Try Face-to-Face"}
-              </p>
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <p className="text-sm font-semibold text-foreground">{copy.title}</p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {language === "de"
-                ? "Ein kostenloses Sprachgespräch mit deinem Begleiter"
-                : "One free voice conversation with your companion"}
-            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{copy.subtitle}</p>
           </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+          <span className="text-xs font-medium text-primary flex items-center gap-1 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
+            {copy.cta}
+            <ArrowRight className="w-3.5 h-3.5" />
+          </span>
         </div>
       </button>
     </motion.div>

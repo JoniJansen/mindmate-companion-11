@@ -32,15 +32,15 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
   const content = {
     messages: {
       en: {
-        title: "Take your time",
-        subtitle: "You've reached today's message limit.",
-        description: "Upgrade to Plus for unlimited conversations and voice features.",
+        title: "You've shared enough for today",
+        subtitle: "Your companion will be back tomorrow.",
+        description: "Or continue anytime with Plus — unlimited conversations and voice.",
         cta: "Explore Plus",
       },
       de: {
-        title: "Lass dir Zeit",
-        subtitle: "Du hast das heutige Nachrichtenlimit erreicht.",
-        description: "Upgrade auf Plus für unbegrenzte Gespräche und Sprachfunktionen.",
+        title: "Du hast heute genug geteilt",
+        subtitle: "Dein Begleiter ist morgen wieder da.",
+        description: "Oder jederzeit weiter mit Plus — unbegrenzte Gespräche und Stimme.",
         cta: "Plus entdecken",
       },
     },

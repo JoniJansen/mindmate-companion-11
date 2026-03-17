@@ -24,6 +24,7 @@ import { CompanionCheckin } from "@/components/home/CompanionCheckin";
 import { RitualCard } from "@/components/home/RitualCard";
 import { WelcomeBackCard } from "@/components/home/WelcomeBackCard";
 import { BondIndicator } from "@/components/companion/BondIndicator";
+import { InsightPreviewCard } from "@/components/premium/InsightPreviewCard";
 import { useDailyPrompt } from "@/hooks/useDailyPrompt";
 import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionCard } from "@/components/companion/CompanionCard";
@@ -379,7 +380,7 @@ export default function Home() {
         </motion.div>
 
         {/* Voice Trial Card */}
-        <VoiceTrialCard language={language as "en" | "de"} hasUsedTrial={hasUsedVoiceTrial()} isPremium={false} />
+        <VoiceTrialCard language={language as "en" | "de"} hasUsedTrial={hasUsedVoiceTrial()} isPremium={false} companionName={companion?.name} />
 
         {/* Companion Card */}
         {companion && <CompanionCard companion={companion} />}
@@ -452,8 +453,17 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Shareable Insight Card */}
+        {/* Insight Preview (blurred for free users) */}
         {latestInsight && (
+          <InsightPreviewCard
+            insightText={latestInsight.insight_text}
+            isPremium={false}
+            language={language as "en" | "de"}
+          />
+        )}
+
+        {/* Shareable Insight Card (premium users) */}
+        {false && latestInsight && (
           <ShareableInsightCard
             insightText={latestInsight.insight_text}
             date={latestInsight.created_at}
