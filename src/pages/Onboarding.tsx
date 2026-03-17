@@ -238,7 +238,7 @@ export default function Onboarding() {
       {/* Content */}
       <div className="flex-1 min-h-0 overflow-y-auto px-6">
         <div className="max-w-lg mx-auto">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             {currentStep === "name" && (
               <motion.div key="name" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
                 <div className="flex flex-col items-center pt-12 sm:pt-20 text-center">

@@ -637,8 +637,11 @@ export function DemoChat({ language }: DemoChatProps) {
                 onFocus={() => setInputFocused(true)}
                 onBlur={() => setInputFocused(false)}
                 placeholder={INPUT_PLACEHOLDER[language]}
-                className="flex-1 h-12 bg-muted/30 border border-border/40 rounded-full px-5 text-[15px] text-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/50 transition-all placeholder:text-muted-foreground/50"
+                className="flex-1 h-12 bg-muted/30 border border-border/40 rounded-full px-5 text-[15px] text-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/50 transition-colors placeholder:text-muted-foreground/50"
                 disabled={isStreaming}
+                autoComplete="off"
+                autoCorrect="on"
+                enterKeyHint="send"
               />
               <Button
                 size="icon"

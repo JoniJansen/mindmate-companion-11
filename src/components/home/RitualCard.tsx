@@ -15,7 +15,7 @@ function getRitualType(): RitualType {
 }
 
 export function RitualCard() {
-  const ritualType = getRitualType();
+  const ritualType = useMemo(getRitualType, []);
   const { language } = useTranslation();
   const { companion } = useCompanion();
   const navigate = useNavigate();
