@@ -280,15 +280,23 @@ export function DemoChat({ language }: DemoChatProps) {
       if (showLoginMode) {
         await signIn(signupEmail.trim().toLowerCase(), signupPassword);
         analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language, method: "login" });
+        navigate("/home", { replace: true });
       } else {
         const result = await signUp(signupEmail.trim().toLowerCase(), signupPassword, signupName.trim() || undefined);
         analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language, method: "signup" });
         if (result?.session) {
+          // Auto-confirmed signup — go to home
           navigate("/home", { replace: true });
-          return;
+        } else {
+          // Email confirmation required — show success message
+          toast({
+            title: language === "de" ? "Fast geschafft!" : "Almost there!",
+            description: language === "de"
+              ? "Bitte bestätige deine E-Mail-Adresse, um fortzufahren."
+              : "Please confirm your email address to continue.",
+          });
         }
       }
-      navigate("/home", { replace: true });
     } catch (error: any) {
       toast({
         title: t.error,
