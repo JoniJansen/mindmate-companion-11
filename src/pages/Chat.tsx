@@ -27,6 +27,8 @@ import { ChatActionButtons } from "@/components/chat/ChatActionButtons";
 import { SaveToJournalDialog } from "@/components/chat/SaveToJournalDialog";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
+import { ChatVoiceTrialPrompt } from "@/components/premium/ChatVoiceTrialPrompt";
+import { ChatLimitPrompt } from "@/components/premium/ChatLimitPrompt";
 import { fullScreenWithNav } from "@/lib/safeArea";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { useCompanionVisualState } from "@/hooks/useCompanionVisualState";
