@@ -1,10 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, ArrowRight } from "lucide-react";
+import { Send, ArrowRight, Mail, Lock, User, Loader2, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { analytics } from "@/hooks/useAnalytics";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface DemoChatProps {
   language: "en" | "de";
@@ -23,26 +26,45 @@ const DEMO_GREETING = {
   de: "Hey… schön, dass du hier bist.\n\nWas beschäftigt dich gerade?",
 };
 
-const SIGNUP_CTA = {
-  en: {
-    title: "Want to keep talking?",
-    subtitle: "Create your free account and continue with your personal companion.",
-    cta: "Continue — it's free",
-  },
-  de: {
-    title: "Möchtest du weiterschreiben?",
-    subtitle: "Erstelle dein kostenloses Konto und sprich weiter mit deinem Begleiter.",
-    cta: "Weiter — kostenlos",
-  },
-};
-
 const INPUT_PLACEHOLDER = {
   en: "What's really on your mind?",
   de: "Was geht dir nicht aus dem Kopf?",
 };
 
+const CONTINUATION_MSG = {
+  en: "I'm here for you.\n\nIf you'd like, you can simply keep talking.",
+  de: "Ich bin hier für dich.\n\nWenn du möchtest, kannst du einfach weiterschreiben.",
+};
+
+const TEXTS = {
+  en: {
+    cta: "Continue talking",
+    orLogin: "Already have an account?",
+    loginLink: "Sign in",
+    namePlaceholder: "Your name (optional)",
+    emailPlaceholder: "Your email",
+    passwordPlaceholder: "Choose a password",
+    signup: "Continue talking",
+    secure: "Private & encrypted",
+    error: "Something went wrong",
+  },
+  de: {
+    cta: "Gespräch fortsetzen",
+    orLogin: "Schon ein Konto?",
+    loginLink: "Anmelden",
+    namePlaceholder: "Dein Name (optional)",
+    emailPlaceholder: "Deine E-Mail",
+    passwordPlaceholder: "Wähle ein Passwort",
+    signup: "Gespräch fortsetzen",
+    secure: "Privat & verschlüsselt",
+    error: "Etwas ist schiefgelaufen",
+  },
+};
+
 export function DemoChat({ language }: DemoChatProps) {
   const navigate = useNavigate();
+  const { signUp, signIn } = useAuth();
+  const { toast } = useToast();
   const [messages, setMessages] = useState<DemoMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -53,6 +75,16 @@ export function DemoChat({ language }: DemoChatProps) {
   const abortRef = useRef<AbortController | null>(null);
   const demoStartedRef = useRef(false);
   const greetingShownRef = useRef(false);
+
+  // Inline signup state
+  const [showSignupForm, setShowSignupForm] = useState(false);
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [signupName, setSignupName] = useState("");
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [showLoginMode, setShowLoginMode] = useState(false);
+
+  const t = TEXTS[language];
 
   // Auto-show greeting with typing effect
   useEffect(() => {
@@ -80,6 +112,24 @@ export function DemoChat({ language }: DemoChatProps) {
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  // Show continuation message + signup form after limit
+  useEffect(() => {
+    if (!showLimit) return;
+
+    const contMsg = CONTINUATION_MSG[language];
+    const id = "continuation";
+
+    // Check if already added
+    setMessages(prev => {
+      if (prev.find(m => m.id === id)) return prev;
+      return [...prev, { id, role: "assistant", content: contMsg }];
+    });
+
+    // Delay showing the form slightly for emotional pacing
+    const timer = setTimeout(() => setShowSignupForm(true), 800);
+    return () => clearTimeout(timer);
+  }, [showLimit, language]);
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
@@ -109,11 +159,28 @@ export function DemoChat({ language }: DemoChatProps) {
 
     try {
       abortRef.current = new AbortController();
-      const history = messages.filter(m => m.id !== "greeting").map(m => ({
+      const history = messages.filter(m => m.id !== "greeting" && m.id !== "continuation").map(m => ({
         role: m.role,
         content: m.content,
       }));
       history.push({ role: "user", content: text });
+
+      // For the last message, instruct the AI to end with an open question
+      const isLastMessage = newCount >= DEMO_LIMIT;
+      const extraInstruction = isLastMessage
+        ? (language === "de"
+          ? "\n\n[Wichtig: Dies ist die letzte Nachricht in diesem Demo-Gespräch. Beende deine Antwort mit einer warmherzigen, offenen Frage, die Lust macht weiterzureden. Mache das subtil – kein Hinweis auf die Demo.]"
+          : "\n\n[Important: This is the last message in this demo conversation. End your response with a warm, open question that creates desire to continue talking. Be subtle – no mention of the demo.]")
+        : "";
+
+      const messagesForApi = [...history];
+      if (isLastMessage && messagesForApi.length > 0) {
+        const lastMsg = messagesForApi[messagesForApi.length - 1];
+        messagesForApi[messagesForApi.length - 1] = {
+          ...lastMsg,
+          content: lastMsg.content + extraInstruction,
+        };
+      }
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`,
@@ -125,7 +192,7 @@ export function DemoChat({ language }: DemoChatProps) {
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({
-            messages: history,
+            messages: messagesForApi,
             preferences: {
               language,
               tone: "gentle",
@@ -204,12 +271,34 @@ export function DemoChat({ language }: DemoChatProps) {
     }
   }, [input, isStreaming, userMessageCount, messages, language]);
 
-  const handleSignupClick = useCallback(() => {
-    analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language });
-    navigate("/welcome");
-  }, [navigate, userMessageCount, language]);
+  const handleSignup = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!signupEmail.trim() || !signupPassword.trim()) return;
 
-  const cta = SIGNUP_CTA[language];
+    setIsSigningUp(true);
+    try {
+      if (showLoginMode) {
+        await signIn(signupEmail.trim().toLowerCase(), signupPassword);
+        analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language, method: "login" });
+      } else {
+        const result = await signUp(signupEmail.trim().toLowerCase(), signupPassword, signupName.trim() || undefined);
+        analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language, method: "signup" });
+        if (result?.session) {
+          navigate("/home", { replace: true });
+          return;
+        }
+      }
+      navigate("/home", { replace: true });
+    } catch (error: any) {
+      toast({
+        title: t.error,
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningUp(false);
+    }
+  }, [signupEmail, signupPassword, signupName, showLoginMode, signIn, signUp, navigate, userMessageCount, language, toast, t.error]);
 
   return (
     <div className="w-full max-w-lg mx-auto">
@@ -281,26 +370,82 @@ export function DemoChat({ language }: DemoChatProps) {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Limit reached CTA */}
+        {/* Inline Signup Form — replaces input after limit */}
         <AnimatePresence>
-          {showLimit && (
+          {showSignupForm && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="px-5 py-5 border-t border-border/30 bg-primary/5"
+              className="px-4 py-4 border-t border-border/30 bg-gradient-to-b from-primary/[0.03] to-transparent"
             >
-              <p className="text-sm font-semibold text-foreground mb-1">{cta.title}</p>
-              <p className="text-xs text-muted-foreground mb-4">{cta.subtitle}</p>
-              <Button onClick={handleSignupClick} className="w-full gap-2">
-                {cta.cta}
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+              <form onSubmit={handleSignup} className="space-y-2.5">
+                {!showLoginMode && (
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                    <input
+                      type="text"
+                      value={signupName}
+                      onChange={(e) => setSignupName(e.target.value)}
+                      placeholder={t.namePlaceholder}
+                      className="w-full h-11 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
+                    />
+                  </div>
+                )}
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                  <input
+                    type="email"
+                    value={signupEmail}
+                    onChange={(e) => setSignupEmail(e.target.value)}
+                    placeholder={t.emailPlaceholder}
+                    required
+                    className="w-full h-11 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
+                  />
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                  <input
+                    type="password"
+                    value={signupPassword}
+                    onChange={(e) => setSignupPassword(e.target.value)}
+                    placeholder={t.passwordPlaceholder}
+                    required
+                    minLength={6}
+                    className="w-full h-11 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
+                  />
+                </div>
+
+                <Button type="submit" className="w-full h-11 gap-2 text-[14px]" disabled={isSigningUp}>
+                  {isSigningUp ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      {t.signup}
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </Button>
+
+                <div className="flex items-center justify-between pt-0.5">
+                  <div className="flex items-center gap-1.5 text-muted-foreground/50">
+                    <Shield className="w-3 h-3" />
+                    <span className="text-[10px]">{t.secure}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginMode(!showLoginMode)}
+                    className="text-[11px] text-primary hover:underline"
+                  >
+                    {showLoginMode ? (language === "de" ? "Neu hier? Registrieren" : "New here? Sign up") : `${t.orLogin} ${t.loginLink}`}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Input */}
+        {/* Input — only when not at limit */}
         {!showLimit && (
           <div className="px-4 py-3 border-t border-border/30">
             <div className="flex items-center gap-2">
