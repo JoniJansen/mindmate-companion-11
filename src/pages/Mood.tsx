@@ -164,6 +164,8 @@ export default function Mood() {
 
       setHasSavedToday(true);
       setCheckinCollapsed(true);
+      setSavedMoodContext({ mood: selectedMood, feelings: selectedFeelings, note: note.trim() || null });
+      setShowChatBridge(true);
       logActivity("mood_checkin");
       loadCheckins();
     } catch (error) {
