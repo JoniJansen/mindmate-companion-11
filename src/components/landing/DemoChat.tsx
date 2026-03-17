@@ -80,6 +80,21 @@ const TEXTS = {
   },
 };
 
+/** Memoized message text renderer — avoids re-splitting on every streaming tick */
+const MessageRenderer = memo(function MessageRenderer({ content }: { content: string }) {
+  const lines = content.split("\n");
+  return (
+    <>
+      {lines.map((line, i) => (
+        <span key={i}>
+          {line}
+          {i < lines.length - 1 && <br />}
+        </span>
+      ))}
+    </>
+  );
+});
+
 export function DemoChat({ language }: DemoChatProps) {
   const navigate = useNavigate();
   const { signUp, signIn } = useAuth();
