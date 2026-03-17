@@ -111,6 +111,20 @@ export default function Onboarding() {
   const { selectArchetype } = useCompanion();
   const [isFinishing, setIsFinishing] = useState(false);
 
+  // Track onboarding started once
+  useEffect(() => {
+    analytics.track("onboarding_started", {}, "onboarding_started");
+  }, []);
+
+  // Track step transitions
+  const prevStepRef = useRef(currentStep);
+  useEffect(() => {
+    if (prevStepRef.current !== currentStep) {
+      analytics.track("onboarding_step_completed", { step: prevStepRef.current, next_step: currentStep });
+      prevStepRef.current = currentStep;
+    }
+  }, [currentStep]);
+
   const currentStepIndex = steps.indexOf(currentStep);
   const t = translations[state.language];
 
