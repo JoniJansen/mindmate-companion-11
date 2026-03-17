@@ -37,9 +37,7 @@ export function SettingsCompanionSection() {
           <div className="flex-1 min-w-0">
             <p className="font-medium text-foreground">{companion.name}</p>
             <p className="text-sm text-muted-foreground">
-              {language === "de"
-                ? `Verbindungslevel ${companion.bond_level}`
-                : `Bond level ${companion.bond_level}`}
+              {`${t("settings.bondLevel")} ${companion.bond_level}`}
             </p>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
