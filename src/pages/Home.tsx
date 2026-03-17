@@ -8,6 +8,8 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { VoiceTrialCard, hasUsedVoiceTrial } from "@/components/premium/VoiceTrialCard";
+import { SoftPremiumBanner } from "@/components/premium/SoftPremiumBanner";
 import { useStreak } from "@/hooks/useStreak";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { StreakCounter } from "@/components/streak/StreakCounter";
@@ -361,8 +363,14 @@ export default function Home() {
           </p>
         </motion.div>
 
+        {/* Voice Trial Card */}
+        <VoiceTrialCard language={language as "en" | "de"} hasUsedTrial={hasUsedVoiceTrial()} isPremium={false} />
+
         {/* Companion Card */}
         {companion && <CompanionCard companion={companion} />}
+
+        {/* Soft Premium Banner */}
+        <SoftPremiumBanner language={language as "en" | "de"} variant="home" />
 
         {/* Companion Check-in — new system with memory, pattern, insight, initiative */}
         {companionCheckin && !companionCheckinDismissed && (

@@ -30,9 +30,9 @@ export const ChatInputBar = React.memo(function ChatInputBar({
   const { t } = useTranslation();
 
   return (
-    <div className="shrink-0 border-t border-border/50 bg-background">
-      <div className="px-4 py-2.5">
-        <div className="max-w-lg mx-auto flex items-center gap-2">
+    <div className="shrink-0 border-t border-border/40 bg-background/95 backdrop-blur-sm">
+      <div className="px-4 py-3">
+        <div className="max-w-[580px] mx-auto flex items-center gap-2">
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -83,11 +83,11 @@ export const ChatInputBar = React.memo(function ChatInputBar({
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend(); } }}
               placeholder={isListening && canUseVoice ? t("voice.listening") : t("chat.inputPlaceholder")}
-              className="w-full h-11 bg-muted/30 border border-border/50 rounded-full px-4 pr-12 text-[15px] focus:outline-none focus:border-primary/40 focus:bg-background transition-colors"
+              className="w-full h-11 bg-muted/20 border border-border/40 rounded-full px-4 pr-12 text-[15px] focus:outline-none focus:border-primary/30 focus:bg-background focus:ring-1 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/60"
               disabled={isLoading || (!canSendMessage() && !isPremium) || !isOnline}
             />
             <Button
-              size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8"
+              size="icon" className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full h-8 w-8"
               onClick={onSend}
               disabled={!inputValue.trim() || isLoading || (!canSendMessage() && !isPremium) || !isOnline}
             >

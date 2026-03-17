@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
 import { isNativeApp } from "@/lib/nativeDetect";
+import { DemoChat } from "@/components/landing/DemoChat";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -230,75 +231,78 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 overflow-hidden">
-        {/* Background gradient */}
+      <section className="relative py-16 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
         
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
-          {/* Logo */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="relative mx-auto w-28 h-28 mb-8"
-          >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-2xl scale-150" />
-            <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10">
-              <img src={logoImage} alt="Soulvay" className="w-20 h-20 rounded-full object-cover" />
-            </div>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 text-balance"
-          >
-            {t.hero.title}
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-balance"
-          >
-            {t.hero.subtitle}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Button size="xl" onClick={() => navigate("/welcome")} className="gap-2">
-              {t.hero.cta}
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-            <Button size="xl" variant="outline" onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}>
-              {t.hero.secondary}
-            </Button>
-          </motion.div>
-
-          {/* Store Badges - Coming Soon */}
-          {!isNativeBuild && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex flex-col items-center gap-2 mt-8"
-            >
-              <div className="flex items-center justify-center gap-4 opacity-50 grayscale">
-                <div className="h-11">
-                  <img src="/badges/app-store.svg" alt="App Store" className="h-full" />
+        <div className="relative max-w-5xl mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left: Copy */}
+            <div className="text-center lg:text-left">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                className="relative mx-auto lg:mx-0 w-20 h-20 mb-6"
+              >
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-transparent blur-2xl scale-150" />
+                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-xl shadow-primary/15 ring-1 ring-primary/10">
+                  <img src={logoImage} alt="Soulvay" className="w-14 h-14 rounded-full object-cover" />
                 </div>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {language === "de" ? "Bald verfügbar im App Store" : "Coming soon to App Store"}
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.6 }}
+                className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 text-balance"
+              >
+                {t.hero.title}
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="text-base md:text-lg text-muted-foreground mb-8 max-w-md mx-auto lg:mx-0 text-balance"
+              >
+                {t.hero.subtitle}
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+                className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
+              >
+                <Button size="lg" onClick={() => navigate("/welcome")} className="gap-2">
+                  {t.hero.cta}
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </motion.div>
+
+              {/* Try it label */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="text-xs text-muted-foreground/60 mt-6 lg:hidden"
+              >
+                {language === "de" ? "↓ Oder probier es direkt aus" : "↓ Or try it right now"}
+              </motion.p>
+            </div>
+
+            {/* Right: Demo Chat */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.7 }}
+            >
+              <p className="text-xs text-muted-foreground text-center mb-3 hidden lg:block">
+                {language === "de" ? "Probier es aus — ohne Anmeldung" : "Try it — no signup needed"}
               </p>
+              <DemoChat language={language} />
             </motion.div>
-          )}
+          </div>
         </div>
       </section>
 
