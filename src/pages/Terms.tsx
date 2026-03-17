@@ -206,7 +206,7 @@ Wenn du eine psychische Krise erlebst, kontaktiere bitte sofort den Notdienst od
         {
           icon: CreditCard,
           title: "4. Abonnements & Zahlungen",
-          content: `**Kostenlose Stufe**: Soulvay bietet eine kostenlose Stufe mit eingeschränkten Funktionen (5 Nachrichten pro Tag, Basis-Tagebuch).
+          content: `**Kostenlose Stufe**: Soulvay bietet eine kostenlose Stufe mit eingeschränkten Funktionen (15 Nachrichten pro Tag, Basis-Tagebuch).
 
 **Soulvay Plus-Abonnement**: Premium-Funktionen sind über ein kostenpflichtiges Abonnement verfügbar:
 • **Monatlich**: €9,99/Monat (einschließlich einer 7-tägigen kostenlosen Testphase für Erstabonnenten)

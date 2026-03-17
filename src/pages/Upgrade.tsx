@@ -485,15 +485,19 @@ export default function Upgrade() {
               <Link to="/privacy" className="text-xs text-primary hover:underline">
                 {t("upgrade.privacyPolicy")}
               </Link>
-              <span className="text-muted-foreground">•</span>
-              <a 
-                href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-xs text-primary hover:underline"
-              >
-                Apple EULA
-              </a>
+              {isRevenueCatAvailable && (
+                <>
+                  <span className="text-muted-foreground">•</span>
+                  <a 
+                    href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Apple EULA
+                  </a>
+                </>
+              )}
             </div>
           </div>
 
