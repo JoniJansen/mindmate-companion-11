@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { toStableTagIds } from "@/lib/tagUtils";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { MoodChatBridge } from "@/components/mood/MoodChatBridge";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface MoodCheckin {
   id: string;
