@@ -92,7 +92,6 @@ export default function Upgrade() {
   useEffect(() => {
     if (!paywallTrackedRef.current) {
       paywallTrackedRef.current = true;
-      const { analytics } = require("@/hooks/useAnalytics");
       analytics.track("paywall_viewed", { source: "upgrade_page" }, "paywall_viewed");
       analytics.track("premium_cta_viewed", { source: "upgrade_page" }, "premium_cta_upgrade");
     }
