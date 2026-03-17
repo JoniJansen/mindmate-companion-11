@@ -132,11 +132,29 @@ export default function Admin() {
       />
 
       <div className="px-4 space-y-6">
-        {/* Search Section */}
-        <CalmCard>
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        {/* Tab Switcher */}
+        <div className="flex gap-2">
+          <Button
+            variant={activeTab === "analytics" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab("analytics")}
+          >
+            <BarChart3 className="w-4 h-4 mr-1" />
+            Analytics
+          </Button>
+          <Button
+            variant={activeTab === "users" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab("users")}
+          >
+            <Users className="w-4 h-4 mr-1" />
+            {language === "de" ? "Nutzer" : "Users"}
+          </Button>
+        </div>
+
+        {activeTab === "analytics" && <AnalyticsDashboardSection />}
+
+        {activeTab === "users" && (<>
               <Input
                 placeholder={texts.search[language]}
                 value={searchQuery}
