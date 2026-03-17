@@ -24,6 +24,11 @@ export function MoodChatBridge({ moodValue, feelings, note, onDismiss }: MoodCha
   const avatarUrl = useAvatarUrl(companion?.avatar_url);
   const companionName = companion?.name || "Soulvay";
 
+  // Track prompt shown once
+  useEffect(() => {
+    analytics.track("mood_to_chat_prompt_shown", { mood_value: moodValue }, "mood_bridge_shown");
+  }, []);
+
   const getMessage = () => {
     if (moodValue <= 2) {
       return language === "de"
