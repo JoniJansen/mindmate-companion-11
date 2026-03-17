@@ -31,8 +31,9 @@ export default function Landing() {
         if (prefs.language === "en" || prefs.language === "de") return prefs.language;
       }
     } catch {}
+    // Default to German (primary market) — switch to English only for explicit EN browsers
     const browserLang = navigator.language?.toLowerCase() || "";
-    if (browserLang.startsWith("en")) return "en";
+    if (browserLang.startsWith("en") && !browserLang.includes("de")) return "en";
     return "de";
   });
 
@@ -137,7 +138,7 @@ export default function Landing() {
       </header>
 
       {/* Hero — Chat-first, minimal copy */}
-      <section className="relative pt-6 pb-10 md:pt-10 md:pb-16">
+      <section className="relative pt-3 pb-6 md:pt-10 md:pb-16">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
 
         <div className="relative max-w-lg mx-auto px-4">
@@ -146,12 +147,12 @@ export default function Landing() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="text-center mb-5"
+            className="text-center mb-4"
           >
-            <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1.5">
+            <h1 className="text-lg md:text-2xl font-bold text-foreground mb-0.5">
               {t.hero.tagline}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground">
               {language === "de" ? "Probier es aus — ohne Anmeldung" : "Try it — no signup needed"}
             </p>
           </motion.div>

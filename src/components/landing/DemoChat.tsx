@@ -106,12 +106,16 @@ export function DemoChat({ language }: DemoChatProps) {
   }, [language]);
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Only scroll inside the messages container, not the outer page
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    // Only auto-scroll after user interaction (not during greeting animation)
+    if (userMessageCount > 0) {
+      scrollToBottom();
+    }
+  }, [messages, scrollToBottom, userMessageCount]);
 
   // Show continuation message + signup form after limit
   useEffect(() => {
@@ -141,7 +145,7 @@ export function DemoChat({ language }: DemoChatProps) {
     }
 
     if (userMessageCount >= DEMO_LIMIT) {
-      setShowLimit(true);
+      if (!showLimit) setShowLimit(true);
       return;
     }
 
@@ -280,15 +284,23 @@ export function DemoChat({ language }: DemoChatProps) {
       if (showLoginMode) {
         await signIn(signupEmail.trim().toLowerCase(), signupPassword);
         analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language, method: "login" });
+        navigate("/home", { replace: true });
       } else {
         const result = await signUp(signupEmail.trim().toLowerCase(), signupPassword, signupName.trim() || undefined);
         analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language, method: "signup" });
         if (result?.session) {
+          // Auto-confirmed signup — go to home
           navigate("/home", { replace: true });
-          return;
+        } else {
+          // Email confirmation required — show success message
+          toast({
+            title: language === "de" ? "Fast geschafft!" : "Almost there!",
+            description: language === "de"
+              ? "Bitte bestätige deine E-Mail-Adresse, um fortzufahren."
+              : "Please confirm your email address to continue.",
+          });
         }
       }
-      navigate("/home", { replace: true });
     } catch (error: any) {
       toast({
         title: t.error,
@@ -322,7 +334,7 @@ export function DemoChat({ language }: DemoChatProps) {
         </div>
 
         {/* Messages */}
-        <div className="px-4 py-4 space-y-3 max-h-[340px] overflow-y-auto" style={{ minHeight: 140 }}>
+        <div className="px-4 py-4 space-y-3 max-h-[260px] sm:max-h-[340px] overflow-y-auto" style={{ minHeight: 120 }}>
           {messages.map((msg) => (
             <motion.div
               key={msg.id}
@@ -470,9 +482,12 @@ export function DemoChat({ language }: DemoChatProps) {
               </Button>
             </div>
             <p className="text-[10px] text-muted-foreground/50 text-center mt-2">
-              {language === "de"
-                ? `${DEMO_LIMIT - userMessageCount} ${DEMO_LIMIT - userMessageCount === 1 ? "Nachricht" : "Nachrichten"} verbleibend · Ohne Anmeldung`
-                : `${DEMO_LIMIT - userMessageCount} ${DEMO_LIMIT - userMessageCount === 1 ? "message" : "messages"} remaining · No signup needed`}
+              {(() => {
+                const remaining = Math.max(0, DEMO_LIMIT - userMessageCount);
+                return language === "de"
+                  ? `${remaining} ${remaining === 1 ? "Nachricht" : "Nachrichten"} verbleibend · Ohne Anmeldung`
+                  : `${remaining} ${remaining === 1 ? "message" : "messages"} remaining · No signup needed`;
+              })()}
             </p>
           </div>
         )}
