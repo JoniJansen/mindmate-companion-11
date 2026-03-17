@@ -107,7 +107,20 @@ export default function Landing() {
   const t = content[language];
 
   return (
-    <div className="bg-background overflow-y-auto" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, WebkitOverflowScrolling: 'touch' }}>
+    <div
+      className="bg-background overflow-y-auto overscroll-none"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        WebkitOverflowScrolling: 'touch',
+        /* Prevent in-app browser viewport jump on focus */
+        height: '100%',
+        minHeight: '-webkit-fill-available',
+      }}
+    >
       {/* Header — compact */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/40">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
