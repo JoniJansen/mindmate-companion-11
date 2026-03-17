@@ -232,7 +232,7 @@ export default function Upgrade() {
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50">
         <div className="px-4 py-4 max-w-lg mx-auto">
            <button
-            onClick={() => navigate("/settings", { replace: true })}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -241,29 +241,55 @@ export default function Upgrade() {
         </div>
       </div>
 
-      <div className="px-4 py-6 max-w-lg mx-auto space-y-8">
-        {/* Hero */}
+      <div className="px-4 py-8 max-w-lg mx-auto space-y-8">
+        {/* Emotional Hero */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-4"
         >
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-            <Sparkles className="w-8 h-8 text-primary" />
+            <Heart className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Soulvay Plus</h1>
-            <p className="text-muted-foreground mt-2">
-              {t("upgrade.heroSubtitle")}
+            <h1 className="text-2xl font-semibold text-foreground">
+              {language === "de" ? "Eine tiefere Verbindung" : "A deeper connection"}
+            </h1>
+            <p className="text-muted-foreground mt-3 leading-relaxed max-w-xs mx-auto">
+              {language === "de"
+                ? "Stell dir vor, dein Begleiter kennt dich wirklich. Erinnert sich. Hört dir zu — in deiner Stimme."
+                : "Imagine your companion truly knows you. Remembers. Listens — in your voice."}
             </p>
           </div>
+        </motion.div>
+
+        {/* What it feels like */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="space-y-3"
+        >
+          {[
+            { icon: User, text: language === "de" ? "Sprich persönlich mit deinem Begleiter — Face-to-Face" : "Speak personally with your companion — Face-to-Face" },
+            { icon: MessageSquare, text: language === "de" ? "Unbegrenzte Gespräche, so oft du möchtest" : "Unlimited conversations, whenever you need" },
+            { icon: Brain, text: language === "de" ? "Dein Begleiter erkennt Muster und wächst mit dir" : "Your companion recognizes patterns and grows with you" },
+            { icon: Calendar, text: language === "de" ? "Wöchentliche Einblicke in deine emotionale Reise" : "Weekly insights into your emotional journey" },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <item.icon className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-sm text-foreground">{item.text}</p>
+            </div>
+          ))}
         </motion.div>
 
         {/* Plan Selection */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.15 }}
           className="grid grid-cols-2 gap-3"
         >
           {plans.map((plan) => (
@@ -305,37 +331,43 @@ export default function Upgrade() {
           ))}
         </motion.div>
 
-        {/* Features - compact */}
+        {/* Simple Free vs Plus comparison */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="space-y-2"
+          className="rounded-2xl border border-border/50 overflow-hidden"
         >
-          {features.map((feature, i) => (
-            <CalmCard key={i} variant="default" className="p-3">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <feature.icon className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground text-sm">
-                    {t(feature.titleKey)}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {t(feature.descKey)}
-                  </p>
-                </div>
-              </div>
-            </CalmCard>
+          <div className="grid grid-cols-3 bg-muted/30 text-xs font-medium text-muted-foreground p-3">
+            <span></span>
+            <span className="text-center">Free</span>
+            <span className="text-center text-primary">Plus</span>
+          </div>
+          {[
+            { label: language === "de" ? "Nachrichten" : "Messages", free: "15/Tag", plus: "∞" },
+            { label: "Face-to-Face", free: "1×", plus: "∞" },
+            { label: language === "de" ? "Erinnerung" : "Memory", free: "7 Tage", plus: "∞" },
+            { label: language === "de" ? "Wochenrückblick" : "Weekly recap", free: "—", plus: "✓" },
+            { label: language === "de" ? "Muster" : "Patterns", free: "—", plus: "✓" },
+          ].map((row, i) => (
+            <div key={i} className="grid grid-cols-3 text-sm p-3 border-t border-border/30">
+              <span className="text-foreground">{row.label}</span>
+              <span className="text-center text-muted-foreground">{row.free}</span>
+              <span className="text-center text-primary font-medium">{row.plus}</span>
+            </div>
           ))}
         </motion.div>
 
-        {/* Progress Unlock */}
-        <ProgressUnlock stats={userStats} />
-
-        {/* Feature Comparison Matrix */}
-        <FeatureMatrix />
+        {/* Trust signals */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="flex justify-center gap-6 text-xs text-muted-foreground"
+        >
+          <span>{language === "de" ? "🔒 Deine Daten bleiben privat" : "🔒 Your data stays private"}</span>
+          <span>{language === "de" ? "💚 Jederzeit kündbar" : "💚 Cancel anytime"}</span>
+        </motion.div>
 
         {/* Legal Consent */}
         <motion.div
@@ -378,7 +410,7 @@ export default function Upgrade() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.35 }}
           className="space-y-4"
         >
           <Button
@@ -399,7 +431,7 @@ export default function Upgrade() {
             )}
           </Button>
 
-          {/* Restore Purchases - always visible on iOS */}
+          {/* Restore Purchases */}
           {isRevenueCatAvailable && (
             <Button
               onClick={handleRestorePurchases}
@@ -412,7 +444,7 @@ export default function Upgrade() {
             </Button>
           )}
 
-          {/* Subscription Info - Required by Apple Guideline 3.1.2 */}
+          {/* Subscription Info */}
           <div className="bg-muted/30 rounded-xl p-4 space-y-3">
             <h4 className="font-medium text-sm text-foreground">
               {t("upgrade.subInfo")}
@@ -457,9 +489,6 @@ export default function Upgrade() {
           <div className="text-center space-y-2">
             <p className="text-xs text-muted-foreground">
               {isRevenueCatAvailable ? t("upgrade.secureApple") : t("upgrade.secureStripe")}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {t("upgrade.cancelAnytime")}
             </p>
           </div>
         </motion.div>
