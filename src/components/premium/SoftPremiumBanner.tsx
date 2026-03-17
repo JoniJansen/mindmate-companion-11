@@ -41,7 +41,10 @@ export function SoftPremiumBanner({ language, variant = "home" }: SoftPremiumBan
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.5 }}
-      onClick={() => navigate("/upgrade")}
+      onClick={() => {
+        analytics.track("premium_cta_clicked", { variant, source: "soft_banner" });
+        navigate("/upgrade");
+      }}
       className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 bg-primary/5 border border-primary/10 hover:border-primary/20 transition-all text-left group mb-6"
     >
       <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
