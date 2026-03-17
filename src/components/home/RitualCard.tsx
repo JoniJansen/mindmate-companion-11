@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Sun, Moon, Heart, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
