@@ -14,6 +14,7 @@ import { activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
 import { supabase } from "@/integrations/supabase/client";
 import { isNativeApp } from "@/lib/nativeDetect";
 import { lovable } from "@/integrations/lovable/index";
+import { shouldShowReviewLogin } from "@/lib/platformSeparation";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
@@ -396,7 +397,7 @@ export default function Auth() {
           </div>
 
           {/* Review/Demo Login Button - only visible in dev or for review URLs */}
-          {authMode === "login" && (import.meta.env.DEV || window.location.hostname.includes('lovable') || isNative) && (
+          {authMode === "login" && shouldShowReviewLogin() && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

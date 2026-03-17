@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { StandalonePage } from "@/components/layout/StandalonePage";
+import { getMobileAppFAQ } from "@/lib/platformSeparation";
 import {
   Accordion,
   AccordionContent,
@@ -108,10 +109,7 @@ export default function FAQ() {
               q: "Can I use Soulvay offline?",
               a: "Basic features like reviewing past journal entries work offline, but AI chat and syncing require an internet connection."
             },
-            {
-              q: "Is there a mobile app?",
-              a: "Yes! Soulvay is available as a mobile app on iOS. You can download it from the App Store."
-            },
+            getMobileAppFAQ("en"),
             {
               q: "How do I change the language?",
               a: "Go to Settings > Language to switch between English and German."
@@ -228,10 +226,7 @@ export default function FAQ() {
               q: "Kann ich Soulvay offline nutzen?",
               a: "Grundfunktionen wie das Anzeigen vergangener Tagebucheinträge funktionieren offline, aber KI-Chat und Synchronisierung erfordern eine Internetverbindung."
             },
-            {
-              q: "Gibt es eine mobile App?",
-              a: "Ja! Soulvay ist als mobile App für iOS verfügbar. Du kannst sie im App Store herunterladen."
-            },
+            getMobileAppFAQ("de"),
             {
               q: "Wie ändere ich die Sprache?",
               a: "Gehe zu Einstellungen > Sprache, um zwischen Englisch und Deutsch zu wechseln."

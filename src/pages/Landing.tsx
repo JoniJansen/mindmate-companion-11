@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
-import { isNativeApp } from "@/lib/nativeDetect";
+import { shouldShowStoreBadges } from "@/lib/platformSeparation";
 import { DemoChat } from "@/components/landing/DemoChat";
 
 export default function Landing() {
@@ -37,7 +37,7 @@ export default function Landing() {
     return "de";
   });
 
-  const isNativeBuild = useMemo(() => isNativeApp(), []);
+  const showBadges = useMemo(() => shouldShowStoreBadges(), []);
 
   const content = {
     en: {
@@ -325,7 +325,7 @@ export default function Landing() {
               <button onClick={() => navigate("/contact")} className="hover:text-foreground transition-colors">{t.footer.contact}</button>
             </div>
           </div>
-          {!isNativeBuild && (
+          {showBadges && (
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center gap-4 opacity-50 grayscale">
                 <div className="h-8"><img src="/badges/app-store.svg" alt="App Store" className="h-full" /></div>
