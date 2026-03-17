@@ -21,6 +21,10 @@ export function JournalChatBridge({ entryContent, onDismiss }: JournalChatBridge
   const avatarUrl = useAvatarUrl(companion?.avatar_url);
   const companionName = companion?.name || "Soulvay";
 
+  useEffect(() => {
+    analytics.track("journal_to_chat_prompt_shown", {}, "journal_bridge_shown");
+  }, []);
+
   const handleStartChat = () => {
     const preview = entryContent.slice(0, 200);
     const contextMsg = language === "de"
