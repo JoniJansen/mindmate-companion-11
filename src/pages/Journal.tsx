@@ -25,6 +25,7 @@ import { ALL_JOURNAL_TAG_IDS, getTagI18nKey, toStableTagIds } from "@/lib/tagUti
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { useLastState } from "@/hooks/useLastState";
 import { cn } from "@/lib/utils";
+import { JournalChatBridge } from "@/components/journal/JournalChatBridge";
 
 interface JournalEntry {
   id: string;
