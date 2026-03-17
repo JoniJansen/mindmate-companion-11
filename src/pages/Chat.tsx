@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { analytics } from "@/hooks/useAnalytics";
+import { consumeDemoConversation } from "@/lib/demoConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -164,6 +165,29 @@ export default function Chat() {
     const init = async () => {
       if (resumeConvId) {
         await composer.restoreConversation(resumeConvId);
+        return;
+      }
+
+      // Check for demo conversation continuity (post-signup from landing page)
+      const demoData = consumeDemoConversation();
+      if (demoData && demoData.messages.length > 1) {
+        // Inject demo messages into the real chat as existing context
+        const injectedMessages = demoData.messages.map((m, i) => ({
+          id: `demo-${i}-${Date.now()}`,
+          content: m.content,
+          role: m.role as "user" | "assistant",
+          timestamp: new Date(),
+        }));
+        composer.setMessages(injectedMessages);
+        composer.chatMessageCountRef.current = injectedMessages.filter(m => m.role === "user").length;
+
+        // Send a seamless continuation prompt so the AI references demo context
+        const lastUserMsg = [...demoData.messages].reverse().find(m => m.role === "user");
+        const continuationPrompt = savedLang === "de"
+          ? `[System: Der Nutzer hat gerade ein Konto erstellt, um dieses Gespräch fortzusetzen. Beziehe dich auf das, was bereits besprochen wurde. Reagiere nicht mit einer neuen Begrüßung – setze das Gespräch nahtlos fort. Gehe etwas tiefer als zuvor.]`
+          : `[System: The user just signed up to continue this conversation. Reference what was already discussed. Do NOT send a new greeting – continue the conversation seamlessly. Go slightly deeper than before.]`;
+        composer.handleSend(continuationPrompt, true, undefined, handleStreamDone);
+        analytics.track("demo_conversation_continued", { demo_messages: demoData.messages.length });
         return;
       }
 

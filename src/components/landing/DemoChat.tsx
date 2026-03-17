@@ -8,6 +8,7 @@ import { analytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
+import { DEMO_MESSAGE_LIMIT, saveDemoConversation } from "@/lib/demoConfig";
 
 interface DemoChatProps {
   language: "en" | "de";
@@ -20,7 +21,7 @@ interface DemoMessage {
   isError?: boolean;
 }
 
-const DEMO_LIMIT = 3;
+const DEMO_LIMIT = DEMO_MESSAGE_LIMIT;
 
 const DEMO_GREETING = {
   en: "Hey… it's nice that you're here.\n\nWhat's on your mind right now?",
@@ -338,6 +339,21 @@ export function DemoChat({ language }: DemoChatProps) {
     }
   }, [input, isStreaming, userMessageCount, messages, language, errorTexts]);
 
+  // Persist demo conversation for post-signup continuity
+  const persistDemoMessages = useCallback(() => {
+    const conversationMessages = messages
+      .filter(m => !m.isError && m.id !== "continuation")
+      .map(m => ({ role: m.role, content: m.content }));
+    if (conversationMessages.length > 1) {
+      saveDemoConversation({
+        messages: conversationMessages,
+        language,
+        companionName: "Mira",
+        timestamp: Date.now(),
+      });
+    }
+  }, [messages, language]);
+
   const handleSignup = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signupEmail.trim() || !signupPassword.trim()) return;
@@ -345,6 +361,7 @@ export function DemoChat({ language }: DemoChatProps) {
     setIsSigningUp(true);
     try {
       if (showLoginMode) {
+        persistDemoMessages();
         await signIn(signupEmail.trim().toLowerCase(), signupPassword);
         analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language, method: "login" });
         navigate("/home", { replace: true });
@@ -352,8 +369,11 @@ export function DemoChat({ language }: DemoChatProps) {
         const result = await signUp(signupEmail.trim().toLowerCase(), signupPassword, signupName.trim() || undefined);
         analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language, method: "signup" });
         if (result?.session) {
+          persistDemoMessages();
           navigate("/home", { replace: true });
         } else {
+          // Save demo messages even before confirmation — they'll be consumed on next login
+          persistDemoMessages();
           toast({
             title: language === "de" ? "Fast geschafft!" : "Almost there!",
             description: language === "de"
@@ -371,7 +391,7 @@ export function DemoChat({ language }: DemoChatProps) {
     } finally {
       setIsSigningUp(false);
     }
-  }, [signupEmail, signupPassword, signupName, showLoginMode, signIn, signUp, navigate, userMessageCount, language, toast, t.error]);
+  }, [signupEmail, signupPassword, signupName, showLoginMode, signIn, signUp, navigate, userMessageCount, language, toast, t.error, persistDemoMessages]);
 
   return (
     <div className="w-full max-w-lg mx-auto">
@@ -494,6 +514,7 @@ export function DemoChat({ language }: DemoChatProps) {
               <button
                 type="button"
                 onClick={async () => {
+                  persistDemoMessages();
                   analytics.track("demo_chat_google_signup_clicked", { language });
                   const { error } = await lovable.auth.signInWithOAuth("google", {
                     redirect_uri: window.location.origin,
