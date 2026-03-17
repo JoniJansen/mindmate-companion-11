@@ -76,7 +76,8 @@ export type AnalyticsEvent =
   | "bond_milestone_seen"
   | "returning_user_detected"
   | "return_state_shown"
-  | "chat_saved_to_journal";
+  | "chat_saved_to_journal"
+  | "demo_chat_google_signup_clicked";
 
 interface EventProperties {
   [key: string]: string | number | boolean | undefined;
