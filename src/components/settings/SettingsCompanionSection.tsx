@@ -18,7 +18,7 @@ export function SettingsCompanionSection() {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
-        {language === "de" ? "Dein Begleiter" : "Your Companion"}
+        {t("settings.yourCompanion")}
       </h2>
       <CalmCard
         variant="elevated"
