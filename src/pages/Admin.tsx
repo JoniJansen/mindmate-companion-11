@@ -254,6 +254,18 @@ export default function Admin() {
           </CalmCard>
         )}
       </div>
+        {activeTab === "users" && error && (
+          <CalmCard className="border-destructive/50 bg-destructive/10">
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm">{error}</span>
+            </div>
+          </CalmCard>
+        )}
+
+        {activeTab === "users" && (</>)}
+      </div>
     </div>
   );
+}
 }
