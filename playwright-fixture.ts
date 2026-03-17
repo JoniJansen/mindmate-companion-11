@@ -1,1 +1,1 @@
-export { test, expect } from "lovable-agent-playwright-config/fixture";
+export { test, expect } from "@playwright/test";
