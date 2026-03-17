@@ -109,10 +109,7 @@ export default function FAQ() {
               q: "Can I use Soulvay offline?",
               a: "Basic features like reviewing past journal entries work offline, but AI chat and syncing require an internet connection."
             },
-            {
-              q: "Is there a mobile app?",
-              a: "Yes! Soulvay is available as a mobile app on iOS. You can download it from the App Store."
-            },
+            getMobileAppFAQ("en"),
             {
               q: "How do I change the language?",
               a: "Go to Settings > Language to switch between English and German."
