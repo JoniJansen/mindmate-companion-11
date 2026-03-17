@@ -37,14 +37,14 @@ export function VoiceTrialCard({ language, hasUsedTrial, isPremium, companionNam
 
   const copy = language === "de"
     ? {
-        title: `Sprich einmal mit ${companionName}`,
-        subtitle: "Erlebe ein persönliches Gespräch — kostenlos.",
-        cta: "Jetzt ausprobieren",
+        title: `Möchtest du mit ${companionName} sprechen?`,
+        subtitle: "Erlebe, wie sich ein persönliches Gespräch anfühlt.",
+        cta: "Ausprobieren",
       }
     : {
-        title: `Speak with ${companionName}`,
-        subtitle: "Experience a personal conversation — free.",
-        cta: "Try it now",
+        title: `Want to talk with ${companionName}?`,
+        subtitle: "Experience what a personal conversation feels like.",
+        cta: "Try it",
       };
 
   return (
