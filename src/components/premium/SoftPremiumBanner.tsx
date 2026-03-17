@@ -27,6 +27,14 @@ const COPY = {
 export function SoftPremiumBanner({ language, variant = "home" }: SoftPremiumBannerProps) {
   const navigate = useNavigate();
   const copy = COPY[variant][language];
+  const trackedRef = useRef(false);
+
+  useEffect(() => {
+    if (!trackedRef.current) {
+      trackedRef.current = true;
+      analytics.track("premium_cta_viewed", { variant }, `premium_banner_${variant}`);
+    }
+  }, [variant]);
 
   return (
     <motion.button
