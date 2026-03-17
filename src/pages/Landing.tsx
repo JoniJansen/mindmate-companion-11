@@ -31,8 +31,9 @@ export default function Landing() {
         if (prefs.language === "en" || prefs.language === "de") return prefs.language;
       }
     } catch {}
+    // Default to German (primary market) — switch to English only for explicit EN browsers
     const browserLang = navigator.language?.toLowerCase() || "";
-    if (browserLang.startsWith("en")) return "en";
+    if (browserLang.startsWith("en") && !browserLang.includes("de")) return "en";
     return "de";
   });
 
