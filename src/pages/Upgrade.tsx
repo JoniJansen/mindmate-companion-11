@@ -86,6 +86,17 @@ export default function Upgrade() {
     }
   }, [searchParams, navigate, toast, t, checkSubscriptionStatus]);
 
+  // Track paywall view once
+  const paywallTrackedRef = useRef(false);
+  useEffect(() => {
+    if (!paywallTrackedRef.current) {
+      paywallTrackedRef.current = true;
+      const { analytics } = require("@/hooks/useAnalytics");
+      analytics.track("paywall_viewed", { source: "upgrade_page" }, "paywall_viewed");
+      analytics.track("premium_cta_viewed", { source: "upgrade_page" }, "premium_cta_upgrade");
+    }
+  }, []);
+
   // Redirect if already premium
   useEffect(() => {
     if (isPremium) {
