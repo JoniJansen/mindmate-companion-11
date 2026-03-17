@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles, Sun, Moon, MessageCircle, Heart, BookOpen } from "lucide-react";
@@ -11,6 +11,7 @@ import { useCompanion } from "@/hooks/useCompanion";
 import { companionArchetypes, CompanionArchetype } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
+import { analytics } from "@/hooks/useAnalytics";
 
 type Language = "en" | "de";
 
