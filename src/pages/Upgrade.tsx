@@ -30,7 +30,7 @@ import { StandalonePage } from "@/components/layout/StandalonePage";
 export default function Upgrade() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { toast } = useToast();
   const { 
     isPremium, 
