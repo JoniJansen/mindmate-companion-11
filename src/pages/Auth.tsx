@@ -13,6 +13,7 @@ import logoImage from "@/assets/logo.png";
 import { activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
 import { supabase } from "@/integrations/supabase/client";
 import { isNativeApp } from "@/lib/nativeDetect";
+import { lovable } from "@/integrations/lovable/index";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
