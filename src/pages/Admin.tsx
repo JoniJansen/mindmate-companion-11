@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Shield, Search, Crown, Users, Loader2, AlertCircle } from "lucide-react";
+import { Shield, Search, Crown, Users, Loader2, AlertCircle, BarChart3 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { AnalyticsDashboardSection } from "@/components/admin/AnalyticsDashboardSection";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
