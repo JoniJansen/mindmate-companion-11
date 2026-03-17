@@ -21,6 +21,9 @@ import { ContinueModule } from "@/components/home/ContinueModule";
 import { ShareableInsightCard } from "@/components/home/ShareableInsightCard";
 import { GrowthDashboard } from "@/components/home/GrowthDashboard";
 import { CompanionCheckin } from "@/components/home/CompanionCheckin";
+import { RitualCard } from "@/components/home/RitualCard";
+import { WelcomeBackCard } from "@/components/home/WelcomeBackCard";
+import { BondIndicator } from "@/components/companion/BondIndicator";
 import { useDailyPrompt } from "@/hooks/useDailyPrompt";
 import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionCard } from "@/components/companion/CompanionCard";
@@ -29,6 +32,7 @@ import { useMemoryMoments } from "@/hooks/useMemoryMoments";
 import { useCompanionCheckins } from "@/hooks/useCompanionCheckins";
 import { useChatPersistence } from "@/hooks/useChatPersistence";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { useReturnState } from "@/hooks/useReturnState";
 interface RecentThought {
   id: string;
   content: string;
