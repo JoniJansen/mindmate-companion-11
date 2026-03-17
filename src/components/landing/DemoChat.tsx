@@ -514,6 +514,7 @@ export function DemoChat({ language }: DemoChatProps) {
               <button
                 type="button"
                 onClick={async () => {
+                  persistDemoMessages();
                   analytics.track("demo_chat_google_signup_clicked", { language });
                   const { error } = await lovable.auth.signInWithOAuth("google", {
                     redirect_uri: window.location.origin,
