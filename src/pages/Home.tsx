@@ -281,6 +281,16 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="flex-1 px-6 pb-6">
+        {/* Welcome Back — returning users */}
+        {returnState.category && (
+          <WelcomeBackCard
+            message={returnState.welcomeMessage}
+            onDismiss={returnState.dismiss}
+          />
+        )}
+
+        {/* Morning/Evening Ritual */}
+        <RitualCard />
         {/* Voice/Text Input Area */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
