@@ -145,6 +145,12 @@ export default function Onboarding() {
     if (!state.disclaimerAccepted) return;
     setIsFinishing(true);
 
+    analytics.track("onboarding_completed", {
+      companion: state.companionId,
+      need: state.need,
+      language: state.language,
+    });
+
     // Save preferences
     const prefsPayload = JSON.stringify({
       language: state.language,

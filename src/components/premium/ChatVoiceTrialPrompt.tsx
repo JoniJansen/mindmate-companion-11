@@ -1,14 +1,15 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Mic, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { canUseVoiceTrial } from "./VoiceTrialCard";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface ChatVoiceTrialPromptProps {
   companionName: string;
   language: "en" | "de";
   messageCount: number;
   isPremium: boolean;
-  onTrack?: (event: string) => void;
 }
 
 /**
@@ -20,12 +21,21 @@ export function ChatVoiceTrialPrompt({
   language,
   messageCount,
   isPremium,
-  onTrack,
 }: ChatVoiceTrialPromptProps) {
   const navigate = useNavigate();
+  const trackedRef = useRef(false);
 
-  // Only show after 6 messages, if trial available, not premium
-  if (messageCount < 6 || isPremium || !canUseVoiceTrial()) return null;
+  const shouldShow = messageCount >= 6 && !isPremium && canUseVoiceTrial();
+
+  // Track prompt shown once
+  useEffect(() => {
+    if (shouldShow && !trackedRef.current) {
+      trackedRef.current = true;
+      analytics.track("voice_trial_prompt_shown", { message_count: messageCount }, "voice_trial_prompt");
+    }
+  }, [shouldShow, messageCount]);
+
+  if (!shouldShow) return null;
 
   const copy = language === "de"
     ? {
@@ -48,7 +58,7 @@ export function ChatVoiceTrialPrompt({
     >
       <button
         onClick={() => {
-          onTrack?.("voice_trial_entry_clicked");
+          analytics.track("voice_trial_entry_clicked", { source: "chat_inline" });
           navigate("/chat", { state: { startVoiceTrial: true } });
         }}
         className="w-full text-left rounded-2xl p-4 border bg-primary/5 border-primary/15 hover:border-primary/25 transition-all group"
