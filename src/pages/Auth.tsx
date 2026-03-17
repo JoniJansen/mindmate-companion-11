@@ -189,18 +189,14 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="p-4 flex items-center justify-between">
-        {fromOnboarding ? (
-          <div className="w-10" />
-        ) : (
-          <button
-            onClick={() => navigate("/landing")}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm">{t("auth.back")}</span>
-          </button>
-        )}
+      <div className="p-4 flex items-center justify-between safe-top">
+        <button
+          onClick={() => navigate(fromOnboarding ? "/welcome" : "/landing")}
+          className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+          aria-label="Back"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         
         <button
           onClick={() => setThemeMode(isDark ? "light" : "dark")}
