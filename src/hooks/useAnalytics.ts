@@ -78,6 +78,7 @@ export type AnalyticsEvent =
   | "return_state_shown"
   | "chat_saved_to_journal"
   | "demo_chat_google_signup_clicked"
+  | "demo_chat_apple_signup_clicked"
   | "demo_conversation_continued";
 
 interface EventProperties {
