@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface DemoChatProps {
   language: "en" | "de";
@@ -47,6 +48,7 @@ export function DemoChat({ language }: DemoChatProps) {
   const [showLimit, setShowLimit] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const demoStartedRef = useRef(false);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,6 +62,12 @@ export function DemoChat({ language }: DemoChatProps) {
     const text = input.trim();
     if (!text || isStreaming) return;
 
+    // Track demo started on first message
+    if (!demoStartedRef.current) {
+      demoStartedRef.current = true;
+      analytics.track("demo_chat_started", { language }, "demo_chat_started");
+    }
+
     if (userMessageCount >= DEMO_LIMIT) {
       setShowLimit(true);
       return;
@@ -71,7 +79,9 @@ export function DemoChat({ language }: DemoChatProps) {
     setUserMessageCount(prev => prev + 1);
     const newCount = userMessageCount + 1;
 
-    // After sending, if this was the last free message, show limit after response
+    // Track each message
+    analytics.track("demo_chat_message_sent", { message_number: newCount, language });
+
     setIsStreaming(true);
     const assistantId = `assistant-${Date.now()}`;
     setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "" }]);
@@ -122,7 +132,6 @@ export function DemoChat({ language }: DemoChatProps) {
           if (done) break;
           const chunk = decoder.decode(value, { stream: true });
           
-          // Parse SSE chunks
           const lines = chunk.split("\n");
           for (const line of lines) {
             if (line.startsWith("data: ")) {
@@ -137,7 +146,6 @@ export function DemoChat({ language }: DemoChatProps) {
                   );
                 }
               } catch {
-                // Raw text chunk
                 fullContent += data;
                 setMessages(prev =>
                   prev.map(m => m.id === assistantId ? { ...m, content: fullContent } : m)
@@ -148,7 +156,6 @@ export function DemoChat({ language }: DemoChatProps) {
         }
       }
 
-      // If no streaming happened, try JSON response
       if (!fullContent) {
         const data = await response.clone().json().catch(() => null);
         if (data?.content) {
@@ -170,10 +177,16 @@ export function DemoChat({ language }: DemoChatProps) {
       setIsStreaming(false);
       abortRef.current = null;
       if (newCount >= DEMO_LIMIT) {
+        analytics.track("demo_chat_limit_reached", { language }, "demo_limit");
         setTimeout(() => setShowLimit(true), 1500);
       }
     }
   }, [input, isStreaming, userMessageCount, messages, language]);
+
+  const handleSignupClick = useCallback(() => {
+    analytics.track("demo_chat_converted", { messages_sent: userMessageCount, language });
+    navigate("/welcome");
+  }, [navigate, userMessageCount, language]);
 
   const cta = SIGNUP_CTA[language];
 
@@ -256,7 +269,7 @@ export function DemoChat({ language }: DemoChatProps) {
             >
               <p className="text-sm font-semibold text-foreground mb-1">{cta.title}</p>
               <p className="text-xs text-muted-foreground mb-4">{cta.subtitle}</p>
-              <Button onClick={() => navigate("/welcome")} className="w-full gap-2">
+              <Button onClick={handleSignupClick} className="w-full gap-2">
                 {cta.cta}
                 <ArrowRight className="w-4 h-4" />
               </Button>
