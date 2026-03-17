@@ -94,7 +94,7 @@ export function DemoChat({ language }: DemoChatProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const demoStartedRef = useRef(false);
-  const greetingShownRef = useRef(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   // Inline signup state
   const [showSignupForm, setShowSignupForm] = useState(false);
