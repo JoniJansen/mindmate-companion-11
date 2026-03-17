@@ -325,7 +325,7 @@ export default function Landing() {
               <button onClick={() => navigate("/contact")} className="hover:text-foreground transition-colors">{t.footer.contact}</button>
             </div>
           </div>
-          {showBadges && (
+          {showBadges && shouldShowStoreMessaging() && (
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center gap-4 opacity-50 grayscale">
                 <div className="h-8"><img src="/badges/app-store.svg" alt="App Store" className="h-full" /></div>

@@ -84,15 +84,20 @@ export function shouldShowGooglePlayBadge(): boolean {
 
 /** True when Google Sign-In should be available as an auth option */
 export function shouldShowGoogleAuth(): boolean {
-  // Available everywhere — Google Sign-In is allowed on all platforms
-  return true;
+  // Web only — iOS must not show Google branding, Android uses email-only
+  return isWeb();
 }
 
 /** True when Apple Sign-In should be available as an auth option */
 export function shouldShowAppleAuth(): boolean {
-  // Required on iOS, optional elsewhere
-  // Currently not implemented — returns true on iOS to prepare for future addition
+  // iOS only (required by Apple) — Android must not show Apple branding
+  // Web could show it too in the future, but currently iOS-only
   return isIOSApp();
+}
+
+/** True when store messaging ("Coming soon to App Store / Play Store") should be shown */
+export function shouldShowStoreMessaging(): boolean {
+  return isWeb();
 }
 
 /** True when the "Review / Demo Login" button should be visible */
