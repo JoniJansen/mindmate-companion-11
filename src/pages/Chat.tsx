@@ -494,6 +494,22 @@ export default function Chat() {
         </div>
       )}
 
+      {/* Contextual voice trial prompt */}
+      <ChatVoiceTrialPrompt
+        companionName={companionName}
+        language={language as "en" | "de"}
+        messageCount={composer.messages.length}
+        isPremium={composer.isPremium}
+      />
+
+      {/* Emotional chat limit prompt */}
+      <ChatLimitPrompt
+        companionName={companionName}
+        language={language as "en" | "de"}
+        messagesRemaining={composer.messagesRemaining}
+        isPremium={composer.isPremium}
+      />
+
       {/* Action Buttons */}
       <ChatActionButtons
         messageCount={composer.messages.length}
