@@ -226,10 +226,7 @@ export default function FAQ() {
               q: "Kann ich Soulvay offline nutzen?",
               a: "Grundfunktionen wie das Anzeigen vergangener Tagebucheinträge funktionieren offline, aber KI-Chat und Synchronisierung erfordern eine Internetverbindung."
             },
-            {
-              q: "Gibt es eine mobile App?",
-              a: "Ja! Soulvay ist als mobile App für iOS verfügbar. Du kannst sie im App Store herunterladen."
-            },
+            getMobileAppFAQ("de"),
             {
               q: "Wie ändere ich die Sprache?",
               a: "Gehe zu Einstellungen > Sprache, um zwischen Englisch und Deutsch zu wechseln."
