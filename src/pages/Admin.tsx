@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Shield, Search, Crown, Users, Loader2, AlertCircle, BarChart3 } from "lucide-react";
+import { Search, Crown, Users, Loader2, AlertCircle, BarChart3 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { AnalyticsDashboardSection } from "@/components/admin/AnalyticsDashboardSection";
 import { CalmCard } from "@/components/shared/CalmCard";
@@ -44,7 +44,6 @@ export default function Admin() {
     backHome: { en: "Back to Home", de: "Zurück zur Startseite" },
     loading: { en: "Loading...", de: "Lädt..." },
     checking: { en: "Checking permissions...", de: "Berechtigungen werden geprüft..." },
-    noUsers: { en: "No users found", de: "Keine Nutzer gefunden" },
     searchHint: { en: "Search for users or load all users", de: "Nach Nutzern suchen oder alle laden" },
     loadAll: { en: "Load all users", de: "Alle Nutzer laden" },
     premium: { en: "Premium", de: "Premium" },
@@ -58,43 +57,27 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    if (user) {
-      checkAdminStatus();
-    }
+    if (user) checkAdminStatus();
   }, [user, checkAdminStatus]);
 
   const handleSearch = async () => {
-    if (searchQuery.trim()) {
-      await searchUsers(searchQuery);
-    }
-  };
-
-  const handleLoadAll = async () => {
-    await listUsers();
+    if (searchQuery.trim()) await searchUsers(searchQuery);
   };
 
   const handleTogglePremium = async (targetUser: AdminUser) => {
     setUpdatingUserId(targetUser.id);
     const success = await setPremium(targetUser.id, !targetUser.isPremium);
     setUpdatingUserId(null);
-
     if (success) {
       toast({
         title: texts.success[language],
-        description: targetUser.isPremium
-          ? texts.premiumRevoked[language]
-          : texts.premiumGranted[language],
+        description: targetUser.isPremium ? texts.premiumRevoked[language] : texts.premiumGranted[language],
       });
     } else {
-      toast({
-        title: texts.error[language],
-        description: error || "Unknown error",
-        variant: "destructive",
-      });
+      toast({ title: texts.error[language], description: error || "Unknown error", variant: "destructive" });
     }
   };
 
-  // Check for admin access
   if (isChecking) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -107,17 +90,11 @@ export default function Admin() {
   if (isAdmin === false) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
           <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">{texts.noAccess[language]}</h1>
           <p className="text-muted-foreground mb-6">{texts.noAccessDesc[language]}</p>
-          <Button onClick={() => navigate("/")}>
-            {texts.backHome[language]}
-          </Button>
+          <Button onClick={() => navigate("/")}>{texts.backHome[language]}</Button>
         </motion.div>
       </div>
     );
@@ -125,147 +102,106 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader
-        title={texts.title[language]}
-        subtitle={texts.subtitle[language]}
-        showSettings={false}
-      />
+      <PageHeader title={texts.title[language]} subtitle={texts.subtitle[language]} showSettings={false} />
 
       <div className="px-4 space-y-6">
         {/* Tab Switcher */}
         <div className="flex gap-2">
-          <Button
-            variant={activeTab === "analytics" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveTab("analytics")}
-          >
-            <BarChart3 className="w-4 h-4 mr-1" />
-            Analytics
+          <Button variant={activeTab === "analytics" ? "default" : "outline"} size="sm" onClick={() => setActiveTab("analytics")}>
+            <BarChart3 className="w-4 h-4 mr-1" /> Analytics
           </Button>
-          <Button
-            variant={activeTab === "users" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveTab("users")}
-          >
-            <Users className="w-4 h-4 mr-1" />
-            {language === "de" ? "Nutzer" : "Users"}
+          <Button variant={activeTab === "users" ? "default" : "outline"} size="sm" onClick={() => setActiveTab("users")}>
+            <Users className="w-4 h-4 mr-1" /> {language === "de" ? "Nutzer" : "Users"}
           </Button>
         </div>
 
+        {/* Analytics Tab */}
         {activeTab === "analytics" && <AnalyticsDashboardSection />}
 
-        {activeTab === "users" && (<>
-              <Input
-                placeholder={texts.search[language]}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="pl-10"
-              />
-            </div>
-            <Button onClick={handleSearch} disabled={isLoading}>
-              <Search className="w-4 h-4" />
-            </Button>
-          </div>
-          <Button
-            variant="outline"
-            onClick={handleLoadAll}
-            disabled={isLoading}
-            className="w-full mt-3"
-          >
-            <Users className="w-4 h-4 mr-2" />
-            {texts.loadAll[language]}
-          </Button>
-        </CalmCard>
+        {/* Users Tab */}
+        {activeTab === "users" && (
+          <>
+            <CalmCard>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder={texts.search[language]}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    className="pl-10"
+                  />
+                </div>
+                <Button onClick={handleSearch} disabled={isLoading}>
+                  <Search className="w-4 h-4" />
+                </Button>
+              </div>
+              <Button variant="outline" onClick={() => listUsers()} disabled={isLoading} className="w-full mt-3">
+                <Users className="w-4 h-4 mr-2" /> {texts.loadAll[language]}
+              </Button>
+            </CalmCard>
 
-        {/* Users List */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">{texts.loading[language]}</span>
-          </div>
-        ) : users.length === 0 ? (
-          <CalmCard className="text-center py-8">
-            <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">{texts.searchHint[language]}</p>
-          </CalmCard>
-        ) : (
-          <div className="space-y-3">
-            {users.map((u) => (
-              <motion.div
-                key={u.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <CalmCard>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium truncate">
-                          {u.displayName || u.email}
-                        </span>
-                        {u.isPremium ? (
-                          <Badge className="bg-primary/20 text-primary border-primary/30">
-                            <Crown className="w-3 h-3 mr-1" />
-                            {texts.premium[language]}
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">
-                            {texts.free[language]}
-                          </Badge>
-                        )}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                <span className="ml-2 text-muted-foreground">{texts.loading[language]}</span>
+              </div>
+            ) : users.length === 0 ? (
+              <CalmCard className="text-center py-8">
+                <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">{texts.searchHint[language]}</p>
+              </CalmCard>
+            ) : (
+              <div className="space-y-3">
+                {users.map((u) => (
+                  <motion.div key={u.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                    <CalmCard>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium truncate">{u.displayName || u.email}</span>
+                            {u.isPremium ? (
+                              <Badge className="bg-primary/20 text-primary border-primary/30">
+                                <Crown className="w-3 h-3 mr-1" /> {texts.premium[language]}
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">{texts.free[language]}</Badge>
+                            )}
+                          </div>
+                          {u.displayName && <p className="text-sm text-muted-foreground truncate">{u.email}</p>}
+                          {u.isPremium && u.planType && <p className="text-xs text-muted-foreground mt-1">Plan: {u.planType}</p>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {updatingUserId === u.id ? (
+                            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                          ) : (
+                            <Switch
+                              checked={u.isPremium}
+                              onCheckedChange={() => handleTogglePremium(u)}
+                              aria-label={u.isPremium ? texts.revokePremium[language] : texts.setPremium[language]}
+                            />
+                          )}
+                          <Crown className={`w-5 h-5 ${u.isPremium ? "text-primary" : "text-muted-foreground opacity-30"}`} />
+                        </div>
                       </div>
-                      {u.displayName && (
-                        <p className="text-sm text-muted-foreground truncate">
-                          {u.email}
-                        </p>
-                      )}
-                      {u.isPremium && u.planType && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Plan: {u.planType}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {updatingUserId === u.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                      ) : (
-                        <Switch
-                          checked={u.isPremium}
-                          onCheckedChange={() => handleTogglePremium(u)}
-                          aria-label={u.isPremium ? texts.revokePremium[language] : texts.setPremium[language]}
-                        />
-                      )}
-                      <Crown className={`w-5 h-5 ${u.isPremium ? "text-primary" : "text-muted-foreground opacity-30"}`} />
-                    </div>
-                  </div>
-                </CalmCard>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                    </CalmCard>
+                  </motion.div>
+                ))}
+              </div>
+            )}
 
-        {error && (
-          <CalmCard className="border-destructive/50 bg-destructive/10">
-            <div className="flex items-center gap-2 text-destructive">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-sm">{error}</span>
-            </div>
-          </CalmCard>
+            {error && (
+              <CalmCard className="border-destructive/50 bg-destructive/10">
+                <div className="flex items-center gap-2 text-destructive">
+                  <AlertCircle className="w-4 h-4" />
+                  <span className="text-sm">{error}</span>
+                </div>
+              </CalmCard>
+            )}
+          </>
         )}
-      </div>
-        {activeTab === "users" && error && (
-          <CalmCard className="border-destructive/50 bg-destructive/10">
-            <div className="flex items-center gap-2 text-destructive">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-sm">{error}</span>
-            </div>
-          </CalmCard>
-        )}
-
-        {activeTab === "users" && (</>)}
       </div>
     </div>
   );
-}
 }
