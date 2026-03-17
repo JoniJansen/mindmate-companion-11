@@ -8,6 +8,7 @@ import { analytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
+import { DEMO_MESSAGE_LIMIT, saveDemoConversation } from "@/lib/demoConfig";
 
 interface DemoChatProps {
   language: "en" | "de";
@@ -20,7 +21,7 @@ interface DemoMessage {
   isError?: boolean;
 }
 
-const DEMO_LIMIT = 3;
+const DEMO_LIMIT = DEMO_MESSAGE_LIMIT;
 
 const DEMO_GREETING = {
   en: "Hey… it's nice that you're here.\n\nWhat's on your mind right now?",
