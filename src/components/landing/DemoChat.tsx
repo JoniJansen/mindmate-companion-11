@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, ArrowRight, Mail, Lock, User, Loader2, Shield, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -79,6 +79,21 @@ const TEXTS = {
     error: "Etwas ist schiefgelaufen",
   },
 };
+
+/** Memoized message text renderer — avoids re-splitting on every streaming tick */
+const MessageRenderer = memo(function MessageRenderer({ content }: { content: string }) {
+  const lines = content.split("\n");
+  return (
+    <>
+      {lines.map((line, i) => (
+        <span key={i}>
+          {line}
+          {i < lines.length - 1 && <br />}
+        </span>
+      ))}
+    </>
+  );
+});
 
 export function DemoChat({ language }: DemoChatProps) {
   const navigate = useNavigate();
@@ -425,7 +440,7 @@ export function DemoChat({ language }: DemoChatProps) {
               key={msg.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-[14.5px] leading-relaxed ${
@@ -435,14 +450,9 @@ export function DemoChat({ language }: DemoChatProps) {
                     ? "bg-primary text-primary-foreground rounded-br-lg"
                     : "bg-muted/50 border border-border/30 text-foreground rounded-bl-lg"
               }`}>
-                {msg.content.split("\n").map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    {i < msg.content.split("\n").length - 1 && <br />}
-                  </span>
-                ))}
+                <MessageRenderer content={msg.content} />
                 {isStreaming && msg.role === "assistant" && msg === messages[messages.length - 1] && msg.content !== "" && !msg.isError && (
-                  <span className="inline-block w-[3px] h-[16px] bg-primary/60 rounded-full align-text-bottom ml-0.5" style={{ animation: "cursor-blink 0.8s ease-in-out infinite" }} />
+                  <span className="inline-block w-[3px] h-[16px] bg-primary/60 rounded-full align-text-bottom ml-0.5 animate-[cursor-blink_0.8s_ease-in-out_infinite]" />
                 )}
               </div>
             </motion.div>
@@ -627,8 +637,11 @@ export function DemoChat({ language }: DemoChatProps) {
                 onFocus={() => setInputFocused(true)}
                 onBlur={() => setInputFocused(false)}
                 placeholder={INPUT_PLACEHOLDER[language]}
-                className="flex-1 h-12 bg-muted/30 border border-border/40 rounded-full px-5 text-[15px] text-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/50 transition-all placeholder:text-muted-foreground/50"
+                className="flex-1 h-12 bg-muted/30 border border-border/40 rounded-full px-5 text-[15px] text-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/50 transition-colors placeholder:text-muted-foreground/50"
                 disabled={isStreaming}
+                autoComplete="off"
+                autoCorrect="on"
+                enterKeyHint="send"
               />
               <Button
                 size="icon"

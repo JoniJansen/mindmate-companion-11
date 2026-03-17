@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Sun, Moon, Heart, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +15,7 @@ function getRitualType(): RitualType {
 }
 
 export function RitualCard() {
-  const ritualType = getRitualType();
+  const ritualType = useMemo(getRitualType, []);
   const { language } = useTranslation();
   const { companion } = useCompanion();
   const navigate = useNavigate();
