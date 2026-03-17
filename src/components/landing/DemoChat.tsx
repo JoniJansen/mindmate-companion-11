@@ -106,12 +106,16 @@ export function DemoChat({ language }: DemoChatProps) {
   }, [language]);
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Only scroll inside the messages container, not the outer page
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    // Only auto-scroll after user interaction (not during greeting animation)
+    if (userMessageCount > 0) {
+      scrollToBottom();
+    }
+  }, [messages, scrollToBottom, userMessageCount]);
 
   // Show continuation message + signup form after limit
   useEffect(() => {
