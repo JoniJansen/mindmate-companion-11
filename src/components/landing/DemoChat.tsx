@@ -478,9 +478,12 @@ export function DemoChat({ language }: DemoChatProps) {
               </Button>
             </div>
             <p className="text-[10px] text-muted-foreground/50 text-center mt-2">
-              {language === "de"
-                ? `${DEMO_LIMIT - userMessageCount} ${DEMO_LIMIT - userMessageCount === 1 ? "Nachricht" : "Nachrichten"} verbleibend · Ohne Anmeldung`
-                : `${DEMO_LIMIT - userMessageCount} ${DEMO_LIMIT - userMessageCount === 1 ? "message" : "messages"} remaining · No signup needed`}
+              {(() => {
+                const remaining = Math.max(0, DEMO_LIMIT - userMessageCount);
+                return language === "de"
+                  ? `${remaining} ${remaining === 1 ? "Nachricht" : "Nachrichten"} verbleibend · Ohne Anmeldung`
+                  : `${remaining} ${remaining === 1 ? "message" : "messages"} remaining · No signup needed`;
+              })()}
             </p>
           </div>
         )}
