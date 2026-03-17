@@ -216,11 +216,11 @@ export default function Auth() {
       </div>
 
       {/* Form */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-8">
+      <div className="flex-1 flex items-center justify-center px-6 pb-8 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm md:max-w-md space-y-8"
+          className="w-full max-w-sm md:max-w-md space-y-6"
         >
           {/* Logo & Title */}
           <div className="text-center space-y-4">
