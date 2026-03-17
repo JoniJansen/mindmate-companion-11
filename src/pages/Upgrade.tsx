@@ -26,6 +26,7 @@ import { REVENUECAT_PRODUCTS } from "@/hooks/useRevenueCat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { StandalonePage } from "@/components/layout/StandalonePage";
+import { analytics } from "@/hooks/useAnalytics";
 
 export default function Upgrade() {
   const navigate = useNavigate();
