@@ -40,6 +40,8 @@ export default function Mood() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("7d");
   const [isLoading, setIsLoading] = useState(true);
   const [checkinCollapsed, setCheckinCollapsed] = useState(false);
+  const [showChatBridge, setShowChatBridge] = useState(false);
+  const [savedMoodContext, setSavedMoodContext] = useState<{ mood: number; feelings: string[]; note: string | null } | null>(null);
 
   const { t } = useTranslation();
   const { user } = useAuth();
