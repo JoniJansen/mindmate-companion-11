@@ -137,7 +137,7 @@ export default function Landing() {
       </header>
 
       {/* Hero — Chat-first, minimal copy */}
-      <section className="relative pt-6 pb-10 md:pt-10 md:pb-16">
+      <section className="relative pt-4 pb-8 md:pt-10 md:pb-16">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
 
         <div className="relative max-w-lg mx-auto px-4">
