@@ -33,6 +33,7 @@ export default function Admin() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"users" | "analytics">("analytics");
 
   const texts = {
     title: { en: "Admin Panel", de: "Admin-Bereich" },
