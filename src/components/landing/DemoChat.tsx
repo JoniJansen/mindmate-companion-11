@@ -141,7 +141,7 @@ export function DemoChat({ language }: DemoChatProps) {
     }
 
     if (userMessageCount >= DEMO_LIMIT) {
-      setShowLimit(true);
+      if (!showLimit) setShowLimit(true);
       return;
     }
 
