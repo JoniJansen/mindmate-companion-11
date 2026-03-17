@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { analytics } from "@/hooks/useAnalytics";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Wind, Anchor, Lock, HelpCircle, Plus, History, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
