@@ -24,7 +24,7 @@ import { CompanionCheckin } from "@/components/home/CompanionCheckin";
 import { RitualCard } from "@/components/home/RitualCard";
 import { WelcomeBackCard } from "@/components/home/WelcomeBackCard";
 import { BondIndicator } from "@/components/companion/BondIndicator";
-import { useDailyPrompt } from "@/hooks/useDailyPrompt";
+import { InsightPreviewCard } from "@/components/premium/InsightPreviewCard";
 import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionCard } from "@/components/companion/CompanionCard";
 import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
