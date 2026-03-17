@@ -66,6 +66,8 @@ export default function Journal() {
   const [summaryDetail, setSummaryDetail] = useState<JournalEntry | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [showChatBridge, setShowChatBridge] = useState(false);
+  const [lastSavedContent, setLastSavedContent] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { t, language } = useTranslation();
