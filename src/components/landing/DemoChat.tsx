@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { analytics } from "@/hooks/useAnalytics";
 
@@ -20,8 +19,8 @@ interface DemoMessage {
 const DEMO_LIMIT = 3;
 
 const DEMO_GREETING = {
-  en: "Hello. I'm Mira — a space for your thoughts.\n\nWhat's on your mind right now?",
-  de: "Hallo. Ich bin Mira — ein Raum für deine Gedanken.\n\nWas beschäftigt dich gerade?",
+  en: "Hey… it's nice that you're here.\n\nWhat's on your mind right now?",
+  de: "Hey… schön, dass du hier bist.\n\nWas beschäftigt dich gerade?",
 };
 
 const SIGNUP_CTA = {
@@ -37,18 +36,42 @@ const SIGNUP_CTA = {
   },
 };
 
+const INPUT_PLACEHOLDER = {
+  en: "What's really on your mind?",
+  de: "Was geht dir nicht aus dem Kopf?",
+};
+
 export function DemoChat({ language }: DemoChatProps) {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState<DemoMessage[]>([
-    { id: "greeting", role: "assistant", content: DEMO_GREETING[language] },
-  ]);
+  const [messages, setMessages] = useState<DemoMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [userMessageCount, setUserMessageCount] = useState(0);
   const [showLimit, setShowLimit] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const demoStartedRef = useRef(false);
+  const greetingShownRef = useRef(false);
+
+  // Auto-show greeting with typing effect
+  useEffect(() => {
+    if (greetingShownRef.current) return;
+    greetingShownRef.current = true;
+
+    const greeting = DEMO_GREETING[language];
+    const id = "greeting";
+    setMessages([{ id, role: "assistant", content: "" }]);
+
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      setMessages([{ id, role: "assistant", content: greeting.slice(0, i) }]);
+      if (i >= greeting.length) clearInterval(interval);
+    }, 25);
+
+    return () => clearInterval(interval);
+  }, [language]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -62,7 +85,6 @@ export function DemoChat({ language }: DemoChatProps) {
     const text = input.trim();
     if (!text || isStreaming) return;
 
-    // Track demo started on first message
     if (!demoStartedRef.current) {
       demoStartedRef.current = true;
       analytics.track("demo_chat_started", { language }, "demo_chat_started");
@@ -79,7 +101,6 @@ export function DemoChat({ language }: DemoChatProps) {
     setUserMessageCount(prev => prev + 1);
     const newCount = userMessageCount + 1;
 
-    // Track each message
     analytics.track("demo_chat_message_sent", { message_number: newCount, language });
 
     setIsStreaming(true);
@@ -131,7 +152,7 @@ export function DemoChat({ language }: DemoChatProps) {
           const { done, value } = await reader.read();
           if (done) break;
           const chunk = decoder.decode(value, { stream: true });
-          
+
           const lines = chunk.split("\n");
           for (const line of lines) {
             if (line.startsWith("data: ")) {
@@ -192,9 +213,11 @@ export function DemoChat({ language }: DemoChatProps) {
 
   return (
     <div className="w-full max-w-lg mx-auto">
-      <div className="bg-card rounded-3xl border border-border/50 shadow-card overflow-hidden">
+      <div className={`bg-card rounded-3xl border shadow-card overflow-hidden transition-all duration-300 ${
+        inputFocused ? "border-primary/40 shadow-lg shadow-primary/10" : "border-border/50"
+      }`}>
         {/* Header */}
-        <div className="flex items-center gap-3 px-5 py-3.5 border-b border-border/30 bg-background/50">
+        <div className="flex items-center gap-3 px-5 py-3 border-b border-border/30 bg-background/50">
           <CompanionAvatarAnimated
             archetype="mira"
             name="Mira"
@@ -210,7 +233,7 @@ export function DemoChat({ language }: DemoChatProps) {
         </div>
 
         {/* Messages */}
-        <div className="px-4 py-4 space-y-3 max-h-[320px] overflow-y-auto" style={{ minHeight: 180 }}>
+        <div className="px-4 py-4 space-y-3 max-h-[340px] overflow-y-auto" style={{ minHeight: 140 }}>
           {messages.map((msg) => (
             <motion.div
               key={msg.id}
@@ -230,7 +253,7 @@ export function DemoChat({ language }: DemoChatProps) {
                     {i < msg.content.split("\n").length - 1 && <br />}
                   </span>
                 ))}
-                {isStreaming && msg.role === "assistant" && msg === messages[messages.length - 1] && (
+                {isStreaming && msg.role === "assistant" && msg === messages[messages.length - 1] && msg.content !== "" && (
                   <span className="inline-block w-[3px] h-[16px] bg-primary/60 rounded-full align-text-bottom ml-0.5" style={{ animation: "cursor-blink 0.8s ease-in-out infinite" }} />
                 )}
               </div>
@@ -286,23 +309,25 @@ export function DemoChat({ language }: DemoChatProps) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder={language === "de" ? "Schreib etwas..." : "Type something..."}
-                className="flex-1 h-10 bg-muted/30 border border-border/40 rounded-full px-4 text-[14px] focus:outline-none focus:border-primary/40 transition-colors"
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
+                placeholder={INPUT_PLACEHOLDER[language]}
+                className="flex-1 h-12 bg-muted/30 border border-border/40 rounded-full px-5 text-[15px] focus:outline-none focus:border-primary/50 focus:bg-muted/50 transition-all placeholder:text-muted-foreground/50"
                 disabled={isStreaming}
               />
               <Button
                 size="icon"
-                className="rounded-full h-9 w-9 shrink-0"
+                className="rounded-full h-10 w-10 shrink-0"
                 onClick={handleSend}
                 disabled={!input.trim() || isStreaming}
               >
                 <Send className="w-4 h-4" />
               </Button>
             </div>
-            <p className="text-[10px] text-muted-foreground/60 text-center mt-2">
+            <p className="text-[10px] text-muted-foreground/50 text-center mt-2">
               {language === "de"
-                ? `${DEMO_LIMIT - userMessageCount} ${DEMO_LIMIT - userMessageCount === 1 ? "Nachricht" : "Nachrichten"} verbleibend`
-                : `${DEMO_LIMIT - userMessageCount} ${DEMO_LIMIT - userMessageCount === 1 ? "message" : "messages"} remaining`}
+                ? `${DEMO_LIMIT - userMessageCount} ${DEMO_LIMIT - userMessageCount === 1 ? "Nachricht" : "Nachrichten"} verbleibend · Ohne Anmeldung`
+                : `${DEMO_LIMIT - userMessageCount} ${DEMO_LIMIT - userMessageCount === 1 ? "message" : "messages"} remaining · No signup needed`}
             </p>
           </div>
         )}
