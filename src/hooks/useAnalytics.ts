@@ -39,7 +39,27 @@ export type AnalyticsEvent =
   | "onboarding_completed"
   | "companion_selected"
   | "chat_error"
-  | "app_installed";
+  | "app_installed"
+  // Phase 2 retention events
+  | "mood_to_chat_prompt_shown"
+  | "mood_to_chat_clicked"
+  | "journal_to_chat_prompt_shown"
+  | "journal_to_chat_clicked"
+  | "morning_prompt_viewed"
+  | "morning_prompt_clicked"
+  | "evening_prompt_viewed"
+  | "evening_prompt_clicked"
+  | "bond_milestone_seen"
+  | "returning_user_detected"
+  | "return_state_shown"
+  | "chat_saved_to_journal"
+  | "voice_trial_entry_clicked"
+  | "voice_trial_started"
+  | "voice_trial_completed"
+  | "landing_demo_started"
+  | "landing_demo_message_sent"
+  | "landing_demo_limit_reached"
+  | "landing_demo_signup_clicked";
 
 interface EventProperties {
   [key: string]: string | number | boolean | undefined;

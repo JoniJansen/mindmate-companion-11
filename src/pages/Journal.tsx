@@ -25,6 +25,7 @@ import { ALL_JOURNAL_TAG_IDS, getTagI18nKey, toStableTagIds } from "@/lib/tagUti
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { useLastState } from "@/hooks/useLastState";
 import { cn } from "@/lib/utils";
+import { JournalChatBridge } from "@/components/journal/JournalChatBridge";
 
 interface JournalEntry {
   id: string;
@@ -65,6 +66,8 @@ export default function Journal() {
   const [summaryDetail, setSummaryDetail] = useState<JournalEntry | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [showChatBridge, setShowChatBridge] = useState(false);
+  const [lastSavedContent, setLastSavedContent] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { t, language } = useTranslation();
@@ -226,6 +229,13 @@ export default function Journal() {
       setSelectedTags([]);
       setSelectedEntry(null);
       clearPart("journalDraft");
+
+      // Show chat bridge for new entries with meaningful content
+      if (!selectedEntry?.id && entry.content.length > 50) {
+        setLastSavedContent(entry.content);
+        setShowChatBridge(true);
+      }
+
       loadEntries();
     } catch (error) {
       if (import.meta.env.DEV) console.error("Error saving entry:", error);
@@ -479,6 +489,14 @@ export default function Journal() {
       <PageHeader title={t("journal.title")} subtitle={t("journal.subtitle")} />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-5 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full space-y-5">
+        {/* Journal → Chat Bridge */}
+        {showChatBridge && lastSavedContent && (
+          <JournalChatBridge
+            entryContent={lastSavedContent}
+            onDismiss={() => setShowChatBridge(false)}
+          />
+        )}
+
         {/* First-visit hint */}
         <TabHint tabId="journal" />
 

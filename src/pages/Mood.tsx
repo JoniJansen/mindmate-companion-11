@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toStableTagIds } from "@/lib/tagUtils";
 import { useActivityLog } from "@/hooks/useActivityLog";
+import { MoodChatBridge } from "@/components/mood/MoodChatBridge";
 
 interface MoodCheckin {
   id: string;
@@ -39,6 +40,8 @@ export default function Mood() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("7d");
   const [isLoading, setIsLoading] = useState(true);
   const [checkinCollapsed, setCheckinCollapsed] = useState(false);
+  const [showChatBridge, setShowChatBridge] = useState(false);
+  const [savedMoodContext, setSavedMoodContext] = useState<{ mood: number; feelings: string[]; note: string | null } | null>(null);
 
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -161,6 +164,8 @@ export default function Mood() {
 
       setHasSavedToday(true);
       setCheckinCollapsed(true);
+      setSavedMoodContext({ mood: selectedMood, feelings: selectedFeelings, note: note.trim() || null });
+      setShowChatBridge(true);
       logActivity("mood_checkin");
       loadCheckins();
     } catch (error) {
@@ -262,6 +267,16 @@ export default function Mood() {
               </AnimatePresence>
             </div>
           </CalmCard>
+
+          {/* Mood → Chat Bridge */}
+          {showChatBridge && savedMoodContext && (
+            <MoodChatBridge
+              moodValue={savedMoodContext.mood}
+              feelings={savedMoodContext.feelings}
+              note={savedMoodContext.note}
+              onDismiss={() => setShowChatBridge(false)}
+            />
+          )}
 
           {/* Time Filter */}
           <div className="flex gap-2">

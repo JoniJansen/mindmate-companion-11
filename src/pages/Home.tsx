@@ -21,6 +21,9 @@ import { ContinueModule } from "@/components/home/ContinueModule";
 import { ShareableInsightCard } from "@/components/home/ShareableInsightCard";
 import { GrowthDashboard } from "@/components/home/GrowthDashboard";
 import { CompanionCheckin } from "@/components/home/CompanionCheckin";
+import { RitualCard } from "@/components/home/RitualCard";
+import { WelcomeBackCard } from "@/components/home/WelcomeBackCard";
+import { BondIndicator } from "@/components/companion/BondIndicator";
 import { useDailyPrompt } from "@/hooks/useDailyPrompt";
 import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionCard } from "@/components/companion/CompanionCard";
@@ -29,6 +32,7 @@ import { useMemoryMoments } from "@/hooks/useMemoryMoments";
 import { useCompanionCheckins } from "@/hooks/useCompanionCheckins";
 import { useChatPersistence } from "@/hooks/useChatPersistence";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { useReturnState } from "@/hooks/useReturnState";
 interface RecentThought {
   id: string;
   content: string;
@@ -61,6 +65,7 @@ export default function Home() {
   const { checkin: companionCheckin, dismiss: dismissCheckin } = useCompanionCheckins(companion?.name);
   const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
   const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
+  const returnState = useReturnState(language, companion?.name || "Soulvay");
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
   
@@ -276,6 +281,16 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="flex-1 px-6 pb-6">
+        {/* Welcome Back — returning users */}
+        {returnState.category && (
+          <WelcomeBackCard
+            message={returnState.welcomeMessage}
+            onDismiss={returnState.dismiss}
+          />
+        )}
+
+        {/* Morning/Evening Ritual */}
+        <RitualCard />
         {/* Voice/Text Input Area */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

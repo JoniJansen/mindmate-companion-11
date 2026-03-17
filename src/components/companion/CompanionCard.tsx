@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CompanionAvatarAnimated } from "./CompanionAvatarAnimated";
+import { BondIndicator } from "./BondIndicator";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CompanionProfile } from "@/hooks/useCompanion";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
@@ -59,6 +60,11 @@ export function CompanionCard({ companion }: CompanionCardProps) {
             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
               {getGreeting()}
             </p>
+            {(companion.bond_level || 0) > 0 && (
+              <div className="mt-1.5">
+                <BondIndicator bondLevel={companion.bond_level || 0} companionName={companion.name} compact />
+              </div>
+            )}
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
         </div>
