@@ -1,6 +1,8 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface SoftPremiumBannerProps {
   language: "en" | "de";
