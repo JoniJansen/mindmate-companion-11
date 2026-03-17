@@ -489,6 +489,14 @@ export default function Journal() {
       <PageHeader title={t("journal.title")} subtitle={t("journal.subtitle")} />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-5 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full space-y-5">
+        {/* Journal → Chat Bridge */}
+        {showChatBridge && lastSavedContent && (
+          <JournalChatBridge
+            entryContent={lastSavedContent}
+            onDismiss={() => setShowChatBridge(false)}
+          />
+        )}
+
         {/* First-visit hint */}
         <TabHint tabId="journal" />
 
