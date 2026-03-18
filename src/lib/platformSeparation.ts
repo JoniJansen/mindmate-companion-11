@@ -3,22 +3,21 @@
  * 
  * Centralizes all platform/environment detection and visibility rules
  * so that store badges, auth methods, and distribution CTAs are
- * correct across web, iOS, and Android.
+ * correct across web, iOS, and native mobile.
  * 
  * Rules:
  * - Web: may show all store badges, all auth methods
- * - iOS native: hide Google Play refs, show Apple-specific UI
- * - Android native: hide App Store refs, show Android-specific UI
- * - Both native: hide "download" / install / store badge sections
+ * - iOS native: hide competitor refs, show Apple-specific UI
+ * - Native mobile: hide store badge sections
  */
 
 import { isNativeApp, isNativeIOS } from "./nativeDetect";
 
 // ── Core Platform Detection ──
 
-let _platformCache: "web" | "ios" | "android" | null = null;
+let _platformCache: "web" | "ios" | "other-native" | null = null;
 
-function detectPlatform(): "web" | "ios" | "android" {
+function detectPlatform(): "web" | "ios" | "other-native" {
   if (_platformCache) return _platformCache;
 
   if (!isNativeApp()) {
@@ -31,13 +30,13 @@ function detectPlatform(): "web" | "ios" | "android" {
     return "ios";
   }
 
-  // If native but not iOS → Android
-  _platformCache = "android";
-  return "android";
+  // If native but not iOS
+  _platformCache = "other-native";
+  return "other-native";
 }
 
 /** Current runtime platform */
-export function getPlatform(): "web" | "ios" | "android" {
+export function getPlatform(): "web" | "ios" | "other-native" {
   return detectPlatform();
 }
 
@@ -53,9 +52,9 @@ export function isIOSApp(): boolean {
   return getPlatform() === "ios";
 }
 
-/** Running inside the Android native app (Capacitor) */
-export function isAndroidApp(): boolean {
-  return getPlatform() === "android";
+/** Running inside a non-iOS native app (Capacitor) */
+export function isOtherNativeApp(): boolean {
+  return getPlatform() === "other-native";
 }
 
 // ── Visibility Rules ──
@@ -72,30 +71,22 @@ export function shouldShowStoreBadges(): boolean {
 
 /** True when the Apple App Store badge specifically should be shown */
 export function shouldShowAppleStoreBadge(): boolean {
-  // Show on web, never inside Android app (irrelevant) or iOS app (already installed)
   return isWeb();
 }
 
-/** True when the Google Play badge specifically should be shown */
-export function shouldShowGooglePlayBadge(): boolean {
-  // Show on web, never inside iOS app (competitor ref) or Android app (already installed)
-  return isWeb();
-}
-
-/** True when Google Sign-In should be available as an auth option */
+/** True when OAuth sign-in should be available as an auth option */
 export function shouldShowGoogleAuth(): boolean {
-  // Web only — iOS must not show Google branding, Android uses email-only
+  // Web only — iOS must not show competitor branding
   return isWeb();
 }
 
 /** True when Apple Sign-In should be available as an auth option */
 export function shouldShowAppleAuth(): boolean {
   // Show on web (both options available) and iOS (required by Apple)
-  // Never on Android (no Apple branding allowed)
   return isWeb() || isIOSApp();
 }
 
-/** True when store messaging ("Coming soon to App Store / Play Store") should be shown */
+/** True when store messaging should be shown */
 export function shouldShowStoreMessaging(): boolean {
   return isWeb();
 }
@@ -116,13 +107,7 @@ export function shouldShowReviewLogin(): boolean {
 export function getMobileAppFAQ(language: "en" | "de"): { q: string; a: string } {
   const platform = getPlatform();
 
-  if (platform === "ios") {
-    return language === "de"
-      ? { q: "Gibt es eine mobile App?", a: "Du nutzt bereits die Soulvay App! Alle Funktionen stehen dir direkt hier zur Verfügung." }
-      : { q: "Is there a mobile app?", a: "You're already using the Soulvay app! All features are available right here." };
-  }
-
-  if (platform === "android") {
+  if (platform !== "web") {
     return language === "de"
       ? { q: "Gibt es eine mobile App?", a: "Du nutzt bereits die Soulvay App! Alle Funktionen stehen dir direkt hier zur Verfügung." }
       : { q: "Is there a mobile app?", a: "You're already using the Soulvay app! All features are available right here." };
