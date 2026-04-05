@@ -13,6 +13,8 @@ interface Preferences {
   addressForm: "du" | "sie";
   innerDialogue: boolean;
   modePrompt?: string; // Chat mode specific prompt from frontend
+  companionSystemPrompt?: string; // Full companion persona from frontend
+  companionId?: string;
 }
 
 // Chat request validation thresholds
@@ -22,19 +24,34 @@ const MAX_SESSION_ID_LENGTH = 128;
 
 // Crisis keywords that trigger safety response
 const CRISIS_KEYWORDS = [
-  // Self-harm
+  // Self-harm (EN)
   "self-harm", "self harm", "hurt myself", "hurting myself", "cut myself", "cutting myself",
   "harm myself", "harming myself", "injure myself", "burn myself",
-  // Suicidal thoughts
+  // Suicidal thoughts (EN)
   "suicide", "suicidal", "kill myself", "end my life", "end it all", "want to die",
   "don't want to live", "dont want to live", "better off dead", "no reason to live",
   "take my own life", "not worth living", "can't go on", "cant go on",
-  // Immediate danger
+  "want to end it", "thinking about suicide", "plan to kill",
+  // Immediate danger (EN)
   "in danger", "going to hurt", "someone is hurting me", "being abused", "being hurt",
   "not safe", "unsafe at home", "afraid for my life",
-  // Violence
-  "hurt someone", "kill someone", "violent thoughts", "abuse", "domestic violence",
-  "being beaten", "attacked"
+  // Violence (EN)
+  "hurt someone", "kill someone", "violent thoughts", "domestic violence",
+  "being beaten", "attacked",
+  // Self-harm (DE)
+  "selbstverletzung", "mich selbst verletzen", "mich schneiden", "mich ritzen", "mich verbrennen",
+  "mir wehtun", "mir schaden",
+  // Suicidal thoughts (DE)
+  "suizid", "selbstmord", "mich umbringen", "mein leben beenden", "sterben wollen",
+  "nicht mehr leben wollen", "keinen ausweg", "kein lebensgrund", "nicht mehr leben",
+  "alles beenden", "aufhören zu existieren", "will sterben", "möchte sterben",
+  "leben beenden", "tot sein wollen", "nicht mehr da sein",
+  // Immediate danger (DE)
+  "in gefahr", "werde verletzt", "jemand verletzt mich", "werde misshandelt",
+  "nicht sicher", "angst um mein leben", "häusliche gewalt",
+  // Violence (DE)
+  "jemanden verletzen", "jemanden umbringen", "gewalttätige gedanken",
+  "misshandlung", "werde geschlagen", "angegriffen"
 ];
 
 function detectCrisis(messages: { role: string; content: string }[]): boolean {
@@ -138,9 +155,9 @@ Help users explore different inner perspectives or emotional parts in a gentle, 
 `
     : "";
 
-  // Crisis-specific system prompt
+  // Crisis-specific system prompt — overrides companion persona for safety
   if (isCrisis) {
-    return `You are Soulvay, a digital psychological companion developed to provide evidence-based emotional support. The user has expressed something that suggests they may be in crisis or distress. This is your TOP PRIORITY.
+    return `You are a compassionate digital companion providing crisis support. The user has expressed something that suggests they may be in crisis or distress. This is your TOP PRIORITY — safety comes before persona.
 
 ${languageInstruction}
 ${addressInstruction}
@@ -187,9 +204,19 @@ ${addressInstruction}
 Remember: You are a supportive digital tool, not a substitute for licensed mental health professionals. Your role is to provide immediate emotional support, conduct a basic safety assessment, and facilitate connection with appropriate professional resources.`;
   }
 
+  // If a companion system prompt was provided, use it as the core identity
+  // and append language + mode instructions
+  if (preferences.companionSystemPrompt) {
+    const langEnforcement = preferences.language === "de"
+      ? "\n\n## SPRACHE\nAntworte IMMER auf Deutsch, unabhängig davon, in welcher Sprache der Nutzer schreibt. Wechsle niemals ins Englische."
+      : "\n\n## LANGUAGE\nAlways respond in English, regardless of what language the user writes in. Never switch to German.";
+    const modeInstruction = preferences.modePrompt ? `\n\n## CURRENT CHAT MODE\n${preferences.modePrompt}` : "";
+    return preferences.companionSystemPrompt + langEnforcement + modeInstruction;
+  }
+
   // Normal system prompt - Professional psychological companion
   const modeInstruction = preferences.modePrompt ? `\n## CURRENT CHAT MODE\n${preferences.modePrompt}\n` : "";
-  
+
   return `You are Soulvay, a digital psychological companion designed to provide evidence-based emotional support and promote mental wellbeing. You embody the qualities of a skilled, empathetic psychologist: professional yet warm, knowledgeable yet humble, supportive yet boundaried.
 
 ${languageInstruction}
@@ -373,8 +400,7 @@ serve(async (req) => {
     const isCrisis = detectCrisis(messages || []);
     const systemPrompt = buildSystemPrompt(userPreferences, isCrisis);
 
-    console.log(`Chat request from user ${userId} with ${messages?.length || 0} messages`);
-    console.log("Preferences:", userPreferences);
+    console.log(`Chat request from user ${userId} with ${messages?.length || 0} messages, companion=${userPreferences.companionId || "default"}`);
     if (isCrisis) {
       console.log("CRISIS DETECTED - Using crisis response protocol");
     }

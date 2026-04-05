@@ -16,6 +16,8 @@ import { WeeklyProgress } from "@/components/streak/WeeklyProgress";
 import { usePersonalization } from "@/hooks/usePersonalization";
 import { AdaptiveSuggestions } from "@/components/home/AdaptiveSuggestions";
 import { ContinueModule } from "@/components/home/ContinueModule";
+import { useCompanion } from "@/hooks/useCompanion";
+import { CompanionAvatar } from "@/components/companions/CompanionAvatar";
 interface RecentThought {
   id: string;
   content: string;
@@ -39,6 +41,7 @@ export default function Home() {
   const { logActivity } = useActivityLog();
   const { suggestions, audioSuggestion } = usePersonalization();
   const [showMilestone, setShowMilestone] = useState(true);
+  const { companion } = useCompanion();
   
   const speechLang = language === "de" ? "de-DE" : "en-US";
   
@@ -354,6 +357,32 @@ export default function Home() {
               {language === "de" ? "Audio" : "Audio"}
             </span>
           </Button>
+        </motion.div>
+
+        {/* Companion Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mb-4"
+        >
+          <button
+            onClick={() => navigate("/chat")}
+            className="w-full text-left rounded-2xl p-4 border bg-card border-border/50 hover:border-primary/30 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <CompanionAvatar companion={companion} size="md" animate />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">
+                  {language === "de" ? `Dein Begleiter: ${companion.name}` : `Your companion: ${companion.name}`}
+                </p>
+                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                  {companion.tagline[language as "en" | "de"]}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+            </div>
+          </button>
         </motion.div>
 
         {/* Weekly Progress Dashboard */}

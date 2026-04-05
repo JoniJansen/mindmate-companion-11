@@ -48,6 +48,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AccountSettings } from "@/components/settings/AccountSettings";
 import { NotificationSettings } from "@/components/settings/NotificationSettings";
+import { useCompanion } from "@/hooks/useCompanion";
+import { CompanionCard } from "@/components/companions/CompanionAvatar";
 
 interface Preferences {
   language: "en" | "de";
@@ -78,6 +80,7 @@ export default function Settings() {
   const { checkSubscriptionStatus } = usePremium();
   const { user, profile, signOut } = useAuth();
   const { isAdmin, checkAdminStatus } = useAdmin();
+  const { companion, companions, setCompanion } = useCompanion();
 
   // Check admin status on mount
   useEffect(() => {
@@ -577,6 +580,28 @@ export default function Settings() {
                 />
               </div>
             </CalmCard>
+          </div>
+        </motion.div>
+
+        {/* Companion Selection */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.11 }}
+        >
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
+            {language === "de" ? "Dein Begleiter" : "Your Companion"}
+          </h2>
+          <div className="space-y-2">
+            {companions.map((c) => (
+              <CompanionCard
+                key={c.id}
+                companion={c}
+                selected={c.id === companion.id}
+                onSelect={() => setCompanion(c.id)}
+                language={language as "en" | "de"}
+              />
+            ))}
           </div>
         </motion.div>
 

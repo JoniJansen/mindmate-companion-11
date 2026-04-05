@@ -8,6 +8,8 @@ import { useTheme } from "@/hooks/useTheme";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
 import logoImage from "@/assets/logo.png";
+import { companions, type Companion } from "@/data/companions";
+import { CompanionCard } from "@/components/companions/CompanionAvatar";
 
 type Language = "en" | "de";
 type Tone = "gentle" | "neutral" | "structured";
@@ -18,13 +20,13 @@ interface OnboardingState {
   tone: Tone;
   addressForm: AddressForm;
   disclaimerAccepted: boolean;
-  // Phase 3: New personalization fields
   focusAreas: string[];
   reflectionFrequency: string;
   personalGoal: string;
+  companionId: string;
 }
 
-const steps = ["welcome", "disclaimer", "preferences", "focus", "frequency", "goal"] as const;
+const steps = ["welcome", "disclaimer", "preferences", "focus", "frequency", "goal", "companion"] as const;
 type Step = typeof steps[number];
 
 const focusOptions = {
@@ -108,6 +110,10 @@ const translations = {
       reassurance: "You can change this anytime.",
       skip: "Skip for now",
     },
+    companion: {
+      title: "Choose your companion",
+      subtitle: "Each has a unique psychological approach. You can switch anytime in Settings.",
+    },
   },
   de: {
     continue: "Weiter",
@@ -151,6 +157,10 @@ const translations = {
       reassurance: "Du kannst das jederzeit ändern.",
       skip: "Erstmal überspringen",
     },
+    companion: {
+      title: "Wähle deinen Begleiter",
+      subtitle: "Jeder hat einen einzigartigen psychologischen Ansatz. Du kannst jederzeit in den Einstellungen wechseln.",
+    },
   },
 };
 
@@ -167,6 +177,7 @@ export default function Onboarding() {
       focusAreas: [],
       reflectionFrequency: "",
       personalGoal: "",
+      companionId: "mira",
     };
   });
   const navigate = useNavigate();
@@ -207,6 +218,9 @@ export default function Onboarding() {
       reflectionFrequency: state.reflectionFrequency || "3x_week",
       personalGoal: state.personalGoal,
     }));
+
+    // Save chosen companion
+    localStorage.setItem("soulvay-companion", state.companionId);
 
     completeOnboarding();
 
@@ -316,18 +330,33 @@ export default function Onboarding() {
               />
             </motion.div>
           )}
+          {currentStep === "companion" && (
+            <motion.div key="companion" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <CompanionStep
+                t={t.companion}
+                language={state.language}
+                selected={state.companionId}
+                onSelect={(id) => setState(s => ({ ...s, companionId: id }))}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Continue button */}
         <div className="mt-auto pt-4 sm:pt-6 shrink-0">
-          {currentStep === "goal" ? (
+          {currentStep === "companion" ? (
+            <Button size="xl" className="w-full" onClick={finishOnboarding}>
+              {t.getStarted}
+              <Sparkles className="w-5 h-5 ml-2" />
+            </Button>
+          ) : currentStep === "goal" ? (
             <div className="space-y-3">
-              <Button size="xl" className="w-full" onClick={finishOnboarding}>
-                {t.getStarted}
-                <Sparkles className="w-5 h-5 ml-2" />
+              <Button size="xl" className="w-full" onClick={handleNext}>
+                {t.continue}
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               {!state.personalGoal && (
-                <Button variant="ghost" className="w-full text-muted-foreground" onClick={finishOnboarding}>
+                <Button variant="ghost" className="w-full text-muted-foreground" onClick={handleNext}>
                   {t.goal.skip}
                 </Button>
               )}
@@ -564,6 +593,36 @@ function PreferenceSection({ icon: Icon, title, children }: { icon: React.Compon
         <span className="text-sm font-medium text-foreground">{title}</span>
       </div>
       {children}
+    </div>
+  );
+}
+
+function CompanionStep({ t, language, selected, onSelect }: {
+  t: { title: string; subtitle: string };
+  language: "en" | "de";
+  selected: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col pt-4">
+      <div className="text-center mb-6">
+        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <span className="text-2xl">🤝</span>
+        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
+        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+      </div>
+      <div className="space-y-3 pb-4">
+        {companions.map((c: Companion) => (
+          <CompanionCard
+            key={c.id}
+            companion={c}
+            selected={selected === c.id}
+            onSelect={() => onSelect(c.id)}
+            language={language}
+          />
+        ))}
+      </div>
     </div>
   );
 }

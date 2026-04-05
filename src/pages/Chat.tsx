@@ -26,6 +26,8 @@ import { ChatDisclaimer } from "@/components/chat/ChatDisclaimer";
 import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
 import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicator";
 import { useActivityLog } from "@/hooks/useActivityLog";
+import { useCompanion } from "@/hooks/useCompanion";
+import { CompanionBadge } from "@/components/companions/CompanionAvatar";
 
 interface Message {
   id: string;
@@ -154,6 +156,7 @@ export default function Chat() {
   const preferences = useRef<Preferences>(getPreferences());
   const { isOnline } = useNetworkStatus();
   const { logActivity } = useActivityLog();
+  const { companion, getSystemPrompt, getVoiceId: getCompanionVoiceId } = useCompanion();
   const chatMessageCountRef = useRef(0);
   const streamChunkBufferRef = useRef("");
   const streamFlushFrameRef = useRef<number | null>(null);
@@ -484,7 +487,8 @@ export default function Chat() {
   }) => {
     try {
       const modePrompt = getModeSystemPrompt(chatMode, language as "en" | "de");
-      
+      const companionSystemPrompt = getSystemPrompt(language as "en" | "de");
+
       // Add personalization context if available
       let personalizationContext = "";
       try {
@@ -499,11 +503,11 @@ export default function Chat() {
           }
         }
       } catch {}
-      
+
       // Get user session token for authenticated request
       const { data: { session } } = await supabase.auth.getSession();
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -513,7 +517,12 @@ export default function Chat() {
         },
         body: JSON.stringify({
           messages,
-          preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
+          preferences: {
+            ...preferences.current,
+            modePrompt: modePrompt + personalizationContext,
+            companionSystemPrompt,
+            companionId: companion.id,
+          },
           sessionId: sessionId.current,
         }),
         signal,
@@ -678,10 +687,12 @@ export default function Chat() {
 
   const playMessage = useCallback((message: Message) => {
     if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
-    const voiceId = getVoiceId(language as "en" | "de");
+    // Prefer companion voice, fall back to user voice settings
+    const companionVoice = getCompanionVoiceId(language as "en" | "de");
+    const voiceId = companionVoice || getVoiceId(language as "en" | "de");
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
     speakTTS(message.content, voiceId, effectiveLang, voiceSettings.speed, message.id);
-  }, [canUseVoice, getVoiceId, getEffectiveLanguage, language, speakTTS, voiceSettings.speed]);
+  }, [canUseVoice, getCompanionVoiceId, getVoiceId, getEffectiveLanguage, language, speakTTS, voiceSettings.speed]);
 
   const toggleVoiceMode = () => {
     if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
@@ -751,7 +762,7 @@ export default function Chat() {
     >
       <PageHeader
         title={t("chat.title")}
-        subtitle={t("chat.subtitle")}
+        subtitle={<CompanionBadge companion={companion} />}
         showLogo
         showBack={false}
         rightElement={
