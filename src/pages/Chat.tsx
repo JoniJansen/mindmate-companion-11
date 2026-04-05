@@ -72,29 +72,35 @@ interface ChatMessageItemProps {
   canUseVoice: boolean;
   onSave: (message: Message) => void;
   saveTitle: string;
+  language: string;
 }
 
 const ChatMessageItem = memo(function ChatMessageItem({
   message, failedUserMessage, onRetry, onContinue,
-  isPlaying, isTTSLoading, onPlay, onStop, canUseVoice, onSave, saveTitle
+  isPlaying, isTTSLoading, onPlay, onStop, canUseVoice, onSave, saveTitle, language
 }: ChatMessageItemProps) {
+  const isDE = language === "de";
   return (
     <div className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"}`}>
       {message.isError ? (
         <div className="max-w-[92%] px-4 py-3 rounded-[18px] bg-amber-50 border border-amber-200 text-amber-900" role="alert">
-          <p className="text-sm font-medium mb-1">I'm sorry, I'm having trouble processing that right now.</p>
-          <p className="text-xs text-foreground mb-2">If you feel upset, it's okay to pause and take a break; you can continue when ready.</p>
+          <p className="text-sm font-medium mb-1">
+            {isDE ? "Es tut mir leid, ich habe gerade Schwierigkeiten." : "I'm sorry, I'm having trouble processing that right now."}
+          </p>
+          <p className="text-xs text-foreground mb-2">
+            {isDE ? "Wenn du dich überfordert fühlst, ist es okay, eine Pause zu machen." : "If you feel upset, it's okay to pause and take a break; you can continue when ready."}
+          </p>
           <p className="text-sm text-amber-900 mb-2">{message.content}</p>
           {failedUserMessage && (
-            <p className="text-xs text-muted-foreground mb-2">{`Failed text: "${failedUserMessage}"`}</p>
+            <p className="text-xs text-muted-foreground mb-2">{isDE ? `Fehlgeschlagener Text: "${failedUserMessage}"` : `Failed text: "${failedUserMessage}"`}</p>
           )}
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={onRetry} className="gap-1.5">
               <RefreshCw className="w-3.5 h-3.5" />
-              Retry
+              {isDE ? "Erneut" : "Retry"}
             </Button>
             <Button variant="ghost" size="sm" onClick={onContinue}>
-              Continue
+              {isDE ? "Weiter" : "Continue"}
             </Button>
           </div>
         </div>
@@ -901,6 +907,7 @@ export default function Chat() {
               canUseVoice={canUseVoice}
               onSave={handleSaveMessage}
               saveTitle={t("chat.saveMessage")}
+              language={language}
             />
           ))}
 
