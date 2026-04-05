@@ -2,6 +2,7 @@ export interface Companion {
   id: string;
   name: string;
   pronouns: string;
+  pronounsDe: string;
   age: number;
   color: string;       // Tailwind color token (e.g. "violet")
   gradient: string;    // Tailwind gradient classes
@@ -33,6 +34,7 @@ export const companions: Companion[] = [
     id: "mira",
     name: "Mira",
     pronouns: "she/her",
+    pronounsDe: "sie/ihr",
     age: 34,
     color: "violet",
     gradient: "from-violet-500 to-purple-600",
@@ -112,6 +114,7 @@ Du arbeitest hauptsächlich mit dem KVT-Framework:
     id: "noah",
     name: "Noah",
     pronouns: "he/him",
+    pronounsDe: "er/ihm",
     age: 38,
     color: "teal",
     gradient: "from-teal-500 to-cyan-600",
@@ -189,6 +192,7 @@ Du arbeitest hauptsächlich mit dem KVT-Framework:
     id: "elena",
     name: "Elena",
     pronouns: "she/her",
+    pronounsDe: "sie/ihr",
     age: 41,
     color: "rose",
     gradient: "from-rose-500 to-pink-600",
@@ -266,6 +270,7 @@ Du arbeitest hauptsächlich mit dem KVT-Framework:
     id: "kai",
     name: "Kai",
     pronouns: "they/them",
+    pronounsDe: "they/them",
     age: 30,
     color: "amber",
     gradient: "from-amber-500 to-orange-500",
@@ -343,6 +348,7 @@ Du arbeitest hauptsächlich mit dem KVT-Framework:
     id: "lina",
     name: "Lina",
     pronouns: "she/her",
+    pronounsDe: "sie/ihr",
     age: 36,
     color: "green",
     gradient: "from-green-500 to-emerald-600",
@@ -420,6 +426,7 @@ Du arbeitest hauptsächlich mit dem KVT-Framework:
     id: "theo",
     name: "Theo",
     pronouns: "he/him",
+    pronounsDe: "er/ihm",
     age: 45,
     color: "slate",
     gradient: "from-slate-600 to-zinc-700",
@@ -496,6 +503,7 @@ Du arbeitest hauptsächlich mit dem KVT-Framework:
     id: "ava",
     name: "Ava",
     pronouns: "she/her",
+    pronounsDe: "sie/ihr",
     age: 33,
     color: "sky",
     gradient: "from-sky-500 to-blue-600",
@@ -575,6 +583,7 @@ Du arbeitest hauptsächlich mit dem KVT-Framework:
     id: "jonas",
     name: "Jonas",
     pronouns: "he/him",
+    pronounsDe: "er/ihm",
     age: 32,
     color: "orange",
     gradient: "from-orange-500 to-red-500",
@@ -652,6 +661,7 @@ Du arbeitest hauptsächlich mit dem KVT-Framework:
     id: "sofia",
     name: "Sofia",
     pronouns: "she/her",
+    pronounsDe: "sie/ihr",
     age: 39,
     color: "purple",
     gradient: "from-purple-500 to-fuchsia-600",
@@ -730,6 +740,7 @@ Du arbeitest hauptsächlich mit dem KVT-Framework:
     id: "arin",
     name: "Arin",
     pronouns: "they/them",
+    pronounsDe: "they/them",
     age: 28,
     color: "yellow",
     gradient: "from-yellow-400 to-lime-500",

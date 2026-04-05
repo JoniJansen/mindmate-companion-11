@@ -253,7 +253,9 @@ export default function Onboarding() {
       <div className="flex flex-col px-4 pt-6 pb-2 safe-top">
         <div className="flex items-center justify-between mb-2">
           <div className="text-xs text-muted-foreground">
-            Step {currentStepIndex + 1} of {steps.length}
+            {state.language === "de"
+              ? `Schritt ${currentStepIndex + 1} von ${steps.length}`
+              : `Step ${currentStepIndex + 1} of ${steps.length}`}
           </div>
           <button
             onClick={() => setThemeMode(isDark ? "light" : "dark")}

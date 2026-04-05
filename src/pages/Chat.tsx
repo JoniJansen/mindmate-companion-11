@@ -864,11 +864,13 @@ export default function Chat() {
           {showTrustIntro && !loadHistoryFailed && (
             <div className="bg-card border border-border/50 text-foreground p-3 rounded-2xl mb-3 max-w-[90%] mx-auto">
               <p className="text-sm leading-relaxed">
-                Soulvay is here to listen and support you. I can offer guidance and calm reflection, but I am not a replacement for a licensed professional.
+                {language === "de"
+                  ? `${companion.name} ist hier, um dir zuzuhören und dich zu begleiten — kein Ersatz für professionelle Unterstützung, aber ein ehrlicher Gesprächspartner.`
+                  : `${companion.name} is here to listen and support you. I offer guidance and calm reflection, but I'm not a replacement for a licensed professional.`}
               </p>
               <div className="mt-2 flex justify-end">
                 <Button size="xs" variant="ghost" onClick={() => setShowTrustIntro(false)}>
-                  Got it
+                  {language === "de" ? "Verstanden" : "Got it"}
                 </Button>
               </div>
             </div>
@@ -876,10 +878,18 @@ export default function Chat() {
 
           {!loadHistoryFailed && messages.length === 0 && !isLoading && (
             <div className="border border-border/30 bg-muted/5 rounded-2xl p-5 text-center text-sm text-muted-foreground">
-              <p className="font-medium text-foreground mb-2">Start a conversation in a few words</p>
-              <p>Ask Soulvay how you&#39;re feeling, what you want to work on, or just type anything on your mind.</p>
+              <p className="font-medium text-foreground mb-2">
+                {language === "de"
+                  ? `Möchtest du mit ${companion.name} sprechen?`
+                  : `Start a conversation with ${companion.name}`}
+              </p>
+              <p>
+                {language === "de"
+                  ? "Teile einfach, was dich bewegt — oder probiere einen der Impulse unten."
+                  : "Share what's on your mind, or try one of the prompts below."}
+              </p>
               <Button size="sm" variant="outline" className="mt-3" onClick={() => handleSend(getQuickReplies()[0])}>
-                Try a prompt
+                {language === "de" ? "Impuls ausprobieren" : "Try a prompt"}
               </Button>
             </div>
           )}

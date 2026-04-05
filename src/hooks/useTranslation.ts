@@ -45,7 +45,7 @@ export const translations: Translations = {
 
   // Chat page
   "chat.title": { en: "Soulvay", de: "Soulvay" },
-  "chat.subtitle": { en: "Always here for you", de: "Immer für dich da" },
+  "chat.subtitle": { en: "Your reflection companion", de: "Dein Reflexionsbegleiter" },
   "chat.inputPlaceholder": { en: "Type something...", de: "Schreibe etwas..." },
   "chat.endSummarize": { en: "Wrap up", de: "Zusammenfassen" },
   "chat.nextSteps": { en: "What's next", de: "Wie weiter" },
@@ -307,6 +307,7 @@ export const translations: Translations = {
   "chat.chatSavedDesc": { en: "Your conversation has been saved as a journal entry.", de: "Dein Gespräch wurde als Tagebucheintrag gespeichert." },
   "chat.messageSavedDesc": { en: "The message has been saved to your journal.", de: "Die Nachricht wurde in deinem Tagebuch gespeichert." },
   "chat.summarySavedDesc": { en: "AI summary has been saved to your journal.", de: "KI-Zusammenfassung wurde in deinem Tagebuch gespeichert." },
+  "chat.assistantThinking": { en: "Thinking...", de: "Denkt nach..." },
   "chat.generatingSummary": { en: "Generating summary...", de: "Zusammenfassung wird erstellt..." },
   "chat.pleaseWait": { en: "This may take a moment.", de: "Das kann einen Moment dauern." },
 

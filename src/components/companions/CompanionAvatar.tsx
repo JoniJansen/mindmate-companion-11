@@ -122,7 +122,9 @@ export function CompanionCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="font-semibold text-foreground">{companion.name}</span>
-            <span className="text-xs text-muted-foreground">{companion.pronouns}</span>
+            <span className="text-xs text-muted-foreground">
+              {language === "de" ? companion.pronounsDe : companion.pronouns}
+            </span>
             {selected && (
               <span className="ml-auto text-xs font-medium text-primary">✓</span>
             )}

@@ -374,10 +374,12 @@ export default function Home() {
               <CompanionAvatar companion={companion} size="md" animate />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">
-                  {language === "de" ? `Dein Begleiter: ${companion.name}` : `Your companion: ${companion.name}`}
+                  {language === "de"
+                    ? `Möchtest du mit ${companion.name} sprechen?`
+                    : `Ready to talk with ${companion.name}?`}
                 </p>
                 <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                  {companion.tagline[language as "en" | "de"]}
+                  {companion.specialty[language as "en" | "de"]}
                 </p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
