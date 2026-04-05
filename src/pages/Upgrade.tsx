@@ -259,7 +259,7 @@ export default function Upgrade() {
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50">
-        <div className="px-4 py-4 max-w-lg mx-auto">
+        <div className="px-4 py-4 max-w-lg md:max-w-2xl mx-auto">
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -270,7 +270,7 @@ export default function Upgrade() {
         </div>
       </div>
 
-      <div className="px-4 py-6 max-w-lg mx-auto space-y-8">
+      <div className="px-4 py-6 max-w-lg md:max-w-2xl mx-auto space-y-8">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

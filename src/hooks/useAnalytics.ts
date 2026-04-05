@@ -90,12 +90,12 @@ class Analytics {
 
   private persistEvents() {
     try {
-      const stored = localStorage.getItem("mindmate_analytics") || "[]";
+      const stored = localStorage.getItem("soulvay_analytics") || "[]";
       const existingEvents = JSON.parse(stored);
       
       // Keep last 100 events
       const allEvents = [...existingEvents, ...this.events.slice(-10)].slice(-100);
-      localStorage.setItem("mindmate_analytics", JSON.stringify(allEvents));
+      localStorage.setItem("soulvay_analytics", JSON.stringify(allEvents));
       
       this.events = [];
     } catch {
@@ -105,7 +105,7 @@ class Analytics {
 
   getStoredEvents() {
     try {
-      return JSON.parse(localStorage.getItem("mindmate_analytics") || "[]");
+      return JSON.parse(localStorage.getItem("soulvay_analytics") || "[]");
     } catch {
       return [];
     }

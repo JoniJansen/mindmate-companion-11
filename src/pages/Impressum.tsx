@@ -10,7 +10,7 @@ export default function Impressum() {
   const [language, setLanguage] = useState<"en" | "de">("de");
 
   useEffect(() => {
-    const stored = localStorage.getItem("mindmate_language") || "de";
+    const stored = localStorage.getItem("soulvay_language") || "de";
     setLanguage(stored as "en" | "de");
   }, []);
 

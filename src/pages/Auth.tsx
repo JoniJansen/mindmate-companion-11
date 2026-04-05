@@ -33,6 +33,11 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [isReviewLoading, setIsReviewLoading] = useState(false);
 
+  const handleFieldFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (!window.matchMedia("(max-width: 768px)").matches) return;
+    event.currentTarget.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
@@ -168,9 +173,9 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-[100dvh] bg-background flex flex-col">
       {/* Header */}
-      <div className="p-4 flex items-center justify-between">
+      <div className="safe-top p-4 flex items-center justify-between shrink-0">
         {fromOnboarding ? (
           <div className="w-10" />
         ) : (
@@ -201,11 +206,14 @@ export default function Auth() {
       </div>
 
       {/* Form */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-8">
+      <div
+        className="flex-1 overflow-y-auto px-4 pb-4 safe-bottom"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm md:max-w-md space-y-8"
+          className="w-full max-w-sm md:max-w-md mx-auto space-y-6 md:space-y-8 py-4 md:py-8 min-h-full flex flex-col justify-start sm:justify-center"
         >
           {/* Logo & Title */}
           <div className="text-center space-y-4">
@@ -261,6 +269,7 @@ export default function Auth() {
                     placeholder={t("auth.yourNamePlaceholder")}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
+                    onFocus={handleFieldFocus}
                     className="pl-10"
                   />
                 </div>
@@ -277,6 +286,7 @@ export default function Auth() {
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onFocus={handleFieldFocus}
                   required
                   className="pl-10"
                 />
@@ -307,6 +317,7 @@ export default function Auth() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onFocus={handleFieldFocus}
                     required
                     minLength={6}
                     className="pl-10 pr-10"

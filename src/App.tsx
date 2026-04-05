@@ -67,10 +67,16 @@ function ThemeInitializer() {
   useEffect(() => {
     const root = document.documentElement;
     try {
-      const stored = localStorage.getItem("mindmate-theme");
+      const legacyStored = localStorage.getItem("soulvay-theme");
+      const stored = localStorage.getItem("soulvay-theme") || legacyStored;
       if (stored) {
         const theme = JSON.parse(stored);
-        
+
+        // If we have legacy value, migrate to canonical key
+        if (legacyStored && !localStorage.getItem("soulvay-theme")) {
+          localStorage.setItem("soulvay-theme", JSON.stringify(theme));
+        }
+
         // Determine actual mode - default to light
         let actualMode: "light" | "dark" = theme.mode === "system"
           ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"

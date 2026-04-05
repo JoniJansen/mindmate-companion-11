@@ -36,6 +36,7 @@ export default function Topics() {
   const [topicChatInput, setTopicChatInput] = useState("");
   const [topicChatLoading, setTopicChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLInputElement>(null);
   const topicStreamBufferRef = useRef("");
   const topicStreamFrameRef = useRef<number | null>(null);
 
@@ -58,7 +59,7 @@ export default function Topics() {
 
   // Load progress
   useEffect(() => {
-    const stored = localStorage.getItem("mindmate-topic-progress");
+    const stored = localStorage.getItem("soulvay-topic-progress");
     if (stored) {
       try {
         setProgress(JSON.parse(stored));
@@ -70,7 +71,7 @@ export default function Topics() {
 
   // Load notes
   useEffect(() => {
-    const stored = localStorage.getItem("mindmate-topic-notes");
+    const stored = localStorage.getItem("soulvay-topic-notes");
     if (stored) {
       try { setTopicNotes(JSON.parse(stored)); } catch {}
     }
@@ -93,7 +94,7 @@ export default function Topics() {
   const saveNotes = (topicId: string, content: string) => {
     const updated = { ...topicNotes, [topicId]: content };
     setTopicNotes(updated);
-    localStorage.setItem("mindmate-topic-notes", JSON.stringify(updated));
+    localStorage.setItem("soulvay-topic-notes", JSON.stringify(updated));
   };
 
   const saveNoteToJournal = async (topicId: string) => {
@@ -237,7 +238,7 @@ export default function Topics() {
       },
     };
     setProgress(newProgress);
-    localStorage.setItem("mindmate-topic-progress", JSON.stringify(newProgress));
+    localStorage.setItem("soulvay-topic-progress", JSON.stringify(newProgress));
   };
 
   const getTopicProgress = (topicId: string, totalSteps: number): number => {
@@ -487,15 +488,17 @@ export default function Topics() {
 
                 <div className="flex items-center gap-2">
                   <input
+                    ref={chatInputRef}
                     type="text"
                     value={topicChatInput}
                     onChange={(e) => setTopicChatInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendTopicChat(); } }}
+                    onFocus={() => { setTimeout(() => chatInputRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 300); }}
                     placeholder={t("topics.askAboutTopic")}
                     className="flex-1 h-11 bg-muted/30 border border-border/50 rounded-full px-4 text-[15px] focus:outline-none focus:border-primary/40"
                     disabled={topicChatLoading}
                   />
-                  <Button size="icon" className="rounded-full h-10 w-10" onClick={sendTopicChat} disabled={!topicChatInput.trim() || topicChatLoading}>
+                  <Button size="icon" className="rounded-full h-11 w-11" onClick={sendTopicChat} disabled={!topicChatInput.trim() || topicChatLoading}>
                     {topicChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </Button>
                 </div>
@@ -516,7 +519,7 @@ export default function Topics() {
       />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
-        <div className="max-w-lg mx-auto space-y-4">
+        <div className="max-w-lg md:max-w-2xl mx-auto space-y-4">
           {/* First-visit hint */}
           <TabHint tabId="topics" />
           

@@ -150,7 +150,7 @@ export default function Home() {
 
   const handleTalkToSoulvay = () => {
     if (inputValue.trim()) {
-      localStorage.setItem('mindmate-initial-message', inputValue.trim());
+      localStorage.setItem('soulvay-initial-message', inputValue.trim());
     }
     navigate("/chat");
   };
@@ -194,7 +194,7 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="px-6 pt-8 pb-4 safe-top">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between max-w-lg md:max-w-2xl mx-auto">
           <motion.h1 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -227,7 +227,7 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 px-6 pb-6">
+      <div className="flex-1 px-6 pb-6 max-w-lg md:max-w-2xl mx-auto w-full">
         {/* Voice/Text Input Area */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

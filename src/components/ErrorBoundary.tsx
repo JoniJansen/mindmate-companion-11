@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component<Props, State> {
       // Detect language from localStorage
       const isGerman = (() => {
         try {
-          const prefs = localStorage.getItem("mindmate-preferences");
+          const prefs = localStorage.getItem("soulvay-preferences");
           if (prefs) return JSON.parse(prefs).language === "de";
         } catch {}
         return navigator.language?.startsWith("de") || false;

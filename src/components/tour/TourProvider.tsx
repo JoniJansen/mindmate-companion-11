@@ -4,7 +4,7 @@ import { AppTour } from "./AppTour";
 import { useLocation } from "react-router-dom";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
-const TOUR_TRIGGERED_KEY = "mindmate_tour_auto_triggered";
+const TOUR_TRIGGERED_KEY = "soulvay_tour_auto_triggered";
 
 interface TourContextValue {
   startTour: () => void;

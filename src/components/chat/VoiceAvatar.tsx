@@ -22,9 +22,9 @@ export function VoiceAvatar({
   const { language } = useTranslation();
   
   const sizeConfig = {
-    sm: { container: "w-20 h-20", ring: "w-24 h-24", icon: "w-8 h-8", bars: 3 },
-    md: { container: "w-28 h-28", ring: "w-36 h-36", icon: "w-10 h-10", bars: 5 },
-    lg: { container: "w-36 h-36", ring: "w-44 h-44", icon: "w-12 h-12", bars: 7 },
+    sm: { container: "w-16 h-16 sm:w-20 sm:h-20", ring: "w-20 h-20 sm:w-24 sm:h-24", icon: "w-6 h-6 sm:w-8 sm:h-8", bars: 3 },
+    md: { container: "w-24 h-24 sm:w-28 sm:h-28", ring: "w-32 h-32 sm:w-36 sm:h-36", icon: "w-9 h-9 sm:w-10 sm:h-10", bars: 5 },
+    lg: { container: "w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36", ring: "w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44", icon: "w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12", bars: 7 },
   };
 
   const config = sizeConfig[size];

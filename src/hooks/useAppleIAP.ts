@@ -4,8 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 
 // Product IDs matching App Store Connect configuration
 export const APPLE_PRODUCTS = {
-  MONTHLY: 'de.mindmate.app.plus.monthly',
-  YEARLY: 'de.mindmate.app.plus.yearly',
+  MONTHLY: 'de.soulvay.app.plus.monthly',
+  YEARLY: 'de.soulvay.app.plus.yearly',
 } as const;
 
 interface AppleProduct {
@@ -41,7 +41,7 @@ const isCapacitorIOS = (): boolean => {
 };
 
 // Auto-restore check key
-const AUTO_RESTORE_KEY = 'mindmate_ios_auto_restored';
+const AUTO_RESTORE_KEY = 'soulvay_ios_auto_restored';
 const AUTO_RESTORE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
 // Access native StoreKit plugin via Capacitor
@@ -226,7 +226,7 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
     if (!isAvailable) {
       toast({
         title: 'Nicht verfügbar',
-        description: 'In-App-Käufe sind nur in der iOS App verfügbar',
+        description: 'In-App-Käufe sind nur in der App verfügbar',
         variant: 'destructive',
       });
       return false;
@@ -267,7 +267,7 @@ export const useAppleIAP = (): UseAppleIAPReturn => {
     if (!isAvailable) {
       toast({
         title: 'Nicht verfügbar',
-        description: 'Diese Funktion ist nur in der iOS App verfügbar',
+        description: 'Diese Funktion ist nur in der App verfügbar',
         variant: 'destructive',
       });
       return false;

@@ -61,8 +61,8 @@ interface AccountSettingsProps {
   language: "en" | "de";
 }
 
-const BACKUP_REMINDER_KEY = "mindmate-last-export";
-const BACKUP_REMINDER_INTERVAL_KEY = "mindmate-backup-interval";
+const BACKUP_REMINDER_KEY = "soulvay-last-export";
+const BACKUP_REMINDER_INTERVAL_KEY = "soulvay-backup-interval";
 
 export function AccountSettings({ language }: AccountSettingsProps) {
   const { user, profile, resetPassword, updatePassword, updateProfile, refreshProfile, signOut } = useAuth();
@@ -532,7 +532,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `mindmate-export-${dateStr}.json`;
+        a.download = `soulvay-export-${dateStr}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

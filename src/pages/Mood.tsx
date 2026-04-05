@@ -87,7 +87,7 @@ export default function Mood() {
       }
     } catch (error) {
       console.error("Error loading checkins:", error);
-      const stored = localStorage.getItem("mindmate-moods");
+      const stored = localStorage.getItem("soulvay-moods");
       if (stored) {
         const localData = JSON.parse(stored);
         setCheckins(localData.map((d: any) => ({
@@ -150,7 +150,7 @@ export default function Mood() {
         note: note.trim() || null,
         created_at: new Date().toISOString(),
       });
-      localStorage.setItem("mindmate-moods", JSON.stringify(localData.slice(0, 90)));
+      localStorage.setItem("soulvay-moods", JSON.stringify(localData.slice(0, 90)));
 
       toast({
         title: t("mood.saved"),
@@ -190,7 +190,7 @@ export default function Mood() {
       />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
-        <div className="max-w-lg mx-auto space-y-5">
+        <div className="max-w-lg md:max-w-2xl mx-auto space-y-5">
           <TabHint tabId="mood" />
 
           {/* Today's Check-in */}

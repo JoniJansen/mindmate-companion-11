@@ -27,7 +27,7 @@ export default function Toolbox() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [infoExercise, setInfoExercise] = useState<Exercise | null>(null);
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(() => {
-    const stored = localStorage.getItem("mindmate-completed-exercises");
+    const stored = localStorage.getItem("soulvay-completed-exercises");
     return stored ? new Set(JSON.parse(stored)) : new Set();
   });
 
@@ -54,7 +54,7 @@ export default function Toolbox() {
     newCompleted.add(exerciseId);
     setCompletedExercises(newCompleted);
     localStorage.setItem(
-      "mindmate-completed-exercises",
+      "soulvay-completed-exercises",
       JSON.stringify([...newCompleted])
     );
 
@@ -97,7 +97,7 @@ export default function Toolbox() {
       />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
-        <div className="max-w-lg mx-auto space-y-4">
+        <div className="max-w-lg md:max-w-2xl mx-auto space-y-4">
         {/* First-visit hint */}
         <TabHint tabId="toolbox" />
         

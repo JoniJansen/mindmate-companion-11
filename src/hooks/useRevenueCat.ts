@@ -4,8 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 
 // RevenueCat Product IDs - must match App Store Connect & RevenueCat Dashboard
 export const REVENUECAT_PRODUCTS = {
-  MONTHLY: 'mindmate_plus_monthly',
-  YEARLY: 'mindmate_plus_yearly',
+  MONTHLY: 'soulvay_plus_monthly',
+  YEARLY: 'soulvay_plus_yearly',
 } as const;
 
 // RevenueCat Entitlement ID - must match RevenueCat Dashboard
@@ -78,7 +78,9 @@ const getPurchasesPlugin = async (): Promise<any | null> => {
 };
 
 // RevenueCat Public API Key (safe to include in client code)
-const REVENUECAT_PUBLIC_KEY = 'test_XfLDyAoqYoHpECgHSmWSaVkFwok';
+// TODO: Replace with your production key from RevenueCat Dashboard → App Settings → API Keys
+// Format: appl_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+const REVENUECAT_PUBLIC_KEY = import.meta.env.VITE_REVENUECAT_PUBLIC_KEY || '';
 
 export const useRevenueCat = (): UseRevenueCatReturn => {
   const [isAvailable, setIsAvailable] = useState(false);
@@ -206,7 +208,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     if (!purchasesRef.current) {
       toast({
         title: 'Nicht verfügbar',
-        description: 'In-App-Käufe sind nur in der iOS App verfügbar',
+        description: 'In-App-Käufe sind nur in der App verfügbar',
         variant: 'destructive',
       });
       return false;
@@ -258,7 +260,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     if (!purchasesRef.current) {
       toast({
         title: 'Nicht verfügbar',
-        description: 'Diese Funktion ist nur in der iOS App verfügbar',
+        description: 'Diese Funktion ist nur in der App verfügbar',
         variant: 'destructive',
       });
       return false;

@@ -8,7 +8,7 @@ export interface TourStep {
   position?: "top" | "bottom" | "left" | "right" | "center";
 }
 
-const TOUR_COMPLETED_KEY = "mindmate_tour_completed";
+const TOUR_COMPLETED_KEY = "soulvay_tour_completed";
 
 export const tourSteps: TourStep[] = [
   {

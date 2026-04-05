@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Mic, MicOff, Phone, FileText, AlertTriangle, Volume2, VolumeX, Wind, Anchor, Lock, RefreshCw, Save } from "lucide-react";
@@ -44,19 +44,92 @@ interface Preferences {
 
 const getPreferences = (): Preferences => {
   try {
-    const stored = localStorage.getItem("mindmate-preferences");
-    if (stored) return JSON.parse(stored);
+    const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("soulvay-preferences");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (localStorage.getItem("soulvay-preferences") === null) {
+        localStorage.setItem("soulvay-preferences", JSON.stringify(parsed));
+      }
+      return parsed;
+    }
   } catch {}
   return { language: "en", tone: "gentle", addressForm: "du", innerDialogue: false };
 };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
+interface ChatMessageItemProps {
+  message: Message;
+  failedUserMessage: string | null;
+  onRetry: () => void;
+  onContinue: () => void;
+  isPlaying: boolean;
+  isTTSLoading: boolean;
+  onPlay: (message: Message) => void;
+  onStop: () => void;
+  canUseVoice: boolean;
+  onSave: (message: Message) => void;
+  saveTitle: string;
+}
+
+const ChatMessageItem = memo(function ChatMessageItem({
+  message, failedUserMessage, onRetry, onContinue,
+  isPlaying, isTTSLoading, onPlay, onStop, canUseVoice, onSave, saveTitle
+}: ChatMessageItemProps) {
+  return (
+    <div className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+      {message.isError ? (
+        <div className="max-w-[92%] px-4 py-3 rounded-[18px] bg-amber-50 border border-amber-200 text-amber-900" role="alert">
+          <p className="text-sm font-medium mb-1">I'm sorry, I'm having trouble processing that right now.</p>
+          <p className="text-xs text-foreground mb-2">If you feel upset, it's okay to pause and take a break; you can continue when ready.</p>
+          <p className="text-sm text-amber-900 mb-2">{message.content}</p>
+          {failedUserMessage && (
+            <p className="text-xs text-muted-foreground mb-2">{`Failed text: "${failedUserMessage}"`}</p>
+          )}
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={onRetry} className="gap-1.5">
+              <RefreshCw className="w-3.5 h-3.5" />
+              Retry
+            </Button>
+            <Button variant="ghost" size="sm" onClick={onContinue}>
+              Continue
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className={`relative max-w-[90%] px-4 py-3 rounded-[18px] ${
+          message.role === "user"
+            ? "bg-primary text-primary-foreground rounded-br-lg shadow-sm"
+            : "bg-card border border-border/40 text-foreground rounded-bl-lg shadow-soft"
+        }`}>
+          <p className="text-base leading-6 whitespace-pre-wrap break-words">{message.content}</p>
+          {message.role === "assistant" && (
+            <div className="flex items-center gap-1 mt-1">
+              <MessagePlayButton isPlaying={isPlaying} isLoading={isTTSLoading} onPlay={() => onPlay(message)} onStop={onStop} isPremium={canUseVoice} />
+              <button
+                onClick={() => onSave(message)}
+                className="p-2.5 rounded-full hover:bg-muted/50 text-muted-foreground/50 hover:text-muted-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                title={saveTitle}
+              >
+                <FileText className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+});
+
 export default function Chat() {
   const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadHistoryFailed, setLoadHistoryFailed] = useState(false);
+  const [failedUserMessage, setFailedUserMessage] = useState<string | null>(null);
+  const [historyReloadTrigger, setHistoryReloadTrigger] = useState(0);
+  const [showTrustIntro, setShowTrustIntro] = useState(true);
   const [showActions, setShowActions] = useState(false);
   const [voiceModeEnabled, setVoiceModeEnabled] = useState(false);
   const [showTranscriptConfirm, setShowTranscriptConfirm] = useState(false);
@@ -65,10 +138,14 @@ export default function Chat() {
   const [upgradeReason, setUpgradeReason] = useState<"messages" | "voice" | "features">("features");
   const [lastUserMessage, setLastUserMessage] = useState<string>("");
   const [chatMode, setChatMode] = useState<ChatMode>(() => {
-    const stored = localStorage.getItem("mindmate-chat-mode");
+    const stored = localStorage.getItem("soulvay-chat-mode") || localStorage.getItem("soulvay-chat-mode");
+    if (stored && localStorage.getItem("soulvay-chat-mode") === null) {
+      localStorage.setItem("soulvay-chat-mode", stored);
+    }
     return (stored as ChatMode) || "talk";
   });
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -80,6 +157,169 @@ export default function Chat() {
   const chatMessageCountRef = useRef(0);
   const streamChunkBufferRef = useRef("");
   const streamFlushFrameRef = useRef<number | null>(null);
+  const previousUserId = useRef<string | null>(null);
+  const loadIdRef = useRef<number>(0);
+
+  const sessionId = useRef<string>(
+    localStorage.getItem("soulvay-chat-session-id")
+    || localStorage.getItem("soulvay-chat-session-id")
+    || (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`)
+  );
+
+  useEffect(() => {
+    if (!localStorage.getItem("soulvay-chat-session-id")) {
+      localStorage.setItem("soulvay-chat-session-id", sessionId.current);
+    }
+    if (localStorage.getItem("soulvay-chat-session-id")) {
+      localStorage.removeItem("soulvay-chat-session-id");
+    }
+  }, []);
+
+  useEffect(() => {
+    const currentUserId = user?.id ?? null;
+
+    if (!currentUserId) {
+      // Logout or unauthenticated state: clear all chat session data.
+      sessionId.current = "";
+      localStorage.removeItem("soulvay-chat-session-id");
+      localStorage.removeItem("soulvay-chat-session-id");
+      setMessages([]);
+      localStorage.removeItem("soulvay-chat-messages");
+      localStorage.removeItem("soulvay-chat-messages");
+      loadIdRef.current += 1; // invalidate in-flight loads
+      previousUserId.current = null;
+      return;
+    }
+
+    if (previousUserId.current && previousUserId.current !== currentUserId) {
+      // User changed - reset session
+      const newSessionId = crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+      sessionId.current = newSessionId;
+      localStorage.setItem("soulvay-chat-session-id", newSessionId);
+      localStorage.removeItem("soulvay-chat-session-id");
+
+      setMessages([]);
+      localStorage.removeItem("soulvay-chat-messages");
+      localStorage.removeItem("soulvay-chat-messages");
+      loadIdRef.current += 1; // invalidate previous loads
+    }
+
+    previousUserId.current = currentUserId;
+  }, [user?.id]);
+
+  // Load chat history on mount
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (!user) return;
+
+      setLoadHistoryFailed(false);
+      const localLoadId = ++loadIdRef.current;
+      const sessionKey = sessionId.current;
+
+      const loadFromDb = async (query: any) => {
+        const { data, error } = await query;
+        if (error) {
+          return { data: null, isError: true, error };
+        }
+        if (data && data.length > 0) {
+          return { data, isError: false };
+        }
+        return { data: [], isError: false };
+      };
+
+      try {
+        // primary: user+session
+        let primaryResult = await loadFromDb(
+          supabase
+            .from('chat_messages')
+            .select('role, content, created_at')
+            .eq('user_id', user.id)
+            .eq('session_id', sessionKey)
+            .order('created_at', { ascending: true })
+        );
+
+        if (primaryResult.isError) {
+          console.error('DB error loading user+session chat history:', primaryResult.error);
+          setLoadHistoryFailed(true);
+          return; // do not fallback to localStorage on DB error
+        }
+
+        let chatData = primaryResult.data && primaryResult.data.length > 0 ? primaryResult.data : null;
+
+        // fallback: any user history if no session-specific history
+        if (!chatData) {
+          const fallbackResult = await loadFromDb(
+            supabase
+              .from('chat_messages')
+              .select('role, content, created_at')
+              .eq('user_id', user.id)
+              .order('created_at', { ascending: true })
+          );
+
+          if (fallbackResult.isError) {
+            console.error('DB error loading user chat history:', fallbackResult.error);
+            setLoadHistoryFailed(true);
+            return; // do not fallback to localStorage on DB error
+          }
+
+          chatData = fallbackResult.data && fallbackResult.data.length > 0 ? fallbackResult.data : null;
+        }
+
+        if (chatData) {
+          if (localLoadId !== loadIdRef.current) return;
+          const loadedMessages: Message[] = chatData.map((msg, index) => ({
+            id: `loaded-${index}`,
+            content: msg.content,
+            role: msg.role as 'user' | 'assistant',
+            timestamp: new Date(msg.created_at),
+          }));
+          setMessages(loadedMessages);
+
+          // preserve existing localStorage only for fallback; clear as DB is authoritative
+          localStorage.removeItem('soulvay-chat-messages');
+          localStorage.removeItem('soulvay-chat-messages');
+          return;
+        }
+
+        // no DB history present: use localStorage fallback
+        const storedMessages =
+          localStorage.getItem('soulvay-chat-messages') ||
+          localStorage.getItem('soulvay-chat-messages');
+
+        if (storedMessages) {
+          try {
+            const parsed = JSON.parse(storedMessages) as Array<{ role: string; content: string }>; 
+            const loadedMessages: Message[] = parsed
+              .filter(m => m?.role && m?.content)
+              .map((msg, index) => ({
+                id: `fallback-${index}`,
+                content: msg.content,
+                role: msg.role as 'user' | 'assistant',
+                timestamp: new Date(),
+              }));
+
+            if (loadedMessages.length > 0) {
+              if (localLoadId !== loadIdRef.current) return;
+              setMessages(loadedMessages);
+              if (localStorage.getItem('soulvay-chat-messages')) {
+                localStorage.setItem('soulvay-chat-messages', storedMessages);
+                localStorage.removeItem('soulvay-chat-messages');
+              }
+            }
+          } catch (de) {
+            console.error('Failed to parse localStorage chat history:', de);
+            localStorage.removeItem('soulvay-chat-messages');
+            localStorage.removeItem('soulvay-chat-messages');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+        setLoadHistoryFailed(true);
+      }
+    };
+
+    loadChatHistory();
+  }, [user, historyReloadTrigger]);
 
   // Premium state
   const { 
@@ -132,7 +372,10 @@ export default function Chat() {
     }
   }, [sttError, t, toast]);
 
-  useEffect(() => { localStorage.setItem("mindmate-chat-mode", chatMode); }, [chatMode]);
+  useEffect(() => {
+    localStorage.setItem("soulvay-chat-mode", chatMode);
+    localStorage.removeItem("soulvay-chat-mode");
+  }, [chatMode]);
 
   // Auto-restart listening after AI finishes speaking
   useEffect(() => {
@@ -183,86 +426,16 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior });
   }, []);
 
+  const handleComposerFocus = useCallback(() => {
+    if (!window.matchMedia("(max-width: 768px)").matches) return;
+    requestAnimationFrame(() => {
+      composerRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+  }, []);
+
   useEffect(() => {
     scrollToBottom(isLoading ? "auto" : "smooth");
   }, [messages, isLoading, scrollToBottom]);
-
-  // Initial greeting - personalized based on onboarding
-  useEffect(() => {
-    const initialMessage = localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
-    const savedLang = preferences.current.language || language;
-    
-    const getPersonalizedGreeting = (): string => {
-      try {
-        const stored = localStorage.getItem("soulvay-personalization");
-        if (!stored) return "";
-        const p = JSON.parse(stored);
-        const focus = (p.focusAreas || [])[0];
-        if (!focus) return "";
-        
-        const greetings: Record<string, { en: string; de: string }> = {
-          stress: {
-            en: "I noticed you'd like to work on stress.\nI'm here whenever things feel heavy.",
-            de: "Ich habe gesehen, dass Stress dich beschäftigt.\nIch bin hier, wenn es sich schwer anfühlt.",
-          },
-          anxiety: {
-            en: "Anxiety can feel overwhelming.\nLet's take it one step at a time, together.",
-            de: "Angst kann überwältigend sein.\nLass uns das gemeinsam angehen, Schritt für Schritt.",
-          },
-          sleep: {
-            en: "Better sleep starts with a calmer mind.\nI'm here to help you unwind.",
-            de: "Besserer Schlaf beginnt mit einem ruhigeren Geist.\nIch bin hier, um dir beim Abschalten zu helfen.",
-          },
-          relationships: {
-            en: "Relationships shape how we feel.\nLet's explore what's on your mind.",
-            de: "Beziehungen prägen, wie wir uns fühlen.\nLass uns erkunden, was dich beschäftigt.",
-          },
-          selfworth: {
-            en: "You're already taking a brave step.\nLet's discover your strengths together.",
-            de: "Du machst schon einen mutigen Schritt.\nLass uns gemeinsam deine Stärken entdecken.",
-          },
-          motivation: {
-            en: "Finding motivation starts with understanding yourself.\nI'm here to help you explore.",
-            de: "Motivation zu finden beginnt damit, sich selbst zu verstehen.\nIch bin hier, um dir dabei zu helfen.",
-          },
-          grief: {
-            en: "Grief has its own pace.\nI'm here to listen, whenever you're ready.",
-            de: "Trauer hat ihr eigenes Tempo.\nIch bin hier, um zuzuhören, wann immer du bereit bist.",
-          },
-        };
-        
-        return greetings[focus]?.[savedLang as "en" | "de"] || "";
-      } catch { return ""; }
-    };
-    
-    const init = async () => {
-      if (initialMessage) {
-        localStorage.removeItem('mindmate-initial-message');
-        handleSend(initialMessage);
-      } else {
-        const personalLine = getPersonalizedGreeting();
-        const baseGreeting = savedLang === "de"
-          ? "Hallo. Ich bin Soulvay und\nhöre dir gerne zu."
-          : "Hello. I'm Soulvay, and\nI'm here to listen.";
-        const closingLine = savedLang === "de"
-          ? "Nimm dir Zeit – teile, was dich bewegt."
-          : "Take your time – share what's on your mind.";
-        
-        const staticGreeting = personalLine
-          ? `${baseGreeting}\n\n${personalLine}`
-          : `${baseGreeting}\n\n${closingLine}`;
-        
-        setMessages([{ id: "greeting", content: staticGreeting, role: "assistant", timestamp: new Date() }]);
-        
-        if (canUseVoice && voiceSettings.autoPlayReplies && !isListening) {
-          const voiceId = getVoiceId(savedLang as "en" | "de");
-          const effectiveLang = getEffectiveLanguage(savedLang as "en" | "de");
-          speakTTS(staticGreeting.replace(/\n/g, ' '), voiceId, effectiveLang, voiceSettings.speed, "greeting");
-        }
-      }
-    };
-    init();
-  }, []);
 
   const handleError = (error: string) => {
     toast({ title: t("chat.connectionIssue"), description: error, variant: "destructive" });
@@ -341,6 +514,7 @@ export default function Chat() {
         body: JSON.stringify({
           messages,
           preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
+          sessionId: sessionId.current,
         }),
         signal,
       });
@@ -396,7 +570,10 @@ export default function Chat() {
   };
 
   const handleSend = useCallback(async (content: string, isSystemAction = false) => {
-    if (!content.trim() || isLoading) return;
+    const trimmedContent = content.trim();
+    if (!trimmedContent || isLoading) return;
+
+    setFailedUserMessage(null);
 
     // Offline guard
     if (!navigator.onLine) {
@@ -452,6 +629,7 @@ export default function Chat() {
         }
         flushBufferedAssistant();
         setIsLoading(false);
+        setFailedUserMessage(null);
         abortControllerRef.current = null;
         if (canUseVoice && (voiceModeEnabled || voiceSettings.autoPlayReplies) && fullResponse && !isListening) {
           const voiceId = getVoiceId(language as "en" | "de");
@@ -466,6 +644,7 @@ export default function Chat() {
         }
         flushBufferedAssistant();
         setIsLoading(false);
+        setFailedUserMessage(trimmedContent);
         abortControllerRef.current = null;
         // Add error message card
         setMessages(prev => [...prev, {
@@ -482,7 +661,10 @@ export default function Chat() {
   const handleRetry = () => {
     // Remove the error message and retry last user message
     setMessages(prev => prev.filter(m => !m.isError));
-    if (lastUserMessage) handleSend(lastUserMessage);
+    const textToRetry = failedUserMessage || lastUserMessage;
+    if (!textToRetry) return;
+    setFailedUserMessage(null);
+    handleSend(textToRetry);
   };
 
   const handleContinue = () => {
@@ -494,12 +676,12 @@ export default function Chat() {
   const handleTranscriptEdit = () => { setShowTranscriptConfirm(false); };
   const handleTranscriptCancel = () => { setShowTranscriptConfirm(false); setInputValue(""); setPendingTranscript(""); resetTranscript(); };
 
-  const playMessage = (message: Message) => {
+  const playMessage = useCallback((message: Message) => {
     if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
     const voiceId = getVoiceId(language as "en" | "de");
     const effectiveLang = getEffectiveLanguage(language as "en" | "de");
     speakTTS(message.content, voiceId, effectiveLang, voiceSettings.speed, message.id);
-  };
+  }, [canUseVoice, getVoiceId, getEffectiveLanguage, language, speakTTS, voiceSettings.speed]);
 
   const toggleVoiceMode = () => {
     if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
@@ -526,20 +708,46 @@ export default function Chat() {
 
   const handleSummary = () => {
     if (!canUseSessionSummary) { setUpgradeReason("features"); setShowUpgradePrompt(true); return; }
-    localStorage.setItem("mindmate-chat-messages", JSON.stringify(messages.map(m => ({ role: m.role, content: m.content }))));
-    navigate("/summary", { state: { messages: messages.map(m => ({ role: m.role, content: m.content })) } });
+    const chatMsgsPayload = messages.map(m => ({ role: m.role, content: m.content }));
+    localStorage.setItem("soulvay-chat-messages", JSON.stringify(chatMsgsPayload));
+    localStorage.removeItem("soulvay-chat-messages");
+    navigate("/summary", { state: { messages: chatMsgsPayload } });
   };
 
   const handleCalmExercise = (exerciseId: string) => { navigate("/toolbox", { state: { startExercise: exerciseId } }); };
 
   const handleUpgrade = () => { setShowUpgradePrompt(false); navigate("/upgrade"); };
 
+  const handleSaveMessage = useCallback(async (message: Message) => {
+    if (!user) return;
+    try {
+      await supabase.from("journal_entries").insert({
+        user_id: user.id,
+        user_session_id: user.id,
+        content: message.content,
+        title: language === "de" ? "Chat-Nachricht" : "Chat Message",
+        source: "chat",
+        tags: ["chat"],
+      } as any);
+      toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
+    } catch {
+      toast({ title: t("common.error"), variant: "destructive" });
+    }
+  }, [user, language, t, toast]);
+
   const BOTTOM_NAV_HEIGHT = 56;
   
   return (
     <div 
       className="flex flex-col bg-background"
-      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))` }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
+      }}
     >
       <PageHeader
         title={t("chat.title")}
@@ -602,7 +810,7 @@ export default function Chat() {
       <AnimatePresence>
         {voiceModeEnabled && canUseVoice && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="border-b border-border/30 overflow-hidden bg-gradient-to-b from-background to-muted/20">
-            <div className="flex flex-col items-center py-8">
+            <div className="flex flex-col items-center py-4 sm:py-8">
               <VoiceAvatar isSpeaking={isSpeaking} isListening={isListening} avatarStyle={voiceSettings.avatarStyle || "orb"} size="lg" onTap={toggleRecording} />
             </div>
           </motion.div>
@@ -621,62 +829,68 @@ export default function Chat() {
       </AnimatePresence>
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4" style={{ WebkitOverflowScrolling: 'touch', contain: 'layout style', willChange: 'scroll-position' }}>
-        <div className="max-w-lg mx-auto space-y-3">
-          {messages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              {message.isError ? (
-                /* Error card with retry/continue */
-                <div className="max-w-[88%] px-4 py-3 rounded-2xl bg-destructive/10 border border-destructive/20 rounded-bl-lg">
-                  <p className="text-sm text-destructive mb-2">{message.content}</p>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handleRetry} className="gap-1.5">
-                      <RefreshCw className="w-3.5 h-3.5" />
-                      {t("chat.retryMessage")}
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={handleContinue}>
-                      {t("chat.continueMessage")}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className={`relative max-w-[88%] px-4 py-3 rounded-2xl ${
-                  message.role === "user" 
-                    ? "bg-primary text-primary-foreground rounded-br-lg" 
-                    : "bg-card border border-border/50 text-foreground rounded-bl-lg shadow-soft"
-                }`}>
-                  <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                  {message.role === "assistant" && (
-                    <div className="flex items-center gap-1 mt-1">
-                      <MessagePlayButton isPlaying={isPlayingMessage(message.id)} isLoading={isLoadingMessage(message.id)} onPlay={() => playMessage(message)} onStop={stopTTS} isPremium={canUseVoice} />
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (!user) return;
-                          try {
-                            await supabase.from("journal_entries").insert({
-                              user_id: user.id,
-                              user_session_id: user.id,
-                              content: message.content,
-                              title: language === "de" ? "Chat-Nachricht" : "Chat Message",
-                              source: "chat",
-                              tags: ["chat"],
-                            } as any);
-                            toast({ title: t("chat.savedToJournal"), description: t("chat.messageSavedDesc") });
-                          } catch {
-                            toast({ title: t("common.error"), variant: "destructive" });
-                          }
-                        }}
-                        className="p-1.5 rounded-full hover:bg-muted/50 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                        title={t("chat.saveMessage")}
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 sm:px-4 py-3 sm:py-4" style={{ WebkitOverflowScrolling: 'touch', contain: 'layout style', willChange: 'scroll-position' }}>
+        <div className="max-w-lg md:max-w-2xl mx-auto space-y-3">
+          {loadHistoryFailed && (
+            <div className="bg-destructive/10 border border-destructive/30 text-destructive p-4 rounded-xl text-center">
+              <p className="text-sm font-medium">Unable to load chat history</p>
+              <p className="text-xs text-muted-foreground mt-1">Please check your connection and try again.</p>
+              <p className="text-xs text-muted-foreground mt-2">If this is causing distress, know that you can step away and reach support resources when ready.</p>
+              <div className="mt-3 flex justify-center">
+                <Button size="sm" onClick={() => { setLoadHistoryFailed(false); setHistoryReloadTrigger((prev) => prev + 1); }}>
+                  {t("chat.retry")}
+                </Button>
+              </div>
             </div>
+          )}
+
+          {showTrustIntro && !loadHistoryFailed && (
+            <div className="bg-card border border-border/50 text-foreground p-3 rounded-2xl mb-3 max-w-[90%] mx-auto">
+              <p className="text-sm leading-relaxed">
+                Soulvay is here to listen and support you. I can offer guidance and calm reflection, but I am not a replacement for a licensed professional.
+              </p>
+              <div className="mt-2 flex justify-end">
+                <Button size="xs" variant="ghost" onClick={() => setShowTrustIntro(false)}>
+                  Got it
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!loadHistoryFailed && messages.length === 0 && !isLoading && (
+            <div className="border border-border/30 bg-muted/5 rounded-2xl p-5 text-center text-sm text-muted-foreground">
+              <p className="font-medium text-foreground mb-2">Start a conversation in a few words</p>
+              <p>Ask Soulvay how you&#39;re feeling, what you want to work on, or just type anything on your mind.</p>
+              <Button size="sm" variant="outline" className="mt-3" onClick={() => handleSend(getQuickReplies()[0])}>
+                Try a prompt
+              </Button>
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="flex justify-center">
+              <div className="bg-card border border-border/30 px-3 py-2 rounded-full shadow-sm flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-xs text-muted-foreground">{t("chat.assistantThinking")}</span>
+              </div>
+            </div>
+          )}
+
+          {messages.map((message) => (
+            <ChatMessageItem
+              key={message.id}
+              message={message}
+              failedUserMessage={failedUserMessage}
+              onRetry={handleRetry}
+              onContinue={handleContinue}
+              isPlaying={isPlayingMessage(message.id)}
+              isTTSLoading={isLoadingMessage(message.id)}
+              onPlay={playMessage}
+              onStop={stopTTS}
+              canUseVoice={canUseVoice}
+              onSave={handleSaveMessage}
+              saveTitle={t("chat.saveMessage")}
+            />
           ))}
 
           {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
@@ -698,7 +912,7 @@ export default function Chat() {
       {/* Calm Mode Exercises */}
       {chatMode === "calm" && messages.length > 0 && (
         <div className="shrink-0 px-4 pb-2 bg-background">
-          <div className="max-w-lg mx-auto flex gap-2">
+          <div className="max-w-lg md:max-w-2xl mx-auto flex gap-2">
             {calmExercises.map((ex) => (
               <Button key={ex.id} variant="outline" size="sm" className="flex-1 gap-2 min-h-[44px]" onClick={() => handleCalmExercise(ex.id)}>
                 <ex.icon className="w-4 h-4" />{ex.label}
@@ -711,7 +925,7 @@ export default function Chat() {
       {/* Quick Replies */}
       {messages.length <= 2 && !isLoading && (
         <div className="shrink-0 px-4 pb-3 bg-background">
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-lg md:max-w-2xl mx-auto">
             <p className="text-xs text-muted-foreground text-center mb-3">{t("chat.howToStart")}</p>
             <div className="flex flex-col gap-2">
               {getQuickReplies().map((reply) => (
@@ -725,7 +939,7 @@ export default function Chat() {
       {/* Action Buttons */}
       {messages.length > 4 && (
         <div className="shrink-0 px-4 pb-2 bg-background">
-          <div className="max-w-lg mx-auto flex gap-2 flex-wrap">
+          <div className="max-w-lg md:max-w-2xl mx-auto flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" className="gap-2" onClick={handleSummary}>
               <FileText className="w-4 h-4" />
               {t("chat.summary")}
@@ -801,22 +1015,22 @@ export default function Chat() {
       {/* Voice Transcript */}
       {showTranscriptConfirm && pendingTranscript && canUseVoice && (
         <div className="shrink-0 px-4 pb-2 bg-background">
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-lg md:max-w-2xl mx-auto">
             <VoiceTranscriptConfirm transcript={inputValue} onSend={handleTranscriptSend} onEdit={handleTranscriptEdit} onCancel={handleTranscriptCancel} />
           </div>
         </div>
       )}
 
       {/* Input Area */}
-      <div className="shrink-0 border-t border-border/50 bg-background">
-        <div className="px-4 py-2.5">
-          <div className="max-w-lg mx-auto flex items-center gap-2">
+      <div className="shrink-0 border-t border-border/50 bg-background safe-bottom">
+        <div className="px-3 sm:px-4 py-2 sm:py-2.5">
+          <div className="max-w-lg md:max-w-2xl mx-auto flex items-center gap-2">
             <TooltipProvider delayDuration={300}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="ghost" size="icon" 
-                    className={`shrink-0 h-9 w-9 rounded-full ${canUseVoice && voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                    className={`shrink-0 h-11 w-11 rounded-full ${canUseVoice && voiceSettings.autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
                     onClick={() => {
                       if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
                       updateSetting("autoPlayReplies", !voiceSettings.autoPlayReplies);
@@ -840,7 +1054,7 @@ export default function Chat() {
                   <TooltipTrigger asChild>
                     <Button 
                       variant={isListening && canUseVoice ? "destructive" : "outline"} 
-                      size="icon" className="shrink-0 h-9 w-9 rounded-full relative"
+                      size="icon" className="shrink-0 h-11 w-11 rounded-full relative"
                       onClick={toggleRecording}
                     >
                       {isListening && canUseVoice ? <MicOff className="w-[18px] h-[18px]" /> : <Mic className="w-[18px] h-[18px]" />}
@@ -858,19 +1072,33 @@ export default function Chat() {
             )}
 
             <div className="flex-1 relative">
-              <input
-                type="text"
+              <textarea
+                ref={composerRef}
                 value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(inputValue); } }}
+                rows={1}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  const ta = composerRef.current;
+                  if (!ta) return;
+                  ta.style.height = "auto";
+                  ta.style.height = `${Math.min(180, ta.scrollHeight)}px`;
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend(inputValue);
+                  }
+                }}
+                onFocus={handleComposerFocus}
                 placeholder={isListening && canUseVoice ? t("voice.listening") : t("chat.inputPlaceholder")}
-                className="w-full h-11 bg-muted/30 border border-border/50 rounded-full px-4 pr-12 text-[15px] focus:outline-none focus:border-primary/40 focus:bg-background transition-colors"
+                className="w-full min-h-[44px] max-h-[136px] resize-none bg-muted/30 border border-border/50 rounded-2xl px-3 py-2 pr-12 text-[15px] focus:outline-none focus:border-primary/40 focus:bg-background transition-colors overflow-y-auto"
                 disabled={isLoading || (!canSendMessage() && !isPremium) || !isOnline}
               />
               <Button 
                 size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8" 
                 onClick={() => handleSend(inputValue)} 
                 disabled={!inputValue.trim() || isLoading || !canSendMessage() || !isOnline}
+                aria-label="Send message"
               >
                 <Send className="w-4 h-4" />
               </Button>

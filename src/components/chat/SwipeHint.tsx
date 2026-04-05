@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
-const SWIPE_HINT_KEY = "mindmate-swipe-hint-shown";
+const SWIPE_HINT_KEY = "soulvay-swipe-hint-shown";
 
 export function SwipeHint() {
   const [show, setShow] = useState(false);

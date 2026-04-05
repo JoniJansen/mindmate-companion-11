@@ -88,10 +88,10 @@ export default function Settings() {
 
   const handleRestartTour = () => {
     // Clear both tour completion flags
-    localStorage.removeItem("mindmate_tour_completed");
-    localStorage.removeItem("mindmate_tour_auto_triggered");
+    localStorage.removeItem("soulvay_tour_completed");
+    localStorage.removeItem("soulvay_tour_auto_triggered");
     // Also clear tab hints so they show again
-    localStorage.removeItem("mindmate_tab_hints_seen");
+    localStorage.removeItem("soulvay_tab_hints_seen");
     toast({
       title: t("settings.tourReset"),
       description: t("settings.tourResetDesc"),
@@ -176,7 +176,7 @@ export default function Settings() {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("mindmate-preferences");
+      const stored = localStorage.getItem("soulvay-preferences");
       if (stored) {
         setPreferences({ ...defaultPreferences, ...JSON.parse(stored) });
       }
@@ -188,7 +188,7 @@ export default function Settings() {
   const updatePreference = <K extends keyof Preferences>(key: K, value: Preferences[K]) => {
     const updated = { ...preferences, [key]: value };
     setPreferences(updated);
-    localStorage.setItem("mindmate-preferences", JSON.stringify(updated));
+    localStorage.setItem("soulvay-preferences", JSON.stringify(updated));
     
     // Use target language for toast when switching language, since t() still uses the old value
     const targetLang = key === "language" ? (value as string) : language;
@@ -254,7 +254,7 @@ export default function Settings() {
         }}
       >
         {/* pb-32 ensures last items clear BottomNav + safe area */}
-        <div className="px-4 py-4 pb-32 max-w-lg mx-auto space-y-6">
+        <div className="px-4 py-4 pb-32 max-w-lg md:max-w-2xl mx-auto space-y-6">
         {/* Subscription */}
         <SubscriptionSection onUpgradeClick={() => navigate("/upgrade")} />
 

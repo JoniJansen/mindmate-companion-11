@@ -18,7 +18,7 @@ export interface PremiumState {
 }
 
 const DAILY_MESSAGE_LIMIT = 15;
-const STORAGE_KEY = "mindmate-premium-state";
+const STORAGE_KEY = "soulvay-premium-state";
 
 interface StoredState {
   isPremium: boolean;

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-const BACKUP_REMINDER_KEY = "mindmate-last-export";
-const BACKUP_REMINDER_INTERVAL_KEY = "mindmate-backup-interval";
-const NOTIFICATION_SHOWN_KEY = "mindmate-backup-notification-shown";
+const BACKUP_REMINDER_KEY = "soulvay-last-export";
+const BACKUP_REMINDER_INTERVAL_KEY = "soulvay-backup-interval";
+const NOTIFICATION_SHOWN_KEY = "soulvay-backup-notification-shown";
 
 interface BackupReminderState {
   isOverdue: boolean;
@@ -71,7 +71,7 @@ export function useBackupReminder() {
   }, []);
 
   const showBackupNotification = (daysSince: number | null, intervalDays: number) => {
-    const language = localStorage.getItem("mindmate-preferences");
+    const language = localStorage.getItem("soulvay-preferences");
     const isGerman = language?.includes('"language":"de"') ?? true;
 
     const title = isGerman ? "Backup-Erinnerung" : "Backup Reminder";

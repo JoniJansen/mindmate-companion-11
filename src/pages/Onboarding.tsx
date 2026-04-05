@@ -71,7 +71,8 @@ const translations = {
     getStarted: "Begin",
     welcome: {
       title: "A quiet space for your mind",
-      subtitle: "Soulvay is here to listen. No goals, no pressure—just a calm companion when you need one.",
+      subtitle: "Soulvay is here to listen. No pressure, no perfect words needed - just calm support when you need it.",
+      trustLine: "Private by default. No judgment.",
     },
     disclaimer: {
       title: "A few words before we start",
@@ -95,13 +96,16 @@ const translations = {
       subtitle: "Choose what resonates — you can pick multiple.",
     },
     frequency: {
-      title: "How often would you like to reflect?",
+      title: "How often feels right for you?",
       subtitle: "This helps us personalize your experience.",
     },
     goal: {
-      title: "Imagine 4 weeks from now",
+      title: "Imagine yourself in 4 weeks",
       subtitle: "What would be different?",
       placeholder: "I'd feel more calm... / I'd understand myself better... / I'd sleep better...",
+      optionalLabel: "Optional (1-5 words)",
+      presets: ["Calmer mind", "Better sleep", "Less stress", "More focus"],
+      reassurance: "You can change this anytime.",
       skip: "Skip for now",
     },
   },
@@ -110,7 +114,8 @@ const translations = {
     getStarted: "Beginnen",
     welcome: {
       title: "Ein ruhiger Raum für deinen Geist",
-      subtitle: "Soulvay ist hier, um zuzuhören. Keine Ziele, kein Druck—einfach ein ruhiger Begleiter, wenn du einen brauchst.",
+      subtitle: "Soulvay ist hier, um zuzuhören. Kein Druck, keine perfekten Worte - einfach ruhige Begleitung, wenn du sie brauchst.",
+      trustLine: "Privat standardmäßig. Ohne Urteil.",
     },
     disclaimer: {
       title: "Ein paar Worte bevor wir starten",
@@ -134,13 +139,16 @@ const translations = {
       subtitle: "Wähle, was sich richtig anfühlt — Mehrfachauswahl möglich.",
     },
     frequency: {
-      title: "Wie oft möchtest du reflektieren?",
+      title: "Wie oft fühlt sich für dich richtig an?",
       subtitle: "Das hilft uns, dein Erlebnis zu personalisieren.",
     },
     goal: {
-      title: "Stell dir vor: 4 Wochen ab jetzt",
+      title: "Stell dir vor, wie es in 4 Wochen ist",
       subtitle: "Was wäre anders?",
       placeholder: "Ich wäre ruhiger... / Ich würde mich besser verstehen... / Ich würde besser schlafen...",
+      optionalLabel: "Optional (1-5 Wörter)",
+      presets: ["Ruhigerer Geist", "Besser schlafen", "Weniger Stress", "Mehr Fokus"],
+      reassurance: "Du kannst das jederzeit ändern.",
       skip: "Erstmal überspringen",
     },
   },
@@ -169,6 +177,11 @@ export default function Onboarding() {
   const currentStepIndex = steps.indexOf(currentStep);
   const t = translations[state.language];
 
+  const handleFieldFocus = (event: React.FocusEvent<HTMLTextAreaElement>) => {
+    if (!window.matchMedia("(max-width: 768px)").matches) return;
+    event.currentTarget.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+
   const handleNext = () => {
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < steps.length) {
@@ -180,7 +193,7 @@ export default function Onboarding() {
 
   const finishOnboarding = () => {
     // Save preferences
-    localStorage.setItem("mindmate-preferences", JSON.stringify({
+    localStorage.setItem("soulvay-preferences", JSON.stringify({
       language: state.language,
       tone: state.tone,
       addressForm: state.addressForm,
@@ -221,10 +234,31 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="bg-background flex flex-col" style={{ minHeight: '100dvh' }}>
+    <div className="bg-background flex flex-col" style={{ minHeight: "100dvh" }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-6 pb-2 safe-top">
-        <div className="w-10" />
+      <div className="flex flex-col px-4 pt-6 pb-2 safe-top">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-xs text-muted-foreground">
+            Step {currentStepIndex + 1} of {steps.length}
+          </div>
+          <button
+            onClick={() => setThemeMode(isDark ? "light" : "dark")}
+            className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            <motion.div
+              key={isDark ? "moon" : "sun"}
+              initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </motion.div>
+          </button>
+        </div>
+        <div className="h-1 w-full bg-muted/20 rounded-full overflow-hidden mb-3">
+          <div className="h-full bg-primary transition-all duration-300" style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }} />
+        </div>
         <div className="flex justify-center gap-2">
           {steps.map((step, index) => (
             <motion.div
@@ -239,24 +273,13 @@ export default function Onboarding() {
             />
           ))}
         </div>
-        <button
-          onClick={() => setThemeMode(isDark ? "light" : "dark")}
-          className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          <motion.div
-            key={isDark ? "moon" : "sun"}
-            initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </motion.div>
-        </button>
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col px-6 pb-6 overflow-y-auto">
+      <div
+        className="flex-1 min-h-0 flex flex-col px-4 sm:px-6 pb-4 sm:pb-6 overflow-y-auto safe-bottom"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
         <AnimatePresence mode="wait">
           {currentStep === "welcome" && (
             <motion.div key="welcome" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
@@ -285,13 +308,18 @@ export default function Onboarding() {
           )}
           {currentStep === "goal" && (
             <motion.div key="goal" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
-              <GoalStep t={t.goal} value={state.personalGoal} onChange={(g) => setState(s => ({ ...s, personalGoal: g }))} />
+              <GoalStep
+                t={t.goal}
+                value={state.personalGoal}
+                onChange={(g) => setState(s => ({ ...s, personalGoal: g }))}
+                onFieldFocus={handleFieldFocus}
+              />
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Continue button */}
-        <div className="mt-auto pt-6 safe-bottom shrink-0">
+        <div className="mt-auto pt-4 sm:pt-6 shrink-0">
           {currentStep === "goal" ? (
             <div className="space-y-3">
               <Button size="xl" className="w-full" onClick={finishOnboarding}>
@@ -331,6 +359,7 @@ function WelcomeStep({ t }: { t: typeof translations.en.welcome }) {
       </div>
       <h1 className="text-2xl font-semibold text-foreground mb-4 text-balance">{t.title}</h1>
       <p className="text-muted-foreground text-base leading-relaxed max-w-xs">{t.subtitle}</p>
+      <p className="text-xs text-muted-foreground mt-4">{t.trustLine}</p>
     </div>
   );
 }
@@ -359,9 +388,9 @@ function PreferencesStep({ t, language, tone, addressForm, onLanguageChange, onT
     <div className="flex-1 flex flex-col pt-4">
       <h2 className="text-xl font-semibold text-foreground mb-2 text-center">{t.title}</h2>
       <p className="text-muted-foreground text-sm text-center mb-8">{t.subtitle}</p>
-      <div className="space-y-6">
+      <div className="space-y-5">
         <PreferenceSection icon={Globe} title={t.language}>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <OptionButton selected={language === "en"} onClick={() => onLanguageChange("en")}>English</OptionButton>
             <OptionButton selected={language === "de"} onClick={() => onLanguageChange("de")}>Deutsch</OptionButton>
           </div>
@@ -375,7 +404,7 @@ function PreferencesStep({ t, language, tone, addressForm, onLanguageChange, onT
         </PreferenceSection>
         {language === "de" && (
           <PreferenceSection icon={User} title={t.addressForm}>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <OptionButton selected={addressForm === "du"} onClick={() => onAddressFormChange("du")}>{t.addressForms.du}</OptionButton>
               <OptionButton selected={addressForm === "sie"} onClick={() => onAddressFormChange("sie")}>{t.addressForms.sie}</OptionButton>
             </div>
@@ -401,12 +430,15 @@ function FocusStep({ t, options, selected, onToggle }: {
         <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
         <p className="text-muted-foreground text-sm">{t.subtitle}</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {options.map((opt) => (
           <button
             key={opt.id}
+            type="button"
             onClick={() => onToggle(opt.id)}
-            className={`flex items-center gap-3 p-4 rounded-2xl text-left transition-all duration-200 border ${
+            role="button"
+            aria-pressed={selected.includes(opt.id)}
+            className={`w-full min-h-[56px] flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all duration-200 border ${
               selected.includes(opt.id)
                 ? "bg-primary/10 border-primary/30 shadow-sm"
                 : "bg-card border-border/40 hover:border-border/60"
@@ -443,8 +475,11 @@ function FrequencyStep({ t, options, selected, onSelect }: {
         {options.map((opt) => (
           <button
             key={opt.id}
+            type="button"
             onClick={() => onSelect(opt.id)}
-            className={`w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-200 border ${
+            role="button"
+            aria-pressed={selected === opt.id}
+            className={`w-full min-h-[56px] flex items-center gap-4 px-4 py-3 rounded-2xl text-left transition-all duration-200 border ${
               selected === opt.id
                 ? "bg-primary/10 border-primary/30 shadow-sm"
                 : "bg-card border-border/40 hover:border-border/60"
@@ -466,11 +501,14 @@ function FrequencyStep({ t, options, selected, onSelect }: {
   );
 }
 
-function GoalStep({ t, value, onChange }: {
+function GoalStep({ t, value, onChange, onFieldFocus }: {
   t: typeof translations.en.goal;
   value: string;
   onChange: (v: string) => void;
+  onFieldFocus: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
 }) {
+  const goalPresets = t.presets;
+
   return (
     <div className="flex-1 flex flex-col pt-4">
       <div className="text-center mb-8">
@@ -479,11 +517,34 @@ function GoalStep({ t, value, onChange }: {
         </div>
         <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
         <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+        <p className="text-xs text-muted-foreground mt-2">{t.reassurance}</p>
       </div>
-      <div className="bg-card rounded-2xl border border-border/40 p-4">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-foreground">{t.optionalLabel}</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {goalPresets.map((preset) => (
+            <button
+              key={preset}
+              type="button"
+              onClick={() => onChange(preset)}
+              className={`min-h-[44px] px-3 py-2 rounded-xl text-sm border transition-colors ${
+                value === preset
+                  ? "bg-primary/10 border-primary/30 text-foreground"
+                  : "bg-muted/40 border-border/40 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {preset}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="bg-card rounded-2xl border border-border/40 p-4 mt-3">
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onFocus={onFieldFocus}
           placeholder={t.placeholder}
           className="w-full bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none resize-none min-h-[120px] text-base leading-relaxed"
           rows={4}
@@ -512,7 +573,7 @@ function OptionButton({ selected, onClick, children }: { selected: boolean; onCl
     <button
       type="button"
       onClick={onClick}
-      className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+      className={`min-h-[44px] px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
         selected
           ? "bg-primary text-primary-foreground shadow-md dark:shadow-primary/20"
           : "bg-muted/50 text-muted-foreground hover:bg-muted dark:bg-muted/70 dark:text-foreground/70 dark:hover:bg-muted dark:hover:text-foreground"

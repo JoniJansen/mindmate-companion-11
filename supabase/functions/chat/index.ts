@@ -15,6 +15,11 @@ interface Preferences {
   modePrompt?: string; // Chat mode specific prompt from frontend
 }
 
+// Chat request validation thresholds
+const MAX_MESSAGES = 80;
+const MAX_MESSAGE_LENGTH = 8000;
+const MAX_SESSION_ID_LENGTH = 128;
+
 // Crisis keywords that trigger safety response
 const CRISIS_KEYWORDS = [
   // Self-harm
@@ -40,6 +45,43 @@ function detectCrisis(messages: { role: string; content: string }[]): boolean {
     .join(" ");
   
   return CRISIS_KEYWORDS.some(keyword => lowerContent.includes(keyword));
+}
+
+function validateChatRequest(payload: any): string | null {
+  const { sessionId, messages } = payload;
+
+  if (!sessionId || typeof sessionId !== "string" || !sessionId.trim()) {
+    return "Invalid sessionId";
+  }
+
+  if (sessionId.length > MAX_SESSION_ID_LENGTH) {
+    return "sessionId too long";
+  }
+
+  if (!Array.isArray(messages)) {
+    return "messages must be an array";
+  }
+
+  if (messages.length > MAX_MESSAGES) {
+    return "too many messages";
+  }
+
+  for (const msg of messages) {
+    if (!msg || typeof msg !== "object") {
+      return "message must be an object";
+    }
+    if (msg.role !== "user" && msg.role !== "assistant") {
+      return "invalid message role";
+    }
+    if (typeof msg.content !== "string" || !msg.content.trim()) {
+      return "message content must be a non-empty string";
+    }
+    if (msg.content.length > MAX_MESSAGE_LENGTH) {
+      return "message content too long";
+    }
+  }
+
+  return null;
 }
 
 function buildSystemPrompt(preferences: Preferences, isCrisis: boolean): string {
@@ -273,15 +315,47 @@ serve(async (req) => {
   try {
     // JWT auth: extract user from token
     let userId: string;
+    let supabase: any;
     try {
-      const { user } = await requireUser(req);
-      userId = user.id;
+      const authResult = await requireUser(req);
+      userId = authResult.user.id;
+      supabase = authResult.supabase;
     } catch (authError) {
       if (authError instanceof Response) return authError;
       throw authError;
     }
 
-    const { messages, preferences } = await req.json();
+    const { messages, preferences, sessionId } = await req.json();
+
+    const validationError = validateChatRequest({ sessionId, messages });
+    if (validationError) {
+      return new Response(
+        JSON.stringify({ error: validationError }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Save user messages to database
+    if (messages && messages.length > 0) {
+      const userMessages = messages.filter((m: any) => m.role === 'user');
+      if (userMessages.length > 0) {
+        const messageInserts = userMessages.map((m: any) => ({
+          user_id: userId,
+          session_id: sessionId || 'default',
+          role: m.role,
+          content: m.content,
+        }));
+        
+        const { error: insertError } = await supabase
+          .from('chat_messages')
+          .insert(messageInserts);
+        
+        if (insertError) {
+          console.error('Failed to save user messages:', insertError);
+          // Don't fail the request, just log the error
+        }
+      }
+    }
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -344,7 +418,73 @@ serve(async (req) => {
       );
     }
 
-    return new Response(response.body, {
+    // Collect the full assistant response for saving
+    let fullAssistantContent = "";
+    const transformedStream = new ReadableStream({
+      start(controller) {
+        const reader = response.body?.getReader();
+        if (!reader) {
+          controller.error(new Error("No response body"));
+          return;
+        }
+
+        function read() {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              // Save assistant message after streaming is complete
+              if (fullAssistantContent.trim()) {
+                supabase
+                  .from('chat_messages')
+                  .insert({
+                    user_id: userId,
+                    session_id: sessionId || 'default',
+                    role: 'assistant',
+                    content: fullAssistantContent.trim(),
+                  })
+                  .then(({ error }) => {
+                    if (error) {
+                      console.error('Failed to save assistant message:', error);
+                    }
+                  });
+              }
+              controller.close();
+              return;
+            }
+
+            // Decode and process the chunk
+            const chunk = new TextDecoder().decode(value);
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') continue;
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  const content = parsed.choices?.[0]?.delta?.content;
+                  if (content) {
+                    fullAssistantContent += content;
+                  }
+                } catch (e) {
+                  // Ignore parsing errors for now
+                }
+              }
+            }
+
+            controller.enqueue(value);
+            read();
+          }).catch(error => {
+            console.error('Stream reading error:', error);
+            controller.error(error);
+          });
+        }
+
+        read();
+      }
+    });
+
+    return new Response(transformedStream, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {

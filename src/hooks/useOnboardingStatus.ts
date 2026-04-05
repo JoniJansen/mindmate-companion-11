@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
-const ONBOARDING_COMPLETED_KEY = "mindmate_onboarding_completed";
-const TAB_HINTS_SEEN_KEY = "mindmate_tab_hints_seen";
+const ONBOARDING_COMPLETED_KEY = "soulvay_onboarding_completed";
+const TAB_HINTS_SEEN_KEY = "soulvay_tab_hints_seen";
 
 export interface TabHintsSeen {
   chat: boolean;

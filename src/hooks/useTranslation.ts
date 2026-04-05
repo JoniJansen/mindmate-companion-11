@@ -984,7 +984,7 @@ export function useTranslation() {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("mindmate-preferences");
+      const stored = localStorage.getItem("soulvay-preferences");
       if (stored) {
         const prefs = JSON.parse(stored);
         if (prefs.language) {
@@ -998,7 +998,7 @@ export function useTranslation() {
     // Listen for changes
     const handleStorageChange = () => {
       try {
-        const stored = localStorage.getItem("mindmate-preferences");
+        const stored = localStorage.getItem("soulvay-preferences");
         if (stored) {
           const prefs = JSON.parse(stored);
           if (prefs.language) {
@@ -1015,7 +1015,7 @@ export function useTranslation() {
     // Also check periodically for same-tab changes
     const interval = setInterval(() => {
       try {
-        const stored = localStorage.getItem("mindmate-preferences");
+        const stored = localStorage.getItem("soulvay-preferences");
         if (stored) {
           const prefs = JSON.parse(stored);
           if (prefs.language && prefs.language !== language) {

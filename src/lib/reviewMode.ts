@@ -5,15 +5,16 @@
  * Review accounts get automatic premium access and bypass rate limits.
  */
 
-// Review account credentials - stored securely, not exposed in UI
+// Review account credentials - loaded from environment variables
+// Set VITE_REVIEW_EMAIL and VITE_REVIEW_PASSWORD in your .env file
 export const REVIEW_CREDENTIALS = {
-  email: "apple-review@mindmate.de",
-  password: "MindMate2026Review!",
+  email: import.meta.env.VITE_REVIEW_EMAIL || "apple-review@soulvay.de",
+  password: import.meta.env.VITE_REVIEW_PASSWORD || "",
 } as const;
 
 export const GOOGLE_REVIEW_CREDENTIALS = {
-  email: "google-review@mindmate.de",
-  password: "MindMate2026Review!",
+  email: import.meta.env.VITE_GOOGLE_REVIEW_EMAIL || "google-review@soulvay.de",
+  password: import.meta.env.VITE_REVIEW_PASSWORD || "",
 } as const;
 
 // All review emails for checking
@@ -32,7 +33,7 @@ export const isReviewAccount = (email?: string | null): boolean => {
 export const isReviewModeActive = (): boolean => {
   try {
     // Check localStorage flag
-    if (localStorage.getItem("mindmate_review_mode") === "active") {
+    if (localStorage.getItem("soulvay_review_mode") === "active") {
       return true;
     }
     return false;
@@ -44,9 +45,9 @@ export const isReviewModeActive = (): boolean => {
 // Activate review mode
 export const activateReviewMode = (): void => {
   try {
-    localStorage.setItem("mindmate_review_mode", "active");
+    localStorage.setItem("soulvay_review_mode", "active");
     // Also set premium state
-    localStorage.setItem("mindmate-premium-state", JSON.stringify({
+    localStorage.setItem("soulvay-premium-state", JSON.stringify({
       isPremium: true,
       dailyMessagesUsed: 0,
       lastResetDate: new Date().toISOString().split("T")[0],
@@ -61,7 +62,7 @@ export const activateReviewMode = (): void => {
 // Deactivate review mode
 export const deactivateReviewMode = (): void => {
   try {
-    localStorage.removeItem("mindmate_review_mode");
+    localStorage.removeItem("soulvay_review_mode");
   } catch {
     console.warn("Failed to deactivate review mode");
   }
