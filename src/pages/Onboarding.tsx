@@ -235,7 +235,7 @@ export default function Onboarding() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-6">
+      <div className="flex-1 min-h-0 overflow-y-auto px-5">
         <div className="max-w-lg mx-auto">
           <AnimatePresence mode="wait" initial={false}>
             {currentStep === "name" && (
