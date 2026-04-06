@@ -11,8 +11,7 @@ import {
   Moon,
   Sun,
   ArrowRight,
-  Check,
-  Star
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";

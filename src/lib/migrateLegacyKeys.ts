@@ -13,6 +13,8 @@ const KEY_MAP: Record<string, string> = {
   "mindmate-topic-progress": "soulvay-topic-progress",
   "mindmate-topic-notes": "soulvay-topic-notes",
   "mindmate_tour_completed": "soulvay_tour_completed",
+  "mindmate_onboarding_completed": "soulvay_onboarding_completed",
+  "mindmate_tab_hints_seen": "soulvay_tab_hints_seen",
   "mindmate_tour_auto_triggered": "soulvay_tour_auto_triggered",
   "mindmate_tab_hints_seen": "soulvay_tab_hints_seen",
   "mindmate_notification_settings": "soulvay_notification_settings",
