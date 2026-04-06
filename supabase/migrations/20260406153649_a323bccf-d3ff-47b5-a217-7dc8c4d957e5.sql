@@ -1,0 +1,1 @@
+UPDATE companion_profiles SET avatar_url = NULL WHERE user_id = 'c827337c-f148-470b-836f-00765ca00905';
