@@ -31,10 +31,10 @@ let _syncedUserId: string | null = null;
 export function useOnboardingStatus() {
   const { user } = useAuth();
 
-  // On login: sync onboarding status between server and localStorage
+  // On login: sync onboarding status between server and localStorage (once per user)
   useEffect(() => {
-    if (!user || syncedRef.current) return;
-    syncedRef.current = true;
+    if (!user || _syncedUserId === user.id) return;
+    _syncedUserId = user.id;
 
     (async () => {
       try {
@@ -45,10 +45,8 @@ export function useOnboardingStatus() {
           .maybeSingle();
 
         if (data?.onboarding_completed) {
-          // Server says completed → cache locally
           localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
         } else {
-          // Server says false but localStorage says true → migrate state UP to server
           const localCompleted = localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true";
           if (localCompleted && data) {
             await supabase
@@ -63,9 +61,9 @@ export function useOnboardingStatus() {
     })();
   }, [user]);
 
-  // Reset sync flag when user changes
+  // Reset sync flag on logout
   useEffect(() => {
-    if (!user) syncedRef.current = false;
+    if (!user) _syncedUserId = null;
   }, [user]);
 
   // Check if onboarding has been completed (fast, localStorage-based for guards)
