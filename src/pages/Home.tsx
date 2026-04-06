@@ -382,7 +382,7 @@ export default function Home() {
         </motion.div>
 
         {/* Voice Trial Card */}
-        <VoiceTrialCard language={language as "en" | "de"} hasUsedTrial={hasUsedVoiceTrial()} isPremium={!!serverVerifiedPremium} companionName={companion?.name} />
+        <VoiceTrialCard language={language as "en" | "de"} hasUsedTrial={hasUsedVoiceTrial()} isPremium={isPremium} companionName={companion?.name} />
 
         {/* Companion Card */}
         {companion && <CompanionCard companion={companion} />}
