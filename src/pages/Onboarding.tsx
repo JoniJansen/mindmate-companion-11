@@ -204,7 +204,7 @@ export default function Onboarding() {
   const others = companionArchetypes.filter(a => !recommendedIds.includes(a.id));
 
   return (
-    <div className="bg-background flex flex-col h-[100dvh]" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+    <div className="bg-background flex flex-col h-[100dvh]" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
         {currentStepIndex > 0 ? (

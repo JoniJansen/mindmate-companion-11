@@ -191,7 +191,7 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 px-6 pb-6">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 pb-6" style={{ WebkitOverflowScrolling: 'touch' }}>
         {/* Welcome Back — returning users */}
         {returnState.category && (
           <WelcomeBackCard
