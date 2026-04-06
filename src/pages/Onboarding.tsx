@@ -357,7 +357,7 @@ export default function Onboarding() {
       </div>
 
       {/* Bottom CTA */}
-      <div className="shrink-0 px-5 pt-3 pb-2 bg-background/95 backdrop-blur-sm border-t border-border/30">
+      <div className="shrink-0 px-5 pt-3 bg-background/95 backdrop-blur-sm border-t border-border/30" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))' }}>
         <div className="max-w-lg mx-auto">
           {currentStep === "start" ? (
             <Button size="xl" className="w-full gap-2" onClick={finishOnboarding} disabled={!canProceed() || isFinishing}>
