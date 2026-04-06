@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { tp } from "@/lib/i18nPlain";
 
-const BACKUP_REMINDER_KEY = "mindmate-last-export";
-const BACKUP_REMINDER_INTERVAL_KEY = "mindmate-backup-interval";
-const NOTIFICATION_SHOWN_KEY = "mindmate-backup-notification-shown";
+const BACKUP_REMINDER_KEY = "soulvay-last-export";
+const BACKUP_REMINDER_INTERVAL_KEY = "soulvay-backup-interval";
+const NOTIFICATION_SHOWN_KEY = "soulvay-backup-notification-shown";
 
 interface BackupReminderState {
   isOverdue: boolean;
