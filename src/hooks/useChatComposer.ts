@@ -180,7 +180,7 @@ export function useChatComposer(chatMode: ChatMode) {
         // Check if this was our timeout (not user-initiated)
         if (!signal?.aborted) {
           onError(language === "de"
-            ? "Die Antwort hat etwas länger gedauert als erwartet. Bitte versuche es noch einmal."
+            ? "Die Antwort hat etwas länger gedauert als erwartet. Versuche es bitte nochmal."
             : "The response took a bit longer than expected. Please try again.");
           return;
         }
