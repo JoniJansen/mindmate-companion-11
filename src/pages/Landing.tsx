@@ -264,27 +264,25 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* How It Works */}
       <section className="py-16 bg-muted/30">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-12">{t.testimonials.title}</h2>
-          <div className="grid md:grid-cols-3 gap-5">
-            {t.testimonials.items.map((testimonial, index) => (
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-12">{t.howItWorks.title}</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {t.howItWorks.items.map((item, index) => (
               <motion.div
-                key={testimonial.author}
+                key={item.step}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="bg-card rounded-2xl p-5 shadow-soft border border-border/40"
+                className="text-center"
               >
-                <div className="flex gap-0.5 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />
-                  ))}
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-lg font-bold text-primary">{item.step}</span>
                 </div>
-                <p className="text-foreground text-sm mb-3 italic">"{testimonial.text}"</p>
-                <p className="text-muted-foreground text-xs font-medium">— {testimonial.author}</p>
+                <h3 className="text-base font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-muted-foreground text-sm">{item.description}</p>
               </motion.div>
             ))}
           </div>
