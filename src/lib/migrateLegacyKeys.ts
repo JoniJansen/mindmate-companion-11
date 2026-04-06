@@ -16,7 +16,6 @@ const KEY_MAP: Record<string, string> = {
   "mindmate_onboarding_completed": "soulvay_onboarding_completed",
   "mindmate_tab_hints_seen": "soulvay_tab_hints_seen",
   "mindmate_tour_auto_triggered": "soulvay_tour_auto_triggered",
-  "mindmate_tab_hints_seen": "soulvay_tab_hints_seen",
   "mindmate_notification_settings": "soulvay_notification_settings",
   "mindmate_notification_permission": "soulvay_notification_permission",
   "mindmate_last_notification": "soulvay_last_notification",
