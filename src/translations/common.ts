@@ -10,7 +10,7 @@ export const commonTranslations: Translations = {
   "nav.settings": { en: "Settings", de: "Einstellungen" },
   "nav.safety": { en: "Safety", de: "Sicherheit" },
   "nav.summary": { en: "Summary", de: "Zusammenfassung" },
-  "nav.home": { en: "Home", de: "Zuhause" },
+  "nav.home": { en: "Home", de: "Start" },
 
   // Common actions
   "common.save": { en: "Save", de: "Speichern" },
