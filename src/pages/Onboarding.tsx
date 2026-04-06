@@ -103,7 +103,7 @@ export default function Onboarding() {
       disclaimerAccepted: false,
     };
   });
-  const [showAllCompanions, setShowAllCompanions] = useState(false);
+  
   const navigate = useNavigate();
   const { isDark, setMode: setThemeMode } = useTheme();
   const { completeOnboarding } = useOnboardingStatus();
