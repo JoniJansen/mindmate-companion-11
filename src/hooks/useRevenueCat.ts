@@ -4,8 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 
 // RevenueCat Product IDs - must match App Store Connect & RevenueCat Dashboard
 export const REVENUECAT_PRODUCTS = {
-  MONTHLY: 'mindmate_plus_monthly',
-  YEARLY: 'mindmate_plus_yearly',
+  MONTHLY: 'soulvay_plus_monthly',
+  YEARLY: 'soulvay_plus_yearly',
 } as const;
 
 // RevenueCat Entitlement ID - must match RevenueCat Dashboard
