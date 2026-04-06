@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -21,18 +21,20 @@ const defaultTabHints: TabHintsSeen = {
   toolbox: false,
 };
 
+// Module-level sync guard — ensures only ONE sync per user session across all hook instances
+let _syncedUserId: string | null = null;
+
 /**
  * Onboarding status — uses server (profiles.onboarding_completed) as source of truth.
  * localStorage is kept in sync as a fast cache for pre-auth checks (e.g. RootRedirect).
  */
 export function useOnboardingStatus() {
   const { user } = useAuth();
-  const syncedRef = useRef(false);
 
-  // On login: sync server onboarding status to localStorage
+  // On login: sync onboarding status between server and localStorage (once per user)
   useEffect(() => {
-    if (!user || syncedRef.current) return;
-    syncedRef.current = true;
+    if (!user || _syncedUserId === user.id) return;
+    _syncedUserId = user.id;
 
     (async () => {
       try {
@@ -44,6 +46,14 @@ export function useOnboardingStatus() {
 
         if (data?.onboarding_completed) {
           localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
+        } else {
+          const localCompleted = localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true";
+          if (localCompleted && data) {
+            await supabase
+              .from("profiles")
+              .update({ onboarding_completed: true } as any)
+              .eq("user_id", user.id);
+          }
         }
       } catch {
         // Network error — rely on localStorage cache
@@ -51,9 +61,9 @@ export function useOnboardingStatus() {
     })();
   }, [user]);
 
-  // Reset sync flag when user changes
+  // Reset sync flag on logout
   useEffect(() => {
-    if (!user) syncedRef.current = false;
+    if (!user) _syncedUserId = null;
   }, [user]);
 
   // Check if onboarding has been completed (fast, localStorage-based for guards)
