@@ -36,7 +36,7 @@ export default function Landing() {
     return "de";
   });
 
-  const showBadges = useMemo(() => shouldShowStoreBadges(), []);
+  
 
   const content = {
     en: {
