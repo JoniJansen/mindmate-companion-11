@@ -61,7 +61,9 @@ export function useChatPersistence() {
     if (!user || !convId) return;
     try {
       await supabase.from("conversations").update({ title } as any).eq("id", convId);
-    } catch {}
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("Update conversation title failed:", e);
+    }
   }, [user]);
 
   const loadConversation = useCallback(async (convId: string): Promise<ChatMessage[]> => {
@@ -96,8 +98,13 @@ export function useChatPersistence() {
   const deleteConversation = useCallback(async (convId: string) => {
     if (!user) return;
     try {
-      await supabase.from("conversations").delete().eq("id", convId);
-    } catch {}
+      const { error } = await supabase.from("conversations").delete().eq("id", convId);
+      if (error) {
+        if (import.meta.env.DEV) console.warn("Delete conversation failed:", error);
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("Delete conversation error:", e);
+    }
   }, [user]);
 
   return {
