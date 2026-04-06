@@ -4,8 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 
 // Product IDs matching App Store Connect configuration
 export const APPLE_PRODUCTS = {
-  MONTHLY: 'de.mindmate.app.plus.monthly',
-  YEARLY: 'de.mindmate.app.plus.yearly',
+  MONTHLY: 'com.soulvay.app.plus.monthly',
+  YEARLY: 'com.soulvay.app.plus.yearly',
 } as const;
 
 interface AppleProduct {
