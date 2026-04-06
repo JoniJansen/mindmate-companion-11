@@ -18,7 +18,6 @@ export interface AppPreferences {
 }
 
 const STORAGE_KEY = "soulvay-preferences";
-const LEGACY_KEY = "mindmate-preferences";
 
 const DEFAULT_PREFERENCES: AppPreferences = {
   language: "en",
