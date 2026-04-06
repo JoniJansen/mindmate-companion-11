@@ -5,10 +5,10 @@
  * Review accounts get automatic premium access and bypass rate limits.
  */
 
-// Review account emails only — passwords are stored server-side as secrets
+// Review account emails — passwords are stored server-side as secrets
 export const REVIEW_EMAILS_CONFIG = {
-  apple: "apple-review@mindmate.de",
-  secondary: "backup-review@mindmate.de",
+  apple: "apple-review@soulvay.com",
+  secondary: "backup-review@soulvay.com",
 } as const;
 
 // All review emails for checking
@@ -27,8 +27,6 @@ export const isReviewAccount = (email?: string | null): boolean => {
 export const isReviewModeActive = (): boolean => {
   try {
     if (localStorage.getItem("soulvay_review_mode") === "active") return true;
-    // Legacy fallback
-    if (localStorage.getItem("mindmate_review_mode") === "active") return true;
     return false;
   } catch {
     return false;
@@ -46,15 +44,6 @@ export const activateReviewMode = (): void => {
       planType: "review",
       subscriptionStatus: "active",
     }));
-    // Legacy compat
-    localStorage.setItem("mindmate_review_mode", "active");
-    localStorage.setItem("mindmate-premium-state", JSON.stringify({
-      isPremium: true,
-      dailyMessagesUsed: 0,
-      lastResetDate: new Date().toISOString().split("T")[0],
-      planType: "review",
-      subscriptionStatus: "active",
-    }));
   } catch {
     if (import.meta.env.DEV) console.warn("Failed to activate review mode");
   }
@@ -64,7 +53,6 @@ export const activateReviewMode = (): void => {
 export const deactivateReviewMode = (): void => {
   try {
     localStorage.removeItem("soulvay_review_mode");
-    localStorage.removeItem("mindmate_review_mode");
   } catch {
     if (import.meta.env.DEV) console.warn("Failed to deactivate review mode");
   }

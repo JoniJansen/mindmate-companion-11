@@ -65,8 +65,6 @@ export function setPreferences(partial: Partial<AppPreferences>): AppPreferences
   try {
     const json = JSON.stringify(updated);
     localStorage.setItem(STORAGE_KEY, json);
-    // Legacy sync — will be removed when migration period ends
-    localStorage.setItem(LEGACY_KEY, json);
   } catch {
     // Storage full or unavailable
   }

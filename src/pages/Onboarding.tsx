@@ -159,7 +159,6 @@ export default function Onboarding() {
       disclaimerAccepted: true,
     });
     localStorage.setItem("soulvay-preferences", prefsPayload);
-    localStorage.setItem("mindmate-preferences", prefsPayload);
 
     // Save personalization
     localStorage.setItem("soulvay-personalization", JSON.stringify({
