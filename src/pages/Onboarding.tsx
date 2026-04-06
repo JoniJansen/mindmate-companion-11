@@ -306,28 +306,15 @@ export default function Onboarding() {
                   <h2 className="text-xl font-semibold text-foreground mb-1 text-center">{t.companion.title}</h2>
                   <p className="text-muted-foreground text-sm text-center mb-4">{t.companion.subtitle}</p>
 
-                  {/* Recommended companions (top 3) */}
-                  <div className="flex flex-col gap-3 pb-4">
+                  {/* All companions */}
+                  <div className="flex flex-col gap-2.5 pb-4">
                     {recommended.map((arch) => (
+                      <CompanionOption key={arch.id} arch={arch} selected={state.companionId === arch.id} language={state.language} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} isRecommended />
+                    ))}
+                    {others.map((arch) => (
                       <CompanionOption key={arch.id} arch={arch} selected={state.companionId === arch.id} language={state.language} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} />
                     ))}
                   </div>
-
-                  {/* Show all toggle */}
-                  <button
-                    onClick={() => setShowAllCompanions(!showAllCompanions)}
-                    className="w-full text-center text-xs text-muted-foreground hover:text-foreground py-2 transition-colors"
-                  >
-                    {showAllCompanions ? t.companion.showLess : t.companion.showAll}
-                  </button>
-
-                  {showAllCompanions && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="flex flex-col gap-3 pt-2 pb-4">
-                      {others.map((arch) => (
-                        <CompanionOption key={arch.id} arch={arch} selected={state.companionId === arch.id} language={state.language} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} />
-                      ))}
-                    </motion.div>
-                  )}
                 </div>
               </motion.div>
             )}
