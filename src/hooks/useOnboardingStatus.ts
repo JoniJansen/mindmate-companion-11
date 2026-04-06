@@ -29,7 +29,7 @@ export function useOnboardingStatus() {
   const { user } = useAuth();
   const syncedRef = useRef(false);
 
-  // On login: sync server onboarding status to localStorage
+  // On login: sync onboarding status between server and localStorage
   useEffect(() => {
     if (!user || syncedRef.current) return;
     syncedRef.current = true;
@@ -43,7 +43,17 @@ export function useOnboardingStatus() {
           .maybeSingle();
 
         if (data?.onboarding_completed) {
+          // Server says completed → cache locally
           localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
+        } else {
+          // Server says false but localStorage says true → migrate state UP to server
+          const localCompleted = localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true";
+          if (localCompleted && data) {
+            await supabase
+              .from("profiles")
+              .update({ onboarding_completed: true } as any)
+              .eq("user_id", user.id);
+          }
         }
       } catch {
         // Network error — rely on localStorage cache
