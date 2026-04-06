@@ -55,6 +55,7 @@ export default function Home() {
   const { user } = useAuth();
   const { toast } = useToast();
   const streak = useStreak();
+  const { isPremium } = usePremium();
   const { logActivity } = useActivityLog();
   const { suggestions, audioSuggestion } = usePersonalization();
   const { prompt: dailyPrompt } = useDailyPrompt();
