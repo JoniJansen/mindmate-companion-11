@@ -61,7 +61,9 @@ export function useChatPersistence() {
     if (!user || !convId) return;
     try {
       await supabase.from("conversations").update({ title } as any).eq("id", convId);
-    } catch {}
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("Update conversation title failed:", e);
+    }
   }, [user]);
 
   const loadConversation = useCallback(async (convId: string): Promise<ChatMessage[]> => {
