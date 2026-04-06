@@ -377,11 +377,12 @@ export default function Onboarding() {
 }
 
 // Compact companion option card
-function CompanionOption({ arch, selected, language, onSelect }: {
+function CompanionOption({ arch, selected, language, onSelect, isRecommended }: {
   arch: CompanionArchetype;
   selected: boolean;
   language: Language;
   onSelect: (id: string) => void;
+  isRecommended?: boolean;
 }) {
   const description = language === "de" ? arch.descriptionDe : arch.description;
 
@@ -389,26 +390,31 @@ function CompanionOption({ arch, selected, language, onSelect }: {
     <motion.button
       whileTap={{ scale: 0.98 }}
       onClick={() => onSelect(arch.id)}
-      className={`relative w-full rounded-2xl border text-left transition-all flex flex-row items-stretch overflow-hidden ${
+      className={`relative w-full rounded-xl border text-left transition-all flex flex-row items-stretch overflow-hidden ${
         selected
-          ? "border-primary bg-primary/5 ring-2 ring-primary/30 shadow-sm"
+          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
           : "border-border/40 bg-card hover:border-border/60"
       }`}
     >
       {selected && (
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-2.5 right-2.5 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-md">
-          <Check className="w-3.5 h-3.5 text-primary-foreground" />
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+          <Check className="w-3 h-3 text-primary-foreground" />
         </motion.div>
       )}
-      <div className="w-20 sm:w-24 shrink-0 bg-muted/20 min-h-[80px]">
+      {isRecommended && !selected && (
+        <div className="absolute top-1.5 right-1.5 z-10">
+          <Sparkles className="w-3 h-3 text-primary/50" />
+        </div>
+      )}
+      <div className="w-16 shrink-0 bg-muted/20 min-h-[64px]">
         <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-top" loading="lazy" draggable={false} />
       </div>
-      <div className="p-3 flex flex-col gap-1 flex-1 min-w-0 justify-center">
+      <div className="py-2 px-2.5 flex flex-col gap-0.5 flex-1 min-w-0 justify-center">
         <div className="flex items-center gap-1.5">
-          <span className="text-base shrink-0">{arch.emoji}</span>
-          <p className="font-semibold text-foreground text-sm truncate">{arch.name}</p>
+          <span className="text-sm shrink-0">{arch.emoji}</span>
+          <p className="font-medium text-foreground text-[13px] truncate">{arch.name}</p>
         </div>
-        <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">{description}</p>
+        <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2">{description}</p>
       </div>
     </motion.button>
   );
