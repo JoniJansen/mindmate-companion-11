@@ -71,7 +71,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
 
   // Load notes
   useEffect(() => {
-    const stored = localStorage.getItem("soulvay-topic-notes") || localStorage.getItem("mindmate-topic-notes");
+    const stored = localStorage.getItem("soulvay-topic-notes");
     if (stored) {
       try { setTopicNotes(JSON.parse(stored)); } catch {}
     }
