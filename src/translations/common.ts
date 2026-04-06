@@ -35,8 +35,8 @@ export const commonTranslations: Translations = {
   "common.helpfulPrompts": { en: "Helpful prompts", de: "Hilfreiche Impulse" },
   "common.delete": { en: "Delete", de: "Löschen" },
   "common.retry": { en: "Retry", de: "Erneut versuchen" },
-  "common.offline": { en: "You are offline", de: "Du bist offline" },
-  "common.offlineBody": { en: "Check your connection", de: "Prüfe deine Verbindung" },
+  "common.offline": { en: "You're offline", de: "Du bist gerade offline" },
+  "common.offlineBody": { en: "Check your connection and try again.", de: "Prüfe deine Verbindung und versuche es nochmal." },
   "common.continue": { en: "Continue", de: "Weiter" },
   "common.clear": { en: "Clear", de: "Entfernen" },
 
