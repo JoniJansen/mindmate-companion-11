@@ -395,7 +395,7 @@ export function useTranslation() {
   useEffect(() => {
     const readLang = () => {
       try {
-        const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+        const stored = localStorage.getItem("soulvay-preferences");
         if (stored) {
           const prefs = JSON.parse(stored);
           if (prefs.language) setLanguage(prefs.language);

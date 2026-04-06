@@ -297,7 +297,7 @@ export default function Journal() {
     setIsLoadingRecap(true);
 
     try {
-      const moodStored = localStorage.getItem("soulvay-moods") || localStorage.getItem("mindmate-moods");
+      const moodStored = localStorage.getItem("soulvay-moods");
       const moodCheckins = moodStored ? JSON.parse(moodStored) : [];
 
       const { data: { session: recapSession } } = await supabase.auth.getSession();
