@@ -275,8 +275,8 @@ export function useChatComposer(chatMode: ChatMode) {
           setMessages(prev => [...prev.filter(m => m.role !== "assistant" || m.content.trim()), {
             id: `empty-${Date.now()}`,
             content: language === "de"
-              ? "Ich konnte gerade keine Antwort formulieren. Bitte versuche es noch einmal."
-              : "I wasn't able to form a response just now. Please try again.",
+              ? "Ich konnte gerade keine Antwort finden. Versuche es bitte nochmal."
+              : "I couldn't find the right words just now. Please try again.",
             role: "assistant" as const,
             timestamp: new Date(),
             isError: true,
