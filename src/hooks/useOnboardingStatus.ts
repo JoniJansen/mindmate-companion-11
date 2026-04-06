@@ -21,13 +21,15 @@ const defaultTabHints: TabHintsSeen = {
   toolbox: false,
 };
 
+// Module-level sync guard — ensures only ONE sync per user session across all hook instances
+let _syncedUserId: string | null = null;
+
 /**
  * Onboarding status — uses server (profiles.onboarding_completed) as source of truth.
  * localStorage is kept in sync as a fast cache for pre-auth checks (e.g. RootRedirect).
  */
 export function useOnboardingStatus() {
   const { user } = useAuth();
-  const syncedRef = useRef(false);
 
   // On login: sync onboarding status between server and localStorage
   useEffect(() => {
