@@ -90,6 +90,7 @@ export function useCompanion() {
       personality_style: arch.personalityStyle,
       tone: arch.tone,
       appearance_prompt: arch.appearancePrompt,
+      avatar_url: null, // Reset custom avatar when switching archetypes
     };
 
     try {
