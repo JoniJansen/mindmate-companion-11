@@ -69,7 +69,7 @@ export default function Settings() {
       <PageHeader title={t("settings.title")} subtitle={t("settings.subtitle")} showBack backTo="/" />
 
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
-        <div className="px-4 py-4 pb-32 max-w-lg mx-auto space-y-6">
+        <div className="px-4 py-4 max-w-lg mx-auto space-y-6" style={{ paddingBottom: 'max(8rem, calc(4rem + env(safe-area-inset-bottom, 0px)))' }}>
           <SettingsCompanionSection />
           <SubscriptionSection onUpgradeClick={() => navigate("/upgrade")} />
           

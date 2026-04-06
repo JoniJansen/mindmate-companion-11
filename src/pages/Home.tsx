@@ -146,9 +146,9 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-background flex flex-col">
+    <div className="bg-background flex flex-col h-full">
       {/* Header */}
-      <div className="px-6 pt-8 pb-4 safe-top">
+      <div className="px-6 pt-6 pb-3 safe-top shrink-0">
         <div className="flex items-center justify-between">
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
@@ -191,7 +191,7 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 px-6 pb-6">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 pb-6" style={{ WebkitOverflowScrolling: 'touch' }}>
         {/* Welcome Back — returning users */}
         {returnState.category && (
           <WelcomeBackCard

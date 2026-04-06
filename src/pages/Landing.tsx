@@ -121,7 +121,7 @@ export default function Landing() {
       }}
     >
       {/* Header — compact */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/40">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/40 safe-top">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full overflow-hidden shadow-md shadow-primary/20">
