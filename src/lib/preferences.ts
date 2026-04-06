@@ -6,7 +6,7 @@
  * for preference data.
  * 
  * Storage key: "soulvay-preferences"
- * Legacy fallback: "mindmate-preferences" (read-only, will be removed in future)
+ * localStorage is the primary store; profile language syncs from server on login.
  */
 
 export interface AppPreferences {
