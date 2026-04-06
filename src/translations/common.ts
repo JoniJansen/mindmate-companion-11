@@ -55,7 +55,7 @@ export const commonTranslations: Translations = {
 
   // Not Found page
   "notFound.title": { en: "Page not found", de: "Seite nicht gefunden" },
-  "notFound.description": { en: "The page you're looking for doesn't exist. Let's get you back on track.", de: "Die Seite, die du suchst, existiert nicht. Lass uns dich zurückbringen." },
+  "notFound.description": { en: "This page doesn't exist. Let's take you back.", de: "Diese Seite gibt es nicht. Lass uns dich zurückbringen." },
   "notFound.goToChat": { en: "Go to Chat", de: "Zum Chat" },
   "notFound.goBack": { en: "Go Back", de: "Zurück" },
 

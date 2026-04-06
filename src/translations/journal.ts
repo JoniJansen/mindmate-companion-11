@@ -33,7 +33,7 @@ export const journalTranslations: Translations = {
   "journal.reflectionPrompts": { en: "Reflection prompts", de: "Reflexionsfragen" },
   "journal.refreshPrompts": { en: "Refresh prompts", de: "Neue Fragen laden" },
   "journal.aiReflection": { en: "AI Reflection", de: "KI-Reflexion" },
-  "journal.analyzingEntries": { en: "Reflecting on your entries...", de: "Analysiere deine Einträge..." },
+  "journal.analyzingEntries": { en: "Reflecting on your entries...", de: "Reflektiere deine Einträge..." },
   "journal.needMoreEntries": { en: "Need more entries", de: "Mehr Einträge nötig" },
   "journal.writeAtLeast3Entries": { en: "Write at least 3 entries.", de: "Schreibe mindestens 3 Einträge." },
   "journal.yourWeeklyRecap": { en: "Your Weekly Recap", de: "Dein Wochenrückblick" },
