@@ -23,6 +23,11 @@ const REVIEW_ACCOUNTS = [
     password: Deno.env.get("TEST_ACCOUNT_ALINA_PASSWORD") || "",
     displayName: "Alina",
   },
+  {
+    email: Deno.env.get("TEST_ACCOUNT_STEFAN_EMAIL") || "",
+    password: Deno.env.get("TEST_ACCOUNT_STEFAN_PASSWORD") || "",
+    displayName: "Stefan",
+  },
 ];
 
 async function setupAccount(
