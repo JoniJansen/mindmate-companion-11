@@ -459,7 +459,7 @@ export default function Home() {
         {latestInsight && (
           <InsightPreviewCard
             insightText={latestInsight.insight_text}
-            isPremium={false}
+            isPremium={isPremium}
             language={language as "en" | "de"}
           />
         )}
