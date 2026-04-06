@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
-import { shouldShowStoreBadges, shouldShowStoreMessaging } from "@/lib/platformSeparation";
+
 import { DemoChat } from "@/components/landing/DemoChat";
 
 export default function Landing() {
@@ -36,7 +36,7 @@ export default function Landing() {
     return "de";
   });
 
-  const showBadges = useMemo(() => shouldShowStoreBadges(), []);
+  
 
   const content = {
     en: {
@@ -322,14 +322,6 @@ export default function Landing() {
               <button onClick={() => navigate("/contact")} className="hover:text-foreground transition-colors">{t.footer.contact}</button>
             </div>
           </div>
-          {showBadges && shouldShowStoreMessaging() && (
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex items-center gap-4 opacity-50 grayscale">
-                <div className="h-8"><img src="/badges/app-store.svg" alt="App Store" className="h-full" /></div>
-              </div>
-              <p className="text-xs text-muted-foreground">{language === "de" ? "Bald verfügbar" : "Coming soon"}</p>
-            </div>
-          )}
           <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Soulvay. {language === "de" ? "Alle Rechte vorbehalten." : "All rights reserved."}</p>
         </div>
       </footer>

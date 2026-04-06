@@ -103,7 +103,7 @@ export default function Onboarding() {
       disclaimerAccepted: false,
     };
   });
-  const [showAllCompanions, setShowAllCompanions] = useState(false);
+  
   const navigate = useNavigate();
   const { isDark, setMode: setThemeMode } = useTheme();
   const { completeOnboarding } = useOnboardingStatus();
@@ -235,7 +235,7 @@ export default function Onboarding() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-6">
+      <div className="flex-1 min-h-0 overflow-y-auto px-5">
         <div className="max-w-lg mx-auto">
           <AnimatePresence mode="wait" initial={false}>
             {currentStep === "name" && (
@@ -306,28 +306,15 @@ export default function Onboarding() {
                   <h2 className="text-xl font-semibold text-foreground mb-1 text-center">{t.companion.title}</h2>
                   <p className="text-muted-foreground text-sm text-center mb-4">{t.companion.subtitle}</p>
 
-                  {/* Recommended companions (top 3) */}
-                  <div className="flex flex-col gap-3 pb-4">
+                  {/* All companions */}
+                  <div className="flex flex-col gap-2.5 pb-4">
                     {recommended.map((arch) => (
+                      <CompanionOption key={arch.id} arch={arch} selected={state.companionId === arch.id} language={state.language} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} isRecommended />
+                    ))}
+                    {others.map((arch) => (
                       <CompanionOption key={arch.id} arch={arch} selected={state.companionId === arch.id} language={state.language} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} />
                     ))}
                   </div>
-
-                  {/* Show all toggle */}
-                  <button
-                    onClick={() => setShowAllCompanions(!showAllCompanions)}
-                    className="w-full text-center text-xs text-muted-foreground hover:text-foreground py-2 transition-colors"
-                  >
-                    {showAllCompanions ? t.companion.showLess : t.companion.showAll}
-                  </button>
-
-                  {showAllCompanions && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="flex flex-col gap-3 pt-2 pb-4">
-                      {others.map((arch) => (
-                        <CompanionOption key={arch.id} arch={arch} selected={state.companionId === arch.id} language={state.language} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} />
-                      ))}
-                    </motion.div>
-                  )}
                 </div>
               </motion.div>
             )}
@@ -370,7 +357,7 @@ export default function Onboarding() {
       </div>
 
       {/* Bottom CTA */}
-      <div className="shrink-0 px-6 pt-3 pb-4 bg-background/95 backdrop-blur-sm border-t border-border/30">
+      <div className="shrink-0 px-5 pt-3 pb-2 bg-background/95 backdrop-blur-sm border-t border-border/30">
         <div className="max-w-lg mx-auto">
           {currentStep === "start" ? (
             <Button size="xl" className="w-full gap-2" onClick={finishOnboarding} disabled={!canProceed() || isFinishing}>
@@ -390,11 +377,12 @@ export default function Onboarding() {
 }
 
 // Compact companion option card
-function CompanionOption({ arch, selected, language, onSelect }: {
+function CompanionOption({ arch, selected, language, onSelect, isRecommended }: {
   arch: CompanionArchetype;
   selected: boolean;
   language: Language;
   onSelect: (id: string) => void;
+  isRecommended?: boolean;
 }) {
   const description = language === "de" ? arch.descriptionDe : arch.description;
 
@@ -402,26 +390,31 @@ function CompanionOption({ arch, selected, language, onSelect }: {
     <motion.button
       whileTap={{ scale: 0.98 }}
       onClick={() => onSelect(arch.id)}
-      className={`relative w-full rounded-2xl border text-left transition-all flex flex-row items-stretch overflow-hidden ${
+      className={`relative w-full rounded-xl border text-left transition-all flex flex-row items-stretch overflow-hidden ${
         selected
-          ? "border-primary bg-primary/5 ring-2 ring-primary/30 shadow-sm"
+          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
           : "border-border/40 bg-card hover:border-border/60"
       }`}
     >
       {selected && (
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-2.5 right-2.5 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-md">
-          <Check className="w-3.5 h-3.5 text-primary-foreground" />
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+          <Check className="w-3 h-3 text-primary-foreground" />
         </motion.div>
       )}
-      <div className="w-20 sm:w-24 shrink-0 bg-muted/20 min-h-[80px]">
+      {isRecommended && !selected && (
+        <div className="absolute top-1.5 right-1.5 z-10">
+          <Sparkles className="w-3 h-3 text-primary/50" />
+        </div>
+      )}
+      <div className="w-16 shrink-0 bg-muted/20 min-h-[64px]">
         <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-top" loading="lazy" draggable={false} />
       </div>
-      <div className="p-3 flex flex-col gap-1 flex-1 min-w-0 justify-center">
+      <div className="py-2 px-2.5 flex flex-col gap-0.5 flex-1 min-w-0 justify-center">
         <div className="flex items-center gap-1.5">
-          <span className="text-base shrink-0">{arch.emoji}</span>
-          <p className="font-semibold text-foreground text-sm truncate">{arch.name}</p>
+          <span className="text-sm shrink-0">{arch.emoji}</span>
+          <p className="font-medium text-foreground text-[13px] truncate">{arch.name}</p>
         </div>
-        <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">{description}</p>
+        <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2">{description}</p>
       </div>
     </motion.button>
   );
