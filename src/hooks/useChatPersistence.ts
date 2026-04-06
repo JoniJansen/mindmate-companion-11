@@ -98,8 +98,13 @@ export function useChatPersistence() {
   const deleteConversation = useCallback(async (convId: string) => {
     if (!user) return;
     try {
-      await supabase.from("conversations").delete().eq("id", convId);
-    } catch {}
+      const { error } = await supabase.from("conversations").delete().eq("id", convId);
+      if (error) {
+        if (import.meta.env.DEV) console.warn("Delete conversation failed:", error);
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("Delete conversation error:", e);
+    }
   }, [user]);
 
   return {
