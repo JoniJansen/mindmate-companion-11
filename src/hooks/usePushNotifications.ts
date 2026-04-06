@@ -171,7 +171,7 @@ export function usePushNotifications() {
   // Get language
   const getLang = useCallback(() => {
     try {
-      const prefs = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+      const prefs = localStorage.getItem("soulvay-preferences");
       if (prefs) {
         return JSON.parse(prefs).language || "en";
       }

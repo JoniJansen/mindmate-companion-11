@@ -29,7 +29,7 @@ export default function Toolbox() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [infoExercise, setInfoExercise] = useState<Exercise | null>(null);
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(() => {
-    const stored = localStorage.getItem("soulvay-completed-exercises") || localStorage.getItem("mindmate-completed-exercises");
+    const stored = localStorage.getItem("soulvay-completed-exercises");
     return stored ? new Set(JSON.parse(stored)) : new Set();
   });
 

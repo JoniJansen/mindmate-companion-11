@@ -41,7 +41,7 @@ const isCapacitorIOS = (): boolean => {
 };
 
 // Auto-restore check key
-const AUTO_RESTORE_KEY = 'mindmate_ios_auto_restored';
+const AUTO_RESTORE_KEY = 'soulvay_ios_auto_restored';
 const AUTO_RESTORE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
 // Access native StoreKit plugin via Capacitor

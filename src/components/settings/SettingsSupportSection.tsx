@@ -22,10 +22,7 @@ export function SettingsSupportSection({ isAdmin }: Props) {
     localStorage.removeItem("soulvay_tour_completed");
     localStorage.removeItem("soulvay_tour_auto_triggered");
     localStorage.removeItem("soulvay_tab_hints_seen");
-    // Also clear legacy keys
-    localStorage.removeItem("mindmate_tour_completed");
-    localStorage.removeItem("mindmate_tour_auto_triggered");
-    localStorage.removeItem("mindmate_tab_hints_seen");
+    // Legacy cleanup complete
     toast({ title: t("settings.tourReset"), description: t("settings.tourResetDesc") });
     navigate("/chat");
   };
