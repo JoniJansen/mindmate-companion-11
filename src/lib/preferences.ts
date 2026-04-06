@@ -39,7 +39,7 @@ export function getPreferences(): AppPreferences {
   if (_cached) return _cached;
 
   try {
-    const stored = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
       _cached = { ...DEFAULT_PREFERENCES, ...parsed };
