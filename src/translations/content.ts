@@ -3,7 +3,7 @@ import type { Translations } from "./types";
 export const contentTranslations: Translations = {
   // Toolbox
   "toolbox.title": { en: "Toolbox", de: "Werkzeugkasten" },
-  "toolbox.subtitle": { en: "Evidence-based techniques", de: "Evidenzbasierte Techniken" },
+  "toolbox.subtitle": { en: "Evidence-based techniques", de: "Wissenschaftlich fundierte Techniken" },
   "toolbox.suggestedForYou": { en: "For you", de: "Für dich" },
   "toolbox.allExercises": { en: "All", de: "Alle" },
   "toolbox.noExercises": { en: "No exercises in this category", de: "Keine Übungen in dieser Kategorie" },
