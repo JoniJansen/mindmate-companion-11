@@ -24,7 +24,7 @@ export default function Landing() {
   const { isDark, setMode: setThemeMode } = useTheme();
   const [language, setLanguage] = useState<"en" | "de">(() => {
     try {
-      const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+      const stored = localStorage.getItem("soulvay-preferences");
       if (stored) {
         const prefs = JSON.parse(stored);
         if (prefs.language === "en" || prefs.language === "de") return prefs.language;

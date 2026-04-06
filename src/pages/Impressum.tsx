@@ -11,7 +11,7 @@ export default function Impressum() {
 
   useEffect(() => {
     try {
-      const prefsRaw = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+      const prefsRaw = localStorage.getItem("soulvay-preferences");
       if (prefsRaw) {
         const prefs = JSON.parse(prefsRaw);
         if (prefs.language === "de" || prefs.language === "en") {

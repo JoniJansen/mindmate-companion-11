@@ -4,8 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 
 // Product IDs matching App Store Connect configuration
 export const APPLE_PRODUCTS = {
-  MONTHLY: 'de.mindmate.app.plus.monthly',
-  YEARLY: 'de.mindmate.app.plus.yearly',
+  MONTHLY: 'com.soulvay.app.plus.monthly',
+  YEARLY: 'com.soulvay.app.plus.yearly',
 } as const;
 
 interface AppleProduct {
@@ -41,7 +41,7 @@ const isCapacitorIOS = (): boolean => {
 };
 
 // Auto-restore check key
-const AUTO_RESTORE_KEY = 'mindmate_ios_auto_restored';
+const AUTO_RESTORE_KEY = 'soulvay_ios_auto_restored';
 const AUTO_RESTORE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
 // Access native StoreKit plugin via Capacitor

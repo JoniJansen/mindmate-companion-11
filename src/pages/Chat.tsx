@@ -51,7 +51,7 @@ export default function Chat() {
 
   // Chat mode
   const [chatMode, setChatMode] = useState<ChatMode>(() => {
-    const stored = localStorage.getItem("soulvay-chat-mode") || localStorage.getItem("mindmate-chat-mode");
+    const stored = localStorage.getItem("soulvay-chat-mode");
     return (stored as ChatMode) || "talk";
   });
   useEffect(() => { localStorage.setItem("soulvay-chat-mode", chatMode); }, [chatMode]);
@@ -138,7 +138,7 @@ export default function Chat() {
     if (initDone) return;
     setInitDone(true);
 
-    const initialMessage = localStorage.getItem('soulvay-initial-message') || localStorage.getItem('mindmate-initial-message') || location.state?.initialMessage;
+    const initialMessage = localStorage.getItem('soulvay-initial-message') || location.state?.initialMessage;
     const resumeConvId = location.state?.conversationId;
     const savedLang = composer.preferences.current.language || language;
 
@@ -193,7 +193,6 @@ export default function Chat() {
 
       if (initialMessage) {
         localStorage.removeItem('soulvay-initial-message');
-        localStorage.removeItem('mindmate-initial-message');
         composer.handleSend(initialMessage, false, undefined, handleStreamDone);
       } else {
         const personalLine = getPersonalizedGreeting();

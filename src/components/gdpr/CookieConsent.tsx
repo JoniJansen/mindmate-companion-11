@@ -45,7 +45,7 @@ function isCapacitorNative(): boolean {
 function detectLanguage(): "en" | "de" {
   try {
     // First priority: Check saved preferences (from onboarding or settings)
-    const prefsRaw = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+    const prefsRaw = localStorage.getItem("soulvay-preferences");
     if (prefsRaw) {
       const prefs = JSON.parse(prefsRaw);
       if (prefs.language === "de" || prefs.language === "en") {

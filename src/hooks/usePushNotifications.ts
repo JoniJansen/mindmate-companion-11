@@ -107,7 +107,7 @@ export function usePushNotifications() {
         const streakKey = `streak_${today}`;
         if (!lastData[streakKey]) {
           try {
-            const activityLog = localStorage.getItem("soulvay_today_active") || localStorage.getItem("mindmate_today_active");
+            const activityLog = localStorage.getItem("soulvay_today_active");
             if (!activityLog || activityLog !== today) {
               sendStreakReminder();
               lastData[streakKey] = true;
@@ -171,7 +171,7 @@ export function usePushNotifications() {
   // Get language
   const getLang = useCallback(() => {
     try {
-      const prefs = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+      const prefs = localStorage.getItem("soulvay-preferences");
       if (prefs) {
         return JSON.parse(prefs).language || "en";
       }

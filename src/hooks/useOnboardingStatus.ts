@@ -1,4 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const ONBOARDING_COMPLETED_KEY = "soulvay_onboarding_completed";
 const TAB_HINTS_SEEN_KEY = "soulvay_tab_hints_seen";
@@ -19,8 +21,42 @@ const defaultTabHints: TabHintsSeen = {
   toolbox: false,
 };
 
+/**
+ * Onboarding status — uses server (profiles.onboarding_completed) as source of truth.
+ * localStorage is kept in sync as a fast cache for pre-auth checks (e.g. RootRedirect).
+ */
 export function useOnboardingStatus() {
-  // Check if onboarding has been completed
+  const { user } = useAuth();
+  const syncedRef = useRef(false);
+
+  // On login: sync server onboarding status to localStorage
+  useEffect(() => {
+    if (!user || syncedRef.current) return;
+    syncedRef.current = true;
+
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (data?.onboarding_completed) {
+          localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
+        }
+      } catch {
+        // Network error — rely on localStorage cache
+      }
+    })();
+  }, [user]);
+
+  // Reset sync flag when user changes
+  useEffect(() => {
+    if (!user) syncedRef.current = false;
+  }, [user]);
+
+  // Check if onboarding has been completed (fast, localStorage-based for guards)
   const hasCompletedOnboarding = useCallback((): boolean => {
     try {
       return localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true";
@@ -29,23 +65,47 @@ export function useOnboardingStatus() {
     }
   }, []);
 
-  // Mark onboarding as completed
-  const completeOnboarding = useCallback(() => {
+  // Mark onboarding as completed — writes to both server and localStorage
+  const completeOnboarding = useCallback(async () => {
     try {
       localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
     } catch {
       // Storage not available
     }
-  }, []);
+
+    // Server-side persistence (fire-and-forget if no user yet;
+    // AuthContext will re-sync on sign-in via ensureCompanionProfile)
+    if (user) {
+      try {
+        await supabase
+          .from("profiles")
+          .update({ onboarding_completed: true } as any)
+          .eq("user_id", user.id);
+      } catch {
+        // Will be synced on next login
+      }
+    }
+  }, [user]);
 
   // Reset onboarding status (for testing or re-onboarding)
-  const resetOnboarding = useCallback(() => {
+  const resetOnboarding = useCallback(async () => {
     try {
       localStorage.removeItem(ONBOARDING_COMPLETED_KEY);
     } catch {
       // Storage not available
     }
-  }, []);
+
+    if (user) {
+      try {
+        await supabase
+          .from("profiles")
+          .update({ onboarding_completed: false } as any)
+          .eq("user_id", user.id);
+      } catch {
+        // Best effort
+      }
+    }
+  }, [user]);
 
   // Get tab hints seen status
   const getTabHintsSeen = useCallback((): TabHintsSeen => {

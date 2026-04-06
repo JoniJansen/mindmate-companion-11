@@ -6,7 +6,7 @@
  * for preference data.
  * 
  * Storage key: "soulvay-preferences"
- * Legacy fallback: "mindmate-preferences" (read-only, will be removed in future)
+ * localStorage is the primary store; profile language syncs from server on login.
  */
 
 export interface AppPreferences {
@@ -18,7 +18,6 @@ export interface AppPreferences {
 }
 
 const STORAGE_KEY = "soulvay-preferences";
-const LEGACY_KEY = "mindmate-preferences";
 
 const DEFAULT_PREFERENCES: AppPreferences = {
   language: "en",
@@ -40,7 +39,7 @@ export function getPreferences(): AppPreferences {
   if (_cached) return _cached;
 
   try {
-    const stored = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
       _cached = { ...DEFAULT_PREFERENCES, ...parsed };
@@ -66,8 +65,6 @@ export function setPreferences(partial: Partial<AppPreferences>): AppPreferences
   try {
     const json = JSON.stringify(updated);
     localStorage.setItem(STORAGE_KEY, json);
-    // Legacy sync — will be removed when migration period ends
-    localStorage.setItem(LEGACY_KEY, json);
   } catch {
     // Storage full or unavailable
   }
