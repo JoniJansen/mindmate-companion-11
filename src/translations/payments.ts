@@ -4,7 +4,7 @@ export const paymentsTranslations: Translations = {
   // Premium
   "premium.plusFeature": { en: "Plus feature", de: "Plus-Funktion" },
   "premium.maybeLater": { en: "Maybe later", de: "Vielleicht später" },
-  "premium.upgradeAnytime": { en: "You can upgrade anytime. No pressure.", de: "Du kannst jederzeit upgraden. Kein Druck." },
+  "premium.upgradeAnytime": { en: "No pressure — you can upgrade whenever it feels right.", de: "Kein Druck — du kannst upgraden, wann immer es sich richtig anfühlt." },
 
   // Upgrade page
   "upgrade.welcomePlus": { en: "Welcome to Soulvay Plus!", de: "Willkommen bei Soulvay Plus!" },
