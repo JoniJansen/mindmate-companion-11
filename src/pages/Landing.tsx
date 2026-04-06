@@ -11,8 +11,7 @@ import {
   Moon,
   Sun,
   ArrowRight,
-  Check,
-  Star
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
@@ -61,12 +60,12 @@ export default function Landing() {
         free: { name: "Free", price: "€0", features: ["15 messages per day", "Basic journaling", "Mood tracking", "Community exercises"] },
         plus: { name: "Plus", price: "€9.99", period: "/month", trial: "7-day free trial", features: ["Unlimited messages", "Voice conversations", "Weekly insights", "Premium exercises", "Priority support"], cta: "Start Free Trial" },
       },
-      testimonials: {
-        title: "What our users say",
+      howItWorks: {
+        title: "How it works",
         items: [
-          { text: "Soulvay helped me understand my anxiety better. It's like having a patient friend available 24/7.", author: "Sarah K." },
-          { text: "The breathing exercises actually work. I use them before every important meeting now.", author: "Michael T." },
-          { text: "Finally an app that doesn't feel clinical. It's warm, human, and genuinely helpful.", author: "Emma L." },
+          { step: "1", title: "Start a conversation", description: "Tell Soulvay what's on your mind — openly and without judgment." },
+          { step: "2", title: "Reflect together", description: "Through thoughtful questions, you'll discover new perspectives on your thoughts." },
+          { step: "3", title: "Grow step by step", description: "Track your mood, journal your insights, and notice your personal progress." },
         ],
       },
       footer: { tagline: "Made with care for your wellbeing", privacy: "Privacy", terms: "Terms", impressum: "Legal Notice", contact: "Contact" },
@@ -92,12 +91,12 @@ export default function Landing() {
         free: { name: "Kostenlos", price: "€0", features: ["15 Nachrichten pro Tag", "Basis-Tagebuch", "Stimmungstracking", "Community-Übungen"] },
         plus: { name: "Plus", price: "€9,99", period: "/Monat", trial: "7 Tage kostenlos testen", features: ["Unbegrenzte Nachrichten", "Sprachgespräche", "Wöchentliche Einblicke", "Premium-Übungen", "Prioritäts-Support"], cta: "Kostenlos testen" },
       },
-      testimonials: {
-        title: "Was unsere Nutzer sagen",
+      howItWorks: {
+        title: "So funktioniert's",
         items: [
-          { text: "Soulvay hat mir geholfen, meine Angst besser zu verstehen. Es ist wie ein geduldiger Freund, der immer da ist.", author: "Sarah K." },
-          { text: "Die Atemübungen funktionieren wirklich. Ich nutze sie jetzt vor jedem wichtigen Meeting.", author: "Michael T." },
-          { text: "Endlich eine App, die sich nicht klinisch anfühlt. Sie ist warm, menschlich und wirklich hilfreich.", author: "Emma L." },
+          { step: "1", title: "Starte ein Gespräch", description: "Erzähl Soulvay, was dich beschäftigt — offen und ohne Bewertung." },
+          { step: "2", title: "Gemeinsam reflektieren", description: "Durch einfühlsame Fragen entdeckst du neue Perspektiven auf deine Gedanken." },
+          { step: "3", title: "Schritt für Schritt wachsen", description: "Tracke deine Stimmung, halte Erkenntnisse fest und bemerke deinen Fortschritt." },
         ],
       },
       footer: { tagline: "Mit Sorgfalt für dein Wohlbefinden erstellt", privacy: "Datenschutz", terms: "AGB", impressum: "Impressum", contact: "Kontakt" },
@@ -264,27 +263,25 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* How It Works */}
       <section className="py-16 bg-muted/30">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-12">{t.testimonials.title}</h2>
-          <div className="grid md:grid-cols-3 gap-5">
-            {t.testimonials.items.map((testimonial, index) => (
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-12">{t.howItWorks.title}</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {t.howItWorks.items.map((item, index) => (
               <motion.div
-                key={testimonial.author}
+                key={item.step}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="bg-card rounded-2xl p-5 shadow-soft border border-border/40"
+                className="text-center"
               >
-                <div className="flex gap-0.5 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />
-                  ))}
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-lg font-bold text-primary">{item.step}</span>
                 </div>
-                <p className="text-foreground text-sm mb-3 italic">"{testimonial.text}"</p>
-                <p className="text-muted-foreground text-xs font-medium">— {testimonial.author}</p>
+                <h3 className="text-base font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-muted-foreground text-sm">{item.description}</p>
               </motion.div>
             ))}
           </div>
