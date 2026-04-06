@@ -14,7 +14,7 @@ export const paymentsTranslations: Translations = {
   "upgrade.consentRequired": { en: "Consent required", de: "Zustimmung erforderlich" },
   "upgrade.acceptTermsFirst": { en: "Please accept the terms and the withdrawal policy.", de: "Bitte akzeptiere die AGB und die Widerrufsbelehrung." },
   "upgrade.productNotFound": { en: "Product not found. Please try again later.", de: "Produkt nicht gefunden. Bitte versuche es später erneut." },
-  "upgrade.heroSubtitle": { en: "A quiet space for your mind", de: "Ein ruhiger Raum für deinen Geist" },
+  "upgrade.heroSubtitle": { en: "More space for your thoughts", de: "Mehr Raum für deine Gedanken" },
   "upgrade.monthly": { en: "Monthly", de: "Monatlich" },
   "upgrade.yearly": { en: "Yearly", de: "Jährlich" },
   "upgrade.perMonth": { en: "/month", de: "/Monat" },
