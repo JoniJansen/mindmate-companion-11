@@ -380,7 +380,7 @@ export function useTranslation() {
   const [language, setLanguage] = useState<Language>(() => {
     // Default to German for DACH region, unless user explicitly chose English
     try {
-      const stored = localStorage.getItem("soulvay-preferences") || localStorage.getItem("mindmate-preferences");
+      const stored = localStorage.getItem("soulvay-preferences");
       if (stored) {
         const prefs = JSON.parse(stored);
         if (prefs.language) return prefs.language;
