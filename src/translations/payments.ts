@@ -4,7 +4,7 @@ export const paymentsTranslations: Translations = {
   // Premium
   "premium.plusFeature": { en: "Plus feature", de: "Plus-Funktion" },
   "premium.maybeLater": { en: "Maybe later", de: "Vielleicht später" },
-  "premium.upgradeAnytime": { en: "You can upgrade anytime. No pressure.", de: "Du kannst jederzeit upgraden. Kein Druck." },
+  "premium.upgradeAnytime": { en: "No pressure — you can upgrade whenever it feels right.", de: "Kein Druck — du kannst upgraden, wann immer es sich richtig anfühlt." },
 
   // Upgrade page
   "upgrade.welcomePlus": { en: "Welcome to Soulvay Plus!", de: "Willkommen bei Soulvay Plus!" },
@@ -14,7 +14,7 @@ export const paymentsTranslations: Translations = {
   "upgrade.consentRequired": { en: "Consent required", de: "Zustimmung erforderlich" },
   "upgrade.acceptTermsFirst": { en: "Please accept the terms and the withdrawal policy.", de: "Bitte akzeptiere die AGB und die Widerrufsbelehrung." },
   "upgrade.productNotFound": { en: "Product not found. Please try again later.", de: "Produkt nicht gefunden. Bitte versuche es später erneut." },
-  "upgrade.heroSubtitle": { en: "A quiet space for your mind", de: "Ein ruhiger Raum für deinen Geist" },
+  "upgrade.heroSubtitle": { en: "More space for your thoughts", de: "Mehr Raum für deine Gedanken" },
   "upgrade.monthly": { en: "Monthly", de: "Monatlich" },
   "upgrade.yearly": { en: "Yearly", de: "Jährlich" },
   "upgrade.perMonth": { en: "/month", de: "/Monat" },

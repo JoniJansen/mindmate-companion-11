@@ -10,7 +10,7 @@ export const commonTranslations: Translations = {
   "nav.settings": { en: "Settings", de: "Einstellungen" },
   "nav.safety": { en: "Safety", de: "Sicherheit" },
   "nav.summary": { en: "Summary", de: "Zusammenfassung" },
-  "nav.home": { en: "Home", de: "Zuhause" },
+  "nav.home": { en: "Home", de: "Start" },
 
   // Common actions
   "common.save": { en: "Save", de: "Speichern" },
@@ -35,27 +35,27 @@ export const commonTranslations: Translations = {
   "common.helpfulPrompts": { en: "Helpful prompts", de: "Hilfreiche Impulse" },
   "common.delete": { en: "Delete", de: "Löschen" },
   "common.retry": { en: "Retry", de: "Erneut versuchen" },
-  "common.offline": { en: "You are offline", de: "Du bist offline" },
-  "common.offlineBody": { en: "Check your connection", de: "Prüfe deine Verbindung" },
+  "common.offline": { en: "You're offline", de: "Du bist gerade offline" },
+  "common.offlineBody": { en: "Check your connection and try again.", de: "Prüfe deine Verbindung und versuche es nochmal." },
   "common.continue": { en: "Continue", de: "Weiter" },
   "common.clear": { en: "Clear", de: "Entfernen" },
 
   // Error messages
   "error.unauthorized": { en: "Session expired", de: "Sitzung abgelaufen" },
-  "error.unauthorizedBody": { en: "Please sign in again.", de: "Bitte melde dich erneut an." },
+  "error.unauthorizedBody": { en: "Please sign in again to continue.", de: "Bitte melde dich erneut an, um fortzufahren." },
   "error.reauth": { en: "Sign in", de: "Anmelden" },
-  "error.rateLimited": { en: "Please wait", de: "Bitte warten" },
-  "error.rateLimitedBody": { en: "Too many requests. Try again in a moment.", de: "Zu viele Anfragen. Versuche es gleich nochmal." },
-  "error.server": { en: "Server error", de: "Serverfehler" },
-  "error.serverBody": { en: "Something went wrong. Please try again.", de: "Etwas ist schiefgelaufen. Bitte versuche es erneut." },
-  "error.unexpected": { en: "Unexpected error", de: "Unerwarteter Fehler" },
-  "error.unexpectedBody": { en: "Something went wrong. Please try again.", de: "Etwas ist schiefgelaufen. Bitte versuche es erneut." },
-  "error.network": { en: "Connection failed", de: "Verbindung fehlgeschlagen" },
-  "error.networkBody": { en: "Check your internet connection and try again.", de: "Prüfe deine Internetverbindung und versuche es erneut." },
+  "error.rateLimited": { en: "One moment", de: "Einen Moment" },
+  "error.rateLimitedBody": { en: "Let's slow down a bit. Try again in a moment.", de: "Lass uns kurz durchatmen. Versuche es gleich nochmal." },
+  "error.server": { en: "Something didn't work", de: "Etwas hat nicht geklappt" },
+  "error.serverBody": { en: "That wasn't supposed to happen. Please try again.", de: "Das sollte nicht passieren. Bitte versuche es nochmal." },
+  "error.unexpected": { en: "Something didn't work", de: "Etwas hat nicht geklappt" },
+  "error.unexpectedBody": { en: "That wasn't supposed to happen. Please try again.", de: "Das sollte nicht passieren. Bitte versuche es nochmal." },
+  "error.network": { en: "No connection", de: "Keine Verbindung" },
+  "error.networkBody": { en: "Check your internet connection and try again.", de: "Prüfe deine Internetverbindung und versuche es nochmal." },
 
   // Not Found page
   "notFound.title": { en: "Page not found", de: "Seite nicht gefunden" },
-  "notFound.description": { en: "The page you're looking for doesn't exist. Let's get you back on track.", de: "Die Seite, die du suchst, existiert nicht. Lass uns dich zurückbringen." },
+  "notFound.description": { en: "This page doesn't exist. Let's take you back.", de: "Diese Seite gibt es nicht. Lass uns dich zurückbringen." },
   "notFound.goToChat": { en: "Go to Chat", de: "Zum Chat" },
   "notFound.goBack": { en: "Go Back", de: "Zurück" },
 

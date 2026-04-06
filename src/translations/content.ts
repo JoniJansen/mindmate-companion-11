@@ -3,7 +3,7 @@ import type { Translations } from "./types";
 export const contentTranslations: Translations = {
   // Toolbox
   "toolbox.title": { en: "Toolbox", de: "Werkzeugkasten" },
-  "toolbox.subtitle": { en: "Evidence-based techniques", de: "Evidenzbasierte Techniken" },
+  "toolbox.subtitle": { en: "Evidence-based techniques", de: "Wissenschaftlich fundierte Techniken" },
   "toolbox.suggestedForYou": { en: "For you", de: "Für dich" },
   "toolbox.allExercises": { en: "All", de: "Alle" },
   "toolbox.noExercises": { en: "No exercises in this category", de: "Keine Übungen in dieser Kategorie" },
@@ -135,7 +135,7 @@ export const contentTranslations: Translations = {
   "audio.title": { en: "Audio Library", de: "Audio-Bibliothek" },
   "audio.subtitle": { en: "Guided sessions for inner peace", de: "Geführte Sessions für innere Ruhe" },
   "audio.premiumRequired": { en: "Premium feature — Upgrade for access", de: "Premium-Funktion — Upgrade für Zugang" },
-  "audio.sleepMode": { en: "Sleep Mode", de: "Schlafmodus" },
+  "audio.sleepMode": { en: "Sleep Mode", de: "Schlaf-Modus" },
   "audio.minimalUI": { en: "Minimal UI", de: "Minimales UI" },
   "audio.sleepWell": { en: "Sleep well", de: "Schlaf gut" },
   "audio.playing": { en: "Playing...", de: "Wird abgespielt..." },

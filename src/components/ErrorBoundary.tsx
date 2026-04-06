@@ -52,12 +52,12 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
             <div className="space-y-2">
               <h1 className="text-xl font-semibold text-foreground">
-                {isGerman ? "Etwas ist schiefgelaufen" : "Something went wrong"}
+                {isGerman ? "Etwas hat nicht geklappt" : "Something didn't work"}
               </h1>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {isGerman
-                  ? "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
-                  : "An unexpected error occurred. Please try again."}
+                  ? "Das sollte nicht passieren. Lade die Seite neu oder kehre zur Startseite zurück."
+                  : "That wasn't supposed to happen. Reload the page or go back to start."}
               </p>
             </div>
             <div className="flex gap-3 justify-center">
