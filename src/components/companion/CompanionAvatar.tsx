@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { getArchetype } from "@/data/companions";
+import { resolveLocalAssetUrl } from "@/hooks/useAvatarUrl";
 
 interface CompanionAvatarProps {
   avatarUrl?: string | null;
