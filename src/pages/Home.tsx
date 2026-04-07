@@ -45,7 +45,7 @@ export default function Home() {
   const { companion } = useCompanion();
   const { checkin: companionCheckin, dismiss: dismissCheckin } = useCompanionCheckins(companion?.name);
   const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
-  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
+  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url, companion?.archetype);
   const returnState = useReturnState(language, companion?.name || "Soulvay");
 
   const speechLang = language === "de" ? "de-DE" : "en-US";

@@ -363,6 +363,7 @@ export default function Chat() {
         avatarElement={companion ? (
           <CompanionAvatarAnimated
             archetype={companion.archetype}
+            avatarUrl={companionAvatarUrl}
             name={companion.name}
             size="sm"
             state={companionState}
