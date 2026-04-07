@@ -6,6 +6,7 @@ import { BondIndicator } from "./BondIndicator";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CompanionProfile } from "@/hooks/useCompanion";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { getArchetype } from "@/data/companions";
 
 interface CompanionCardProps {
   companion: CompanionProfile;
