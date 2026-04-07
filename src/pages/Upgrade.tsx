@@ -166,13 +166,9 @@ export default function Upgrade() {
         }
       }
     } catch (error) {
-      const msg = (error as Error).message || "";
-      const isEdgeFunctionError = msg.includes("Edge Function") || msg.includes("non-2xx");
       toast({
         title: t("common.error"),
-        description: isEdgeFunctionError
-          ? (language === "de" ? "Das hat leider nicht geklappt. Bitte versuche es später nochmal." : "Something went wrong. Please try again later.")
-          : msg,
+        description: (error as Error).message,
         variant: "destructive",
       });
     } finally {
@@ -189,13 +185,9 @@ export default function Upgrade() {
         navigate("/settings", { replace: true });
       }
     } catch (error) {
-      const msg = (error as Error).message || "";
-      const isEdgeFunctionError = msg.includes("Edge Function") || msg.includes("non-2xx");
       toast({
         title: t("common.error"),
-        description: isEdgeFunctionError
-          ? (language === "de" ? "Das hat leider nicht geklappt. Bitte versuche es später nochmal." : "Something went wrong. Please try again later.")
-          : msg,
+        description: (error as Error).message,
         variant: "destructive",
       });
     } finally {

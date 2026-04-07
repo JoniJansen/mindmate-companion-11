@@ -76,7 +76,8 @@ export function shouldShowAppleStoreBadge(): boolean {
 
 /** True when OAuth sign-in should be available as an auth option */
 export function shouldShowGoogleAuth(): boolean {
-  return isWeb() || isIOSApp();
+  // Web only — iOS must not show competitor branding
+  return isWeb();
 }
 
 /** True when Apple Sign-In should be available as an auth option */
@@ -92,11 +93,10 @@ export function shouldShowStoreMessaging(): boolean {
 
 /** True when the "Review / Demo Login" button should be visible */
 export function shouldShowReviewLogin(): boolean {
-  // Never show in native apps — only in dev mode or Lovable preview
-  if (isNativeApp()) return false;
   return (
     import.meta.env.DEV ||
-    (typeof window !== "undefined" && window.location.hostname.includes("lovable"))
+    (typeof window !== "undefined" && window.location.hostname.includes("lovable")) ||
+    isNativeApp()
   );
 }
 

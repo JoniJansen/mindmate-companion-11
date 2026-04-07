@@ -18,7 +18,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["-apple-system", "SF Pro Display", "SF Pro Text", "system-ui", "Helvetica Neue", "sans-serif"],
+        sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -85,7 +85,6 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       spacing: {
-        "13": "3.25rem",
         "18": "4.5rem",
         "88": "22rem",
       },

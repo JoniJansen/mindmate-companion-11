@@ -181,7 +181,7 @@ export default function AudioLibrary() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="px-4 py-6 max-w-lg md:max-w-2xl mx-auto">
+      <div className="px-4 py-6 max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="min-h-[44px] min-w-[44px]">

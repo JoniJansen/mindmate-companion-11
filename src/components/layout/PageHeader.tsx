@@ -6,7 +6,7 @@ import logoImage from "@/assets/logo.png";
 
 interface PageHeaderProps {
   title: string;
-  subtitle?: React.ReactNode;
+  subtitle?: string;
   showBack?: boolean;
   backTo?: string;
   rightElement?: React.ReactNode;

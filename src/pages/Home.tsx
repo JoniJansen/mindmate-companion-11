@@ -45,7 +45,7 @@ export default function Home() {
   const { companion } = useCompanion();
   const { checkin: companionCheckin, dismiss: dismissCheckin } = useCompanionCheckins(companion?.name);
   const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
-  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url, companion?.archetype);
+  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
   const returnState = useReturnState(language, companion?.name || "Soulvay");
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
@@ -153,7 +153,7 @@ export default function Home() {
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-semibold text-foreground truncate"
+            className="text-2xl font-semibold text-foreground"
           >
             {greeting()}
           </motion.h1>
@@ -207,7 +207,7 @@ export default function Home() {
           transition={{ delay: 0.2 }}
           className="mb-6"
         >
-          <div className="bg-card rounded-3xl border border-border/50 shadow-lg shadow-black/5 overflow-hidden">
+          <div className="bg-card rounded-3xl border border-border/50 shadow-card overflow-hidden">
             {/* Recording Indicator */}
             <AnimatePresence>
               {isRecording && (

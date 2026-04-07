@@ -19,12 +19,8 @@ export interface AppPreferences {
 
 const STORAGE_KEY = "soulvay-preferences";
 
-function detectDefaultLanguage(): AppPreferences["language"] {
-  // Always default to German — user must explicitly choose English
-  return "de";
-}
-
-const DEFAULT_PREFERENCES: Omit<AppPreferences, "language"> = {
+const DEFAULT_PREFERENCES: AppPreferences = {
+  language: "en",
   tone: "gentle",
   addressForm: "du",
   notifications: true,
@@ -46,14 +42,14 @@ export function getPreferences(): AppPreferences {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      _cached = { language: detectDefaultLanguage(), ...DEFAULT_PREFERENCES, ...parsed };
+      _cached = { ...DEFAULT_PREFERENCES, ...parsed };
       return _cached;
     }
   } catch {
     // Corrupted storage — return defaults
   }
 
-  _cached = { language: detectDefaultLanguage(), ...DEFAULT_PREFERENCES };
+  _cached = { ...DEFAULT_PREFERENCES };
   return _cached;
 }
 

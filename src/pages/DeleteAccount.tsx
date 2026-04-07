@@ -1,7 +1,7 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, Shield, Mail, ArrowRight, ChevronLeft } from "lucide-react";
+import { Trash2, Shield, Mail, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -15,14 +15,6 @@ export default function DeleteAccount() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-2xl w-full space-y-6">
-        {/* Back button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] -ml-1"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          {isDE ? "Zurück" : "Back"}
-        </button>
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-4">

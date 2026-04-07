@@ -37,7 +37,6 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
   const [topicChatInput, setTopicChatInput] = useState("");
   const [topicChatLoading, setTopicChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const chatInputRef = useRef<HTMLInputElement>(null);
   const topicStreamBufferRef = useRef("");
   const topicStreamFrameRef = useRef<number | null>(null);
 
@@ -524,17 +523,15 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
 
                 <div className="flex items-center gap-2">
                   <input
-                    ref={chatInputRef}
                     type="text"
                     value={topicChatInput}
                     onChange={(e) => setTopicChatInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendTopicChat(); } }}
-                    onFocus={() => { setTimeout(() => chatInputRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 300); }}
                     placeholder={t("topics.askAboutTopic")}
                     className="flex-1 h-11 bg-muted/30 border border-border/50 rounded-full px-4 text-[15px] focus:outline-none focus:border-primary/40"
                     disabled={topicChatLoading}
                   />
-                  <Button size="icon" className="rounded-full h-11 w-11" onClick={sendTopicChat} disabled={!topicChatInput.trim() || topicChatLoading}>
+                  <Button size="icon" className="rounded-full h-10 w-10" onClick={sendTopicChat} disabled={!topicChatInput.trim() || topicChatLoading}>
                     {topicChatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </Button>
                 </div>
@@ -556,7 +553,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
       />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
-        <div className="max-w-lg md:max-w-2xl mx-auto space-y-4">
+        <div className="max-w-lg mx-auto space-y-4">
           {/* First-visit hint */}
           <TabHint tabId="topics" />
           

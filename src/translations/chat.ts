@@ -3,7 +3,7 @@ import type { Translations } from "./types";
 export const chatTranslations: Translations = {
   "chat.title": { en: "Soulvay", de: "Soulvay" },
   "chat.subtitle": { en: "Always here for you", de: "Immer für dich da" },
-  "chat.inputPlaceholder": { en: "Type something...", de: "Schreib etwas..." },
+  "chat.inputPlaceholder": { en: "Type something...", de: "Schreibe etwas..." },
   "chat.endSummarize": { en: "Wrap up", de: "Zusammenfassen" },
   "chat.nextSteps": { en: "What's next", de: "Wie weiter" },
   "chat.saveToJournal": { en: "Save to journal", de: "Im Tagebuch speichern" },
@@ -37,9 +37,9 @@ export const chatTranslations: Translations = {
   // Chat streaming & errors
   "chat.streamError": { en: "Connection paused", de: "Verbindung unterbrochen" },
   "chat.streamErrorBody": { en: "The response was interrupted. You can try again.", de: "Die Antwort wurde unterbrochen. Du kannst es nochmal versuchen." },
-  "chat.retryMessage": { en: "Try again", de: "Erneut versuchen" },
+  "chat.retryMessage": { en: "Try again", de: "Nochmal versuchen" },
   "chat.continueMessage": { en: "Continue", de: "Fortsetzen" },
-  "chat.howToStart": { en: "How would you like to start?", de: "Wie möchtest du beginnen?" },
+  "chat.howToStart": { en: "How would you like to start?", de: "Wie möchtest du starten?" },
   "chat.summary": { en: "Summary", de: "Zusammenfassung" },
   "chat.crisisHelp2": { en: "Crisis Help", de: "Krisenhilfe" },
   "chat.voiceModeActive": { en: "Voice mode active", de: "Sprachmodus aktiv" },

@@ -41,7 +41,7 @@ export default function Auth() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      const redirect = searchParams.get("redirect") || "/home";
+      const redirect = searchParams.get("redirect") || "/";
       navigate(redirect, { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate, searchParams]);
@@ -80,8 +80,8 @@ export default function Auth() {
       if (import.meta.env.DEV) console.error("[Review Login] Error:", error);
       
       toast({
-        title: language === "de" ? "Login fehlgeschlagen" : "Login failed",
-        description: language === "de" ? "Bitte kontaktiere den Support: service@soulvay.com" : "Please contact support: service@soulvay.com",
+        title: "Review Login Failed",
+        description: error.message || "Please contact support: service@soulvay.com",
         variant: "destructive",
       });
     } finally {
@@ -142,20 +142,9 @@ export default function Auth() {
       }
     } catch (error: any) {
       if (import.meta.env.DEV) console.error("[Auth] Error:", error);
-      // Map common Supabase auth errors to localized messages
-      const rawMsg = error.message || "";
-      const mappedMsg = (() => {
-        if (rawMsg.includes("Invalid login credentials")) return language === "de" ? "E-Mail oder Passwort ist falsch." : "Invalid email or password.";
-        if (rawMsg.includes("Email not confirmed")) return language === "de" ? "Bitte bestätige zuerst deine E-Mail-Adresse." : "Please confirm your email address first.";
-        if (rawMsg.includes("User already registered")) return language === "de" ? "Diese E-Mail ist bereits registriert." : "This email is already registered.";
-        if (rawMsg.includes("Password should be")) return language === "de" ? "Das Passwort muss mindestens 6 Zeichen lang sein." : "Password must be at least 6 characters.";
-        if (rawMsg.includes("rate limit") || rawMsg.includes("too many")) return language === "de" ? "Zu viele Versuche. Bitte warte einen Moment." : "Too many attempts. Please wait a moment.";
-        if (rawMsg.includes("network") || rawMsg.includes("fetch")) return language === "de" ? "Keine Verbindung. Prüfe deine Internetverbindung." : "No connection. Check your internet.";
-        return language === "de" ? "Etwas hat nicht geklappt. Bitte versuche es nochmal." : "Something went wrong. Please try again.";
-      })();
       toast({
         title: t("common.error"),
-        description: mappedMsg,
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -371,9 +360,8 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={async () => {
-                    const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
                     const { error } = await lovable.auth.signInWithOAuth("google", {
-                      redirect_uri: redirectUri,
+                      redirect_uri: window.location.origin,
                     });
                     if (error) {
                       toast({ title: t("common.error"), description: String(error), variant: "destructive" });
@@ -394,9 +382,8 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={async () => {
-                    const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
                     const { error } = await lovable.auth.signInWithOAuth("apple" as any, {
-                      redirect_uri: redirectUri,
+                      redirect_uri: window.location.origin,
                     });
                     if (error) {
                       toast({ title: t("common.error"), description: String(error), variant: "destructive" });

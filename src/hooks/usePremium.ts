@@ -180,24 +180,12 @@ export function usePremium() {
 
         // Backend check via Edge Function (server-side Stripe validation)
         // userId is derived from JWT on server — never sent in body
-        let data: any = null;
-        let error: any = null;
-        try {
-          const result = await supabase.functions.invoke("manage-subscription", {
-            body: { action: "status" },
-          });
-          data = result.data;
-          error = result.error;
-        } catch (e) {
-          // Silently handle — no technical errors shown to user
-          if (import.meta.env.DEV) console.warn("Subscription check failed:", e);
-          setServerVerifiedPremium(_lastServerResult);
-          return;
-        }
+        const { data, error } = await supabase.functions.invoke("manage-subscription", {
+          body: { action: "status" },
+        });
 
         if (error) {
-          // Silently fall back — never show "Edge Function" errors to user
-          if (import.meta.env.DEV) console.warn("Subscription status error (silent):", error.message || error);
+          if (import.meta.env.DEV) console.warn("Failed to check subscription:", error);
           setServerVerifiedPremium(_lastServerResult);
           return;
         }
