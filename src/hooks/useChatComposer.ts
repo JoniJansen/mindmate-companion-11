@@ -224,6 +224,11 @@ export function useChatComposer(chatMode: ChatMode) {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
+    // Hard 30s timeout — prevents infinite loading if gateway hangs
+    const sendTimeoutId = setTimeout(() => {
+      if (!controller.signal.aborted) controller.abort();
+    }, 30000);
+
     const userMessage: Message = { id: Date.now().toString(), content: trimmed, role: "user", timestamp: new Date() };
     if (!isSystemAction) {
       setMessages((prev) => [...prev, userMessage]);
