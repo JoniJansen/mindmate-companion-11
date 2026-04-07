@@ -271,6 +271,7 @@ export function useChatComposer(chatMode: ChatMode) {
       signal: controller.signal,
       onDelta: (chunk) => { streamingDisplay.enqueueChunk(chunk); setStreamingContent(prev => prev + chunk); },
       onDone: async (fullResponse) => {
+        clearTimeout(sendTimeoutId);
         const durationMs = Math.round(performance.now() - streamStartTime);
         recordMetric("chat", "stream_complete", { durationMs, success: true, meta: { chars: fullResponse.length } });
         logInfo("chat", "stream_complete", { durationMs, responseChars: fullResponse.length });
@@ -302,6 +303,7 @@ export function useChatComposer(chatMode: ChatMode) {
         onStreamDone?.(fullResponse, newMessageId, activeConvId);
       },
       onError: (errorMsg) => {
+        clearTimeout(sendTimeoutId);
         const durationMs = Math.round(performance.now() - streamStartTime);
         recordMetric("chat", "stream_error", { durationMs, success: false, meta: { error: errorMsg } });
         logError("chat", "stream_error", { durationMs, error: errorMsg });
