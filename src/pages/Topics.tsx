@@ -320,7 +320,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
 
     return (
       <div className="flex flex-col h-full bg-background">
-      <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 pb-8 w-full" style={{ paddingTop: 'max(16px, env(safe-area-inset-top, 0px))' }}>
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 pb-8 w-full" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
