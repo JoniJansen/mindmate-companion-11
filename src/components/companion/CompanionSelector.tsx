@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { resolveLocalAssetUrl } from "@/hooks/useAvatarUrl";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,7 +112,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               {/* Avatar — fixed width, full height */}
               <div className="w-24 sm:w-28 lg:w-32 shrink-0 bg-muted/30 min-h-[100px] overflow-hidden">
                 <img
-                  src={arch.defaultAvatar}
+                  src={resolveLocalAssetUrl(arch.defaultAvatar)}
                   alt={arch.name}
                   className="w-full h-full object-cover object-top"
                   loading="lazy"
@@ -130,7 +131,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               
               {/* Info */}
               <div className="p-3 lg:p-4 flex flex-col gap-1.5 flex-1 min-w-0 justify-center">
-                <p className="font-semibold text-foreground text-sm lg:text-base">{arch.emoji} {arch.name}</p>
+                <p className="font-semibold text-foreground text-sm lg:text-base">{arch.name}</p>
                 <p className="text-[11px] lg:text-xs text-muted-foreground leading-relaxed">
                   {desc}
                 </p>
