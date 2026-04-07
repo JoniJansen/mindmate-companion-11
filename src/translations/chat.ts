@@ -3,7 +3,7 @@ import type { Translations } from "./types";
 export const chatTranslations: Translations = {
   "chat.title": { en: "Soulvay", de: "Soulvay" },
   "chat.subtitle": { en: "Always here for you", de: "Immer für dich da" },
-  "chat.inputPlaceholder": { en: "Type something...", de: "Schreibe etwas..." },
+  "chat.inputPlaceholder": { en: "Type something...", de: "Schreib etwas..." },
   "chat.endSummarize": { en: "Wrap up", de: "Zusammenfassen" },
   "chat.nextSteps": { en: "What's next", de: "Wie weiter" },
   "chat.saveToJournal": { en: "Save to journal", de: "Im Tagebuch speichern" },
