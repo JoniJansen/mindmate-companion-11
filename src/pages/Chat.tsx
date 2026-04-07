@@ -454,9 +454,11 @@ export default function Chat() {
         }
       />
 
-      {/* Mode Selector */}
-      <div className="shrink-0 min-w-0 px-4 md:px-6 lg:px-8 py-2 border-b border-border/30 bg-background/50">
-        <ChatModeSelector activeMode={chatMode} onModeChange={handleModeChange} lockedModes={composer.isPremium ? [] : ["clarify", "patterns"]} />
+      {/* Mode Selector — no horizontal padding so scroll edge reaches screen edge */}
+      <div className="shrink-0 min-w-0 py-2 border-b border-border/30 bg-background/50 overflow-x-hidden">
+        <div className="px-4 md:px-6 lg:px-8">
+          <ChatModeSelector activeMode={chatMode} onModeChange={handleModeChange} lockedModes={composer.isPremium ? [] : ["clarify", "patterns"]} />
+        </div>
       </div>
 
       <ChatDisclaimer />

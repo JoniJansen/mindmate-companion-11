@@ -133,18 +133,18 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
         aria-hidden="true"
       />
 
-      {/* Scrollable segmented control container - min-w-0 + flex-nowrap for iOS robustness */}
+      {/* Scrollable segmented control — full width, centered pill */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto scrollbar-hide"
+        className="flex overflow-x-auto scrollbar-hide justify-center"
         style={{ 
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
         }}
       >
-        {/* Inner control wrapper - unified pill background, flex-nowrap prevents wrapping */}
+        {/* Inner control wrapper — w-full on small screens so tabs stretch to fill */}
         <div 
-          className="inline-flex flex-nowrap items-center gap-0.5 p-1 mx-auto bg-muted/60 rounded-xl border border-border/50"
+          className="inline-flex flex-nowrap items-center gap-0.5 p-1 bg-muted/60 rounded-xl border border-border/50 w-full max-w-md"
           role="tablist"
           aria-label={language === "de" ? "Chat-Modus wählen" : "Select chat mode"}
         >
@@ -163,9 +163,9 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
                 onClick={() => !isLocked && onModeChange(mode.id)}
                 disabled={isLocked}
                 className={cn(
-                  // Base styles - 44px min tap target, centered content
-                  "relative flex items-center justify-center gap-1.5",
-                  "min-h-[44px] h-11 px-3 min-w-fit",
+                  // Base styles - 44px min tap target, flex-1 to distribute evenly
+                  "relative flex items-center justify-center gap-1.5 flex-1",
+                  "min-h-[44px] h-11 px-2.5 min-w-0",
                   "text-[13px] font-medium whitespace-nowrap",
                   "rounded-[10px] transition-all duration-150 ease-out",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
