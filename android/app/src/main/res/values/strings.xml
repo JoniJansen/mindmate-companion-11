@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Soulvay</string>
+    <string name="title_activity_main">Soulvay</string>
+    <string name="package_name">de.mindmate.app</string>
+    <string name="custom_url_scheme">de.mindmate.app</string>
+</resources>

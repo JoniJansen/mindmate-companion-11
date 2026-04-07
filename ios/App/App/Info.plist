@@ -21,7 +21,9 @@
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<string>34</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -47,11 +49,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Soulvay uses your microphone to enable voice input for the AI chat feature.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Soulvay uses your camera to allow you to add photos to your journal entries.</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>Soulvay uses the local network to connect to services and sync your data.</string>
 </dict>
 </plist>
