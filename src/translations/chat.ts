@@ -21,8 +21,8 @@ export const chatTranslations: Translations = {
   "chat.greetingDe": { en: "Hello. I'm Soulvay, and\nI'm here to listen.\n\nTake your time – share what's on your mind.", de: "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt." },
 
   // Chat mode quick replies
-  "chat.talk.reply1": { en: "I need someone to listen", de: "Ich brauche jemanden zum Zuhören" },
-  "chat.talk.reply2": { en: "Something's been on my mind", de: "Mich beschäftigt etwas" },
+  "chat.talk.reply1": { en: "I need someone to listen", de: "Ich möchte einfach reden" },
+  "chat.talk.reply2": { en: "Something's been on my mind", de: "Mir geht etwas durch den Kopf" },
   "chat.clarify.reply1": { en: "Help me organize my thoughts", de: "Hilf mir meine Gedanken zu ordnen" },
   "chat.clarify.reply2": { en: "I'm feeling confused about something", de: "Ich bin verwirrt über etwas" },
   "chat.calm.reply1": { en: "I'm feeling anxious", de: "Ich fühle mich ängstlich" },
