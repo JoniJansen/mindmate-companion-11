@@ -172,6 +172,14 @@ export default function Chat() {
       : `${baseGreeting}\n\n${closingLine}`;
   }, [getPersonalizedGreeting]);
 
+  // Handle stream completion → trigger TTS
+  const speakResponseRef = useRef(voice.speakResponse);
+  useEffect(() => { speakResponseRef.current = voice.speakResponse; }, [voice.speakResponse]);
+
+  const handleStreamDone = useCallback((fullResponse: string, messageId: string, _convId: string | null) => {
+    speakResponseRef.current(fullResponse, messageId);
+  }, []);
+
   useEffect(() => {
     if (initDone) return;
     setInitDone(true);
@@ -185,10 +193,8 @@ export default function Chat() {
         return;
       }
 
-      // Check for demo conversation continuity (post-signup from landing page)
       const demoData = consumeDemoConversation();
       if (demoData && demoData.messages.length > 1) {
-        // Inject demo messages into the real chat as existing context
         const injectedMessages = demoData.messages.map((m, i) => ({
           id: `demo-${i}-${Date.now()}`,
           content: m.content,
@@ -198,7 +204,6 @@ export default function Chat() {
         composer.setMessages(injectedMessages);
         composer.chatMessageCountRef.current = injectedMessages.filter(m => m.role === "user").length;
 
-        // Send a seamless continuation prompt so the AI references demo context
         const continuationPrompt = activeLanguage === "de"
           ? `[System: Der Nutzer hat gerade ein Konto erstellt, um dieses Gespräch fortzusetzen. Beziehe dich auf das, was bereits besprochen wurde. Reagiere nicht mit einer neuen Begrüßung – setze das Gespräch nahtlos fort. Gehe etwas tiefer als zuvor.]`
           : `[System: The user just signed up to continue this conversation. Reference what was already discussed. Do NOT send a new greeting – continue the conversation seamlessly. Go slightly deeper than before.]`;
@@ -234,14 +239,6 @@ export default function Chat() {
       composer.setMessages([{ ...firstMsg, content: nextGreeting }]);
     }
   }, [activeLanguage, buildStaticGreeting, companionName, composer, initDone]);
-
-  // Handle stream completion → trigger TTS
-  const speakResponseRef = useRef(voice.speakResponse);
-  useEffect(() => { speakResponseRef.current = voice.speakResponse; }, [voice.speakResponse]);
-
-  const handleStreamDone = useCallback((fullResponse: string, messageId: string, _convId: string | null) => {
-    speakResponseRef.current(fullResponse, messageId);
-  }, []);
 
   // Send message with voice TTS callback
   const handleSend = useCallback(async (content: string) => {
