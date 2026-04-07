@@ -134,33 +134,58 @@ export default function Chat() {
 
   // Initialize: greeting, restore conversation, or handle initial message
   const [initDone, setInitDone] = useState(false);
+  const activeLanguage = language === "de" ? "de" : "en";
+
+  const getPersonalizedGreeting = useCallback((lang: "en" | "de"): string => {
+    try {
+      const stored = localStorage.getItem("soulvay-personalization");
+      if (!stored) return "";
+      const p = JSON.parse(stored);
+      const focus = (p.focusAreas || [])[0];
+      if (!focus) return "";
+      const greetings: Record<string, { en: string; de: string }> = {
+        stress: { en: "I noticed you'd like to work on stress.\nI'm here whenever things feel heavy.", de: "Ich habe gesehen, dass Stress dich beschäftigt.\nIch bin hier, wenn es sich schwer anfühlt." },
+        anxiety: { en: "Anxiety can feel overwhelming.\nLet's take it one step at a time, together.", de: "Angst kann überwältigend sein.\nLass uns das gemeinsam angehen, Schritt für Schritt." },
+        sleep: { en: "Better sleep starts with a calmer mind.\nI'm here to help you unwind.", de: "Besserer Schlaf beginnt mit einem ruhigeren Geist.\nIch bin hier, um dir beim Abschalten zu helfen." },
+        relationships: { en: "Relationships shape how we feel.\nLet's explore what's on your mind.", de: "Beziehungen prägen, wie wir uns fühlen.\nLass uns erkunden, was dich beschäftigt." },
+        selfworth: { en: "You're already taking a brave step.\nLet's discover your strengths together.", de: "Du machst schon einen mutigen Schritt.\nLass uns gemeinsam deine Stärken entdecken." },
+        motivation: { en: "Finding motivation starts with understanding yourself.\nI'm here to help you explore.", de: "Motivation zu finden beginnt damit, sich selbst zu verstehen.\nIch bin hier, um dir dabei zu helfen." },
+        grief: { en: "Grief has its own pace.\nI'm here to listen, whenever you're ready.", de: "Trauer hat ihr eigenes Tempo.\nIch bin hier, um zuzuhören, wann immer du bereit bist." },
+      };
+      return greetings[focus]?.[lang] || "";
+    } catch {
+      return "";
+    }
+  }, []);
+
+  const buildStaticGreeting = useCallback((lang: "en" | "de", name: string): string => {
+    const personalLine = getPersonalizedGreeting(lang);
+    const baseGreeting = lang === "de"
+      ? `Hallo. Ich bin ${name} und\nhöre dir gerne zu.`
+      : `Hello. I'm ${name}, and\nI'm here to listen.`;
+    const closingLine = lang === "de"
+      ? "Nimm dir Zeit – teile, was dich bewegt."
+      : "Take your time – share what's on your mind.";
+
+    return personalLine
+      ? `${baseGreeting}\n\n${personalLine}`
+      : `${baseGreeting}\n\n${closingLine}`;
+  }, [getPersonalizedGreeting]);
+
+  // Handle stream completion → trigger TTS
+  const speakResponseRef = useRef(voice.speakResponse);
+  useEffect(() => { speakResponseRef.current = voice.speakResponse; }, [voice.speakResponse]);
+
+  const handleStreamDone = useCallback((fullResponse: string, messageId: string, _convId: string | null) => {
+    speakResponseRef.current(fullResponse, messageId);
+  }, []);
+
   useEffect(() => {
     if (initDone) return;
     setInitDone(true);
 
     const initialMessage = localStorage.getItem('soulvay-initial-message') || location.state?.initialMessage;
     const resumeConvId = location.state?.conversationId;
-    const savedLang = composer.preferences.current.language || language;
-
-    const getPersonalizedGreeting = (): string => {
-      try {
-        const stored = localStorage.getItem("soulvay-personalization");
-        if (!stored) return "";
-        const p = JSON.parse(stored);
-        const focus = (p.focusAreas || [])[0];
-        if (!focus) return "";
-        const greetings: Record<string, { en: string; de: string }> = {
-          stress: { en: "I noticed you'd like to work on stress.\nI'm here whenever things feel heavy.", de: "Ich habe gesehen, dass Stress dich beschäftigt.\nIch bin hier, wenn es sich schwer anfühlt." },
-          anxiety: { en: "Anxiety can feel overwhelming.\nLet's take it one step at a time, together.", de: "Angst kann überwältigend sein.\nLass uns das gemeinsam angehen, Schritt für Schritt." },
-          sleep: { en: "Better sleep starts with a calmer mind.\nI'm here to help you unwind.", de: "Besserer Schlaf beginnt mit einem ruhigeren Geist.\nIch bin hier, um dir beim Abschalten zu helfen." },
-          relationships: { en: "Relationships shape how we feel.\nLet's explore what's on your mind.", de: "Beziehungen prägen, wie wir uns fühlen.\nLass uns erkunden, was dich beschäftigt." },
-          selfworth: { en: "You're already taking a brave step.\nLet's discover your strengths together.", de: "Du machst schon einen mutigen Schritt.\nLass uns gemeinsam deine Stärken entdecken." },
-          motivation: { en: "Finding motivation starts with understanding yourself.\nI'm here to help you explore.", de: "Motivation zu finden beginnt damit, sich selbst zu verstehen.\nIch bin hier, um dir dabei zu helfen." },
-          grief: { en: "Grief has its own pace.\nI'm here to listen, whenever you're ready.", de: "Trauer hat ihr eigenes Tempo.\nIch bin hier, um zuzuhören, wann immer du bereit bist." },
-        };
-        return greetings[focus]?.[savedLang as "en" | "de"] || "";
-      } catch { return ""; }
-    };
 
     const init = async () => {
       if (resumeConvId) {
@@ -168,10 +193,8 @@ export default function Chat() {
         return;
       }
 
-      // Check for demo conversation continuity (post-signup from landing page)
       const demoData = consumeDemoConversation();
       if (demoData && demoData.messages.length > 1) {
-        // Inject demo messages into the real chat as existing context
         const injectedMessages = demoData.messages.map((m, i) => ({
           id: `demo-${i}-${Date.now()}`,
           content: m.content,
@@ -181,9 +204,7 @@ export default function Chat() {
         composer.setMessages(injectedMessages);
         composer.chatMessageCountRef.current = injectedMessages.filter(m => m.role === "user").length;
 
-        // Send a seamless continuation prompt so the AI references demo context
-        const lastUserMsg = [...demoData.messages].reverse().find(m => m.role === "user");
-        const continuationPrompt = savedLang === "de"
+        const continuationPrompt = activeLanguage === "de"
           ? `[System: Der Nutzer hat gerade ein Konto erstellt, um dieses Gespräch fortzusetzen. Beziehe dich auf das, was bereits besprochen wurde. Reagiere nicht mit einer neuen Begrüßung – setze das Gespräch nahtlos fort. Gehe etwas tiefer als zuvor.]`
           : `[System: The user just signed up to continue this conversation. Reference what was already discussed. Do NOT send a new greeting – continue the conversation seamlessly. Go slightly deeper than before.]`;
         composer.handleSend(continuationPrompt, true, undefined, handleStreamDone);
@@ -195,17 +216,7 @@ export default function Chat() {
         localStorage.removeItem('soulvay-initial-message');
         composer.handleSend(initialMessage, false, undefined, handleStreamDone);
       } else {
-        const personalLine = getPersonalizedGreeting();
-        const cName = companionName;
-        const baseGreeting = savedLang === "de"
-          ? `Hallo. Ich bin ${cName} und\nhöre dir gerne zu.`
-          : `Hello. I'm ${cName}, and\nI'm here to listen.`;
-        const closingLine = savedLang === "de"
-          ? "Nimm dir Zeit – teile, was dich bewegt."
-          : "Take your time – share what's on your mind.";
-        const staticGreeting = personalLine
-          ? `${baseGreeting}\n\n${personalLine}`
-          : `${baseGreeting}\n\n${closingLine}`;
+        const staticGreeting = buildStaticGreeting(activeLanguage, companionName);
         composer.setMessages([{ id: "greeting", content: staticGreeting, role: "assistant", timestamp: new Date() }]);
 
         if (canUseVoice && voice.voiceSettings.autoPlayReplies && !voice.isListening) {
@@ -214,33 +225,20 @@ export default function Chat() {
       }
     };
     init();
-  }, []);
+  }, [activeLanguage, buildStaticGreeting, canUseVoice, companionName, composer, handleStreamDone, initDone, location.state, voice.isListening, voice.voiceSettings.autoPlayReplies]);
 
-  // Update greeting when companion loads (if still showing fallback name)
+  // Keep the local greeting aligned with current language and companion name
   useEffect(() => {
-    if (!companion?.name || !initDone) return;
+    if (!initDone) return;
     const firstMsg = composer.messages[0];
-    if (!firstMsg || firstMsg.role !== "assistant" || !firstMsg.id.startsWith("greeting")) return;
-    if (firstMsg.content.includes("Soulvay") || firstMsg.content.includes("Ich bin Soulway")) {
-      const savedLang = composer.preferences.current.language || language;
-      const updated = firstMsg.content
-        .replace(/Ich bin Soulvay/g, `Ich bin ${companion.name}`)
-        .replace(/Ich bin Soulway/g, `Ich bin ${companion.name}`)
-        .replace(/I'm Soulvay/g, `I'm ${companion.name}`)
-        .replace(/I'm Soulway/g, `I'm ${companion.name}`);
-      if (updated !== firstMsg.content) {
-        composer.setMessages(prev => prev.map((m, i) => i === 0 ? { ...m, content: updated } : m));
-      }
+    const isStandaloneGreeting = composer.messages.length === 1 && firstMsg?.role === "assistant" && firstMsg.id.startsWith("greeting");
+    if (!isStandaloneGreeting) return;
+
+    const nextGreeting = buildStaticGreeting(activeLanguage, companionName);
+    if (firstMsg.content !== nextGreeting) {
+      composer.setMessages([{ ...firstMsg, content: nextGreeting }]);
     }
-  }, [companion?.name, initDone]);
-
-  // Handle stream completion → trigger TTS
-  const speakResponseRef = useRef(voice.speakResponse);
-  useEffect(() => { speakResponseRef.current = voice.speakResponse; }, [voice.speakResponse]);
-
-  const handleStreamDone = useCallback((fullResponse: string, messageId: string, _convId: string | null) => {
-    speakResponseRef.current(fullResponse, messageId);
-  }, []);
+  }, [activeLanguage, buildStaticGreeting, companionName, composer, initDone]);
 
   // Send message with voice TTS callback
   const handleSend = useCallback(async (content: string) => {
@@ -323,10 +321,7 @@ export default function Chat() {
   const handleNewConversation = () => {
     extractIntelligence(composer.messages, composer.conversationId);
     composer.startNewConversation();
-    const savedLang = composer.preferences.current.language || language;
-    const baseGreeting = savedLang === "de"
-      ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt.`
-      : `Hello. I'm ${companionName}, and\nI'm here to listen.\n\nTake your time – share what's on your mind.`;
+    const baseGreeting = buildStaticGreeting(activeLanguage, companionName);
     composer.setMessages([{ id: "greeting-" + Date.now(), content: baseGreeting, role: "assistant", timestamp: new Date() }]);
   };
 

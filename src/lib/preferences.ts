@@ -19,8 +19,13 @@ export interface AppPreferences {
 
 const STORAGE_KEY = "soulvay-preferences";
 
-const DEFAULT_PREFERENCES: AppPreferences = {
-  language: "en",
+function detectDefaultLanguage(): AppPreferences["language"] {
+  if (typeof navigator === "undefined") return "de";
+  const browserLang = navigator.language?.toLowerCase() || "";
+  return browserLang.startsWith("en") ? "en" : "de";
+}
+
+const DEFAULT_PREFERENCES: Omit<AppPreferences, "language"> = {
   tone: "gentle",
   addressForm: "du",
   notifications: true,
@@ -42,14 +47,14 @@ export function getPreferences(): AppPreferences {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      _cached = { ...DEFAULT_PREFERENCES, ...parsed };
+      _cached = { language: detectDefaultLanguage(), ...DEFAULT_PREFERENCES, ...parsed };
       return _cached;
     }
   } catch {
     // Corrupted storage — return defaults
   }
 
-  _cached = { ...DEFAULT_PREFERENCES };
+  _cached = { language: detectDefaultLanguage(), ...DEFAULT_PREFERENCES };
   return _cached;
 }
 

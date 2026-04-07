@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -9,7 +9,7 @@ import { useStreamingDisplay } from "@/hooks/useStreamingDisplay";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
-import { getPreferences as getCentralPreferences } from "@/lib/preferences";
+import { getPreferences as getCentralPreferences, onPreferencesChange } from "@/lib/preferences";
 import { recordMetric } from "@/lib/diagnostics";
 import { logError, logInfo } from "@/lib/logger";
 
@@ -28,15 +28,14 @@ interface ChatPreferences {
   innerDialogue: boolean;
 }
 
-const getPreferences = (): ChatPreferences => {
-  const prefs = getCentralPreferences();
-  return {
-    language: prefs.language,
-    tone: prefs.tone,
-    addressForm: prefs.addressForm,
-    innerDialogue: prefs.innerDialogue,
-  };
-};
+const mapChatPreferences = (prefs = getCentralPreferences()): ChatPreferences => ({
+  language: prefs.language,
+  tone: prefs.tone,
+  addressForm: prefs.addressForm,
+  innerDialogue: prefs.innerDialogue,
+});
+
+const getPreferences = (): ChatPreferences => mapChatPreferences();
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
@@ -71,6 +70,13 @@ export function useChatComposer(chatMode: ChatMode) {
   } = useChatPersistence();
 
   const streamingDisplay = useStreamingDisplay(setMessages);
+
+  useEffect(() => {
+    preferences.current = getPreferences();
+    return onPreferencesChange((prefs) => {
+      preferences.current = mapChatPreferences(prefs);
+    });
+  }, []);
 
   // Cleanup on unmount
   const cleanup = useCallback(() => {
@@ -125,7 +131,7 @@ export function useChatComposer(chatMode: ChatMode) {
         },
         body: JSON.stringify({
           messages: chatMsgs,
-          preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
+          preferences: { ...preferences.current, language: language as "en" | "de", modePrompt: modePrompt + personalizationContext },
         }),
         signal: activeSignal,
       });
