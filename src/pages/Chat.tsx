@@ -69,7 +69,7 @@ export default function Chat() {
 
   // Companion
   const { companion } = useCompanion();
-  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
+  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url, companion?.archetype);
 
   // Voice hook (turn-based)
   const voice = useChatVoice(companion?.archetype, composer.isLoading || composer.isStreamingActive);
