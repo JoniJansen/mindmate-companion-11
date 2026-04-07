@@ -101,8 +101,7 @@ export function useBackupReminder() {
   const requestNotificationPermission = async (): Promise<boolean> => {
     if (!("Notification" in window)) {
       toast({
-        title: "Notifications not supported",
-        description: "Your browser doesn't support notifications.",
+        title: tp("notification.notSupported"),
         variant: "destructive",
       });
       return false;

@@ -320,7 +320,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
 
     return (
       <div className="flex flex-col h-full bg-background">
-      <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-6 pb-8 w-full">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 pb-8 w-full" style={{ paddingTop: 'max(16px, env(safe-area-inset-top, 0px))' }}>
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
@@ -343,15 +343,15 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
             <motion.div className="h-full bg-primary rounded-full" initial={{ width: 0 }} animate={{ width: `${topicProgress}%` }} transition={{ delay: 0.2, duration: 0.5 }} />
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-1 mb-4 overflow-x-auto scrollbar-hide">
+          {/* Tabs — scrollable for small screens / long labels */}
+          <div className="flex gap-1.5 mb-4 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
             {tabItems.map(tab => (
               <Button
                 key={tab.key}
                 variant={detailTab === tab.key ? "default" : "outline"}
                 size="sm"
                 onClick={() => setDetailTab(tab.key)}
-                className="gap-1.5 shrink-0 text-xs"
+                className="gap-1.5 shrink-0 text-xs min-h-[40px]"
               >
                 <tab.icon className="w-3.5 h-3.5" />
                 {tab.label}

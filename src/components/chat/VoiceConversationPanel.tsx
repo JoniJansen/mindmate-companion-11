@@ -194,7 +194,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
                 <AlertCircle className="w-4 h-4 text-destructive" />
               )}
               {hasSTTError
-                ? (lang === "de" ? "Mikrofon nicht verfügbar" : "Microphone unavailable")
+                ? (lang === "de" ? "Spracheingabe nicht verfügbar" : "Voice input unavailable")
                 : statusText
               }
             </motion.p>
@@ -301,7 +301,7 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
 
         <p className="text-[11px] text-muted-foreground/50">
           {hasSTTError
-            ? (lang === "de" ? "Bitte Mikrofonzugriff erlauben" : "Please allow microphone access")
+            ? (lang === "de" ? "Bitte Mikrofonzugriff unter Einstellungen → Soulvay erlauben" : "Please allow microphone access in Settings → Soulvay")
             : micActive
               ? (lang === "de" ? "Tippe zum Stoppen" : "Tap to stop")
               : (lang === "de" ? "Tippe zum Sprechen" : "Tap to speak")
