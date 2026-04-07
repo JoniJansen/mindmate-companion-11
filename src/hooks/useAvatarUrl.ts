@@ -1,25 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getArchetype } from "@/data/companions";
 import { Capacitor } from "@capacitor/core";
 
 /**
- * Build a platform-safe URL for a local companion asset.
- * - Web: relative path works fine
- * - Capacitor native: uses Capacitor.convertFileSrc() for correct file:// resolution
+ * Build a stable URL for companion assets.
+ * - Bundled web assets in /public stay regular web URLs on all platforms
+ * - Real device file paths use Capacitor.convertFileSrc() only when needed
  */
 export function resolveLocalAssetUrl(relativePath: string): string {
+  const trimmedPath = relativePath.trim();
+
   // Already a full URL — pass through
-  if (/^https?:\/\/|^capacitor:\/\/|^ionic:\/\//.test(relativePath)) {
-    return relativePath;
+  if (isDirectUrl(trimmedPath)) {
+    return trimmedPath;
   }
 
-  // Normalise to /clean/path
-  const cleanPath = relativePath.replace(/^\.?\//, "");
+  // Real device file paths must be rewritten for the WebView
+  if (isDeviceFilePath(trimmedPath)) {
+    return Capacitor.isNativePlatform()
+      ? Capacitor.convertFileSrc(trimmedPath)
+      : trimmedPath;
+  }
+
+  // Bundled assets from public/ must stay normal WebView URLs
+  const cleanPath = trimmedPath.replace(/^\.?\//, "");
   const absolutePath = `/${cleanPath}`;
 
-  if (Capacitor.isNativePlatform()) {
-    return Capacitor.convertFileSrc(absolutePath);
+  if (typeof window !== "undefined") {
+    const origin = window.location?.origin;
+    if (origin && origin !== "null") {
+      try {
+        return new URL(absolutePath, origin).toString();
+      } catch {
+        // Fall through to root-relative path
+      }
+    }
   }
 
   return absolutePath;
@@ -30,7 +46,19 @@ function isDirectUrl(value: string) {
     value.startsWith("http://") ||
     value.startsWith("https://") ||
     value.startsWith("capacitor://") ||
-    value.startsWith("ionic://")
+    value.startsWith("ionic://") ||
+    value.startsWith("blob:") ||
+    value.startsWith("data:")
+  );
+}
+
+function isDeviceFilePath(value: string) {
+  return (
+    value.startsWith("file://") ||
+    value.startsWith("content://") ||
+    value.startsWith("ph://") ||
+    value.startsWith("assets-library://") ||
+    /^\/(private|var|Users)\//.test(value)
   );
 }
 
@@ -63,6 +91,32 @@ function getStorageTarget(value: string): { bucket: "avatars" | "companions"; pa
   return { bucket: "avatars", path: trimmed };
 }
 
+function getFallbackAvatarUrl(archetype?: string) {
+  const arch = archetype ? getArchetype(archetype) : undefined;
+  return arch?.defaultAvatar ? resolveLocalAssetUrl(arch.defaultAvatar) : undefined;
+}
+
+function resolveAvatarTarget(
+  avatarPath: string | null | undefined,
+  archetype?: string,
+):
+  | { kind: "static"; url: string | undefined }
+  | { kind: "storage"; bucket: "avatars" | "companions"; path: string; fallbackUrl: string | undefined } {
+  const trimmedPath = avatarPath?.trim() || null;
+  const fallbackUrl = getFallbackAvatarUrl(archetype);
+
+  if (!trimmedPath) {
+    return { kind: "static", url: fallbackUrl };
+  }
+
+  if (isDirectUrl(trimmedPath) || isLocalAssetPath(trimmedPath) || isDeviceFilePath(trimmedPath)) {
+    return { kind: "static", url: resolveLocalAssetUrl(trimmedPath) };
+  }
+
+  const { bucket, path } = getStorageTarget(trimmedPath);
+  return { kind: "storage", bucket, path, fallbackUrl };
+}
+
 /**
  * Resolves a companion/profile avatar to a usable URL.
  *
@@ -76,47 +130,31 @@ export function useAvatarUrl(
   avatarPath: string | null | undefined,
   archetype?: string,
 ): string | undefined {
-  const [resolvedUrl, setResolvedUrl] = useState<string | undefined>();
+  const target = useMemo(
+    () => resolveAvatarTarget(avatarPath, archetype),
+    [avatarPath, archetype],
+  );
+  const [resolvedUrl, setResolvedUrl] = useState<string | undefined>(
+    target.kind === "storage" ? target.fallbackUrl : undefined,
+  );
 
   useEffect(() => {
-    const trimmedPath = avatarPath?.trim() || null;
-
-    // Build platform-safe fallback from archetype data
-    const arch = archetype ? getArchetype(archetype) : undefined;
-    const fallbackUrl = arch?.defaultAvatar
-      ? resolveLocalAssetUrl(arch.defaultAvatar)
-      : undefined;
-
-    // --- Nothing stored → archetype fallback ---
-    if (!trimmedPath) {
-      setResolvedUrl(fallbackUrl);
+    if (target.kind !== "storage") {
+      setResolvedUrl(undefined);
       return;
     }
 
-    // --- Full URL (http/capacitor) → use directly ---
-    if (isDirectUrl(trimmedPath)) {
-      setResolvedUrl(trimmedPath);
-      return;
-    }
-
-    // --- Local asset path (/companions/...) → resolve for platform ---
-    if (isLocalAssetPath(trimmedPath)) {
-      setResolvedUrl(resolveLocalAssetUrl(trimmedPath));
-      return;
-    }
-
-    // --- Supabase storage reference → sign ---
     let cancelled = false;
-    const { bucket, path } = getStorageTarget(trimmedPath);
+    setResolvedUrl(target.fallbackUrl);
 
     supabase.storage
-      .from(bucket)
-      .createSignedUrl(path, 3600)
+      .from(target.bucket)
+      .createSignedUrl(target.path, 3600)
       .then(({ data, error }) => {
         if (cancelled) return;
         if (error || !data?.signedUrl) {
           if (import.meta.env.DEV) console.warn("Signed URL error:", error);
-          setResolvedUrl(fallbackUrl);
+          setResolvedUrl(target.fallbackUrl);
         } else {
           setResolvedUrl(data.signedUrl);
         }
@@ -125,7 +163,7 @@ export function useAvatarUrl(
     return () => {
       cancelled = true;
     };
-  }, [avatarPath, archetype]);
+  }, [target]);
 
-  return resolvedUrl;
+  return target.kind === "storage" ? resolvedUrl : target.url;
 }
