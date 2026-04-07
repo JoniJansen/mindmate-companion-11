@@ -326,7 +326,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       return;
     }
 
-    queueAdvance(450);
+    queueAdvance(600);
   };
 
   // Auto-progress after minimum duration; actual step change happens only once via queueAdvance
