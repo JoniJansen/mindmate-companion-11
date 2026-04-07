@@ -30,7 +30,7 @@ export const ChatInputBar = React.memo(function ChatInputBar({
   const { t } = useTranslation();
 
   return (
-    <div className="shrink-0 border-t border-border/40 bg-background/95 backdrop-blur-sm">
+    <div className="shrink-0 border-t border-border/40 bg-background/95 backdrop-blur-sm" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="px-4 py-3">
         <div className="max-w-[580px] mx-auto flex items-center gap-2">
           <TooltipProvider delayDuration={300}>
