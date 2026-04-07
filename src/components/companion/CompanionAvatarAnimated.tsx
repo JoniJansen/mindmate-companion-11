@@ -46,7 +46,8 @@ export const CompanionAvatarAnimated = memo(function CompanionAvatarAnimated({
   const arch = archetype ? getArchetype(archetype) : undefined;
   const tuning = useMemo(() => getAnimationTuning(archetype || ""), [archetype]);
   const sizes = sizeMap[size];
-  const imgSrc = avatarUrl || arch?.defaultAvatar;
+  const rawSrc = avatarUrl || arch?.defaultAvatar;
+  const imgSrc = rawSrc ? resolveLocalAssetUrl(rawSrc) : undefined;
   const [imgError, setImgError] = useState(false);
 
   // Reset imgError when the image source changes

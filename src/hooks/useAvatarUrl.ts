@@ -8,7 +8,7 @@ import { isNativeApp } from "@/lib/nativeDetect";
  * - Web: relative path works fine
  * - Capacitor native: needs absolute URL because the WebView serves from capacitor://
  */
-function resolveLocalAssetUrl(relativePath: string): string {
+export function resolveLocalAssetUrl(relativePath: string): string {
   // Normalise: strip leading dot or slash for consistent handling
   const clean = relativePath.replace(/^\.?\//, "");
 
