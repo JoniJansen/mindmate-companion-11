@@ -19,8 +19,13 @@ export interface AppPreferences {
 
 const STORAGE_KEY = "soulvay-preferences";
 
-const DEFAULT_PREFERENCES: AppPreferences = {
-  language: "en",
+function detectDefaultLanguage(): AppPreferences["language"] {
+  if (typeof navigator === "undefined") return "de";
+  const browserLang = navigator.language?.toLowerCase() || "";
+  return browserLang.startsWith("en") ? "en" : "de";
+}
+
+const DEFAULT_PREFERENCES: Omit<AppPreferences, "language"> = {
   tone: "gentle",
   addressForm: "du",
   notifications: true,
