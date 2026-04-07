@@ -50,13 +50,15 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
   // Handle STT errors
   const hasShownMicErrorRef = useRef(false);
   useEffect(() => {
-    if (sttError === "not-allowed" && !hasShownMicErrorRef.current) {
+    // Only show mic permission toast when NOT in voice mode panel
+    // (the panel has its own inline error display; showing both = duplicate)
+    if (sttError === "not-allowed" && !hasShownMicErrorRef.current && !voiceModeEnabled) {
       hasShownMicErrorRef.current = true;
       toast({ title: t("voice.micPermissionDenied"), description: t("voice.enableMic"), variant: "destructive" });
     } else if (!sttError) {
       hasShownMicErrorRef.current = false;
     }
-  }, [sttError, t, toast]);
+  }, [sttError, t, toast, voiceModeEnabled]);
 
   // Track cooldown phase: brief pause after speaking ends before re-enabling mic
   const [isCooldown, setIsCooldown] = useState(false);

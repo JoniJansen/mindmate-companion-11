@@ -79,14 +79,58 @@ export default function Chat() {
   const realtimeAvailable = companion ? hasRealtimeAgent(companion.archetype) : false;
   const realtimeVoice = useConversationalVoice({
     agentId,
-    onError: (msg) => {
-      const localizedMsg = language === "de" ? ({
-        "No microphone found. Please connect a microphone.": "Kein Mikrofon gefunden. Bitte schließe ein Mikrofon an.",
-        "Microphone access denied. Please allow microphone access.": "Mikrofonzugriff verweigert. Bitte erlaube den Mikrofonzugriff.",
-        "Microphone is in use by another application or unavailable.": "Das Mikrofon wird von einer anderen App verwendet oder ist nicht verfügbar.",
-        "Failed to start voice session": "Sprachsitzung konnte nicht gestartet werden",
-      }[msg] ?? msg) : msg;
-      toast({ title: language === "de" ? "Sprachfehler" : "Voice error", description: localizedMsg, variant: "destructive" });
+    onError: (errorKey) => {
+      const errorMessages: Record<string, { en: string; de: string }> = {
+        mic_unsupported: {
+          en: "Voice input is not available on this device.",
+          de: "Spracheingabe ist auf diesem Gerät nicht verfügbar.",
+        },
+        mic_insecure_context: {
+          en: "Voice requires a secure connection.",
+          de: "Sprache erfordert eine sichere Verbindung.",
+        },
+        mic_permission_denied: {
+          en: "Microphone access denied. Please enable it in Settings → Soulvay → Microphone.",
+          de: "Mikrofonzugriff verweigert. Bitte aktiviere ihn unter Einstellungen → Soulvay → Mikrofon.",
+        },
+        mic_not_found: {
+          en: "No microphone found. Please connect a microphone.",
+          de: "Kein Mikrofon gefunden. Bitte schließe ein Mikrofon an.",
+        },
+        mic_in_use: {
+          en: "Microphone is in use by another app or unavailable.",
+          de: "Das Mikrofon wird von einer anderen App verwendet oder ist nicht verfügbar.",
+        },
+        voice_start_failed: {
+          en: "Voice session could not be started. Please try again.",
+          de: "Sprachsitzung konnte nicht gestartet werden. Bitte versuche es erneut.",
+        },
+        voice_auth_failed: {
+          en: "Voice service temporarily unavailable. Please try again later.",
+          de: "Sprachdienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
+        },
+        voice_connection_failed: {
+          en: "Voice connection failed. Please try again.",
+          de: "Sprachverbindung fehlgeschlagen. Bitte versuche es erneut.",
+        },
+        voice_idle_timeout: {
+          en: "Session ended — no activity detected.",
+          de: "Sitzung beendet — keine Aktivität erkannt.",
+        },
+        voice_max_duration: {
+          en: "Session ended — maximum duration reached.",
+          de: "Sitzung beendet — maximale Dauer erreicht.",
+        },
+        voice_daily_limit: {
+          en: "Daily session limit reached. Please try again tomorrow.",
+          de: "Tageslimit erreicht. Bitte versuche es morgen erneut.",
+        },
+      };
+      const lang = language === "de" ? "de" : "en";
+      const entry = errorMessages[errorKey];
+      const description = entry ? entry[lang] : errorKey;
+      const title = lang === "de" ? "Sprachfehler" : "Voice error";
+      toast({ title, description, variant: "destructive" });
     },
   });
 

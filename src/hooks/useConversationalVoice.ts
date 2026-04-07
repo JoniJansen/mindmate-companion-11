@@ -381,9 +381,9 @@ export function useConversationalVoice({
       const isAuthError = errorMsg.includes("401") || errorMsg.includes("403") || errorMsg.includes("NotAllowed");
       if (isAuthError) {
         logError("voice", "auth_error", { agentId: agentIdRef.current });
-        onErrorRef.current?.("Voice service authentication failed. Please try again later.");
+        onErrorRef.current?.("voice_auth_failed");
       } else {
-        onErrorRef.current?.("Voice connection failed. Please try again.");
+        onErrorRef.current?.("voice_connection_failed");
       }
     },
   });
