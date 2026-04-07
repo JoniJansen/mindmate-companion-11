@@ -8,16 +8,19 @@ import { isNativeApp } from "@/lib/nativeDetect";
  * - Web: relative path works fine
  * - Capacitor native: needs absolute URL because the WebView serves from capacitor://
  */
-function resolveLocalAssetUrl(relativePath: string): string {
+export function resolveLocalAssetUrl(relativePath: string): string {
+  // Already a full URL — pass through
+  if (/^https?:\/\/|^capacitor:\/\/|^ionic:\/\//.test(relativePath)) {
+    return relativePath;
+  }
+
   // Normalise: strip leading dot or slash for consistent handling
   const clean = relativePath.replace(/^\.?\//, "");
 
   if (isNativeApp()) {
-    // In Capacitor the web assets are served from the origin; absolute URL works.
     return `${window.location.origin}/${clean}`;
   }
 
-  // Standard web — root-relative path
   return `/${clean}`;
 }
 

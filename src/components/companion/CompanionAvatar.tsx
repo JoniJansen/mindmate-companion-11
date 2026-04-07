@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { getArchetype } from "@/data/companions";
+import { resolveLocalAssetUrl } from "@/hooks/useAvatarUrl";
 
 interface CompanionAvatarProps {
   avatarUrl?: string | null;
@@ -32,7 +33,8 @@ function getInitials(name?: string): string {
 
 export function CompanionAvatar({ avatarUrl, archetype, name, size = "md", animate = true, className = "" }: CompanionAvatarProps) {
   const arch = archetype ? getArchetype(archetype) : undefined;
-  const imgSrc = avatarUrl || arch?.defaultAvatar;
+  const rawSrc = avatarUrl || arch?.defaultAvatar;
+  const imgSrc = rawSrc ? resolveLocalAssetUrl(rawSrc) : undefined;
   const [imgError, setImgError] = useState(false);
 
   // Reset imgError when image source changes

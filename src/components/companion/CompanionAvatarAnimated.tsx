@@ -2,6 +2,7 @@ import { memo, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getArchetype } from "@/data/companions";
 import { getAnimationTuning } from "@/data/companionAnimationConfig";
+import { resolveLocalAssetUrl } from "@/hooks/useAvatarUrl";
 import type { CompanionVisualState } from "@/hooks/useCompanionVisualState";
 
 interface CompanionAvatarAnimatedProps {
@@ -45,7 +46,8 @@ export const CompanionAvatarAnimated = memo(function CompanionAvatarAnimated({
   const arch = archetype ? getArchetype(archetype) : undefined;
   const tuning = useMemo(() => getAnimationTuning(archetype || ""), [archetype]);
   const sizes = sizeMap[size];
-  const imgSrc = avatarUrl || arch?.defaultAvatar;
+  const rawSrc = avatarUrl || arch?.defaultAvatar;
+  const imgSrc = rawSrc ? resolveLocalAssetUrl(rawSrc) : undefined;
   const [imgError, setImgError] = useState(false);
 
   // Reset imgError when the image source changes
