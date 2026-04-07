@@ -96,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         personality_style: arch.personalityStyle,
         tone: arch.tone,
         appearance_prompt: arch.appearancePrompt,
+        avatar_url: arch.defaultAvatar,
       };
 
       if (existing) {

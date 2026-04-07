@@ -11,7 +11,7 @@ export function SettingsCompanionSection() {
   const navigate = useNavigate();
   const { t, language } = useTranslation();
   const { companion, isLoading } = useCompanion();
-  const avatarSignedUrl = useAvatarUrl(companion?.avatar_url);
+  const avatarSignedUrl = useAvatarUrl(companion?.avatar_url, companion?.archetype);
 
   if (isLoading || !companion) return null;
 

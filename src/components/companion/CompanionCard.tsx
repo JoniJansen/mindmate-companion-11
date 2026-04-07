@@ -15,7 +15,7 @@ interface CompanionCardProps {
 export function CompanionCard({ companion }: CompanionCardProps) {
   const navigate = useNavigate();
   const { t, language } = useTranslation();
-  const avatarSignedUrl = useAvatarUrl(companion.avatar_url);
+  const avatarSignedUrl = useAvatarUrl(companion.avatar_url, companion.archetype);
   const archetype = getArchetype(companion.archetype);
 
   const getGreeting = () => {
