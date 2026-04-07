@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getArchetype } from "@/data/companions";
 import { getAnimationTuning } from "@/data/companionAnimationConfig";
