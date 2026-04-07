@@ -83,15 +83,15 @@ export function useCompanion() {
     const arch = getArchetype(archetypeId);
     if (!arch) return;
 
-    const profileData = {
-      user_id: user.id,
-      name: arch.name,
-      archetype: arch.id,
-      personality_style: arch.personalityStyle,
-      tone: arch.tone,
-      appearance_prompt: arch.appearancePrompt,
-      avatar_url: null, // Reset custom avatar when switching archetypes
-    };
+      const profileData = {
+        user_id: user.id,
+        name: arch.name,
+        archetype: arch.id,
+        personality_style: arch.personalityStyle,
+        tone: arch.tone,
+        appearance_prompt: arch.appearancePrompt,
+        avatar_url: arch.defaultAvatar,
+      };
 
     try {
       if (companion) {

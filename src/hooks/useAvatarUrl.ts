@@ -1,44 +1,79 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getArchetype } from "@/data/companions";
+
+function isDirectAssetUrl(value: string) {
+  return value.startsWith("/") || value.startsWith("http://") || value.startsWith("https://");
+}
+
+function getStorageTarget(value: string): { bucket: "avatars" | "companions"; path: string } {
+  const trimmed = value.trim().replace(/^storage:\/\//, "");
+
+  if (trimmed.startsWith("avatars/")) {
+    return { bucket: "avatars", path: trimmed.slice("avatars/".length) };
+  }
+
+  if (trimmed.startsWith("companions/")) {
+    return { bucket: "companions", path: trimmed.slice("companions/".length) };
+  }
+
+  for (const bucket of ["avatars", "companions"] as const) {
+    const marker = `/${bucket}/`;
+    const idx = trimmed.indexOf(marker);
+    if (idx !== -1) {
+      return {
+        bucket,
+        path: trimmed.substring(idx + marker.length).split("?")[0],
+      };
+    }
+  }
+
+  return { bucket: "avatars", path: trimmed };
+}
 
 /**
- * Generates a signed URL for a private avatar bucket.
- * Handles both legacy full-URL format and new path-only format.
+ * Resolves a companion/profile avatar.
+ * - direct asset/public URLs are returned as-is
+ * - storage paths are signed
+ * - empty companion avatars fall back to the archetype asset
  */
-export function useAvatarUrl(avatarPath: string | null | undefined): string | undefined {
-  const [signedUrl, setSignedUrl] = useState<string | undefined>();
+export function useAvatarUrl(avatarPath: string | null | undefined, archetype?: string): string | undefined {
+  const [resolvedUrl, setResolvedUrl] = useState<string | undefined>();
 
   useEffect(() => {
-    if (!avatarPath) {
-      setSignedUrl(undefined);
+    const trimmedPath = avatarPath?.trim();
+    const fallbackUrl = archetype ? getArchetype(archetype)?.defaultAvatar : undefined;
+
+    if (!trimmedPath) {
+      setResolvedUrl(fallbackUrl);
       return;
     }
 
-    // Extract just the path if a full URL was stored (legacy)
-    let path = avatarPath;
-    const bucketMarker = "/avatars/";
-    const idx = avatarPath.indexOf(bucketMarker);
-    if (idx !== -1) {
-      path = avatarPath.substring(idx + bucketMarker.length).split("?")[0];
+    if (isDirectAssetUrl(trimmedPath)) {
+      setResolvedUrl(trimmedPath);
+      return;
     }
 
     let cancelled = false;
+    const { bucket, path } = getStorageTarget(trimmedPath);
 
     supabase.storage
-      .from("avatars")
-      .createSignedUrl(path, 3600) // 1 hour
+      .from(bucket)
+      .createSignedUrl(path, 3600)
       .then(({ data, error }) => {
         if (cancelled) return;
-        if (error) {
+        if (error || !data?.signedUrl) {
           if (import.meta.env.DEV) console.warn("Signed URL error:", error);
-          setSignedUrl(undefined);
+          setResolvedUrl(fallbackUrl);
         } else {
-          setSignedUrl(data.signedUrl);
+          setResolvedUrl(data.signedUrl);
         }
       });
 
-    return () => { cancelled = true; };
-  }, [avatarPath]);
+    return () => {
+      cancelled = true;
+    };
+  }, [avatarPath, archetype]);
 
-  return signedUrl;
+  return resolvedUrl;
 }

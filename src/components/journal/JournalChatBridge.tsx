@@ -18,7 +18,7 @@ export function JournalChatBridge({ entryContent, onDismiss }: JournalChatBridge
   const { t, language } = useTranslation();
   const { companion } = useCompanion();
   const navigate = useNavigate();
-  const avatarUrl = useAvatarUrl(companion?.avatar_url);
+  const avatarUrl = useAvatarUrl(companion?.avatar_url, companion?.archetype);
   const companionName = companion?.name || "Soulvay";
 
   useEffect(() => {
