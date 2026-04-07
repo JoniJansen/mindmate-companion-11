@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { updatePassword } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -81,9 +81,14 @@ export default function ResetPassword() {
       });
       setTimeout(() => navigate("/", { replace: true }), 2000);
     } catch (error: any) {
+      const rawMsg = error.message || "";
+      const isDE = language === "de";
+      const mappedMsg = rawMsg.includes("same_password")
+        ? (isDE ? "Das neue Passwort muss sich vom alten unterscheiden." : "New password must be different from the old one.")
+        : (isDE ? "Etwas hat nicht geklappt. Bitte versuche es nochmal." : "Something went wrong. Please try again.");
       toast({
         title: t("common.error"),
-        description: error.message,
+        description: mappedMsg,
         variant: "destructive",
       });
     } finally {
