@@ -154,7 +154,7 @@ export function useConversationalVoice({
         setPhase("idle");
         setMicWarning(null);
       }
-      onErrorRef.current?.("Session ended — no activity detected.");
+      onErrorRef.current?.("voice_idle_timeout");
     }, IDLE_TIMEOUT_MS);
   }, [transitionTo]);
 
@@ -284,7 +284,7 @@ export function useConversationalVoice({
           setPhase("idle");
           setMicWarning(null);
         }
-        onErrorRef.current?.("Session ended — maximum duration reached.");
+        onErrorRef.current?.("voice_max_duration");
       }, MAX_SESSION_DURATION_MS);
     },
     
@@ -381,9 +381,9 @@ export function useConversationalVoice({
       const isAuthError = errorMsg.includes("401") || errorMsg.includes("403") || errorMsg.includes("NotAllowed");
       if (isAuthError) {
         logError("voice", "auth_error", { agentId: agentIdRef.current });
-        onErrorRef.current?.("Voice service authentication failed. Please try again later.");
+        onErrorRef.current?.("voice_auth_failed");
       } else {
-        onErrorRef.current?.("Voice connection failed. Please try again.");
+        onErrorRef.current?.("voice_connection_failed");
       }
     },
   });
@@ -455,7 +455,7 @@ export function useConversationalVoice({
           setIsSupported(false);
           setMicWarning("permission_denied");
         }
-        onErrorRef.current?.("Microphone access denied. Please allow microphone access.");
+      onErrorRef.current?.("mic_permission_denied");
         return false;
       }
       
@@ -463,7 +463,7 @@ export function useConversationalVoice({
       if (retryCountRef.current >= maxRetries) {
         transitionTo("error");
         isConnectingRef.current = false;
-        onErrorRef.current?.(error?.message || "Failed to start voice session");
+        onErrorRef.current?.("voice_start_failed");
       }
       return false;
     }
@@ -487,14 +487,14 @@ export function useConversationalVoice({
         setMicWarning("unsupported");
         setIsSupported(false);
       }
-      onErrorRef.current?.("This browser doesn't support microphone input.");
+      onErrorRef.current?.("mic_unsupported");
       return false;
     }
 
     if (!env.isSecureContext) {
       logError("mic", "insecure_context", env as unknown as Record<string, unknown>);
       if (!unmountedRef.current) setMicWarning("env_blocked");
-      onErrorRef.current?.("Microphone requires a secure (HTTPS) connection.");
+      onErrorRef.current?.("mic_insecure_context");
       return false;
     }
 
@@ -515,7 +515,7 @@ export function useConversationalVoice({
     if (limitResult === "LIMIT_REACHED") {
       transitionTo("error");
       isConnectingRef.current = false;
-      onErrorRef.current?.("Daily session limit reached. Please try again tomorrow.");
+      onErrorRef.current?.("voice_daily_limit");
       return false;
     }
     if (typeof limitResult === "string") sessionDbIdRef.current = limitResult;
@@ -569,19 +569,19 @@ export function useConversationalVoice({
           setMicWarning("permission_denied");
           setIsSupported(false);
         }
-        onErrorRef.current?.("Microphone access denied. Please allow microphone access.");
+        onErrorRef.current?.("mic_permission_denied");
       } else if (error?.name === "NotFoundError") {
         if (!unmountedRef.current) {
           setMicWarning("not_found");
           setIsSupported(false);
         }
-        onErrorRef.current?.("No microphone found. Please connect a microphone.");
+        onErrorRef.current?.("mic_not_found");
       } else if (error?.name === "NotReadableError" || error?.name === "AbortError") {
         // Often means another app/tab has the mic, or hardware error
         if (!unmountedRef.current) setMicWarning("env_blocked");
-        onErrorRef.current?.("Microphone is in use by another application or unavailable.");
+        onErrorRef.current?.("mic_in_use");
       } else {
-        onErrorRef.current?.(error?.message || "Failed to start voice session");
+        onErrorRef.current?.("voice_start_failed");
       }
       return false;
     }

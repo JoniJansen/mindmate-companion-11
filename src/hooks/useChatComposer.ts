@@ -105,17 +105,7 @@ export function useChatComposer(chatMode: ChatMode) {
       const { data: { session } } = await supabase.auth.getSession();
       const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-      // Use the caller's signal or create our own for timeout control
-      const ownController = signal ? undefined : new AbortController();
-      const activeSignal = signal || ownController?.signal;
-
-      // Timeout after 30s to prevent hanging
-      const timeoutId = setTimeout(() => {
-        if (!activeSignal?.aborted) {
-          ownController?.abort();
-        }
-      }, 30000);
-
+      // Use caller's signal directly (timeout is managed by handleSend)
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -127,10 +117,8 @@ export function useChatComposer(chatMode: ChatMode) {
           messages: chatMsgs,
           preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
         }),
-        signal: activeSignal,
+        signal,
       });
-
-      clearTimeout(timeoutId);
 
       if (!resp.ok) {
         const errorData = await resp.json().catch(() => ({}));
@@ -177,13 +165,10 @@ export function useChatComposer(chatMode: ChatMode) {
       onDone(fullResponse);
     } catch (error: any) {
       if (error.name === "AbortError") {
-        // Check if this was our timeout (not user-initiated)
-        if (!signal?.aborted) {
-          onError(language === "de"
-            ? "Die Antwort hat etwas länger gedauert als erwartet. Versuche es bitte nochmal."
-            : "The response took a bit longer than expected. Please try again.");
-          return;
-        }
+        // Timeout-triggered abort → show friendly message
+        onError(language === "de"
+          ? "Die Antwort hat etwas länger gedauert als erwartet. Versuche es bitte nochmal."
+          : "The response took a bit longer than expected. Please try again.");
         return;
       }
       if (import.meta.env.DEV) console.error("Stream error:", error);
@@ -217,6 +202,11 @@ export function useChatComposer(chatMode: ChatMode) {
     abortControllerRef.current?.abort();
     const controller = new AbortController();
     abortControllerRef.current = controller;
+
+    // Hard 30s timeout — prevents infinite loading if gateway hangs
+    const sendTimeoutId = setTimeout(() => {
+      if (!controller.signal.aborted) controller.abort();
+    }, 30000);
 
     const userMessage: Message = { id: Date.now().toString(), content: trimmed, role: "user", timestamp: new Date() };
     if (!isSystemAction) {
@@ -260,6 +250,7 @@ export function useChatComposer(chatMode: ChatMode) {
       signal: controller.signal,
       onDelta: (chunk) => { streamingDisplay.enqueueChunk(chunk); setStreamingContent(prev => prev + chunk); },
       onDone: async (fullResponse) => {
+        clearTimeout(sendTimeoutId);
         const durationMs = Math.round(performance.now() - streamStartTime);
         recordMetric("chat", "stream_complete", { durationMs, success: true, meta: { chars: fullResponse.length } });
         logInfo("chat", "stream_complete", { durationMs, responseChars: fullResponse.length });
@@ -291,6 +282,7 @@ export function useChatComposer(chatMode: ChatMode) {
         onStreamDone?.(fullResponse, newMessageId, activeConvId);
       },
       onError: (errorMsg) => {
+        clearTimeout(sendTimeoutId);
         const durationMs = Math.round(performance.now() - streamStartTime);
         recordMetric("chat", "stream_error", { durationMs, success: false, meta: { error: errorMsg } });
         logError("chat", "stream_error", { durationMs, error: errorMsg });

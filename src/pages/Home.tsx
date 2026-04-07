@@ -147,8 +147,8 @@ export default function Home() {
 
   return (
     <div className="bg-background flex flex-col h-full">
-      {/* Header */}
-      <div className="px-6 pt-6 pb-3 safe-top shrink-0">
+      {/* Header — extra top padding so content clears iOS status bar + TestFlight banner */}
+      <div className="px-6 pb-3 shrink-0" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
         <div className="flex items-center justify-between">
           <motion.h1
             initial={{ opacity: 0, y: -10 }}

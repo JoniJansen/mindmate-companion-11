@@ -182,6 +182,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
+    // Clear user-specific caches BEFORE sign-out to prevent cross-account bleed
+    try {
+      localStorage.removeItem("soulvay-premium-state");
+      localStorage.removeItem("soulvay-chat-mode");
+    } catch {}
+    setProfile(null);
+    lastProfileUserId.current = null;
+    profileFetchInFlight.current = null;
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   }, []);
