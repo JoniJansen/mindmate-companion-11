@@ -60,7 +60,7 @@ export function CompanionCard({ companion }: CompanionCardProps) {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground">{companion.name}</p>
             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-              {getGreeting()}
+              {archetype ? (language === "de" ? archetype.descriptionDe : archetype.description) : getGreeting()}
             </p>
             {(companion.bond_level || 0) > 0 && (
               <div className="mt-1.5">
