@@ -61,9 +61,13 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
           : `Your subscription remains active until ${formatDate(currentPeriodEnd)}.`,
       });
     } catch (error) {
+      const msg = (error as Error).message || "";
+      const isEdgeFunctionError = msg.includes("Edge Function") || msg.includes("non-2xx");
       toast({
         title: language === "de" ? "Fehler" : "Error",
-        description: (error as Error).message,
+        description: isEdgeFunctionError
+          ? (language === "de" ? "Das hat leider nicht geklappt. Bitte versuche es später nochmal." : "Something went wrong. Please try again later.")
+          : msg,
         variant: "destructive",
       });
     } finally {
@@ -83,9 +87,13 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
           : "Your subscription will continue.",
       });
     } catch (error) {
+      const msg = (error as Error).message || "";
+      const isEdgeFunctionError = msg.includes("Edge Function") || msg.includes("non-2xx");
       toast({
         title: language === "de" ? "Fehler" : "Error",
-        description: (error as Error).message,
+        description: isEdgeFunctionError
+          ? (language === "de" ? "Das hat leider nicht geklappt. Bitte versuche es später nochmal." : "Something went wrong. Please try again later.")
+          : msg,
         variant: "destructive",
       });
     } finally {
@@ -98,9 +106,13 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
     try {
       await openBillingPortal();
     } catch (error) {
+      const msg = (error as Error).message || "";
+      const isEdgeFunctionError = msg.includes("Edge Function") || msg.includes("non-2xx");
       toast({
         title: language === "de" ? "Fehler" : "Error",
-        description: (error as Error).message,
+        description: isEdgeFunctionError
+          ? (language === "de" ? "Das hat leider nicht geklappt. Bitte versuche es später nochmal." : "Something went wrong. Please try again later.")
+          : msg,
         variant: "destructive",
       });
       setIsLoading(false);
