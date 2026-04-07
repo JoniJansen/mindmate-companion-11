@@ -56,7 +56,7 @@ export const commonTranslations: Translations = {
   // Not Found page
   "notFound.title": { en: "Page not found", de: "Seite nicht gefunden" },
   "notFound.description": { en: "This page doesn't exist. Let's take you back.", de: "Diese Seite gibt es nicht. Lass uns dich zurückbringen." },
-  "notFound.goToChat": { en: "Go to Chat", de: "Zum Chat" },
+  "notFound.goHome": { en: "Go to Home", de: "Zur Startseite" },
   "notFound.goBack": { en: "Go Back", de: "Zurück" },
 
   // Swipe hints
