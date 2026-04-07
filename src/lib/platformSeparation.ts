@@ -76,8 +76,7 @@ export function shouldShowAppleStoreBadge(): boolean {
 
 /** True when OAuth sign-in should be available as an auth option */
 export function shouldShowGoogleAuth(): boolean {
-  // Web only — iOS must not show competitor branding
-  return isWeb();
+  return isWeb() || isIOSApp();
 }
 
 /** True when Apple Sign-In should be available as an auth option */
@@ -95,8 +94,7 @@ export function shouldShowStoreMessaging(): boolean {
 export function shouldShowReviewLogin(): boolean {
   return (
     import.meta.env.DEV ||
-    (typeof window !== "undefined" && window.location.hostname.includes("lovable")) ||
-    isNativeApp()
+    (typeof window !== "undefined" && window.location.hostname.includes("lovable"))
   );
 }
 
