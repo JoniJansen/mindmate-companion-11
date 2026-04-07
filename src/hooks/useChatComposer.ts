@@ -171,13 +171,10 @@ export function useChatComposer(chatMode: ChatMode) {
       onDone(fullResponse);
     } catch (error: any) {
       if (error.name === "AbortError") {
-        // Check if this was our timeout (not user-initiated)
-        if (!signal?.aborted) {
-          onError(language === "de"
-            ? "Die Antwort hat etwas länger gedauert als erwartet. Versuche es bitte nochmal."
-            : "The response took a bit longer than expected. Please try again.");
-          return;
-        }
+        // Timeout-triggered abort → show friendly message
+        onError(language === "de"
+          ? "Die Antwort hat etwas länger gedauert als erwartet. Versuche es bitte nochmal."
+          : "The response took a bit longer than expected. Please try again.");
         return;
       }
       if (import.meta.env.DEV) console.error("Stream error:", error);
