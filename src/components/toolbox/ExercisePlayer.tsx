@@ -291,7 +291,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     setIsPlaying(false);
   }, [clearAdvanceTimeout, stop]);
 
-  const queueAdvance = useCallback((delay = 900) => {
+  const queueAdvance = useCallback((delay = 1200) => {
     clearAdvanceTimeout();
     setIsTransitioning(true);
 
