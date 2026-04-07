@@ -3,7 +3,7 @@ import type { Translations } from "./types";
 export const chatTranslations: Translations = {
   "chat.title": { en: "Soulvay", de: "Soulvay" },
   "chat.subtitle": { en: "Always here for you", de: "Immer für dich da" },
-  "chat.inputPlaceholder": { en: "Type something...", de: "Schreibe etwas..." },
+  "chat.inputPlaceholder": { en: "Type something...", de: "Schreib etwas..." },
   "chat.endSummarize": { en: "Wrap up", de: "Zusammenfassen" },
   "chat.nextSteps": { en: "What's next", de: "Wie weiter" },
   "chat.saveToJournal": { en: "Save to journal", de: "Im Tagebuch speichern" },
@@ -21,8 +21,8 @@ export const chatTranslations: Translations = {
   "chat.greetingDe": { en: "Hello. I'm Soulvay, and\nI'm here to listen.\n\nTake your time – share what's on your mind.", de: "Hallo. Ich bin Soulvay und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt." },
 
   // Chat mode quick replies
-  "chat.talk.reply1": { en: "I need someone to listen", de: "Ich brauche jemanden zum Zuhören" },
-  "chat.talk.reply2": { en: "Something's been on my mind", de: "Mich beschäftigt etwas" },
+  "chat.talk.reply1": { en: "I need someone to listen", de: "Ich möchte einfach reden" },
+  "chat.talk.reply2": { en: "Something's been on my mind", de: "Mir geht etwas durch den Kopf" },
   "chat.clarify.reply1": { en: "Help me organize my thoughts", de: "Hilf mir meine Gedanken zu ordnen" },
   "chat.clarify.reply2": { en: "I'm feeling confused about something", de: "Ich bin verwirrt über etwas" },
   "chat.calm.reply1": { en: "I'm feeling anxious", de: "Ich fühle mich ängstlich" },
@@ -37,9 +37,9 @@ export const chatTranslations: Translations = {
   // Chat streaming & errors
   "chat.streamError": { en: "Connection paused", de: "Verbindung unterbrochen" },
   "chat.streamErrorBody": { en: "The response was interrupted. You can try again.", de: "Die Antwort wurde unterbrochen. Du kannst es nochmal versuchen." },
-  "chat.retryMessage": { en: "Try again", de: "Nochmal versuchen" },
+  "chat.retryMessage": { en: "Try again", de: "Erneut versuchen" },
   "chat.continueMessage": { en: "Continue", de: "Fortsetzen" },
-  "chat.howToStart": { en: "How would you like to start?", de: "Wie möchtest du starten?" },
+  "chat.howToStart": { en: "How would you like to start?", de: "Wie möchtest du beginnen?" },
   "chat.summary": { en: "Summary", de: "Zusammenfassung" },
   "chat.crisisHelp2": { en: "Crisis Help", de: "Krisenhilfe" },
   "chat.voiceModeActive": { en: "Voice mode active", de: "Sprachmodus aktiv" },

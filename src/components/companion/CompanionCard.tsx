@@ -6,6 +6,7 @@ import { BondIndicator } from "./BondIndicator";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CompanionProfile } from "@/hooks/useCompanion";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { getArchetype } from "@/data/companions";
 
 interface CompanionCardProps {
   companion: CompanionProfile;
@@ -13,8 +14,9 @@ interface CompanionCardProps {
 
 export function CompanionCard({ companion }: CompanionCardProps) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const avatarSignedUrl = useAvatarUrl(companion.avatar_url);
+  const archetype = getArchetype(companion.archetype);
 
   const getGreeting = () => {
     const name = companion.name;
@@ -58,7 +60,7 @@ export function CompanionCard({ companion }: CompanionCardProps) {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground">{companion.name}</p>
             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-              {getGreeting()}
+              {archetype ? (language === "de" ? archetype.descriptionDe : archetype.description) : getGreeting()}
             </p>
             {(companion.bond_level || 0) > 0 && (
               <div className="mt-1.5">
