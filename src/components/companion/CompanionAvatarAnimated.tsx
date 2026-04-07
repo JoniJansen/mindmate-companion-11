@@ -2,6 +2,7 @@ import { memo, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getArchetype } from "@/data/companions";
 import { getAnimationTuning } from "@/data/companionAnimationConfig";
+import { resolveLocalAssetUrl } from "@/hooks/useAvatarUrl";
 import type { CompanionVisualState } from "@/hooks/useCompanionVisualState";
 
 interface CompanionAvatarAnimatedProps {
