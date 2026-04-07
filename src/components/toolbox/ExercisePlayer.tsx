@@ -356,7 +356,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     if (!isPlaying || isComplete || isTransitioning || !isCurrentStepMinDurationMet) return;
     if (voiceEnabled && (isCurrentStepSpeaking || isLoading)) return;
 
-    queueAdvance(900);
+    queueAdvance(1200);
   }, [
     isCurrentStepMinDurationMet,
     isCurrentStepSpeaking,
