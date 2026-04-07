@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getArchetype } from "@/data/companions";
 import { getAnimationTuning } from "@/data/companionAnimationConfig";
@@ -15,12 +15,17 @@ interface CompanionAvatarAnimatedProps {
 }
 
 const sizeMap = {
-  sm: { container: "w-9 h-9", glow: "w-14 h-14", ring: "w-12 h-12", dot: "w-2.5 h-2.5" },
-  md: { container: "w-12 h-12", glow: "w-20 h-20", ring: "w-16 h-16", dot: "w-3 h-3" },
-  lg: { container: "w-20 h-20", glow: "w-28 h-28", ring: "w-24 h-24", dot: "w-3.5 h-3.5" },
-  xl: { container: "w-28 h-28", glow: "w-40 h-40", ring: "w-36 h-36", dot: "w-4 h-4" },
-  "2xl": { container: "w-44 h-44", glow: "w-60 h-60", ring: "w-52 h-52", dot: "w-4 h-4" },
+  sm: { container: "w-9 h-9", glow: "w-14 h-14", ring: "w-12 h-12", dot: "w-2.5 h-2.5", text: "text-xs" },
+  md: { container: "w-12 h-12", glow: "w-20 h-20", ring: "w-16 h-16", dot: "w-3 h-3", text: "text-sm" },
+  lg: { container: "w-20 h-20", glow: "w-28 h-28", ring: "w-24 h-24", dot: "w-3.5 h-3.5", text: "text-lg" },
+  xl: { container: "w-28 h-28", glow: "w-40 h-40", ring: "w-36 h-36", dot: "w-4 h-4", text: "text-2xl" },
+  "2xl": { container: "w-44 h-44", glow: "w-60 h-60", ring: "w-52 h-52", dot: "w-4 h-4", text: "text-3xl" },
 };
+
+function getInitials(name?: string): string {
+  if (!name) return "S";
+  return name.charAt(0).toUpperCase();
+}
 
 /**
  * Premium animated companion avatar.
@@ -41,6 +46,7 @@ export const CompanionAvatarAnimated = memo(function CompanionAvatarAnimated({
   const tuning = useMemo(() => getAnimationTuning(archetype || ""), [archetype]);
   const sizes = sizeMap[size];
   const imgSrc = avatarUrl || arch?.defaultAvatar;
+  const [imgError, setImgError] = useState(false);
 
   // --- State-dependent animation values ---
   const breathScale = useMemo(() => {
@@ -106,6 +112,7 @@ export const CompanionAvatarAnimated = memo(function CompanionAvatarAnimated({
   }, [state]);
 
   const isSmall = size === "sm";
+  const showImage = imgSrc && !imgError;
 
   return (
     <div className={`relative inline-flex items-center justify-center ${className}`}>
@@ -160,17 +167,18 @@ export const CompanionAvatarAnimated = memo(function CompanionAvatarAnimated({
               transition: "box-shadow 0.6s ease",
             }}
           >
-            {imgSrc ? (
+            {showImage ? (
               <img
                 src={imgSrc}
                 alt={name || "Companion"}
                 className="w-full h-full object-cover rounded-full"
                 loading="lazy"
+                onError={() => setImgError(true)}
               />
             ) : (
-              <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center">
-                <span className={size === "xl" ? "text-4xl" : size === "lg" ? "text-2xl" : "text-lg"}>
-                  {arch?.emoji || "🌿"}
+              <div className="w-full h-full rounded-full bg-primary/15 flex items-center justify-center">
+                <span className={`${sizes.text} font-semibold text-primary`}>
+                  {getInitials(name || arch?.name)}
                 </span>
               </div>
             )}

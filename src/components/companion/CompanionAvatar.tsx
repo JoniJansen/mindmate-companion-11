@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { getArchetype } from "@/data/companions";
 
@@ -17,22 +18,35 @@ const sizeMap = {
   xl: "w-28 h-28",
 };
 
+const textSizeMap = {
+  sm: "text-xs",
+  md: "text-sm",
+  lg: "text-xl",
+  xl: "text-2xl",
+};
+
+function getInitials(name?: string): string {
+  if (!name) return "S";
+  return name.charAt(0).toUpperCase();
+}
+
 export function CompanionAvatar({ avatarUrl, archetype, name, size = "md", animate = true, className = "" }: CompanionAvatarProps) {
   const arch = archetype ? getArchetype(archetype) : undefined;
-  
-  // Use custom avatar, or fall back to default archetype avatar
   const imgSrc = avatarUrl || arch?.defaultAvatar;
+  const [imgError, setImgError] = useState(false);
+  const showImage = imgSrc && !imgError;
 
-  const content = imgSrc ? (
+  const content = showImage ? (
     <img
       src={imgSrc}
       alt={name || "Companion"}
       className="w-full h-full object-cover rounded-full"
       loading="lazy"
+      onError={() => setImgError(true)}
     />
   ) : (
-    <span className={`${size === "xl" ? "text-4xl" : size === "lg" ? "text-2xl" : size === "md" ? "text-lg" : "text-sm"}`}>
-      {arch?.emoji || "🌿"}
+    <span className={`${textSizeMap[size]} font-semibold text-primary`}>
+      {getInitials(name || arch?.name)}
     </span>
   );
 

@@ -109,13 +109,22 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               )}
               
               {/* Avatar — fixed width, full height */}
-              <div className="w-24 sm:w-28 lg:w-32 shrink-0 bg-muted/30 min-h-[100px]">
+              <div className="w-24 sm:w-28 lg:w-32 shrink-0 bg-muted/30 min-h-[100px] overflow-hidden">
                 <img
                   src={arch.defaultAvatar}
                   alt={arch.name}
                   className="w-full h-full object-cover object-top"
                   loading="lazy"
                   draggable={false}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    const fallback = target.parentElement;
+                    if (fallback) {
+                      fallback.classList.add('flex', 'items-center', 'justify-center');
+                      fallback.innerHTML = `<span class="text-3xl font-semibold text-primary">${arch.name.charAt(0)}</span>`;
+                    }
+                  }}
                 />
               </div>
               
