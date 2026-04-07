@@ -94,8 +94,7 @@ export function shouldShowStoreMessaging(): boolean {
 export function shouldShowReviewLogin(): boolean {
   return (
     import.meta.env.DEV ||
-    (typeof window !== "undefined" && window.location.hostname.includes("lovable")) ||
-    isNativeApp()
+    (typeof window !== "undefined" && window.location.hostname.includes("lovable"))
   );
 }
 
