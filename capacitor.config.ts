@@ -16,6 +16,9 @@ const config: CapacitorConfig = {
     preferredContentMode: "mobile",
     scrollEnabled: true,
   },
+  server: {
+    hostname: "localhost",
+  },
   // Ensure Info.plist includes ITSAppUsesNonExemptEncryption = false
   // This must be added manually to ios/App/App/Info.plist:
   // <key>ITSAppUsesNonExemptEncryption</key><false/>

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getArchetype } from "@/data/companions";
-import { isNativeApp } from "@/lib/nativeDetect";
+import { Capacitor } from "@capacitor/core";
 
 /**
  * Build a platform-safe URL for a local companion asset.
  * - Web: relative path works fine
- * - Capacitor native: needs absolute URL because the WebView serves from capacitor://
+ * - Capacitor native: uses Capacitor.convertFileSrc() for correct file:// resolution
  */
 export function resolveLocalAssetUrl(relativePath: string): string {
   // Already a full URL — pass through
@@ -14,14 +14,15 @@ export function resolveLocalAssetUrl(relativePath: string): string {
     return relativePath;
   }
 
-  // Normalise: strip leading dot or slash for consistent handling
-  const clean = relativePath.replace(/^\.?\//, "");
+  // Normalise to /clean/path
+  const cleanPath = relativePath.replace(/^\.?\//, "");
+  const absolutePath = `/${cleanPath}`;
 
-  if (isNativeApp()) {
-    return `${window.location.origin}/${clean}`;
+  if (Capacitor.isNativePlatform()) {
+    return Capacitor.convertFileSrc(absolutePath);
   }
 
-  return `/${clean}`;
+  return absolutePath;
 }
 
 function isDirectUrl(value: string) {
