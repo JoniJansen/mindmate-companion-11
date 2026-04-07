@@ -47,14 +47,14 @@ export function getPreferences(): AppPreferences {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      _cached = { ...DEFAULT_PREFERENCES, ...parsed };
+      _cached = { language: detectDefaultLanguage(), ...DEFAULT_PREFERENCES, ...parsed };
       return _cached;
     }
   } catch {
     // Corrupted storage — return defaults
   }
 
-  _cached = { ...DEFAULT_PREFERENCES };
+  _cached = { language: detectDefaultLanguage(), ...DEFAULT_PREFERENCES };
   return _cached;
 }
 

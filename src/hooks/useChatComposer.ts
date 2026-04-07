@@ -131,7 +131,7 @@ export function useChatComposer(chatMode: ChatMode) {
         },
         body: JSON.stringify({
           messages: chatMsgs,
-          preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
+          preferences: { ...preferences.current, language: language as "en" | "de", modePrompt: modePrompt + personalizationContext },
         }),
         signal: activeSignal,
       });

@@ -71,16 +71,21 @@ export function ChatMessageContent({ content, isUser, isStreaming = false }: Cha
 }
 
 /** Animated typing cursor with fade-out on disappear */
-function StreamingCursor() {
-  return (
-    <span
-      className="inline-block w-[3px] h-[18px] bg-primary/70 rounded-full align-text-bottom ml-0.5 transition-opacity duration-300"
-      style={{
-        animation: "cursor-blink 0.8s ease-in-out infinite",
-      }}
-    />
-  );
-}
+const StreamingCursor = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
+  function StreamingCursor({ className, style, ...props }, ref) {
+    return (
+      <span
+        ref={ref}
+        {...props}
+        className={cn("inline-block w-[3px] h-[18px] bg-primary/70 rounded-full align-text-bottom ml-0.5 transition-opacity duration-300", className)}
+        style={{
+          animation: "cursor-blink 0.8s ease-in-out infinite",
+          ...style,
+        }}
+      />
+    );
+  }
+);
 
 /** Render inline markdown: **bold** and *italic* */
 function renderInline(text: string): React.ReactNode {
