@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getArchetype } from "@/data/companions";
 import { getAnimationTuning } from "@/data/companionAnimationConfig";
@@ -47,6 +47,11 @@ export const CompanionAvatarAnimated = memo(function CompanionAvatarAnimated({
   const sizes = sizeMap[size];
   const imgSrc = avatarUrl || arch?.defaultAvatar;
   const [imgError, setImgError] = useState(false);
+
+  // Reset imgError when the image source changes
+  useEffect(() => {
+    setImgError(false);
+  }, [avatarUrl, archetype]);
 
   // --- State-dependent animation values ---
   const breathScale = useMemo(() => {

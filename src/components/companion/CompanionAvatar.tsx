@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { getArchetype } from "@/data/companions";
 
@@ -34,6 +34,11 @@ export function CompanionAvatar({ avatarUrl, archetype, name, size = "md", anima
   const arch = archetype ? getArchetype(archetype) : undefined;
   const imgSrc = avatarUrl || arch?.defaultAvatar;
   const [imgError, setImgError] = useState(false);
+
+  // Reset imgError when image source changes
+  useEffect(() => {
+    setImgError(false);
+  }, [avatarUrl, archetype]);
   const showImage = imgSrc && !imgError;
 
   const content = showImage ? (
