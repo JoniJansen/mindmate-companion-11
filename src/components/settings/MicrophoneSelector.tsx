@@ -77,8 +77,8 @@ export function MicrophoneSelector({ selectedDeviceId, onSelect }: MicrophoneSel
       <div className="flex items-center gap-2 text-sm text-muted-foreground p-2">
         <AlertCircle className="w-4 h-4 text-destructive shrink-0" />
         <span>{language === "de"
-          ? "Mikrofonzugriff verweigert. Bitte erlaube den Zugriff in den Browsereinstellungen."
-          : "Microphone access denied. Please allow access in browser settings."}</span>
+          ? "Mikrofonzugriff verweigert. Bitte aktiviere den Zugriff unter Einstellungen → Soulvay → Mikrofon."
+          : "Microphone access denied. Please enable it in Settings → Soulvay → Microphone."}</span>
       </div>
     );
   }
