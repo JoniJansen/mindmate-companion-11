@@ -620,7 +620,7 @@ export default function Journal() {
         <div className="space-y-3">
           {/* Source Filter Chips */}
           <div className="flex items-center gap-2">
-            <div className="flex gap-2 flex-1 overflow-x-auto no-scrollbar pb-0.5">
+            <div className="flex gap-2 flex-1 overflow-x-auto pb-0.5" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
               {[
                 { key: "all", label: t("journal.filter.all") },
                 { key: "free", label: t("journal.filter.free") },

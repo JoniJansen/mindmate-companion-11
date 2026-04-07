@@ -92,6 +92,8 @@ export function shouldShowStoreMessaging(): boolean {
 
 /** True when the "Review / Demo Login" button should be visible */
 export function shouldShowReviewLogin(): boolean {
+  // Never show in native apps — only in dev mode or Lovable preview
+  if (isNativeApp()) return false;
   return (
     import.meta.env.DEV ||
     (typeof window !== "undefined" && window.location.hostname.includes("lovable"))

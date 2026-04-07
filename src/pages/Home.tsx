@@ -207,7 +207,7 @@ export default function Home() {
           transition={{ delay: 0.2 }}
           className="mb-6"
         >
-          <div className="bg-card rounded-3xl border border-border/50 shadow-card overflow-hidden">
+          <div className="bg-card rounded-3xl border border-border/50 shadow-lg shadow-black/5 overflow-hidden">
             {/* Recording Indicator */}
             <AnimatePresence>
               {isRecording && (
