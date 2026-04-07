@@ -39,7 +39,7 @@ export const chatTranslations: Translations = {
   "chat.streamErrorBody": { en: "The response was interrupted. You can try again.", de: "Die Antwort wurde unterbrochen. Du kannst es nochmal versuchen." },
   "chat.retryMessage": { en: "Try again", de: "Nochmal versuchen" },
   "chat.continueMessage": { en: "Continue", de: "Fortsetzen" },
-  "chat.howToStart": { en: "How would you like to start?", de: "Wie möchtest du starten?" },
+  "chat.howToStart": { en: "How would you like to start?", de: "Wie möchtest du beginnen?" },
   "chat.summary": { en: "Summary", de: "Zusammenfassung" },
   "chat.crisisHelp2": { en: "Crisis Help", de: "Krisenhilfe" },
   "chat.voiceModeActive": { en: "Voice mode active", de: "Sprachmodus aktiv" },
