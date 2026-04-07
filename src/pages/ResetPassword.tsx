@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { updatePassword } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
