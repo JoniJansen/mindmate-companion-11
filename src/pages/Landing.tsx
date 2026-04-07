@@ -79,8 +79,19 @@ export default function Landing() {
   const isLastSlide = currentSlide === slides.length - 1;
   const slide = slides[currentSlide];
 
+  // Persist language choice so Onboarding picks it up
+  const persistLanguage = () => {
+    try {
+      const existing = localStorage.getItem("soulvay-preferences");
+      const prefs = existing ? JSON.parse(existing) : {};
+      prefs.language = language;
+      localStorage.setItem("soulvay-preferences", JSON.stringify(prefs));
+    } catch {}
+  };
+
   const handleNext = () => {
     if (isLastSlide) {
+      persistLanguage();
       navigate("/welcome");
     } else {
       setCurrentSlide(prev => prev + 1);
@@ -88,6 +99,7 @@ export default function Landing() {
   };
 
   const handleSkip = () => {
+    persistLanguage();
     navigate("/welcome");
   };
 
@@ -105,7 +117,16 @@ export default function Landing() {
       {/* Top bar — language toggle & skip */}
       <div className="flex items-center justify-between px-6 pt-3 pb-2 shrink-0">
         <button
-          onClick={() => setLanguage(language === "en" ? "de" : "en")}
+          onClick={() => {
+            const next = language === "en" ? "de" : "en";
+            setLanguage(next);
+            try {
+              const existing = localStorage.getItem("soulvay-preferences");
+              const prefs = existing ? JSON.parse(existing) : {};
+              prefs.language = next;
+              localStorage.setItem("soulvay-preferences", JSON.stringify(prefs));
+            } catch {}
+          }}
           className="px-3 py-1.5 rounded-full text-xs font-medium text-muted-foreground"
         >
           {language === "en" ? "DE" : "EN"}
