@@ -48,6 +48,11 @@ export const CompanionAvatarAnimated = memo(function CompanionAvatarAnimated({
   const imgSrc = avatarUrl || arch?.defaultAvatar;
   const [imgError, setImgError] = useState(false);
 
+  // Reset imgError when the image source changes
+  useEffect(() => {
+    setImgError(false);
+  }, [avatarUrl, archetype]);
+
   // --- State-dependent animation values ---
   const breathScale = useMemo(() => {
     switch (state) {
