@@ -41,7 +41,7 @@ export default function Auth() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      const redirect = searchParams.get("redirect") || "/";
+      const redirect = searchParams.get("redirect") || "/home";
       navigate(redirect, { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate, searchParams]);
