@@ -383,17 +383,17 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
                   ? "Kein Mikrofonsignal erkannt. Bitte überprüfe dein Mikrofon."
                   : "No microphone signal detected. Please check your microphone.")}
                 {micWarning === "permission_denied" && (lang === "de"
-                  ? "Mikrofonzugriff wurde verweigert. Bitte erlaube den Zugriff in den Browsereinstellungen."
-                  : "Microphone access denied. Please allow access in browser settings.")}
+                  ? "Mikrofonzugriff verweigert. Bitte aktiviere den Zugriff unter Einstellungen → Soulvay → Mikrofon."
+                  : "Microphone access denied. Please enable it in Settings → Soulvay → Microphone.")}
                 {micWarning === "not_found" && (lang === "de"
                   ? "Kein Mikrofon gefunden. Bitte schließe eines an."
                   : "No microphone found. Please connect one.")}
                 {micWarning === "env_blocked" && (lang === "de"
-                  ? "Das Mikrofon ist in dieser Umgebung möglicherweise eingeschränkt. Bitte teste auf der echten App-Domain."
-                  : "Microphone may be restricted in this environment. Please test on the real app domain.")}
+                  ? "Mikrofon ist in dieser Umgebung nicht verfügbar. Bitte öffne die App direkt."
+                  : "Microphone is not available in this environment. Please open the app directly.")}
                 {micWarning === "unsupported" && (lang === "de"
-                  ? "Dieser Browser unterstützt keine Mikrofoneingabe."
-                  : "This browser doesn't support microphone input.")}
+                  ? "Spracheingabe ist auf diesem Gerät nicht verfügbar."
+                  : "Voice input is not available on this device.")}
               </p>
             </motion.div>
           )}
