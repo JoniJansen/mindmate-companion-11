@@ -1,9 +1,38 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getArchetype } from "@/data/companions";
+import { isNativeApp } from "@/lib/nativeDetect";
 
-function isDirectAssetUrl(value: string) {
-  return value.startsWith("/") || value.startsWith("http://") || value.startsWith("https://");
+/**
+ * Build a platform-safe URL for a local companion asset.
+ * - Web: relative path works fine
+ * - Capacitor native: needs absolute URL because the WebView serves from capacitor://
+ */
+function resolveLocalAssetUrl(relativePath: string): string {
+  // Normalise: strip leading dot or slash for consistent handling
+  const clean = relativePath.replace(/^\.?\//, "");
+
+  if (isNativeApp()) {
+    // In Capacitor the web assets are served from the origin; absolute URL works.
+    return `${window.location.origin}/${clean}`;
+  }
+
+  // Standard web — root-relative path
+  return `/${clean}`;
+}
+
+function isDirectUrl(value: string) {
+  return (
+    value.startsWith("http://") ||
+    value.startsWith("https://") ||
+    value.startsWith("capacitor://") ||
+    value.startsWith("ionic://")
+  );
+}
+
+function isLocalAssetPath(value: string) {
+  // Paths like /companions/mira.jpg or ./companions/mira.jpg
+  return /^\.?\/companions\//.test(value);
 }
 
 function getStorageTarget(value: string): { bucket: "avatars" | "companions"; path: string } {
@@ -12,7 +41,6 @@ function getStorageTarget(value: string): { bucket: "avatars" | "companions"; pa
   if (trimmed.startsWith("avatars/")) {
     return { bucket: "avatars", path: trimmed.slice("avatars/".length) };
   }
-
   if (trimmed.startsWith("companions/")) {
     return { bucket: "companions", path: trimmed.slice("companions/".length) };
   }
@@ -32,28 +60,48 @@ function getStorageTarget(value: string): { bucket: "avatars" | "companions"; pa
 }
 
 /**
- * Resolves a companion/profile avatar.
- * - direct asset/public URLs are returned as-is
- * - storage paths are signed
- * - empty companion avatars fall back to the archetype asset
+ * Resolves a companion/profile avatar to a usable URL.
+ *
+ * Priority:
+ * 1. Direct http(s)/capacitor URLs → use as-is
+ * 2. Local asset paths (/companions/*.jpg) → resolve for current platform
+ * 3. Storage references → sign via Supabase
+ * 4. null/empty → fall back to archetype default asset
  */
-export function useAvatarUrl(avatarPath: string | null | undefined, archetype?: string): string | undefined {
+export function useAvatarUrl(
+  avatarPath: string | null | undefined,
+  archetype?: string,
+): string | undefined {
   const [resolvedUrl, setResolvedUrl] = useState<string | undefined>();
 
   useEffect(() => {
-    const trimmedPath = avatarPath?.trim();
-    const fallbackUrl = archetype ? getArchetype(archetype)?.defaultAvatar : undefined;
+    const trimmedPath = avatarPath?.trim() || null;
 
+    // Build platform-safe fallback from archetype data
+    const arch = archetype ? getArchetype(archetype) : undefined;
+    const fallbackUrl = arch?.defaultAvatar
+      ? resolveLocalAssetUrl(arch.defaultAvatar)
+      : undefined;
+
+    // --- Nothing stored → archetype fallback ---
     if (!trimmedPath) {
       setResolvedUrl(fallbackUrl);
       return;
     }
 
-    if (isDirectAssetUrl(trimmedPath)) {
+    // --- Full URL (http/capacitor) → use directly ---
+    if (isDirectUrl(trimmedPath)) {
       setResolvedUrl(trimmedPath);
       return;
     }
 
+    // --- Local asset path (/companions/...) → resolve for platform ---
+    if (isLocalAssetPath(trimmedPath)) {
+      setResolvedUrl(resolveLocalAssetUrl(trimmedPath));
+      return;
+    }
+
+    // --- Supabase storage reference → sign ---
     let cancelled = false;
     const { bucket, path } = getStorageTarget(trimmedPath);
 
