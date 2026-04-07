@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Plus, Sparkles, Loader2, BarChart3 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Sparkles, Loader2, BarChart3, TrendingUp, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MoodHeatmap } from "@/components/mood/MoodHeatmap";
 import { MoodInsights } from "@/components/mood/MoodInsights";
 import { toStableTagIds } from "@/lib/tagUtils";
+import { useInsightsAndPatterns } from "@/hooks/useInsightsAndPatterns";
 
 interface TimelineEntry {
   id: string;
@@ -34,6 +35,8 @@ interface DayData {
   moodAverage: number | null;
 }
 
+const PAGE_SIZE = 50;
+
 const moodToNumber = (mood: string | null): number | null => {
   if (!mood) return null;
   const moodMap: Record<string, number> = {
@@ -55,6 +58,8 @@ export default function Timeline() {
   const [entries, setEntries] = useState<TimelineEntry[]>([]);
   const [checkins, setCheckins] = useState<MoodCheckin[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [currentWeekStart, setCurrentWeekStart] = useState(() => {
     const now = new Date();
     const day = now.getDay();
@@ -66,33 +71,44 @@ export default function Timeline() {
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isGeneratingInsight, setIsGeneratingInsight] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [sessionInsights, setSessionInsights] = useState<{ id: string; insight_text: string; created_at: string }[]>([]);
   
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { latestInsight, patterns } = useInsightsAndPatterns();
 
-  // Load entries and mood checkins
+  // Load entries with pagination
   useEffect(() => {
     if (!user) return;
     
     const loadData = async () => {
       try {
-        const [entriesRes, checkinsRes] = await Promise.all([
+        const [entriesRes, checkinsRes, insightsRes] = await Promise.all([
           supabase
             .from('journal_entries')
             .select('*')
             .eq('user_id', user.id)
-            .order('created_at', { ascending: false }),
+            .order('created_at', { ascending: false })
+            .range(0, PAGE_SIZE - 1),
           supabase
             .from('mood_checkins')
             .select('*')
             .eq('user_id', user.id)
             .gte('created_at', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
             .order('created_at', { ascending: false }),
+          supabase
+            .from('session_insights')
+            .select('id, insight_text, created_at')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(30) as any,
         ]);
         
-        setEntries(entriesRes.data || []);
+        const entriesData = entriesRes.data || [];
+        setEntries(entriesData);
+        setHasMore(entriesData.length >= PAGE_SIZE);
         setCheckins(
           (checkinsRes.data || []).map((c) => ({
             id: c.id,
@@ -101,8 +117,9 @@ export default function Timeline() {
             created_at: c.created_at,
           }))
         );
+        setSessionInsights(insightsRes.data || []);
       } catch (error) {
-        console.error('Error loading data:', error);
+        if (import.meta.env.DEV) console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -110,6 +127,27 @@ export default function Timeline() {
     
     loadData();
   }, [user]);
+
+  const loadMore = async () => {
+    if (!user || isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+    try {
+      const { data } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .range(entries.length, entries.length + PAGE_SIZE - 1);
+      
+      const newEntries = data || [];
+      setEntries(prev => [...prev, ...newEntries]);
+      setHasMore(newEntries.length >= PAGE_SIZE);
+    } catch {
+      // ignore
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   // Process week data
   useEffect(() => {
@@ -144,7 +182,7 @@ export default function Timeline() {
     return `${formatDate(currentWeekStart)} – ${formatDate(end)}`;
   };
   const getDayName = (date: Date) => {
-    if (date.toDateString() === new Date().toDateString()) return language === "de" ? "Heute" : "Today";
+    if (date.toDateString() === new Date().toDateString()) return t("timeline.today");
     return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { weekday: 'short' });
   };
   const isToday = (date: Date) => date.toDateString() === new Date().toDateString();
@@ -153,27 +191,34 @@ export default function Timeline() {
   const handleGenerateInsight = async () => {
     if (entries.length < 3) {
       toast({
-        title: language === "de" ? "Nicht genug Daten" : "Not enough data",
-        description: language === "de" ? "Schreibe mindestens 3 Gedanken für Muster-Erkennung." : "Write at least 3 thoughts for pattern recognition.",
+        title: t("timeline.notEnoughDataTitle"),
+        description: t("timeline.notEnoughDataDesc"),
       });
       return;
     }
     setIsGeneratingInsight(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/journal-reflect`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
         body: JSON.stringify({
           type: 'patterns',
           entries: entries.slice(0, 10).map(e => ({ date: e.created_at, content: e.content, mood: e.mood })),
+          language,
         }),
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error);
       setAiInsight(data.reflection);
     } catch (error) {
-      console.error('Error generating insight:', error);
-      toast({ title: language === "de" ? "Fehler" : "Error", description: language === "de" ? "Konnte keine Muster erkennen." : "Could not generate patterns.", variant: "destructive" });
+      if (import.meta.env.DEV) console.error('Error generating insight:', error);
+      toast({ title: t("common.error"), description: t("timeline.insightError"), variant: "destructive" });
     } finally {
       setIsGeneratingInsight(false);
     }
@@ -191,7 +236,7 @@ export default function Timeline() {
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-lg font-semibold text-foreground">
-            {language === "de" ? "Meine Timeline" : "My Timeline"}
+            {t("timeline.title")}
           </h1>
           <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-full">
             <Plus className="w-5 h-5" />
@@ -209,7 +254,7 @@ export default function Timeline() {
             className="gap-2 rounded-xl"
           >
             <BarChart3 className="w-4 h-4" />
-            {language === "de" ? "Stimmungskarte" : "Mood Map"}
+            {t("timeline.moodMap")}
           </Button>
         </div>
       )}
@@ -225,7 +270,7 @@ export default function Timeline() {
           >
             <CalmCard variant="gentle">
               <h3 className="font-medium text-foreground text-sm mb-3">
-                {language === "de" ? "90-Tage Stimmungsverlauf" : "90-Day Mood Map"}
+                {t("timeline.moodMap90")}
               </h3>
               <MoodHeatmap checkins={checkins} weeks={13} />
               <div className="mt-4">
@@ -296,7 +341,7 @@ export default function Timeline() {
                   <div>
                     <p className="text-sm text-foreground leading-relaxed">{aiInsight}</p>
                     <Button variant="ghost" size="sm" className="text-muted-foreground mt-2 h-auto py-1 px-0" onClick={() => setAiInsight(null)}>
-                      {language === "de" ? "Schließen" : "Dismiss"}
+                      {t("common.close")}
                     </Button>
                   </div>
                 </div>
@@ -305,11 +350,60 @@ export default function Timeline() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <Button variant="outline" className="w-full rounded-xl gap-2 text-muted-foreground" onClick={handleGenerateInsight} disabled={isGeneratingInsight}>
                   {isGeneratingInsight ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  {language === "de" ? "Muster erkennen" : "Discover patterns"}
+                  {t("home.detectingPatterns")}
                 </Button>
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+      )}
+
+      {/* Emotional Patterns */}
+      {patterns.length > 0 && (
+        <div className="px-6 mb-4">
+          <CalmCard variant="gentle">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">
+                {t("timeline.detectedPatterns")}
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {patterns.map((p) => (
+                <div key={p.id} className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary/60 mt-1.5 shrink-0" />
+                  <p className="text-sm text-foreground/80 leading-relaxed">{p.description}</p>
+                </div>
+              ))}
+            </div>
+          </CalmCard>
+        </div>
+      )}
+
+      {/* Recent Session Insights */}
+      {sessionInsights.length > 0 && (
+        <div className="px-6 mb-4">
+          <CalmCard variant="gentle">
+            <div className="flex items-center gap-2 mb-3">
+              <Brain className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">
+                {t("timeline.conversationReflections")}
+              </h3>
+            </div>
+            <div className="space-y-3">
+              {sessionInsights.slice(0, 3).map((insight) => (
+                <div key={insight.id} className="flex items-start gap-2">
+                  <Sparkles className="w-3 h-3 text-primary/50 mt-1 shrink-0" />
+                  <div>
+                    <p className="text-sm text-foreground/80 leading-relaxed">{insight.insight_text}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {new Date(insight.created_at).toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: "short", day: "numeric" })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CalmCard>
         </div>
       )}
 
@@ -320,16 +414,16 @@ export default function Timeline() {
         ) : selectedDayData ? (
           <>
             <h2 className="text-sm font-medium text-muted-foreground mb-3">
-              {isToday(selectedDayData.date) ? (language === "de" ? "Heute" : "Today") : formatDate(selectedDayData.date)}
+              {isToday(selectedDayData.date) ? t("timeline.today") : formatDate(selectedDayData.date)}
             </h2>
             {selectedDayData.entries.length === 0 ? (
               <div className="bg-muted/30 rounded-2xl p-6 text-center">
                 <p className="text-muted-foreground text-sm mb-3">
-                  {language === "de" ? "Keine Gedanken an diesem Tag." : "No thoughts on this day."}
+                  {t("timeline.noThoughtsDay")}
                 </p>
                 {isToday(selectedDayData.date) && (
                   <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate("/")}>
-                    {language === "de" ? "Gedanken hinzufügen" : "Add thoughts"}
+                    {t("timeline.addThoughts")}
                   </Button>
                 )}
               </div>
@@ -361,7 +455,17 @@ export default function Timeline() {
           </>
         ) : (
           <div className="text-center py-12 text-muted-foreground">
-            {language === "de" ? "Wähle einen Tag" : "Select a day"}
+            {t("timeline.selectDay")}
+          </div>
+        )}
+
+        {/* Load More */}
+        {hasMore && !isLoading && (
+          <div className="flex justify-center py-6">
+            <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={loadMore} disabled={isLoadingMore}>
+              {isLoadingMore ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {t("timeline.loadMore")}
+            </Button>
           </div>
         )}
       </div>

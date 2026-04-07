@@ -23,8 +23,8 @@ export function MessageLimitIndicator({
   const getMessage = () => {
     if (isEmpty) {
       return language === "de" 
-        ? "Tageslimit erreicht – morgen geht es weiter" 
-        : "Daily limit reached – continue tomorrow";
+        ? "Tageslimit erreicht — morgen geht es weiter" 
+        : "Daily limit reached — continue tomorrow";
     }
     if (isLow) {
       return language === "de"

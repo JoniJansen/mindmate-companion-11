@@ -1,0 +1,166 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, MessageCircle, Trash2, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useChatPersistence } from "@/hooks/useChatPersistence";
+
+interface Conversation {
+  id: string;
+  title: string | null;
+  chat_mode: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export default function ChatHistory() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { t, language } = useTranslation();
+  const { loadRecentConversations, deleteConversation } = useChatPersistence();
+
+  useEffect(() => {
+    loadRecentConversations(50).then((data) => {
+      setConversations(data);
+      setIsLoading(false);
+    });
+  }, [loadRecentConversations]);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    await deleteConversation(deleteTarget);
+    setConversations(prev => prev.filter(c => c.id !== deleteTarget));
+    setDeleteTarget(null);
+  };
+
+  const handleOpen = (id: string) => {
+    navigate("/chat", { state: { conversationId: id } });
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return t("chatHistory.today");
+    if (diffDays === 1) return t("chatHistory.yesterday");
+    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const modeLabels: Record<string, string> = {
+    talk: language === "de" ? "Freireden" : "Talk",
+    clarify: language === "de" ? "Klären" : "Clarify",
+    calm: language === "de" ? "Beruhigen" : "Calm",
+    patterns: language === "de" ? "Muster" : "Patterns",
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-24">
+      <div className="px-6 pt-8 pb-4 safe-top">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full shrink-0">
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-lg font-semibold text-foreground">
+            {t("chatHistory.title")}
+          </h1>
+        </div>
+      </div>
+
+      <div className="px-6">
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : conversations.length === 0 ? (
+          <div className="text-center py-16">
+            <MessageCircle className="w-10 h-10 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground text-sm">
+              {t("chatHistory.emptyState")}
+            </p>
+            <Button variant="outline" className="mt-4 rounded-xl" onClick={() => navigate("/chat")}>
+              {t("chatHistory.startConversation")}
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <AnimatePresence>
+              {conversations.map((conv, i) => (
+                <motion.button
+                  key={conv.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ delay: i * 0.03 }}
+                  onClick={() => handleOpen(conv.id)}
+                  className="w-full text-left rounded-2xl p-4 border bg-card border-border/30 hover:border-primary/20 transition-colors group"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground text-sm truncate">
+                        {conv.title || t("home.conversation")}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(conv.updated_at)}
+                        </span>
+                        <span className="text-xs text-muted-foreground/50">·</span>
+                        <span className="text-xs text-primary/70">
+                          {modeLabels[conv.chat_mode] || conv.chat_mode}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="shrink-0 h-8 w-8 text-muted-foreground hover:text-destructive opacity-60 hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteTarget(conv.id);
+                      }}
+                      aria-label={t("chatHistory.deleteConversation")}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </motion.button>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("chatHistory.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("chatHistory.deleteDesc")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("common.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

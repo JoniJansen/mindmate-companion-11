@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { 
   Sparkles, 
@@ -10,7 +10,8 @@ import {
   Calendar,
   MessageSquare,
   Loader2,
-  RotateCcw
+  RotateCcw,
+  User
 } from "lucide-react";
 import { FeatureMatrix } from "@/components/premium/FeatureMatrix";
 import { ProgressUnlock } from "@/components/premium/ProgressUnlock";
@@ -25,11 +26,12 @@ import { REVENUECAT_PRODUCTS } from "@/hooks/useRevenueCat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { StandalonePage } from "@/components/layout/StandalonePage";
+import { analytics } from "@/hooks/useAnalytics";
 
 export default function Upgrade() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { toast } = useToast();
   const { 
     isPremium, 
@@ -72,22 +74,28 @@ export default function Upgrade() {
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast({
-        title: language === "de" ? "Willkommen bei Soulvay Plus!" : "Welcome to Soulvay Plus!",
-        description: language === "de" 
-          ? "Dein Upgrade war erfolgreich." 
-          : "Your upgrade was successful.",
+        title: t("upgrade.welcomePlus"),
+        description: t("upgrade.upgradeSuccess"),
       });
       checkSubscriptionStatus();
       navigate("/settings", { replace: true });
     } else if (searchParams.get("canceled") === "true") {
       toast({
-        title: language === "de" ? "Checkout abgebrochen" : "Checkout canceled",
-        description: language === "de" 
-          ? "Du kannst jederzeit upgraden." 
-          : "You can upgrade anytime.",
+        title: t("upgrade.checkoutCanceled"),
+        description: t("upgrade.upgradeAnytime"),
       });
     }
-  }, [searchParams, navigate, toast, language, checkSubscriptionStatus]);
+  }, [searchParams, navigate, toast, t, checkSubscriptionStatus]);
+
+  // Track paywall view once
+  const paywallTrackedRef = useRef(false);
+  useEffect(() => {
+    if (!paywallTrackedRef.current) {
+      paywallTrackedRef.current = true;
+      analytics.track("paywall_viewed", { source: "upgrade_page" }, "paywall_viewed");
+      analytics.track("premium_cta_viewed", { source: "upgrade_page" }, "premium_cta_upgrade");
+    }
+  }, []);
 
   // Redirect if already premium
   useEffect(() => {
@@ -99,10 +107,8 @@ export default function Upgrade() {
   const handleUpgrade = async () => {
     if (!acceptedTerms || !acceptedWithdrawal) {
       toast({
-        title: language === "de" ? "Zustimmung erforderlich" : "Consent required",
-        description: language === "de" 
-          ? "Bitte akzeptiere die AGB und die Widerrufsbelehrung." 
-          : "Please accept the terms and the withdrawal policy.",
+        title: t("upgrade.consentRequired"),
+        description: t("upgrade.acceptTermsFirst"),
         variant: "destructive",
       });
       return;
@@ -111,7 +117,6 @@ export default function Upgrade() {
     setIsLoading(true);
     try {
       if (isRevenueCatAvailable && offerings) {
-        // Find the correct package from RevenueCat offerings
         const packageId = selectedPlan === "yearly" ? "yearly" : "monthly";
         const packageToPurchase = offerings.availablePackages.find(
           (pkg) => pkg.identifier === packageId || 
@@ -121,7 +126,6 @@ export default function Upgrade() {
         );
         
         if (!packageToPurchase) {
-          // Fallback: find any matching package
           const fallbackPackage = offerings.availablePackages.find(
             (pkg) => pkg.product.identifier.includes(selectedPlan)
           );
@@ -133,9 +137,7 @@ export default function Upgrade() {
               navigate("/settings", { replace: true });
             }
           } else {
-            throw new Error(language === "de" 
-              ? "Produkt nicht gefunden. Bitte versuche es später erneut."
-              : "Product not found. Please try again later.");
+            throw new Error(t("upgrade.productNotFound"));
           }
         } else {
           const success = await purchasePackage(packageToPurchase);
@@ -153,7 +155,7 @@ export default function Upgrade() {
           body: {
             userId: user?.id || crypto.randomUUID(),
             planType: selectedPlan,
-            successUrl: `${window.location.origin}/upgrade?success=true`,
+            successUrl: `${window.location.origin}/settings?success=true`,
             cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
           },
         });
@@ -164,9 +166,13 @@ export default function Upgrade() {
         }
       }
     } catch (error) {
+      const msg = (error as Error).message || "";
+      const isEdgeFunctionError = msg.includes("Edge Function") || msg.includes("non-2xx");
       toast({
-        title: language === "de" ? "Fehler" : "Error",
-        description: (error as Error).message,
+        title: t("common.error"),
+        description: isEdgeFunctionError
+          ? (language === "de" ? "Das hat leider nicht geklappt. Bitte versuche es später nochmal." : "Something went wrong. Please try again later.")
+          : msg,
         variant: "destructive",
       });
     } finally {
@@ -183,9 +189,13 @@ export default function Upgrade() {
         navigate("/settings", { replace: true });
       }
     } catch (error) {
+      const msg = (error as Error).message || "";
+      const isEdgeFunctionError = msg.includes("Edge Function") || msg.includes("non-2xx");
       toast({
-        title: language === "de" ? "Fehler" : "Error",
-        description: (error as Error).message,
+        title: t("common.error"),
+        description: isEdgeFunctionError
+          ? (language === "de" ? "Das hat leider nicht geklappt. Bitte versuche es später nochmal." : "Something went wrong. Please try again later.")
+          : msg,
         variant: "destructive",
       });
     } finally {
@@ -204,54 +214,34 @@ export default function Upgrade() {
         return pkg.product.priceString;
       }
     }
-    // Fallback prices
     return planType === "yearly" ? "€79,00" : "€9,99";
   };
 
   const plans = [
     {
       id: "monthly" as const,
-      name: language === "de" ? "Monatlich" : "Monthly",
+      name: t("upgrade.monthly"),
       price: getPrice("monthly"),
-      interval: language === "de" ? "/Monat" : "/month",
-      trial: language === "de" ? "7 Tage kostenlos testen" : "7-day free trial",
+      interval: t("upgrade.perMonth"),
+      trial: t("upgrade.trial"),
     },
     {
       id: "yearly" as const,
-      name: language === "de" ? "Jährlich" : "Yearly",
+      name: t("upgrade.yearly"),
       price: getPrice("yearly"),
-      interval: language === "de" ? "/Jahr" : "/year",
-      savings: language === "de" ? "2 Monate gratis" : "2 months free",
+      interval: t("upgrade.perYear"),
+      savings: t("upgrade.savings"),
       monthlyEquivalent: "€6,58",
     },
   ];
 
   const features = [
-    {
-      icon: MessageSquare,
-      title: { en: "Unlimited conversations", de: "Unbegrenzte Gespräche" },
-      description: { en: "Chat as much as you need, whenever you need", de: "Chatte so viel du willst, wann immer du willst" },
-    },
-    {
-      icon: Volume2,
-      title: { en: "Voice conversations", de: "Sprachgespräche" },
-      description: { en: "Speak naturally with warm AI voice responses", de: "Sprich natürlich mit warmen KI-Sprachantworten" },
-    },
-    {
-      icon: Brain,
-      title: { en: "Pattern insights", de: "Musteranalysen" },
-      description: { en: "Discover trends in your emotional journey", de: "Entdecke Trends in deiner emotionalen Reise" },
-    },
-    {
-      icon: Calendar,
-      title: { en: "Weekly recaps", de: "Wochenrückblicke" },
-      description: { en: "Thoughtful summaries of your week", de: "Nachdenkliche Zusammenfassungen deiner Woche" },
-    },
-    {
-      icon: Heart,
-      title: { en: "Guided journaling", de: "Geführtes Tagebuch" },
-      description: { en: "AI-powered prompts for deeper reflection", de: "KI-gestützte Impulse für tiefere Reflexion" },
-    },
+    { icon: MessageSquare, titleKey: "upgrade.feat.unlimitedTitle", descKey: "upgrade.feat.unlimitedDesc" },
+    { icon: Volume2, titleKey: "upgrade.feat.voiceTitle", descKey: "upgrade.feat.voiceDesc" },
+    { icon: User, titleKey: "upgrade.feat.faceToFaceTitle", descKey: "upgrade.feat.faceToFaceDesc" },
+    { icon: Brain, titleKey: "upgrade.feat.patternsTitle", descKey: "upgrade.feat.patternsDesc" },
+    { icon: Calendar, titleKey: "upgrade.feat.recapsTitle", descKey: "upgrade.feat.recapsDesc" },
+    { icon: Heart, titleKey: "upgrade.feat.journalingTitle", descKey: "upgrade.feat.journalingDesc" },
   ];
 
   return (
@@ -259,42 +249,66 @@ export default function Upgrade() {
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50">
-        <div className="px-4 py-4 max-w-lg md:max-w-2xl mx-auto">
-          <button
+        <div className="px-4 py-4 max-w-lg mx-auto">
+           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm">{language === "de" ? "Zurück" : "Back"}</span>
+            <span className="text-sm">{t("common.back")}</span>
           </button>
         </div>
       </div>
 
-      <div className="px-4 py-6 max-w-lg md:max-w-2xl mx-auto space-y-8">
-        {/* Hero */}
+      <div className="px-4 py-8 max-w-lg mx-auto space-y-8">
+        {/* Emotional Hero */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-4"
         >
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-            <Sparkles className="w-8 h-8 text-primary" />
+            <Heart className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Soulvay Plus</h1>
-            <p className="text-muted-foreground mt-2">
-              {language === "de" 
-                ? "Ein ruhiger Raum für deinen Geist" 
-                : "A quiet space for your mind"}
+            <h1 className="text-2xl font-semibold text-foreground">
+              {language === "de" ? "Eine tiefere Verbindung" : "A deeper connection"}
+            </h1>
+            <p className="text-muted-foreground mt-3 leading-relaxed max-w-xs mx-auto">
+              {language === "de"
+                ? "Stell dir vor, dein Begleiter kennt dich wirklich. Erinnert sich. Hört dir zu — in deiner Stimme."
+                : "Imagine your companion truly knows you. Remembers. Listens — in your voice."}
             </p>
           </div>
+        </motion.div>
+
+        {/* What it feels like */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="space-y-3"
+        >
+          {[
+            { icon: User, text: language === "de" ? "Sprich persönlich mit deinem Begleiter — Face-to-Face" : "Speak personally with your companion — Face-to-Face" },
+            { icon: MessageSquare, text: language === "de" ? "Unbegrenzte Gespräche, so oft du möchtest" : "Unlimited conversations, whenever you need" },
+            { icon: Brain, text: language === "de" ? "Dein Begleiter erkennt Muster und wächst mit dir" : "Your companion recognizes patterns and grows with you" },
+            { icon: Calendar, text: language === "de" ? "Wöchentliche Einblicke in deine emotionale Reise" : "Weekly insights into your emotional journey" },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <item.icon className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-sm text-foreground">{item.text}</p>
+            </div>
+          ))}
         </motion.div>
 
         {/* Plan Selection */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.15 }}
           className="grid grid-cols-2 gap-3"
         >
           {plans.map((plan) => (
@@ -324,7 +338,7 @@ export default function Upgrade() {
               </div>
               {plan.monthlyEquivalent && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  {language === "de" ? "nur" : "only"} {plan.monthlyEquivalent}{language === "de" ? "/Monat" : "/mo"}
+                  {t("upgrade.only")} {plan.monthlyEquivalent}{t("upgrade.perMo")}
                 </p>
               )}
               {selectedPlan === plan.id && (
@@ -336,37 +350,43 @@ export default function Upgrade() {
           ))}
         </motion.div>
 
-        {/* Features - compact */}
+        {/* Simple Free vs Plus comparison */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="space-y-2"
+          className="rounded-2xl border border-border/50 overflow-hidden"
         >
-          {features.map((feature, i) => (
-            <CalmCard key={i} variant="default" className="p-3">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <feature.icon className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground text-sm">
-                    {language === "de" ? feature.title.de : feature.title.en}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {language === "de" ? feature.description.de : feature.description.en}
-                  </p>
-                </div>
-              </div>
-            </CalmCard>
+          <div className="grid grid-cols-3 bg-muted/30 text-xs font-medium text-muted-foreground p-3">
+            <span></span>
+            <span className="text-center">Free</span>
+            <span className="text-center text-primary">Plus</span>
+          </div>
+          {[
+            { label: language === "de" ? "Nachrichten" : "Messages", free: language === "de" ? "15/Tag" : "15/day", plus: "∞" },
+            { label: "Face-to-Face", free: "1×", plus: "∞" },
+            { label: language === "de" ? "Erinnerung" : "Memory", free: language === "de" ? "7 Tage" : "7 days", plus: "∞" },
+            { label: language === "de" ? "Wochenrückblick" : "Weekly recap", free: "—", plus: "✓" },
+            { label: language === "de" ? "Muster" : "Patterns", free: "—", plus: "✓" },
+          ].map((row, i) => (
+            <div key={i} className="grid grid-cols-3 text-sm p-3 border-t border-border/30">
+              <span className="text-foreground">{row.label}</span>
+              <span className="text-center text-muted-foreground">{row.free}</span>
+              <span className="text-center text-primary font-medium">{row.plus}</span>
+            </div>
           ))}
         </motion.div>
 
-        {/* Progress Unlock */}
-        <ProgressUnlock stats={userStats} />
-
-        {/* Feature Comparison Matrix */}
-        <FeatureMatrix />
+        {/* Trust signals */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="flex justify-center gap-6 text-xs text-muted-foreground"
+        >
+          <span>{language === "de" ? "🔒 Deine Daten bleiben privat" : "🔒 Your data stays private"}</span>
+          <span>{language === "de" ? "💚 Jederzeit kündbar" : "💚 Cancel anytime"}</span>
+        </motion.div>
 
         {/* Legal Consent */}
         <motion.div
@@ -383,21 +403,10 @@ export default function Upgrade() {
               className="mt-0.5"
             />
             <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
-              {language === "de" ? (
-                <>
-                  Ich akzeptiere die{" "}
-                  <Link to="/terms" className="text-primary hover:underline">AGB</Link>
-                  {" "}und die{" "}
-                  <Link to="/privacy" className="text-primary hover:underline">Datenschutzerklärung</Link>.
-                </>
-              ) : (
-                <>
-                  I accept the{" "}
-                  <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>
-                  {" "}and the{" "}
-                  <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
-                </>
-              )}
+              {t("upgrade.acceptTermsLabel")}{" "}
+              <Link to="/terms" className="text-primary hover:underline">{t("upgrade.termsLink")}</Link>
+              {" "}{t("upgrade.andThe")}{" "}
+              <Link to="/privacy" className="text-primary hover:underline">{t("upgrade.privacyLink")}</Link>.
             </label>
           </div>
           
@@ -409,20 +418,9 @@ export default function Upgrade() {
               className="mt-0.5"
             />
             <label htmlFor="withdrawal" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
-              {language === "de" ? (
-                <>
-                  Ich stimme ausdrücklich zu, dass die Dienstleistung sofort beginnt, und nehme zur Kenntnis, 
-                  dass ich mein{" "}
-                  <Link to="/cancellation" className="text-primary hover:underline">Widerrufsrecht</Link>
-                  {" "}verliere, sobald der digitale Inhalt vollständig bereitgestellt wurde.
-                </>
-              ) : (
-                <>
-                  I expressly agree that the service begins immediately and acknowledge that I lose my{" "}
-                  <Link to="/cancellation" className="text-primary hover:underline">right of withdrawal</Link>
-                  {" "}once the digital content has been fully provided.
-                </>
-              )}
+              {t("upgrade.withdrawalAgree")}{" "}
+              <Link to="/cancellation" className="text-primary hover:underline">{t("upgrade.withdrawalRight")}</Link>
+              {" "}{t("upgrade.withdrawalEnd")}
             </label>
           </div>
         </motion.div>
@@ -431,7 +429,7 @@ export default function Upgrade() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.35 }}
           className="space-y-4"
         >
           <Button
@@ -442,19 +440,17 @@ export default function Upgrade() {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                {language === "de" ? "Wird geladen..." : "Loading..."}
+                {t("upgrade.loading")}
               </>
             ) : (
               <>
                 <Sparkles className="w-5 h-5 mr-2" />
-                {language === "de" 
-                  ? `Mit ${selectedPlan === "yearly" ? "Jahresabo" : "Monatsabo"} starten` 
-                  : `Start with ${selectedPlan === "yearly" ? "yearly" : "monthly"} plan`}
+                {selectedPlan === "yearly" ? t("upgrade.startYearly") : t("upgrade.startMonthly")}
               </>
             )}
           </Button>
 
-          {/* Restore Purchases - always visible on iOS */}
+          {/* Restore Purchases */}
           {isRevenueCatAvailable && (
             <Button
               onClick={handleRestorePurchases}
@@ -463,76 +459,59 @@ export default function Upgrade() {
               className="w-full h-10"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
-              {language === "de" ? "Käufe wiederherstellen" : "Restore purchases"}
+              {t("upgrade.restorePurchases")}
             </Button>
           )}
 
-          {/* Subscription Info - Required by Apple Guideline 3.1.2 */}
+          {/* Subscription Info */}
           <div className="bg-muted/30 rounded-xl p-4 space-y-3">
             <h4 className="font-medium text-sm text-foreground">
-              {language === "de" ? "Abo-Informationen" : "Subscription Information"}
+              {t("upgrade.subInfo")}
             </h4>
             <div className="text-xs text-muted-foreground space-y-1.5">
               <p>
-                <strong>{language === "de" ? "Titel:" : "Title:"}</strong> Soulvay Plus
+                <strong>{t("upgrade.subTitle")}</strong> Soulvay Plus
               </p>
               <p>
-                <strong>{language === "de" ? "Laufzeit:" : "Duration:"}</strong>{" "}
-                {selectedPlan === "yearly" 
-                  ? (language === "de" ? "1 Jahr (automatische Verlängerung)" : "1 Year (auto-renewing)")
-                  : (language === "de" ? "1 Monat (automatische Verlängerung)" : "1 Month (auto-renewing)")
-                }
+                <strong>{t("upgrade.subDuration")}</strong>{" "}
+                {selectedPlan === "yearly" ? t("upgrade.yearlyDuration") : t("upgrade.monthlyDuration")}
               </p>
               <p>
-                <strong>{language === "de" ? "Preis:" : "Price:"}</strong>{" "}
-                {getPrice(selectedPlan)}{selectedPlan === "yearly" 
-                  ? (language === "de" ? "/Jahr" : "/year") 
-                  : (language === "de" ? "/Monat" : "/month")}
-                {selectedPlan === "monthly" && (language === "de" ? " (nach 7-Tage-Testphase)" : " (after 7-day trial)")}
+                <strong>{t("upgrade.subPrice")}</strong>{" "}
+                {getPrice(selectedPlan)}{selectedPlan === "yearly" ? t("upgrade.perYear") : t("upgrade.perMonth")}
+                {selectedPlan === "monthly" && t("upgrade.afterTrial")}
               </p>
               <p className="pt-1">
-                {isRevenueCatAvailable ? (
-                  language === "de" 
-                    ? "Die Zahlung wird über deinen Apple ID Account abgerechnet. Das Abo verlängert sich automatisch, sofern du es nicht mindestens 24 Stunden vor Ablauf des aktuellen Zeitraums kündigst. Du kannst dein Abo in den Einstellungen deines Apple ID Accounts verwalten und kündigen."
-                    : "Payment will be charged to your Apple ID account. Subscription automatically renews unless cancelled at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID account settings."
-                ) : (
-                  language === "de"
-                    ? "Das Abo verlängert sich automatisch. Du kannst es jederzeit in deinen Kontoeinstellungen kündigen. Die Zahlung erfolgt sicher über Stripe."
-                    : "Subscription automatically renews. You can cancel anytime in your account settings. Payment is processed securely via Stripe."
-                )}
+                {isRevenueCatAvailable ? t("upgrade.applePaymentInfo") : t("upgrade.stripePaymentInfo")}
               </p>
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
               <Link to="/terms" className="text-xs text-primary hover:underline">
-                {language === "de" ? "Nutzungsbedingungen (AGB)" : "Terms of Use (EULA)"}
+                {t("upgrade.termsOfUse")}
               </Link>
               <span className="text-muted-foreground">•</span>
               <Link to="/privacy" className="text-xs text-primary hover:underline">
-                {language === "de" ? "Datenschutz" : "Privacy Policy"}
+                {t("upgrade.privacyPolicy")}
               </Link>
-              <span className="text-muted-foreground">•</span>
-              <a 
-                href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-xs text-primary hover:underline"
-              >
-                Apple EULA
-              </a>
+              {isRevenueCatAvailable && (
+                <>
+                  <span className="text-muted-foreground">•</span>
+                  <a 
+                    href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Apple EULA
+                  </a>
+                </>
+              )}
             </div>
           </div>
 
           <div className="text-center space-y-2">
             <p className="text-xs text-muted-foreground">
-              {isRevenueCatAvailable 
-                ? (language === "de" ? "Sicherer Kauf über Apple" : "Secure purchase via Apple")
-                : (language === "de" ? "Sicherer Kauf über Stripe" : "Secure purchase via Stripe")
-              }
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {language === "de" 
-                ? "Jederzeit kündbar • Keine versteckten Kosten" 
-                : "Cancel anytime • No hidden fees"}
+              {isRevenueCatAvailable ? t("upgrade.secureApple") : t("upgrade.secureStripe")}
             </p>
           </div>
         </motion.div>

@@ -14,7 +14,7 @@ export const tourSteps: TourStep[] = [
   {
     id: "welcome",
     target: "center",
-    title: { en: "Welcome to MindMate! 👋", de: "Willkommen bei MindMate! 👋" },
+    title: { en: "Welcome to Soulvay! 👋", de: "Willkommen bei Soulvay! 👋" },
     description: {
       en: "Let me show you around. This quick tour will help you get the most out of your mental wellness companion.",
       de: "Lass mich dir alles zeigen. Diese kurze Tour hilft dir, das Beste aus deinem Begleiter für mentales Wohlbefinden herauszuholen.",
@@ -24,7 +24,7 @@ export const tourSteps: TourStep[] = [
   {
     id: "chat",
     target: "[data-tour='chat']",
-    title: { en: "Chat with MindMate", de: "Chatte mit MindMate" },
+    title: { en: "Chat with Soulvay", de: "Chatte mit Soulvay" },
     description: {
       en: "This is your safe space. Share what's on your mind, and I'll listen and help you reflect. Everything stays private.",
       de: "Das ist dein sicherer Raum. Teile, was dich beschäftigt, und ich höre zu und helfe dir beim Reflektieren. Alles bleibt privat.",

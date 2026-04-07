@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, ReactNode, useEffect, useState, useCallback, forwardRef } from "react";
 import { useAppTour } from "@/hooks/useAppTour";
 import { AppTour } from "./AppTour";
 import { useLocation } from "react-router-dom";
@@ -26,7 +26,7 @@ interface TourProviderProps {
   children: ReactNode;
 }
 
-export function TourProvider({ children }: TourProviderProps) {
+export const TourProvider = forwardRef<HTMLDivElement, TourProviderProps>(function TourProvider({ children }, _ref) {
   const tour = useAppTour();
   const location = useLocation();
   const { hasCompletedOnboarding } = useOnboardingStatus();
@@ -85,4 +85,4 @@ export function TourProvider({ children }: TourProviderProps) {
       <AppTour />
     </TourContext.Provider>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Flame } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -16,11 +16,18 @@ export function StreakCounter({ currentStreak, isActiveToday, isLoading }: Strea
   const prefersReducedMotion = typeof window !== "undefined"
     && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
+  // Identity-based streak label
+  const getStreakLabel = () => {
+    if (currentStreak === 1) return t("streak.singleDay");
+    return t("streak.connected").replace("{days}", String(currentStreak));
+  };
+
   return (
     <motion.div
       initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20"
+      title={getStreakLabel()}
     >
       <motion.div
         animate={isActiveToday && !prefersReducedMotion ? { scale: [1, 1.2, 1] } : {}}

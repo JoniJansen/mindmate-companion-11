@@ -1,24 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Camera, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell, ImageIcon } from "lucide-react";
-import { Capacitor } from "@capacitor/core";
+import { User, Mail, Key, Pencil, Check, X, Send, Trash2, Download, Shield, FileJson, FileSpreadsheet, Clock, Bell } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
-
-// Bulletproof native detection – multiple signals to prevent camera crash (Apple Guideline 2.1)
-const isNativeApp = (): boolean => {
-  try {
-    // Primary check
-    if (Capacitor.isNativePlatform()) return true;
-    // Fallback: check platform string
-    const platform = Capacitor.getPlatform?.();
-    if (platform === 'ios' || platform === 'android') return true;
-    // Fallback: check global Capacitor object
-    if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.()) return true;
-  } catch {
-    // If Capacitor throws, check for native-only globals
-    if (typeof window !== 'undefined' && (window as any).webkit?.messageHandlers) return true;
-  }
-  return false;
-};
+import { isNativeApp } from "@/lib/nativeDetect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -47,6 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -270,6 +254,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   };
 
   const t = texts[language];
+  const isNativeEnvironment = useMemo(() => isNativeApp(), []);
+  const avatarSignedUrl = useAvatarUrl(profile?.avatar_url);
 
   // Check 2FA status and backup reminder on mount
   useEffect(() => {
@@ -284,7 +270,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           }
         }
       } catch (e) {
-        console.warn("Could not check 2FA status:", e);
+        if (import.meta.env.DEV) console.warn("Could not check 2FA status:", e);
       }
     };
     check2FAStatus();
@@ -323,7 +309,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           recaps: recapCount.count || 0,
         });
       } catch (e) {
-        console.warn("Could not fetch export stats:", e);
+        if (import.meta.env.DEV) console.warn("Could not fetch export stats:", e);
       }
     };
     fetchExportStats();
@@ -445,6 +431,11 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isNativeEnvironment) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
@@ -478,16 +469,12 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-
-      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
-      await updateProfile({ avatar_url: avatarUrl });
+      // Store just the file path - we'll generate signed URLs for display
+      await updateProfile({ avatar_url: filePath });
       refreshProfile();
       toast({ title: t.avatarUpdated });
     } catch (error: any) {
-      console.error('Avatar upload error:', error);
+      if (import.meta.env.DEV) console.error('Avatar upload error:', error);
       toast({
         title: language === "de" ? "Fehler beim Hochladen" : "Upload failed",
         description: error.message || (language === "de" ? "Bitte versuche es erneut" : "Please try again"),
@@ -507,11 +494,18 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
     setIsExporting(true);
     try {
-      // Fetch all user data
-      const [journalResult, moodResult, recapResult] = await Promise.all([
+      // Fetch all user data including chat history (GDPR Art. 20 data portability)
+      const [journalResult, moodResult, recapResult, conversationsResult, chatMessagesResult, profileResult, memoriesResult, patternsResult, insightsResult, voiceSessionsResult] = await Promise.all([
         supabase.from("journal_entries").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("mood_checkins").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("weekly_recaps").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("conversations").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("chat_messages").select("*, conversations!inner(user_id)").eq("conversations.user_id", user.id).order("created_at", { ascending: true }),
+        supabase.from("profiles").select("*").eq("user_id", user.id).single(),
+        supabase.from("user_memories").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("emotional_patterns").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("session_insights").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("voice_sessions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
 
       const dateStr = new Date().toISOString().split("T")[0];
@@ -519,13 +513,21 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       if (format === "json") {
         const exportData = {
           exportedAt: new Date().toISOString(),
+          exportFormat: "Soulvay GDPR Data Export (Art. 20 DSGVO)",
           user: {
             email: user.email,
             displayName: profile?.display_name,
           },
+          profile: profileResult.data || null,
           journalEntries: journalResult.data || [],
           moodCheckins: moodResult.data || [],
           weeklyRecaps: recapResult.data || [],
+          conversations: conversationsResult.data || [],
+          chatMessages: (chatMessagesResult.data || []).map(({ conversations, ...msg }) => msg),
+          memories: memoriesResult.data || [],
+          emotionalPatterns: patternsResult.data || [],
+          sessionInsights: insightsResult.data || [],
+          voiceSessions: (voiceSessionsResult.data || []).map(({ user_id, ...session }) => session),
         };
 
         const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
@@ -571,6 +573,41 @@ export function AccountSettings({ language }: AccountSettingsProps) {
             potential_needs: Array.isArray(entry.potential_needs) ? entry.potential_needs.join("; ") : entry.potential_needs
           })), recapHeaders);
           zip.push({ name: `weekly-recaps-${dateStr}.csv`, content: recapCSV });
+        }
+
+        // Conversations CSV
+        if (conversationsResult.data && conversationsResult.data.length > 0) {
+          const convHeaders = ["id", "created_at", "updated_at", "title", "chat_mode"];
+          const convCSV = convertToCSV(conversationsResult.data.map(({ user_id, ...rest }) => rest), convHeaders);
+          zip.push({ name: `conversations-${dateStr}.csv`, content: convCSV });
+        }
+
+        // Chat messages CSV
+        if (chatMessagesResult.data && chatMessagesResult.data.length > 0) {
+          const msgHeaders = ["id", "conversation_id", "created_at", "role", "content"];
+          const msgCSV = convertToCSV((chatMessagesResult.data || []).map(({ conversations, ...msg }) => msg), msgHeaders);
+          zip.push({ name: `chat-messages-${dateStr}.csv`, content: msgCSV });
+        }
+
+        // Memories CSV
+        if (memoriesResult.data && memoriesResult.data.length > 0) {
+          const memHeaders = ["id", "created_at", "memory_type", "content", "confidence_score"];
+          const memCSV = convertToCSV(memoriesResult.data.map(({ user_id, ...rest }) => rest), memHeaders);
+          zip.push({ name: `memories-${dateStr}.csv`, content: memCSV });
+        }
+
+        // Emotional patterns CSV
+        if (patternsResult.data && patternsResult.data.length > 0) {
+          const patHeaders = ["id", "created_at", "pattern_type", "description", "confidence"];
+          const patCSV = convertToCSV(patternsResult.data.map(({ user_id, ...rest }) => rest), patHeaders);
+          zip.push({ name: `emotional-patterns-${dateStr}.csv`, content: patCSV });
+        }
+
+        // Voice sessions CSV
+        if (voiceSessionsResult.data && voiceSessionsResult.data.length > 0) {
+          const vsHeaders = ["id", "started_at", "ended_at", "duration_seconds", "agent_id", "disconnect_reason"];
+          const vsCSV = convertToCSV(voiceSessionsResult.data.map(({ user_id, ...rest }) => rest), vsHeaders);
+          zip.push({ name: `voice-sessions-${dateStr}.csv`, content: vsCSV });
         }
         
         // Download each CSV file
@@ -724,52 +761,6 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
   return (
     <div className="space-y-3">
-      {/* Avatar Upload */}
-      <CalmCard variant="elevated">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Avatar className="w-16 h-16 border-2 border-primary/20">
-              <AvatarImage src={profile?.avatar_url || undefined} alt="Avatar" />
-              <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
-            {/* CRITICAL: Do NOT show upload button on iOS native - file input causes WKWebView crash on iPad (Guideline 2.1) */}
-            {!isNativeApp() && (
-              <>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingAvatar}
-                  className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                >
-                  {isUploadingAvatar ? (
-                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <ImageIcon className="w-3.5 h-3.5" />
-                  )}
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  className="hidden"
-                />
-              </>
-            )}
-          </div>
-          <div className="flex-1">
-            <p className="font-medium text-foreground">{t.changeAvatar}</p>
-            <p className="text-sm text-muted-foreground">
-              {isNativeApp() 
-                ? (language === "de" ? "Profilbild wird über die Web-Version geändert" : "Change profile picture via web version")
-                : (language === "de" ? "JPG, PNG oder GIF. Max 5MB" : "JPG, PNG or GIF. Max 5MB")
-              }
-            </p>
-          </div>
-        </div>
-      </CalmCard>
-
       {/* Display Name - Editable */}
       <CalmCard variant="elevated">
         <div className="flex items-center gap-3">

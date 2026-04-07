@@ -137,7 +137,7 @@ export function useStreak(): StreakData {
       setLastWeekActiveDays(lastWeekDates.size);
 
     } catch (e) {
-      console.warn("Streak calculation failed:", e);
+      if (import.meta.env.DEV) console.warn("Streak calculation failed:", e);
     } finally {
       setIsLoading(false);
     }

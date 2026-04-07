@@ -1,5 +1,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import * as React from 'npm:react@18.3.1'
+import { renderAsync } from 'npm:@react-email/components@0.0.22'
+import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
+import { SubscriptionConfirmEmail } from '../_shared/email-templates/subscription-confirm.tsx'
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -51,19 +55,23 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify RevenueCat webhook authorization
+    // Verify RevenueCat webhook authorization — fail closed
     const webhookSecret = Deno.env.get("REVENUECAT_WEBHOOK_SECRET")?.trim();
-    if (webhookSecret) {
-      const authHeader = req.headers.get("authorization");
-      if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
-        console.error("RevenueCat webhook: invalid authorization header");
-        return new Response(
-          JSON.stringify({ error: "Unauthorized" }),
-          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-    } else {
-      console.warn("REVENUECAT_WEBHOOK_SECRET not configured — skipping auth check");
+    if (!webhookSecret) {
+      console.error("REVENUECAT_WEBHOOK_SECRET not configured");
+      return new Response(
+        JSON.stringify({ error: "Server misconfigured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
+      console.error("RevenueCat webhook: invalid authorization header");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const payload: RevenueCatWebhookPayload = await req.json();
@@ -158,6 +166,39 @@ Deno.serve(async (req) => {
       cancelAtPeriodEnd,
     });
 
+    // Send subscription confirmation email for new purchases
+    if (event.type === "INITIAL_PURCHASE") {
+      try {
+        const { data: { user: rcUser } } = await supabase.auth.admin.getUserById(userId);
+        if (rcUser?.email) {
+          const apiKey = Deno.env.get("LOVABLE_API_KEY");
+          if (apiKey) {
+            const templateProps = {
+              siteUrl: "https://soulvay.com",
+              planType,
+              amount: planType === "yearly" ? "79,00 €/Jahr" : "9,99 €/Monat",
+            };
+            const html = await renderAsync(React.createElement(SubscriptionConfirmEmail, templateProps));
+            const text = await renderAsync(React.createElement(SubscriptionConfirmEmail, templateProps), { plainText: true });
+            await sendLovableEmail({
+              to: rcUser.email,
+              from: "SOULVAY <hello@soulvay.com>",
+              sender_domain: "notify.soulvay.com",
+              subject: "Dein SOULVAY Plus Abo ist aktiv",
+              html,
+              text,
+              purpose: "transactional",
+              label: "subscription-confirm",
+              idempotency_key: crypto.randomUUID(),
+            }, { apiKey, sendUrl: Deno.env.get("LOVABLE_SEND_URL") });
+            console.log("Subscription confirmation email sent to", rcUser.email);
+          }
+        }
+      } catch (emailErr) {
+        console.error("Failed to send subscription email:", emailErr);
+      }
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -169,11 +210,10 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("RevenueCat webhook error:", errorMessage);
+    console.error("RevenueCat webhook error:", error instanceof Error ? error.message : error);
     
     return new Response(
-      JSON.stringify({ error: errorMessage, success: false }),
+      JSON.stringify({ error: "Webhook processing failed.", success: false }),
       { 
         status: 500, 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 

@@ -72,15 +72,13 @@ const getPurchasesPlugin = async (): Promise<any | null> => {
     const { Purchases } = await import('@revenuecat/purchases-capacitor');
     return Purchases;
   } catch (e) {
-    console.warn('RevenueCat plugin not available:', e);
+    if (import.meta.env.DEV) console.warn('RevenueCat plugin not available:', e);
     return null;
   }
 };
 
 // RevenueCat Public API Key (safe to include in client code)
-// TODO: Replace with your production key from RevenueCat Dashboard → App Settings → API Keys
-// Format: appl_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-const REVENUECAT_PUBLIC_KEY = import.meta.env.VITE_REVENUECAT_PUBLIC_KEY || '';
+const REVENUECAT_PUBLIC_KEY = 'appl_VatNsFmCDlJPOPkBGnzmhHyZrYy';
 
 export const useRevenueCat = (): UseRevenueCatReturn => {
   const [isAvailable, setIsAvailable] = useState(false);
@@ -125,12 +123,12 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
         .upsert(subscriptionData, { onConflict: 'user_id' });
 
       if (error) {
-        console.error('Failed to sync subscription:', error);
+        if (import.meta.env.DEV) console.error('Failed to sync subscription:', error);
       } else {
         if (import.meta.env.DEV) console.log('Subscription synced to backend');
       }
     } catch (error) {
-      console.error('Sync subscription error:', error);
+      if (import.meta.env.DEV) console.error('Sync subscription error:', error);
     }
   }, []);
 
@@ -151,7 +149,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
       
       return hasPremium;
     } catch (error) {
-      console.error('Failed to check entitlements:', error);
+      if (import.meta.env.DEV) console.error('Failed to check entitlements:', error);
       return false;
     }
   }, [syncSubscriptionToBackend]);
@@ -196,7 +194,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
         await checkEntitlements();
 
       } catch (error) {
-        console.error('RevenueCat initialization failed:', error);
+        if (import.meta.env.DEV) console.error('RevenueCat initialization failed:', error);
       }
     };
 
@@ -208,7 +206,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     if (!purchasesRef.current) {
       toast({
         title: 'Nicht verfügbar',
-        description: 'In-App-Käufe sind nur in der App verfügbar',
+        description: 'In-App-Käufe sind nur in der iOS App verfügbar',
         variant: 'destructive',
       });
       return false;
@@ -243,7 +241,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
         return false;
       }
 
-      console.error('Purchase failed:', error);
+      if (import.meta.env.DEV) console.error('Purchase failed:', error);
       toast({
         title: 'Kauf fehlgeschlagen',
         description: error.message || 'Der Kauf konnte nicht abgeschlossen werden',
@@ -260,7 +258,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     if (!purchasesRef.current) {
       toast({
         title: 'Nicht verfügbar',
-        description: 'Diese Funktion ist nur in der App verfügbar',
+        description: 'Diese Funktion ist nur in der iOS App verfügbar',
         variant: 'destructive',
       });
       return false;
@@ -290,7 +288,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
       });
       return false;
     } catch (error) {
-      console.error('Restore failed:', error);
+      if (import.meta.env.DEV) console.error('Restore failed:', error);
       toast({
         title: 'Fehler',
         description: 'Käufe konnten nicht wiederhergestellt werden',

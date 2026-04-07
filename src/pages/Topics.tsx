@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ChevronRight, CheckCircle2, Clock, BookOpen, GraduationCap, StickyNote, MessageCircle, Save, Send, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -7,6 +7,7 @@ import { TabHint } from "@/components/shared/TabHint";
 import { Button } from "@/components/ui/button";
 import { topics, Topic } from "@/data/topics";
 import { useTranslation } from "@/hooks/useTranslation";
+import { topicExerciseTranslations } from "@/lib/topicExerciseTranslations";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLastState } from "@/hooks/useLastState";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,7 +27,7 @@ interface TopicNotes {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-export default function Topics() {
+const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [progress, setProgress] = useState<TopicProgress>({});
@@ -64,7 +65,7 @@ export default function Topics() {
       try {
         setProgress(JSON.parse(stored));
       } catch (e) {
-        console.error("Error parsing progress:", e);
+        if (import.meta.env.DEV) console.error("Error parsing progress:", e);
       }
     }
   }, []);
@@ -100,12 +101,16 @@ export default function Topics() {
   const saveNoteToJournal = async (topicId: string) => {
     if (!user || !topicNotes[topicId]?.trim()) return;
     const topic = topics.find(tp => tp.id === topicId);
+    const topicDisplay = topic ? getTopicDisplay(topicId, {
+      title: topic.title,
+      description: topic.description,
+    }) : null;
     try {
       await supabase.from("journal_entries").insert({
         user_id: user.id,
         user_session_id: user.id,
         content: topicNotes[topicId],
-        title: `${topic?.icon || ""} ${topic?.title || topicId}`,
+        title: `${topic?.icon || ""} ${topicDisplay?.title || topicId}`,
         source: "topic-notes",
         tags: [topicId],
       } as any);
@@ -254,10 +259,14 @@ export default function Topics() {
       setLastTopic({ topicId: topic.id, stepIndex: nextStepIndex });
     }
 
+    // Get translated step display for the current language
+    const topicDisplay = getDisplay(topic);
+    const stepDisplay = topicDisplay.steps[stepIndex] || { title: step.title, description: step.description };
+
     switch (step.type) {
       case "chat":
         navigate("/chat", {
-          state: { initialMessage: step.description },
+          state: { initialMessage: stepDisplay.description },
         });
         break;
       case "journal":
@@ -311,8 +320,9 @@ export default function Topics() {
     ];
 
     return (
-      <div className="min-h-screen bg-background pb-24">
-        <div className="px-4 md:px-6 lg:px-8 py-6 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+      <div className="flex flex-col h-full bg-background">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-6 pb-8 w-full">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
             <Button variant="ghost" size="sm" onClick={() => setSelectedTopic(null)} className="mb-3">
@@ -366,7 +376,28 @@ export default function Topics() {
                         <GraduationCap className="w-4 h-4 text-primary" />
                         {section.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{section.content}</p>
+                      <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
+                        {section.content.split('\n\n').map((paragraph, pi) => {
+                          // Check if paragraph contains bullet-style lines
+                          const lines = paragraph.split('\n');
+                          const isBulletList = lines.length > 1 && lines.every(l => /^[•\-\*]\s/.test(l.trim()) || !l.trim());
+                          
+                          if (isBulletList) {
+                            return (
+                              <ul key={pi} className="space-y-2 pl-1">
+                                {lines.filter(l => l.trim()).map((line, li) => (
+                                  <li key={li} className="flex items-start gap-2.5">
+                                    <span className="text-primary mt-0.5 shrink-0">•</span>
+                                    <span>{line.replace(/^[•\-\*]\s*/, '')}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            );
+                          }
+                          
+                          return <p key={pi}>{paragraph}</p>;
+                        })}
+                      </div>
                       {section.reflectionQuestion && (
                         <div className="mt-3 p-3 bg-primary/5 rounded-xl border border-primary/10">
                           <p className="text-xs font-medium text-primary mb-1">💭 {t("topics.reflectionQuestion")}</p>
@@ -419,15 +450,20 @@ export default function Topics() {
                 {selectedTopic.exercises.length > 0 && (
                   <>
                     <h3 className="font-medium text-foreground mt-4 mb-2">{t("topics.exercises")}</h3>
-                    {selectedTopic.exercises.map(ex => (
-                      <CalmCard key={ex.id} variant="elevated" className="cursor-pointer hover:bg-muted/50" onClick={() => navigate("/toolbox")}>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"><BookOpen className="w-5 h-5 text-primary" /></div>
-                          <div className="flex-1"><h4 className="font-medium text-foreground">{ex.title}</h4><p className="text-sm text-muted-foreground">{ex.description}</p></div>
-                          <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{ex.duration}</span>
-                        </div>
-                      </CalmCard>
-                    ))}
+                    {selectedTopic.exercises.map(ex => {
+                      const exTranslation = topicExerciseTranslations[ex.id];
+                      const exTitle = exTranslation ? (language === "de" ? exTranslation.de.title : exTranslation.en.title) : ex.title;
+                      const exDesc = exTranslation ? (language === "de" ? exTranslation.de.description : exTranslation.en.description) : ex.description;
+                      return (
+                        <CalmCard key={ex.id} variant="elevated" className="cursor-pointer hover:bg-muted/50" onClick={() => navigate("/toolbox")}>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"><BookOpen className="w-5 h-5 text-primary" /></div>
+                            <div className="flex-1"><h4 className="font-medium text-foreground">{exTitle}</h4><p className="text-sm text-muted-foreground">{exDesc}</p></div>
+                            <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" />{ex.duration}</span>
+                          </div>
+                        </CalmCard>
+                      );
+                    })}
                   </>
                 )}
               </motion.div>
@@ -505,6 +541,7 @@ export default function Topics() {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
         </div>
       </div>
     );
@@ -605,4 +642,6 @@ export default function Topics() {
       </div>
     </div>
   );
-}
+});
+
+export default Topics;

@@ -19,6 +19,8 @@ const categories = [
   { id: "grounding", labelEn: "Grounding", labelDe: "Erdung" },
   { id: "cognitive", labelEn: "Cognitive", labelDe: "Kognitiv" },
   { id: "journaling", labelEn: "Journaling", labelDe: "Schreiben" },
+  { id: "values", labelEn: "Values", labelDe: "Werte" },
+  { id: "boundaries", labelEn: "Boundaries", labelDe: "Grenzen" },
 ];
 
 export default function Toolbox() {

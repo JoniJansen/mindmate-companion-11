@@ -3,7 +3,7 @@ import { requireUser } from "../_shared/auth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 serve(async (req) => {
@@ -20,18 +20,36 @@ serve(async (req) => {
       throw authError;
     }
 
-    const { entries, type } = await req.json();
+    const { entries, type, language = "en" } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    const isDE = language === "de";
+
     let systemPrompt = "";
     let userPrompt = "";
 
     if (type === "patterns") {
-      systemPrompt = `You are a gentle, supportive companion helping someone reflect on their journal entries.
+      systemPrompt = isDE
+        ? `Du bist ein einfühlsamer, unterstützender Begleiter, der jemandem hilft, über seine Tagebucheinträge nachzudenken.
+
+Deine Rolle:
+- Bemerke sanft Muster oder wiederkehrende Themen OHNE zu diagnostizieren
+- Hebe positives Wachstum oder Veränderungen hervor
+- Stelle eine durchdachte Reflexionsfrage
+- Sei warm, nicht wertend und ermutigend
+
+Regeln:
+- Niemals diagnostizieren oder Emotionen als Störungen bezeichnen
+- Keine medizinischen Ratschläge
+- Halte Beobachtungen sanft und tastend ("Mir fällt auf...", "Es scheint so, als ob...")
+- Fokussiere dich auf Stärken und Resilienz
+- Maximal 3 kurze Absätze
+- Antworte KOMPLETT auf Deutsch`
+        : `You are a gentle, supportive companion helping someone reflect on their journal entries.
 
 Your role:
 - Gently notice patterns or recurring themes WITHOUT diagnosing
@@ -46,11 +64,31 @@ Rules:
 - Focus on strengths and resilience
 - Maximum 3 short paragraphs`;
 
-      userPrompt = `Here are the recent journal entries to reflect on:\n\n${entries.map((e: any) => 
-        `Date: ${e.date}\nTitle: ${e.title || 'Untitled'}\nMood: ${e.mood || 'Not specified'}\n${e.content}\n---`
+      const entryLabel = isDE ? "Datum" : "Date";
+      const titleLabel = isDE ? "Titel" : "Title";
+      const moodLabel = isDE ? "Stimmung" : "Mood";
+      const untitled = isDE ? "Ohne Titel" : "Untitled";
+      const notSpecified = isDE ? "Nicht angegeben" : "Not specified";
+      const intro = isDE ? "Hier sind die letzten Tagebucheinträge zur Reflexion:" : "Here are the recent journal entries to reflect on:";
+
+      userPrompt = `${intro}\n\n${entries.map((e: any) => 
+        `${entryLabel}: ${e.date}\n${titleLabel}: ${e.title || untitled}\n${moodLabel}: ${e.mood || notSpecified}\n${e.content}\n---`
       ).join('\n\n')}`;
+
     } else if (type === "themes") {
-      systemPrompt = `You are a gentle companion helping identify themes in journal entries.
+      systemPrompt = isDE
+        ? `Du bist ein einfühlsamer Begleiter, der Themen in Tagebucheinträgen identifiziert.
+
+Deine Rolle:
+- Identifiziere 3-5 wiederkehrende Themen oder Bereiche
+- Präsentiere sie als neutrale Beobachtungen, nicht als Urteile
+- Sei kurz und unterstützend
+
+Format jedes Thema als:
+🌱 [Thema]: Kurze, sanfte Beobachtung
+
+Antworte KOMPLETT auf Deutsch.`
+        : `You are a gentle companion helping identify themes in journal entries.
 
 Your role:
 - Identify 3-5 recurring themes or topics
@@ -60,11 +98,23 @@ Your role:
 Format each theme as:
 🌱 [Theme]: Brief, gentle observation`;
 
-      userPrompt = `Identify themes in these journal entries:\n\n${entries.map((e: any) => 
-        `${e.title || 'Entry'}: ${e.content}`
+      const intro = isDE ? "Identifiziere Themen in diesen Tagebucheinträgen:" : "Identify themes in these journal entries:";
+      const entryLabel = isDE ? "Eintrag" : "Entry";
+      userPrompt = `${intro}\n\n${entries.map((e: any) => 
+        `${e.title || entryLabel}: ${e.content}`
       ).join('\n\n')}`;
+
     } else if (type === "reflection") {
-      systemPrompt = `You are a warm, supportive companion helping with journaling.
+      systemPrompt = isDE
+        ? `Du bist ein warmer, unterstützender Begleiter, der beim Tagebuchschreiben hilft.
+
+Deine Rolle:
+- Biete 2-3 sanfte Reflexionsfragen basierend auf dem Eintrag an
+- Erkenne die ausgedrückten Emotionen an
+- Ermutige zu tieferer Erkundung ohne Druck
+
+Halte Antworten kurz und einladend. Antworte KOMPLETT auf Deutsch.`
+        : `You are a warm, supportive companion helping with journaling.
 
 Your role:
 - Offer 2-3 gentle reflective questions based on the entry
@@ -73,10 +123,24 @@ Your role:
 
 Keep responses brief and inviting.`;
 
-      userPrompt = `Help reflect on this journal entry:\n\n${entries[0]?.content || ''}`;
+      const intro = isDE ? "Hilf bei der Reflexion über diesen Tagebucheintrag:" : "Help reflect on this journal entry:";
+      userPrompt = `${intro}\n\n${entries[0]?.content || ''}`;
+
     } else if (type === "sentiment") {
-      // Phase 2: Sentiment analysis for journal entries
-      systemPrompt = `You are a sentiment analysis assistant for a mental health journaling app.
+      systemPrompt = isDE
+        ? `Du bist ein Sentiment-Analyse-Assistent für eine Tagebuch-App für mentales Wohlbefinden.
+
+Analysiere den Tagebucheintrag und gib NUR ein JSON-Objekt zurück mit:
+- "sentiment": eines von "positive", "neutral", "negative", "mixed"
+- "score": eine Zahl von 1 (sehr negativ) bis 5 (sehr positiv)
+- "suggestedTags": Array mit 1-3 vorgeschlagenen Emotions-Tags aus dieser Liste ONLY: ["anxious", "sad", "angry", "stressed", "calm", "grateful", "hopeful", "overwhelmed"]
+- "brief": ein validierender Satz auf Deutsch (warm, nicht-klinisch)
+
+Beispiel:
+{"sentiment":"mixed","score":2.5,"suggestedTags":["stressed","overwhelmed"],"brief":"Es klingt so, als trägst du gerade ziemlich viel mit dir."}
+
+WICHTIG: Gib NUR das JSON-Objekt zurück. Kein anderer Text.`
+        : `You are a sentiment analysis assistant for a mental health journaling app.
 
 Analyze the journal entry and return ONLY a JSON object with:
 - "sentiment": one of "positive", "neutral", "negative", "mixed"
@@ -89,9 +153,34 @@ Example output:
 
 IMPORTANT: Return ONLY the JSON object. No other text.`;
 
-      userPrompt = `Analyze this journal entry:\n\n${entries[0]?.content || ''}`;
+      const intro = isDE ? "Analysiere diesen Tagebucheintrag:" : "Analyze this journal entry:";
+      userPrompt = `${intro}\n\n${entries[0]?.content || ''}`;
+
     } else if (type === "emotional-timeline") {
-      systemPrompt = `You are a gentle, supportive companion helping someone notice emotional patterns over time. 
+      systemPrompt = isDE
+        ? `Du bist ein einfühlsamer, unterstützender Begleiter, der jemandem hilft, emotionale Muster über die Zeit zu bemerken.
+
+Dein Zweck ist es, Nutzern sanfte emotionale Muster aufzuzeigen OHNE Wertung oder Diagnose.
+
+STRIKTE REGELN:
+- KEINE klinischen Bezeichnungen oder diagnostische Sprache
+- KEINE kausalen Behauptungen (sage nicht "X hat Y verursacht")
+- Sprache MUSS tastend und unterstützend sein
+- Fokussiere auf Beobachtungen, nicht Schlussfolgerungen
+- Sei warm und nicht wertend
+
+FORMAT:
+1. Kurze Zusammenfassung (3-5 Sätze) wiederkehrender Themen mit sanfter Sprache wie:
+   - "In der letzten Woche scheint das Thema Erschöpfung häufig aufzutauchen."
+   - "Du hast mehrfach erwähnt, dich überfordert zu fühlen."
+   - "Es scheint ein sanftes Muster der Suche nach ruhigen Momenten zu geben."
+   
+2. Eine reflektierende Frage zur Förderung der Selbstwahrnehmung
+
+3. Ein optionaler sanfter Vorschlag (nur wenn es natürlich passt)
+
+Antworte KOMPLETT auf Deutsch.`
+        : `You are a gentle, supportive companion helping someone notice emotional patterns over time. 
 
 Your purpose is to help users see gentle emotional patterns WITHOUT judgment or diagnosis.
 
@@ -110,21 +199,19 @@ FORMAT:
    
 2. One reflective question to encourage self-awareness
 
-3. One optional gentle suggestion (only if it feels natural)
+3. One optional gentle suggestion (only if it feels natural)`;
 
-Example output:
-"Looking at your recent entries, a gentle theme of needing rest seems to emerge. You've mentioned feeling tired on a few occasions, and there's a sense of wanting more quiet moments. It's completely natural to feel this way, especially during busy periods.
+      const intro = isDE ? "Analysiere diese Tagebucheinträge auf sanfte emotionale Muster über die Zeit:" : "Analyze these journal entries for gentle emotional patterns over time:";
+      const entryLabel = isDE ? "Eintrag" : "Entry";
+      const moodLabel = isDE ? "Stimmung" : "Mood";
+      const notSpecified = isDE ? "Nicht angegeben" : "Not specified";
 
-What do you notice about the times when you felt most at peace?
-
-If it feels right, you might consider setting aside a few minutes each day just for stillness—even just five minutes can make a difference."`;
-
-      userPrompt = `Analyze these journal entries for gentle emotional patterns over time:\n\n${entries.map((e: any, i: number) => 
-        `Entry ${i + 1} (${e.date}):\nMood: ${e.mood || 'Not specified'}\n${e.content}`
+      userPrompt = `${intro}\n\n${entries.map((e: any, i: number) => 
+        `${entryLabel} ${i + 1} (${e.date}):\n${moodLabel}: ${e.mood || notSpecified}\n${e.content}`
       ).join('\n\n---\n\n')}`;
     }
 
-    console.log(`Processing journal reflection type: ${type}`);
+    console.log(`Processing journal reflection type: ${type}, language: ${language}`);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -146,13 +233,13 @@ If it feels right, you might consider setting aside a few minutes each day just 
       console.error("AI gateway error:", response.status, errorText);
       
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
+        return new Response(JSON.stringify({ error: isDE ? "Zu viele Anfragen. Bitte versuche es später erneut." : "Rate limit exceeded. Please try again later." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits depleted. Please add funds." }), {
+        return new Response(JSON.stringify({ error: isDE ? "KI-Credits aufgebraucht." : "AI credits depleted. Please add funds." }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -169,7 +256,7 @@ If it feels right, you might consider setting aside a few minutes each day just 
     });
   } catch (error) {
     console.error("Journal reflect error:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+    return new Response(JSON.stringify({ error: "Request failed. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

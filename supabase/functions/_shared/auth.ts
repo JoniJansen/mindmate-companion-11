@@ -26,16 +26,19 @@ export async function requireUser(req: Request) {
   });
 
   const token = authHeader.replace("Bearer ", "");
-  const { data, error } = await supabase.auth.getUser(token);
+  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
 
-  if (error || !data?.user) {
+  if (claimsError || !claimsData?.claims) {
     throw new Response(
       JSON.stringify({ error: "Unauthorized" }),
       { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 
-  return { user: data.user, supabase };
+  const userId = claimsData.claims.sub as string;
+  const email = claimsData.claims.email as string;
+
+  return { user: { id: userId, email }, supabase };
 }
 
 /**

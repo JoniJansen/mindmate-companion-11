@@ -92,7 +92,7 @@ export function usePersonalization() {
           setStressCount(stressed);
         }
       } catch (e) {
-        console.warn("Failed to fetch mood data for personalization:", e);
+        if (import.meta.env.DEV) console.warn("Failed to fetch mood data for personalization:", e);
       } finally {
         setIsLoading(false);
       }

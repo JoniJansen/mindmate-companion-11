@@ -7,6 +7,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function normalizeSecret(value: string | undefined): string {
+  let normalized = (value ?? "").trim();
+  normalized = normalized.replace(/^(["'`])(.*)\1$/, "$2").trim();
+  normalized = normalized.replace(/^Bearer\s+/i, "").trim();
+  return normalized.replace(/\s+/g, "");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -25,9 +32,14 @@ Deno.serve(async (req) => {
 
     const { action } = await req.json();
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")?.trim();
+    const rawKey = Deno.env.get("STRIPE_SECRET_KEY");
+    const stripeKey = normalizeSecret(rawKey);
     if (!stripeKey) {
       throw new Error("Stripe secret key not configured");
+    }
+    if (!stripeKey.startsWith("sk_")) {
+      console.error("Invalid Stripe key format detected");
+      throw new Error("Stripe key configuration error");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -76,7 +88,7 @@ Deno.serve(async (req) => {
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
       case "cancel": {
-        if (!subData.stripe_subscription_id) throw new Error("No active subscription");
+        if (!subData.stripe_subscription_id) throw new Error("Kein aktives Stripe-Abo vorhanden. Bitte kontaktiere den Support.");
         await stripeRequest("POST", `/subscriptions/${subData.stripe_subscription_id}`, {
           cancel_at_period_end: "true",
         });
@@ -107,8 +119,8 @@ Deno.serve(async (req) => {
     }
   } catch (error) {
     if (error instanceof Response) return error;
-    console.error("Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), 
+    console.error("Subscription error:", error);
+    return new Response(JSON.stringify({ error: "Request failed. Please try again." }), 
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });

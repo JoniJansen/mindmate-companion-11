@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useTranslation } from "./useTranslation";
 import { isReviewAccount, isReviewModeActive, activateReviewMode } from "@/lib/reviewMode";
 import { useRevenueCat, PREMIUM_ENTITLEMENT } from "./useRevenueCat";
+import { getSimulatedPremiumOverride } from "./useEntitlementSimulator";
 
 export interface PremiumState {
   isPremium: boolean;
@@ -33,6 +35,13 @@ interface StoredState {
 
 const getToday = () => new Date().toISOString().split("T")[0];
 
+// Module-level deduplication: prevents multiple usePremium instances from
+// firing concurrent subscription checks on mount.
+let _lastCheckAt = 0;
+let _checkInFlight: Promise<void> | null = null;
+let _lastServerResult = false; // cache last known server result for error fallback
+const CHECK_COOLDOWN_MS = 10_000; // 10s between checks
+
 const getDefaultState = (): StoredState => ({
   isPremium: false,
   dailyMessagesUsed: 0,
@@ -42,9 +51,12 @@ const getDefaultState = (): StoredState => ({
 
 export function usePremium() {
   const { user } = useAuth();
+  const { language } = useTranslation();
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
+  // Server-verified premium status – only this authorizes premium features
+  const [serverVerifiedPremium, setServerVerifiedPremium] = useState<boolean | null>(null);
   
   // RevenueCat integration for iOS
   const { 
@@ -56,7 +68,7 @@ export function usePremium() {
     checkEntitlements,
   } = useRevenueCat();
 
-  // Load state from localStorage and check for daily reset
+  // Load state from localStorage (cache only – NOT authoritative for premium)
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -78,22 +90,25 @@ export function usePremium() {
         }
       }
     } catch (e) {
-      console.warn("Failed to load premium state:", e);
+      if (import.meta.env.DEV) console.warn("Failed to load premium state:", e);
     }
     setIsLoaded(true);
   }, []);
 
-  // Sync RevenueCat premium status to local state
+  // Sync RevenueCat premium status (RevenueCat SDK does its own server validation)
   useEffect(() => {
-    if (isRevenueCatPremium && !state.isPremium) {
-      if (import.meta.env.DEV) console.log("[Premium] RevenueCat premium detected, syncing to local state");
-      const newState: StoredState = {
-        ...state,
-        isPremium: true,
-        planType: "revenuecat",
-        subscriptionStatus: "active",
-      };
-      saveState(newState);
+    if (isRevenueCatPremium) {
+      setServerVerifiedPremium(true);
+      if (!state.isPremium) {
+        if (import.meta.env.DEV) console.log("[Premium] RevenueCat premium detected, syncing to local state");
+        const newState: StoredState = {
+          ...state,
+          isPremium: true,
+          planType: "revenuecat",
+          subscriptionStatus: "active",
+        };
+        saveState(newState);
+      }
     }
   }, [isRevenueCatPremium, state.isPremium]);
 
@@ -118,58 +133,136 @@ export function usePremium() {
     }
   }, [user, state.isPremium]);
 
-  // Check subscription status from backend
-  const checkSubscriptionStatus = useCallback(async () => {
-    if (!user || isCheckingSubscription) return;
-    
-    setIsCheckingSubscription(true);
-    try {
-      // First check RevenueCat if available
-      if (isRevenueCatAvailable) {
-        const hasPremium = await checkEntitlements();
-        if (hasPremium) {
-          setIsCheckingSubscription(false);
+  // Reset module-level cache when user logs out to prevent cross-account stale state
+  useEffect(() => {
+    if (!user) {
+      _lastCheckAt = 0;
+      _lastServerResult = false;
+      _checkInFlight = null;
+    }
+  }, [user]);
+
+  // Check subscription status from backend (source of truth)
+  // Uses module-level deduplication to prevent N parallel calls from N hook instances.
+  const checkSubscriptionStatus = useCallback(async (force = false) => {
+    if (!user) return;
+
+    // Review accounts don't need backend subscription checks — they're locally granted
+    if (isReviewAccount(user.email) || isReviewModeActive()) {
+      setServerVerifiedPremium(true);
+      return;
+    }
+
+    // Deduplication: skip if a recent check already ran (unless forced)
+    const now = Date.now();
+    if (!force && now - _lastCheckAt < CHECK_COOLDOWN_MS) return;
+
+    // If another instance is already in-flight, piggyback on it
+    if (_checkInFlight) {
+      await _checkInFlight;
+      return;
+    }
+
+    // Set cooldown BEFORE creating the async work to prevent races
+    _lastCheckAt = Date.now();
+
+    const doCheck = async () => {
+      setIsCheckingSubscription(true);
+      try {
+        // First check RevenueCat if available (SDK does server-side validation)
+        if (isRevenueCatAvailable) {
+          const hasPremium = await checkEntitlements();
+          if (hasPremium) {
+            setServerVerifiedPremium(true);
+            return;
+          }
+        }
+
+        // Backend check via Edge Function (server-side Stripe validation)
+        // userId is derived from JWT on server — never sent in body
+        let data: any = null;
+        let error: any = null;
+        try {
+          const result = await supabase.functions.invoke("manage-subscription", {
+            body: { action: "status" },
+          });
+          data = result.data;
+          error = result.error;
+        } catch (e) {
+          // Silently handle — no technical errors shown to user
+          if (import.meta.env.DEV) console.warn("Subscription check failed:", e);
+          setServerVerifiedPremium(_lastServerResult);
           return;
         }
+
+        if (error) {
+          // Silently fall back — never show "Edge Function" errors to user
+          if (import.meta.env.DEV) console.warn("Subscription status error (silent):", error.message || error);
+          setServerVerifiedPremium(_lastServerResult);
+          return;
+        }
+
+        if (data) {
+          const isPremiumFromServer = data.isPremium || false;
+          _lastServerResult = isPremiumFromServer;
+          setServerVerifiedPremium(isPremiumFromServer);
+          
+          // Update localStorage cache for all hook instances to read
+          const newCachedState: StoredState = {
+            isPremium: isPremiumFromServer,
+            dailyMessagesUsed: 0,
+            lastResetDate: getToday(),
+            planType: data.planType,
+            cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+            currentPeriodEnd: data.currentPeriodEnd,
+            subscriptionStatus: data.status,
+          };
+          try {
+            // Merge with existing state to preserve dailyMessagesUsed
+            const existing = localStorage.getItem(STORAGE_KEY);
+            if (existing) {
+              const parsed = JSON.parse(existing);
+              newCachedState.dailyMessagesUsed = parsed.dailyMessagesUsed || 0;
+              newCachedState.lastResetDate = parsed.lastResetDate || getToday();
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newCachedState));
+          } catch (e) {
+            if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
+          }
+          
+          setState(prev => ({
+            ...prev,
+            isPremium: isPremiumFromServer,
+            planType: data.planType,
+            cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+            currentPeriodEnd: data.currentPeriodEnd,
+            subscriptionStatus: data.status,
+          }));
+        } else {
+          setServerVerifiedPremium(false);
+        }
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Failed to check subscription status:", e);
+        setServerVerifiedPremium(_lastServerResult);
+      } finally {
+        setIsCheckingSubscription(false);
+        _checkInFlight = null;
       }
+    };
 
-      // Fallback to backend check
-      const { data, error } = await supabase.functions.invoke("manage-subscription", {
-        body: { userId: user.id, action: "status" },
-      });
+    _checkInFlight = doCheck();
+    await _checkInFlight;
+  }, [user, isRevenueCatAvailable, checkEntitlements]);
 
-      if (error) {
-        console.warn("Failed to check subscription:", error);
-        return;
-      }
-
-      if (data) {
-        const newState: StoredState = {
-          ...state,
-          isPremium: data.isPremium || false,
-          planType: data.planType,
-          cancelAtPeriodEnd: data.cancelAtPeriodEnd,
-          currentPeriodEnd: data.currentPeriodEnd,
-          subscriptionStatus: data.status,
-        };
-        saveState(newState);
-      }
-    } catch (e) {
-      console.warn("Failed to check subscription status:", e);
-    } finally {
-      setIsCheckingSubscription(false);
-    }
-  }, [user, isCheckingSubscription, state, isRevenueCatAvailable, checkEntitlements]);
-
-  // Check subscription on mount, when user changes, and every 5 minutes
+  // Check subscription on mount, when user changes, and every 15 minutes
   useEffect(() => {
     if (user && isLoaded) {
       checkSubscriptionStatus();
 
-      // Auto-refresh every 5 minutes to catch delayed webhooks
+      // Auto-refresh every 15 minutes to catch delayed webhooks
       const interval = setInterval(() => {
-        checkSubscriptionStatus();
-      }, 5 * 60 * 1000);
+        checkSubscriptionStatus(true); // force bypass cooldown for scheduled refresh
+      }, 15 * 60 * 1000);
 
       return () => clearInterval(interval);
     }
@@ -181,22 +274,28 @@ export function usePremium() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
     } catch (e) {
-      console.warn("Failed to save premium state:", e);
+      if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
     }
   }, []);
 
   // Increment message count (call after user sends a message)
   const incrementMessageCount = useCallback(() => {
-    if (state.isPremium) return; // Premium users have unlimited
-    
-    const today = getToday();
-    const newState: StoredState = {
-      ...state,
-      dailyMessagesUsed: state.dailyMessagesUsed + 1,
-      lastResetDate: today,
-    };
-    saveState(newState);
-  }, [state, saveState]);
+    setState(prev => {
+      if (prev.isPremium) return prev; // Premium users have unlimited
+      const today = getToday();
+      const newState: StoredState = {
+        ...prev,
+        dailyMessagesUsed: prev.dailyMessagesUsed + 1,
+        lastResetDate: today,
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Failed to save premium state:", e);
+      }
+      return newState;
+    });
+  }, []);
 
   // Check if user can send more messages
   const canSendMessage = useCallback((): boolean => {
@@ -212,11 +311,13 @@ export function usePremium() {
 
     // For RevenueCat, users manage subscriptions through App Store
     if (isRevenueCatAvailable) {
-      throw new Error("Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements");
+      throw new Error(language === "de"
+        ? "Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements"
+        : "Please manage your subscription in iOS Settings → Subscriptions");
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "cancel" },
+      body: { action: "cancel" },
     });
 
     if (error) {
@@ -235,11 +336,13 @@ export function usePremium() {
 
     // For RevenueCat, users manage subscriptions through App Store
     if (isRevenueCatAvailable) {
-      throw new Error("Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements");
+      throw new Error(language === "de"
+        ? "Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements"
+        : "Please manage your subscription in iOS Settings → Subscriptions");
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "reactivate" },
+      body: { action: "reactivate" },
     });
 
     if (error) {
@@ -264,7 +367,7 @@ export function usePremium() {
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
-      body: { userId: user.id, action: "portal" },
+      body: { action: "portal" },
     });
 
     if (error) {
@@ -289,13 +392,12 @@ export function usePremium() {
 
     // For iOS, this shouldn't be called - use RevenueCat instead
     if (isRevenueCatAvailable) {
-      console.warn("createCheckoutSession called on iOS - should use RevenueCat");
+      if (import.meta.env.DEV) console.warn("createCheckoutSession called on iOS - should use RevenueCat");
       return;
     }
 
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
-        userId: user.id,
         planType,
         successUrl: `${window.location.origin}/settings?success=true`,
         cancelUrl: `${window.location.origin}/settings?canceled=true`,
@@ -320,8 +422,20 @@ export function usePremium() {
     saveState(newState);
   }, [state, saveState]);
 
-  // Compute final premium status (RevenueCat OR local state)
-  const finalIsPremium = state.isPremium || isRevenueCatPremium;
+  // DEV: entitlement simulator override
+  const simOverride = getSimulatedPremiumOverride();
+  
+  // Compute final premium status:
+  // Priority: Simulator (DEV only) > Review mode > Server-verified > RevenueCat > cached localStorage
+  // In production, serverVerifiedPremium is the source of truth once loaded.
+  // localStorage is only used as a brief cache while the server check is in flight.
+  const isReviewModePremium = state.isReviewMode && state.isPremium;
+  const serverOrCachedPremium = serverVerifiedPremium !== null 
+    ? serverVerifiedPremium 
+    : (state.isPremium || isRevenueCatPremium); // cache fallback only before server responds
+  const finalIsPremium = simOverride !== null ? simOverride.isPremium : (isReviewModePremium || serverOrCachedPremium);
+  const finalPlanType = simOverride !== null ? simOverride.planType : state.planType;
+  const finalSubscriptionStatus = simOverride !== null ? simOverride.subscriptionStatus : state.subscriptionStatus;
 
   // Feature flags
   const canUseVoice = finalIsPremium;
@@ -343,10 +457,10 @@ export function usePremium() {
     dailyMessagesUsed: state.dailyMessagesUsed,
     dailyMessageLimit: DAILY_MESSAGE_LIMIT,
     messagesRemaining,
-    planType: state.planType,
+    planType: finalPlanType,
     cancelAtPeriodEnd: state.cancelAtPeriodEnd,
     currentPeriodEnd: state.currentPeriodEnd,
-    subscriptionStatus: state.subscriptionStatus,
+    subscriptionStatus: finalSubscriptionStatus,
     
     // RevenueCat specific
     isRevenueCatAvailable,

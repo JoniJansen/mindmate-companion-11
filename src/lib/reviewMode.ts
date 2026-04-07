@@ -1,29 +1,23 @@
 /**
  * Review Mode Configuration
  * 
- * This module provides robust App Store review support for Apple and Google Play.
+ * This module provides robust App Store review support.
  * Review accounts get automatic premium access and bypass rate limits.
  */
 
-// Review account credentials - loaded from environment variables
-// Set VITE_REVIEW_EMAIL and VITE_REVIEW_PASSWORD in your .env file
-export const REVIEW_CREDENTIALS = {
-  email: import.meta.env.VITE_REVIEW_EMAIL || "apple-review@soulvay.de",
-  password: import.meta.env.VITE_REVIEW_PASSWORD || "",
-} as const;
-
-export const GOOGLE_REVIEW_CREDENTIALS = {
-  email: import.meta.env.VITE_GOOGLE_REVIEW_EMAIL || "google-review@soulvay.de",
-  password: import.meta.env.VITE_REVIEW_PASSWORD || "",
+// Review account emails — passwords are stored server-side as secrets
+export const REVIEW_EMAILS_CONFIG = {
+  apple: "apple-review@mindmate.de",
+  secondary: "apple-review@soulvay.com",
 } as const;
 
 // All review emails for checking
 const REVIEW_EMAILS = [
-  REVIEW_CREDENTIALS.email.toLowerCase(),
-  GOOGLE_REVIEW_CREDENTIALS.email.toLowerCase(),
+  REVIEW_EMAILS_CONFIG.apple.toLowerCase(),
+  REVIEW_EMAILS_CONFIG.secondary.toLowerCase(),
 ];
 
-// Check if current user is a review account (Apple or Google)
+// Check if current user is a review account
 export const isReviewAccount = (email?: string | null): boolean => {
   if (!email) return false;
   return REVIEW_EMAILS.includes(email.toLowerCase().trim());
@@ -32,10 +26,7 @@ export const isReviewAccount = (email?: string | null): boolean => {
 // Check if review mode is active (based on localStorage flag or account)
 export const isReviewModeActive = (): boolean => {
   try {
-    // Check localStorage flag
-    if (localStorage.getItem("soulvay_review_mode") === "active") {
-      return true;
-    }
+    if (localStorage.getItem("soulvay_review_mode") === "active") return true;
     return false;
   } catch {
     return false;
@@ -46,7 +37,6 @@ export const isReviewModeActive = (): boolean => {
 export const activateReviewMode = (): void => {
   try {
     localStorage.setItem("soulvay_review_mode", "active");
-    // Also set premium state
     localStorage.setItem("soulvay-premium-state", JSON.stringify({
       isPremium: true,
       dailyMessagesUsed: 0,
@@ -55,7 +45,7 @@ export const activateReviewMode = (): void => {
       subscriptionStatus: "active",
     }));
   } catch {
-    console.warn("Failed to activate review mode");
+    if (import.meta.env.DEV) console.warn("Failed to activate review mode");
   }
 };
 
@@ -64,7 +54,7 @@ export const deactivateReviewMode = (): void => {
   try {
     localStorage.removeItem("soulvay_review_mode");
   } catch {
-    console.warn("Failed to deactivate review mode");
+    if (import.meta.env.DEV) console.warn("Failed to deactivate review mode");
   }
 };
 

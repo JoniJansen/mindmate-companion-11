@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, ArrowLeft, Loader2, Eye, EyeOff, Sun, Moon, Shield, Star } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -10,7 +10,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
-import { REVIEW_CREDENTIALS, activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
+import { activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
+import { supabase } from "@/integrations/supabase/client";
+import { isNativeApp } from "@/lib/nativeDetect";
+import { lovable } from "@/integrations/lovable/index";
+import { shouldShowReviewLogin, shouldShowGoogleAuth, shouldShowAppleAuth } from "@/lib/platformSeparation";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
@@ -32,31 +36,38 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isReviewLoading, setIsReviewLoading] = useState(false);
-
-  const handleFieldFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-    if (!window.matchMedia("(max-width: 768px)").matches) return;
-    event.currentTarget.scrollIntoView({ block: "center", behavior: "smooth" });
-  };
+  const isNative = useMemo(() => isNativeApp(), []);
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      const redirect = searchParams.get("redirect") || "/";
+      const redirect = searchParams.get("redirect") || "/home";
       navigate(redirect, { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate, searchParams]);
 
-  // Review/Demo Login - bypasses all verification
+  // Review/Demo Login - credentials fetched server-side
   const handleReviewLogin = async () => {
     setIsReviewLoading(true);
     
     try {
-      const reviewEmail = REVIEW_CREDENTIALS.email.trim().toLowerCase();
-      const reviewPassword = REVIEW_CREDENTIALS.password;
-      
-      if (import.meta.env.DEV) console.log("[Review Login] Attempting login for:", reviewEmail);
-      
-      await signIn(reviewEmail, reviewPassword);
+      // Call edge function to get review session (credentials never leave server)
+      const { data, error } = await supabase.functions.invoke("review-login", {
+        body: { platform: "apple" },
+      });
+
+      if (error || data?.error) {
+        throw new Error(data?.error || error?.message || "Review login failed");
+      }
+
+      // Set the session from the server response
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+
+      if (sessionError) throw sessionError;
+
       activateReviewMode();
       
       toast({
@@ -66,21 +77,11 @@ export default function Auth() {
       
       navigate("/review-instructions", { replace: true });
     } catch (error: any) {
-      console.error("[Review Login] Error:", error);
-      
-      let errorMessage = error.message || "Unknown error";
-      
-      if (errorMessage.includes("Invalid login credentials")) {
-        errorMessage = "Review account not found. Please contact support: service@soulvay.com";
-      } else if (errorMessage.includes("Email not confirmed")) {
-        errorMessage = "Email verification pending. Please contact support.";
-      } else if (errorMessage.includes("Too many requests")) {
-        errorMessage = "Rate limited. Please wait a moment and try again.";
-      }
+      if (import.meta.env.DEV) console.error("[Review Login] Error:", error);
       
       toast({
-        title: "Review Login Failed",
-        description: errorMessage,
+        title: language === "de" ? "Login fehlgeschlagen" : "Login failed",
+        description: language === "de" ? "Bitte kontaktiere den Support: service@soulvay.com" : "Please contact support: service@soulvay.com",
         variant: "destructive",
       });
     } finally {
@@ -113,7 +114,20 @@ export default function Auth() {
           description: t("auth.nowLoggedIn"),
         });
       } else if (authMode === "signup") {
-        await signUp(normalizedEmail, password, displayName);
+        const result = await signUp(normalizedEmail, password, displayName);
+        
+        // With auto-confirm enabled, the user is immediately signed in
+        // The auth state change listener will handle navigation
+        if (result?.session) {
+          toast({
+            title: t("auth.accountCreated"),
+            description: t("auth.welcomeToSoulvay"),
+          });
+          // Navigate to home - user is already authenticated
+          navigate("/home", { replace: true });
+          return;
+        }
+        
         toast({
           title: t("auth.accountCreated"),
           description: t("auth.welcomeToSoulvay"),
@@ -127,10 +141,21 @@ export default function Auth() {
         setAuthMode("login");
       }
     } catch (error: any) {
-      console.error("[Auth] Error:", error);
+      if (import.meta.env.DEV) console.error("[Auth] Error:", error);
+      // Map common Supabase auth errors to localized messages
+      const rawMsg = error.message || "";
+      const mappedMsg = (() => {
+        if (rawMsg.includes("Invalid login credentials")) return language === "de" ? "E-Mail oder Passwort ist falsch." : "Invalid email or password.";
+        if (rawMsg.includes("Email not confirmed")) return language === "de" ? "Bitte bestätige zuerst deine E-Mail-Adresse." : "Please confirm your email address first.";
+        if (rawMsg.includes("User already registered")) return language === "de" ? "Diese E-Mail ist bereits registriert." : "This email is already registered.";
+        if (rawMsg.includes("Password should be")) return language === "de" ? "Das Passwort muss mindestens 6 Zeichen lang sein." : "Password must be at least 6 characters.";
+        if (rawMsg.includes("rate limit") || rawMsg.includes("too many")) return language === "de" ? "Zu viele Versuche. Bitte warte einen Moment." : "Too many attempts. Please wait a moment.";
+        if (rawMsg.includes("network") || rawMsg.includes("fetch")) return language === "de" ? "Keine Verbindung. Prüfe deine Internetverbindung." : "No connection. Check your internet.";
+        return language === "de" ? "Etwas hat nicht geklappt. Bitte versuche es nochmal." : "Something went wrong. Please try again.";
+      })();
       toast({
         title: t("common.error"),
-        description: error.message,
+        description: mappedMsg,
         variant: "destructive",
       });
     } finally {
@@ -173,20 +198,16 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-background flex flex-col">
+    <div className="min-h-[100dvh] bg-background flex flex-col" style={{ minHeight: '-webkit-fill-available' }}>
       {/* Header */}
-      <div className="safe-top p-4 flex items-center justify-between shrink-0">
-        {fromOnboarding ? (
-          <div className="w-10" />
-        ) : (
-          <button
-            onClick={() => navigate("/landing")}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm">{t("auth.back")}</span>
-          </button>
-        )}
+      <div className="p-4 flex items-center justify-between safe-top">
+        <button
+          onClick={() => navigate(fromOnboarding ? "/welcome" : "/landing")}
+          className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+          aria-label="Back"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         
         <button
           onClick={() => setThemeMode(isDark ? "light" : "dark")}
@@ -206,14 +227,11 @@ export default function Auth() {
       </div>
 
       {/* Form */}
-      <div
-        className="flex-1 overflow-y-auto px-4 pb-4 safe-bottom"
-        style={{ WebkitOverflowScrolling: "touch" }}
-      >
+      <div className="flex-1 flex items-start justify-center px-6 pt-2 pb-8 overflow-y-auto overscroll-none">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm md:max-w-md mx-auto space-y-6 md:space-y-8 py-4 md:py-8 min-h-full flex flex-col justify-start sm:justify-center"
+          className="w-full max-w-sm md:max-w-md space-y-6 my-auto"
         >
           {/* Logo & Title */}
           <div className="text-center space-y-4">
@@ -269,7 +287,6 @@ export default function Auth() {
                     placeholder={t("auth.yourNamePlaceholder")}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    onFocus={handleFieldFocus}
                     className="pl-10"
                   />
                 </div>
@@ -286,7 +303,6 @@ export default function Auth() {
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  onFocus={handleFieldFocus}
                   required
                   className="pl-10"
                 />
@@ -317,7 +333,6 @@ export default function Auth() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onFocus={handleFieldFocus}
                     required
                     minLength={6}
                     className="pl-10 pr-10"
@@ -342,6 +357,62 @@ export default function Auth() {
             </Button>
           </form>
 
+          {/* OAuth options — platform-gated */}
+          {authMode !== "forgot-password" && (shouldShowGoogleAuth() || shouldShowAppleAuth()) && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-border/40" />
+                <span className="text-xs text-muted-foreground/60 uppercase tracking-wider">
+                  {language === "de" ? "oder" : "or"}
+                </span>
+                <div className="flex-1 h-px bg-border/40" />
+              </div>
+              {shouldShowGoogleAuth() && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
+                    const { error } = await lovable.auth.signInWithOAuth("google", {
+                      redirect_uri: redirectUri,
+                    });
+                    if (error) {
+                      toast({ title: t("common.error"), description: String(error), variant: "destructive" });
+                    }
+                  }}
+                  className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl border border-border/50 bg-card hover:bg-muted/40 transition-all text-sm font-medium text-foreground"
+                >
+                  <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" width="18" height="18">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  {language === "de" ? "Mit Google fortfahren" : "Continue with Google"}
+                </button>
+              )}
+              {shouldShowAppleAuth() && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
+                    const { error } = await lovable.auth.signInWithOAuth("apple" as any, {
+                      redirect_uri: redirectUri,
+                    });
+                    if (error) {
+                      toast({ title: t("common.error"), description: String(error), variant: "destructive" });
+                    }
+                  }}
+                  className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl border border-border/50 bg-card hover:bg-muted/40 transition-all text-sm font-medium text-foreground"
+                >
+                  <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                  </svg>
+                  {language === "de" ? "Mit Apple fortfahren" : "Continue with Apple"}
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Switch Mode */}
           <div className="text-center text-sm">
             <span className="text-muted-foreground">
@@ -356,7 +427,7 @@ export default function Auth() {
           </div>
 
           {/* Review/Demo Login Button - only visible in dev or for review URLs */}
-          {authMode === "login" && (import.meta.env.DEV || window.location.hostname.includes('lovable')) && (
+          {authMode === "login" && shouldShowReviewLogin() && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

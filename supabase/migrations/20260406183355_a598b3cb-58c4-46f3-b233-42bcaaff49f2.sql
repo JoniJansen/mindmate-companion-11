@@ -1,0 +1,1 @@
+UPDATE public.profiles SET onboarding_completed = true WHERE user_id IN (SELECT DISTINCT user_id FROM public.companion_profiles);

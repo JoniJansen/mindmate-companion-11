@@ -92,13 +92,19 @@ export default function Summary() {
     });
 
     try {
+      // Get auth token for authenticated request
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
       const response = await fetch(SUMMARY_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${authToken}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages, language }),
       });
 
       if (!response.ok) {
@@ -109,7 +115,7 @@ export default function Summary() {
       const data = await response.json();
       setSummaryData(data);
     } catch (error) {
-      console.error("Summary error:", error);
+      if (import.meta.env.DEV) console.error("Summary error:", error);
       toast({
         title: t("summary.couldntGenerate"),
         description: t("summary.tryAgain"),

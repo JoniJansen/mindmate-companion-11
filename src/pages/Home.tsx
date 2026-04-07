@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Send, Calendar, MessageCircle, ChevronRight, Loader2, Headphones } from "lucide-react";
+import { Mic, MicOff, Send, MessageCircle, ChevronRight, Loader2, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -8,28 +8,26 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { usePremium } from "@/hooks/usePremium";
+import { SoftPremiumBanner } from "@/components/premium/SoftPremiumBanner";
 import { useStreak } from "@/hooks/useStreak";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { StreakCounter } from "@/components/streak/StreakCounter";
 import { StreakMilestone } from "@/components/streak/StreakMilestone";
-import { WeeklyProgress } from "@/components/streak/WeeklyProgress";
-import { usePersonalization } from "@/hooks/usePersonalization";
-import { AdaptiveSuggestions } from "@/components/home/AdaptiveSuggestions";
-import { ContinueModule } from "@/components/home/ContinueModule";
 import { useCompanion } from "@/hooks/useCompanion";
-import { CompanionAvatar } from "@/components/companions/CompanionAvatar";
-interface RecentThought {
-  id: string;
-  content: string;
-  mood: string | null;
-  created_at: string;
-  source: string | null;
-}
+import { CompanionCard } from "@/components/companion/CompanionCard";
+import { useCompanionCheckins } from "@/hooks/useCompanionCheckins";
+import { CompanionCheckin } from "@/components/home/CompanionCheckin";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { useReturnState } from "@/hooks/useReturnState";
+import { WelcomeBackCard } from "@/components/home/WelcomeBackCard";
+import { useDailyPrompt } from "@/hooks/useDailyPrompt";
+import { useChatPersistence } from "@/hooks/useChatPersistence";
+import { Lightbulb } from "lucide-react";
 
 export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [isRecording, setIsRecording] = useState(false);
-  const [recentThoughts, setRecentThoughts] = useState<RecentThought[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -37,52 +35,49 @@ export default function Home() {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isPremium } = usePremium();
   const streak = useStreak();
   const { logActivity } = useActivityLog();
-  const { suggestions, audioSuggestion } = usePersonalization();
+  const { prompt: dailyPrompt } = useDailyPrompt();
+  const [companionCheckinDismissed, setCompanionCheckinDismissed] = useState(false);
   const [showMilestone, setShowMilestone] = useState(true);
+  const { loadRecentConversations } = useChatPersistence();
   const { companion } = useCompanion();
-  
+  const { checkin: companionCheckin, dismiss: dismissCheckin } = useCompanionCheckins(companion?.name);
+  const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
+  const companionAvatarUrl = useAvatarUrl(companion?.avatar_url, companion?.archetype);
+  const returnState = useReturnState(language, companion?.name || "Soulvay");
+
   const speechLang = language === "de" ? "de-DE" : "en-US";
-  
-  const { 
-    isListening, 
-    fullTranscript, 
+
+  const {
+    isListening,
+    fullTranscript,
     isSupported: isSpeechSupported,
     startListening,
     stopListening,
     resetTranscript
   } = useSpeechRecognition(speechLang, { continuous: true });
 
-  // Load recent thoughts
+  // Load recent conversations
   useEffect(() => {
     if (!user) return;
-    
-    const loadRecentThoughts = async () => {
+    const loadData = async () => {
       try {
-        const { data } = await supabase
-          .from('journal_entries')
-          .select('id, content, mood, created_at, source')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(3);
-        
-        setRecentThoughts(data || []);
+        const convs = await loadRecentConversations(3);
+        setRecentConversations(convs);
       } catch (error) {
-        console.error('Error loading recent thoughts:', error);
+        if (import.meta.env.DEV) console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    
-    loadRecentThoughts();
-  }, [user]);
+    loadData();
+  }, [user, loadRecentConversations]);
 
   // Update input from speech
   useEffect(() => {
-    if (fullTranscript) {
-      setInputValue(fullTranscript);
-    }
+    if (fullTranscript) setInputValue(fullTranscript);
   }, [fullTranscript]);
 
   // Auto-resize textarea
@@ -106,9 +101,7 @@ export default function Home() {
 
   const handleSaveThought = async () => {
     if (!inputValue.trim() || !user) return;
-    
     setIsSaving(true);
-    
     try {
       const { error } = await supabase
         .from('journal_entries')
@@ -118,29 +111,16 @@ export default function Home() {
           content: inputValue.trim(),
           source: 'voice-dump',
         });
-      
       if (error) throw error;
-      
       toast({
         title: t("home.thoughtSaved"),
         description: t("home.thoughtSavedDesc"),
       });
-      
       setInputValue("");
       resetTranscript();
       logActivity("journal_entry");
-      
-      // Reload recent thoughts
-      const { data } = await supabase
-        .from('journal_entries')
-        .select('id, content, mood, created_at, source')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(3);
-      
-      setRecentThoughts(data || []);
     } catch (error) {
-      console.error('Error saving thought:', error);
+      if (import.meta.env.DEV) console.error('Error saving thought:', error);
       toast({
         title: t("common.error"),
         description: t("home.saveFailed"),
@@ -158,34 +138,6 @@ export default function Home() {
     navigate("/chat");
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-    
-    if (language === "de") {
-      if (diffMins < 1) return "Gerade eben";
-      if (diffMins < 60) return `vor ${diffMins} Min`;
-      if (diffHours < 24) return `vor ${diffHours} Std`;
-      if (diffDays === 1) return "Gestern";
-      return `vor ${diffDays} Tagen`;
-    } else {
-      if (diffMins < 1) return "Just now";
-      if (diffMins < 60) return `${diffMins}m ago`;
-      if (diffHours < 24) return `${diffHours}h ago`;
-      if (diffDays === 1) return "Yesterday";
-      return `${diffDays}d ago`;
-    }
-  };
-
-  const truncateText = (text: string, maxLength: number = 80) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength).trim() + "...";
-  };
-
   const greeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return t("home.greetingMorning");
@@ -194,24 +146,33 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="bg-background flex flex-col h-full">
       {/* Header */}
-      <div className="px-6 pt-8 pb-4 safe-top">
-        <div className="flex items-center justify-between max-w-lg md:max-w-2xl mx-auto">
-          <motion.h1 
+      <div className="px-6 pt-6 pb-3 safe-top shrink-0">
+        <div className="flex items-center justify-between">
+          <motion.h1
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-semibold text-foreground"
+            className="text-2xl font-semibold text-foreground truncate"
           >
             {greeting()}
           </motion.h1>
-          <StreakCounter
-            currentStreak={streak.currentStreak}
-            isActiveToday={streak.isActiveToday}
-            isLoading={streak.isLoading}
-          />
+          <div className="flex items-center gap-2">
+            <StreakCounter
+              currentStreak={streak.currentStreak}
+              isActiveToday={streak.isActiveToday}
+              isLoading={streak.isLoading}
+            />
+            <button
+              onClick={() => navigate("/settings")}
+              className="w-9 h-9 rounded-xl bg-card border border-border/50 flex items-center justify-center hover:border-primary/30 transition-colors"
+              aria-label="Settings"
+            >
+              <Settings className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
         </div>
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
@@ -230,7 +191,15 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 px-6 pb-6 max-w-lg md:max-w-2xl mx-auto w-full">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 pb-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        {/* Welcome Back — returning users */}
+        {returnState.category && (
+          <WelcomeBackCard
+            message={returnState.welcomeMessage}
+            onDismiss={returnState.dismiss}
+          />
+        )}
+
         {/* Voice/Text Input Area */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -238,7 +207,7 @@ export default function Home() {
           transition={{ delay: 0.2 }}
           className="mb-6"
         >
-          <div className="bg-card rounded-3xl border border-border/50 shadow-card overflow-hidden">
+          <div className="bg-card rounded-3xl border border-border/50 shadow-lg shadow-black/5 overflow-hidden">
             {/* Recording Indicator */}
             <AnimatePresence>
               {isRecording && (
@@ -259,7 +228,7 @@ export default function Home() {
                 </motion.div>
               )}
             </AnimatePresence>
-            
+
             {/* Text Area */}
             <div className="p-4">
               <textarea
@@ -271,7 +240,7 @@ export default function Home() {
                 rows={3}
               />
             </div>
-            
+
             {/* Actions */}
             <div className="px-4 pb-4 flex items-center justify-between">
               {isSpeechSupported && (
@@ -281,14 +250,10 @@ export default function Home() {
                   onClick={handleVoiceToggle}
                   className={`rounded-full w-12 h-12 ${isRecording ? "bg-primary text-primary-foreground" : ""}`}
                 >
-                  {isRecording ? (
-                    <MicOff className="w-5 h-5" />
-                  ) : (
-                    <Mic className="w-5 h-5" />
-                  )}
+                  {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                 </Button>
               )}
-              
+
               <div className="flex gap-2">
                 <Button
                   variant="outline"
@@ -296,12 +261,10 @@ export default function Home() {
                   disabled={!inputValue.trim() || isSaving}
                   className="rounded-xl"
                 >
-                  {isSaving ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : null}
+                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                   {t("home.save")}
                 </Button>
-                
+
                 <Button
                   onClick={handleTalkToSoulvay}
                   className="rounded-xl gap-2"
@@ -312,195 +275,99 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
           <p className="text-xs text-muted-foreground text-center mt-3">
             {t("home.unloadThoughts")}
           </p>
         </motion.div>
 
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-3 gap-3 mb-6"
-        >
-          <Button
-            variant="outline"
-            className="h-auto py-4 px-3 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
-            onClick={() => navigate("/chat")}
-          >
-            <MessageCircle className="w-5 h-5 text-primary" />
-            <span className="font-medium text-foreground text-xs">
-              {t("home.talkToMe")}
-            </span>
-          </Button>
-          
-          <Button
-            variant="outline"
-            className="h-auto py-4 px-3 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
-            onClick={() => navigate("/timeline")}
-          >
-            <Calendar className="w-5 h-5 text-primary" />
-            <span className="font-medium text-foreground text-xs">
-              {t("home.myTimeline")}
-            </span>
-          </Button>
-
-          <Button
-            variant="outline"
-            className="h-auto py-4 px-3 rounded-2xl flex flex-col items-start gap-1 bg-card border-border/50"
-            onClick={() => navigate("/audio")}
-          >
-            <Headphones className="w-5 h-5 text-primary" />
-            <span className="font-medium text-foreground text-xs">
-              {language === "de" ? "Audio" : "Audio"}
-            </span>
-          </Button>
-        </motion.div>
-
         {/* Companion Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="mb-4"
-        >
-          <button
-            onClick={() => navigate("/chat")}
-            className="w-full text-left rounded-2xl p-4 border bg-card border-border/50 hover:border-primary/30 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <CompanionAvatar companion={companion} size="md" animate />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground">
-                  {language === "de"
-                    ? `Möchtest du mit ${companion.name} sprechen?`
-                    : `Ready to talk with ${companion.name}?`}
-                </p>
-                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                  {companion.specialty[language as "en" | "de"]}
-                </p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-            </div>
-          </button>
-        </motion.div>
+        {companion && <CompanionCard companion={companion} />}
 
-        {/* Weekly Progress Dashboard */}
-        {!streak.isLoading && (
-          <WeeklyProgress
-            activeDays={streak.weeklyStats.activeDays}
-            moodCheckins={streak.weeklyStats.moodCheckins}
-            journalEntries={streak.weeklyStats.journalEntries}
-            exercisesCompleted={streak.weeklyStats.exercisesCompleted}
-            chatSessions={streak.weeklyStats.chatSessions}
-            lastWeekActiveDays={streak.lastWeekActiveDays}
-            currentStreak={streak.currentStreak}
+        {/* Soft Premium Banner (free users only) */}
+        {!isPremium && (
+          <SoftPremiumBanner language={language as "en" | "de"} variant="home" />
+        )}
+
+        {/* Companion Check-in */}
+        {companionCheckin && !companionCheckinDismissed && (
+          <CompanionCheckin
+            type={companionCheckin.type}
+            text={companionCheckin.text}
+            companionName={companion?.name}
+            companionArchetype={companion?.archetype}
+            companionAvatarUrl={companionAvatarUrl}
+            onTalkAboutIt={() => {
+              dismissCheckin();
+              setCompanionCheckinDismissed(true);
+              localStorage.setItem('soulvay-initial-message', companionCheckin.chatPrompt);
+              navigate("/chat");
+            }}
+            onDismiss={() => { dismissCheckin(); setCompanionCheckinDismissed(true); }}
           />
         )}
 
-        {/* Continue Module */}
-        <ContinueModule />
-
-        {/* Adaptive Suggestions */}
-        <AdaptiveSuggestions
-          suggestions={suggestions}
-          onStartExercise={(exercise) => navigate("/toolbox", { state: { startExercise: exercise.id } })}
-        />
-
-        {/* Audio Suggestion */}
-        {audioSuggestion && (
+        {/* Daily Reflection Prompt */}
+        {dailyPrompt && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="mb-4"
+            className="mb-6"
           >
             <button
-              onClick={() => navigate("/audio")}
-              className="w-full text-left rounded-2xl p-4 border bg-card border-primary/20 hover:border-primary/30 transition-colors"
+              onClick={() => {
+                localStorage.setItem('soulvay-initial-message', dailyPrompt.text);
+                navigate("/chat");
+              }}
+              className="w-full text-left rounded-2xl p-4 border bg-primary/5 border-primary/20 hover:border-primary/30 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-lg">
-                  {audioSuggestion.reason === "sleep" ? "🌙" : "🧘"}
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Lightbulb className="w-4 h-4 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">
-                    {t(audioSuggestion.reason === "sleep" ? "audio.sleepRecommended" : "audio.stressRecommended")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{t("audio.whyRecommended")}</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-0.5">{t("home.dailyPrompt")}</p>
+                  <p className="text-sm font-medium text-foreground">{dailyPrompt.text}</p>
                 </div>
-                <Headphones className="w-4 h-4 text-primary shrink-0" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
               </div>
             </button>
           </motion.div>
         )}
 
-        {/* Recent Thoughts */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-medium text-muted-foreground">
-              {t("home.recentThoughts")}
-            </h2>
-            {recentThoughts.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground h-auto py-1"
-                onClick={() => navigate("/timeline")}
-              >
-                {t("home.all")}
-                <ChevronRight className="w-4 h-4 ml-1" />
+        {/* Recent Conversations */}
+        {recentConversations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-6"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-muted-foreground">{t("home.recentConversations")}</span>
+              <Button variant="ghost" size="sm" className="text-muted-foreground h-auto py-1 text-xs" onClick={() => navigate("/chat-history")}>
+                {t("home.all")} <ChevronRight className="w-3 h-3 ml-0.5" />
               </Button>
-            )}
-          </div>
-          
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             </div>
-          ) : recentThoughts.length === 0 ? (
-            <div className="bg-muted/30 rounded-2xl p-6 text-center">
-              <p className="text-muted-foreground text-sm">
-                {t("home.noThoughts")}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {recentThoughts.map((thought, index) => (
-                <motion.button
-                  key={thought.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 * index }}
-                  onClick={() => navigate("/timeline")}
-                  className="w-full text-left bg-card rounded-xl p-4 border border-border/30 hover:border-border/60 transition-colors"
+            <div className="space-y-1.5">
+              {recentConversations.map((conv) => (
+                <button
+                  key={conv.id}
+                  onClick={() => navigate("/chat", { state: { conversationId: conv.id } })}
+                  className="w-full text-left rounded-xl px-3.5 py-2.5 border bg-card border-border/30 hover:border-primary/20 transition-colors flex items-center gap-3"
                 >
-                  <p className="text-sm text-foreground line-clamp-2">
-                    {truncateText(thought.content)}
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-muted-foreground">
-                      {formatTimeAgo(thought.created_at)}
-                    </span>
-                    {thought.mood && (
-                      <span className="text-xs">{thought.mood}</span>
-                    )}
-                  </div>
-                </motion.button>
+                  <MessageCircle className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                  <span className="text-sm text-foreground truncate flex-1">
+                    {conv.title || t("home.conversation")}
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
+                </button>
               ))}
             </div>
-          )}
-        </motion.div>
+          </motion.div>
+        )}
       </div>
-
-      {/* Bottom Safe Area */}
-      <div className="pb-6 safe-bottom" />
     </div>
   );
 }

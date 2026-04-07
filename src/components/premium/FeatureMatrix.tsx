@@ -16,6 +16,7 @@ const featureRows: FeatureRow[] = [
   { name: { en: "Crisis resources", de: "Krisenressourcen" }, free: true, premium: true },
   { name: { en: "Unlimited conversations", de: "Unbegrenzte Gespräche" }, free: false, premium: true },
   { name: { en: "Voice conversations", de: "Sprachgespräche" }, free: false, premium: true },
+  { name: { en: "Face-to-Face mode", de: "Face-to-Face Modus" }, free: false, premium: true },
   { name: { en: "Guided prompts", de: "Geführte Impulse" }, free: false, premium: true },
   { name: { en: "AI reflections", de: "KI-Reflexionen" }, free: false, premium: true },
   { name: { en: "Weekly recaps", de: "Wochenrückblicke" }, free: false, premium: true },

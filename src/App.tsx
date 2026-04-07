@@ -11,6 +11,7 @@ import { OnboardingGuard } from "@/components/routing/OnboardingGuard";
 import { CookieConsent } from "@/components/gdpr/CookieConsent";
 import { TourProvider } from "@/components/tour/TourProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 // Hooks
@@ -20,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 // Critical pages (eagerly loaded for instant navigation)
 import Chat from "@/pages/Chat";
+import Home from "@/pages/Home";
 import Auth from "@/pages/Auth";
 import Onboarding from "@/pages/Onboarding";
 
@@ -33,6 +35,7 @@ const Settings = lazy(() => import("@/pages/Settings"));
 const Safety = lazy(() => import("@/pages/Safety"));
 const Summary = lazy(() => import("@/pages/Summary"));
 const Install = lazy(() => import("@/pages/Install"));
+// Note: Install page is PWA-only; native builds redirect via isNativeApp() guard inside Install.tsx
 const Upgrade = lazy(() => import("@/pages/Upgrade"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
 const Terms = lazy(() => import("@/pages/Terms"));
@@ -46,10 +49,13 @@ const DeleteAccount = lazy(() => import("@/pages/DeleteAccount"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const AudioLibrary = lazy(() => import("@/pages/AudioLibrary"));
 const Timeline = lazy(() => import("@/pages/Timeline"));
+const ChatHistory = lazy(() => import("@/pages/ChatHistory"));
 const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
-const DevQA = lazy(() => import("@/pages/DevQA"));
+const DevQA = import.meta.env.DEV ? lazy(() => import("@/pages/DevQA")) : () => null;
+const Diagnostics = import.meta.env.DEV ? lazy(() => import("@/pages/Diagnostics")) : () => null;
+const CompanionSettings = lazy(() => import("@/pages/CompanionSettings"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,16 +73,10 @@ function ThemeInitializer() {
   useEffect(() => {
     const root = document.documentElement;
     try {
-      const legacyStored = localStorage.getItem("soulvay-theme");
-      const stored = localStorage.getItem("soulvay-theme") || legacyStored;
+      const stored = localStorage.getItem("soulvay-theme");
       if (stored) {
         const theme = JSON.parse(stored);
-
-        // If we have legacy value, migrate to canonical key
-        if (legacyStored && !localStorage.getItem("soulvay-theme")) {
-          localStorage.setItem("soulvay-theme", JSON.stringify(theme));
-        }
-
+        
         // Determine actual mode - default to light
         let actualMode: "light" | "dark" = theme.mode === "system"
           ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
@@ -100,7 +100,6 @@ function ThemeInitializer() {
   return null;
 }
 
-// RevenueCat subscription restore on app start
 function SubscriptionRestoreInitializer() {
   const { isRevenueCatAvailable, restorePurchases, checkSubscriptionStatus } = usePremium();
 
@@ -130,7 +129,7 @@ function RootRedirect() {
   
   // If authenticated, go to chat
   if (isAuthenticated) {
-    return <Navigate to="/chat" replace />;
+    return <Navigate to="/home" replace />;
   }
   
   // If completed onboarding but not authenticated, go to auth
@@ -161,8 +160,8 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => (
-  <ErrorBoundary>
+function AppContent() {
+  return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
@@ -170,7 +169,7 @@ const App = () => (
           <SubscriptionRestoreInitializer />
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TourProvider>
               <DelayedCookieConsent />
               <Suspense fallback={<PageLoader />}>
@@ -190,11 +189,12 @@ const App = () => (
                   
                   {/* Main app with bottom navigation - Protected with OnboardingGuard */}
                   <Route element={<OnboardingGuard><AppLayout /></OnboardingGuard>}>
-                    <Route path="/chat" element={<Chat />} />
-                    <Route path="/journal" element={<Journal />} />
-                    <Route path="/topics" element={<Topics />} />
-                    <Route path="/mood" element={<Mood />} />
-                    <Route path="/toolbox" element={<Toolbox />} />
+                    <Route path="/home" element={<SectionErrorBoundary section="home"><Home /></SectionErrorBoundary>} />
+                    <Route path="/chat" element={<SectionErrorBoundary section="chat"><Chat /></SectionErrorBoundary>} />
+                    <Route path="/journal" element={<SectionErrorBoundary section="journal"><Journal /></SectionErrorBoundary>} />
+                    <Route path="/topics" element={<SectionErrorBoundary section="topics"><Topics /></SectionErrorBoundary>} />
+                    <Route path="/mood" element={<SectionErrorBoundary section="mood"><Mood /></SectionErrorBoundary>} />
+                    <Route path="/toolbox" element={<SectionErrorBoundary section="toolbox"><Toolbox /></SectionErrorBoundary>} />
                   </Route>
                   
                   {/* Standalone protected pages */}
@@ -205,6 +205,7 @@ const App = () => (
                   <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
                   <Route path="/audio" element={<OnboardingGuard><AudioLibrary /></OnboardingGuard>} />
                   <Route path="/timeline" element={<OnboardingGuard><Timeline /></OnboardingGuard>} />
+                  <Route path="/chat-history" element={<OnboardingGuard><ChatHistory /></OnboardingGuard>} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/impressum" element={<Impressum />} />
@@ -214,6 +215,7 @@ const App = () => (
                   <Route path="/about" element={<About />} />
                   <Route path="/delete-account" element={<DeleteAccount />} />
                   <Route path="/admin" element={<OnboardingGuard><Admin /></OnboardingGuard>} />
+                  <Route path="/companion" element={<OnboardingGuard><CompanionSettings /></OnboardingGuard>} />
                   
                   {/* Review Mode Pages */}
                   <Route path="/review-instructions" element={<ReviewInstructions />} />
@@ -222,7 +224,10 @@ const App = () => (
                   
                   {/* DEV-ONLY */}
                   {import.meta.env.DEV && (
-                    <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
+                    <>
+                      <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
+                      <Route path="/diagnostics" element={<Diagnostics />} />
+                    </>
                   )}
                   
                   {/* Catch-all */}
@@ -234,6 +239,12 @@ const App = () => (
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
+  );
+}
+
+const App = () => (
+  <ErrorBoundary>
+    <AppContent />
   </ErrorBoundary>
 );
 

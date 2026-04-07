@@ -76,7 +76,7 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
           const isClipped = buttonRect.right > containerRect.right + 4;
           const isPartiallyHidden = buttonRect.left + buttonRect.width * 0.5 > containerRect.right;
           
-          if (isClipped && el.scrollLeft === 0) {
+          if (isClipped && el.scrollLeft === 0 && import.meta.env.DEV) {
             console.warn(
               `[ChatModeSelector] Last tab "${lastButton.textContent}" may be clipped at rest. ` +
               `Container: ${containerRect.width}px, Content needs: ${el.scrollWidth}px. ` +
@@ -214,24 +214,30 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
 export function getModeSystemPrompt(mode: ChatMode, language: "en" | "de"): string {
   const prompts: Record<ChatMode, { en: string; de: string }> = {
     talk: {
-      en: `MODE: Free Emotional Conversation
-      
-The user wants to talk freely about what's on their mind. Your role:
-- Listen more than you advise
-- Reflect feelings back empathetically
-- Ask only occasional clarifying questions
-- Don't rush to fix or solve
-- Create space for emotional expression
-- Validate without judgment`,
-      de: `MODUS: Freies emotionales Gespräch
-      
-Der Nutzer möchte frei über das sprechen, was ihn beschäftigt. Deine Rolle:
-- Höre mehr zu als du rätst
-- Spiegle Gefühle empathisch zurück
-- Stelle nur gelegentlich klärende Fragen
-- Versuche nicht, schnell zu lösen
-- Schaffe Raum für emotionalen Ausdruck
-- Validiere ohne Urteil`,
+      en: `MODE: Deep Listening & Reflective Conversation
+
+The user wants to talk freely. Your role is to listen deeply and reflect meaningfully — NOT to simply echo.
+
+Guidelines:
+- Reflect SPECIFIC emotional details from what the user shared, not generic summaries
+- Add a layer of understanding that shows you grasped the deeper meaning
+- Offer gentle observations when you notice patterns or themes ("I notice that...")
+- Ask thoughtful follow-up questions that invite deeper exploration
+- End every response with either ONE reflective question OR a warm invitation to continue sharing
+- Do NOT list solutions or techniques unless explicitly asked
+- Resist the impulse to fix — create space for the user to process`,
+      de: `MODUS: Tiefes Zuhören & Reflektives Gespräch
+
+Der Nutzer möchte frei sprechen. Deine Rolle ist tiefes Zuhören und bedeutungsvolles Reflektieren — NICHT einfaches Echo.
+
+Richtlinien:
+- Spiegle SPEZIFISCHE emotionale Details aus dem Gesagten, keine generischen Zusammenfassungen
+- Füge eine Ebene des Verstehens hinzu, die zeigt, dass du den tieferen Sinn erfasst hast
+- Biete sanfte Beobachtungen an, wenn dir Muster auffallen ("Mir fällt auf, dass...")
+- Stelle durchdachte Nachfragen, die zu tieferer Reflexion einladen
+- Beende jede Antwort mit EINER reflektiven Frage ODER einer warmen Einladung weiterzusprechen
+- Liste KEINE Lösungen oder Techniken auf, es sei denn ausdrücklich gefragt
+- Widerstehe dem Impuls zu reparieren — schaffe Raum zum Verarbeiten`,
     },
     clarify: {
       en: `MODE: Guided Reflection

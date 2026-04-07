@@ -18,6 +18,16 @@ const REVIEW_ACCOUNTS = [
     password: Deno.env.get("REVIEW_ACCOUNT_GOOGLE_PASSWORD") || "",
     displayName: "Google Reviewer",
   },
+  {
+    email: Deno.env.get("TEST_ACCOUNT_ALINA_EMAIL") || "",
+    password: Deno.env.get("TEST_ACCOUNT_ALINA_PASSWORD") || "",
+    displayName: "Alina",
+  },
+  {
+    email: Deno.env.get("TEST_ACCOUNT_STEFAN_EMAIL") || "",
+    password: Deno.env.get("TEST_ACCOUNT_STEFAN_PASSWORD") || "",
+    displayName: "Stefan",
+  },
 ];
 
 async function setupAccount(
@@ -124,6 +134,16 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Authentication: require shared secret to prevent unauthorized access
+    const setupSecret = Deno.env.get("SETUP_SECRET");
+    const callerSecret = req.headers.get("x-setup-secret");
+    if (!setupSecret || callerSecret !== setupSecret) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -134,6 +154,11 @@ Deno.serve(async (req) => {
     // Setup all review accounts
     const results = [];
     for (const account of REVIEW_ACCOUNTS) {
+      if (!account.email || !account.password) {
+        console.log("Skipping account with missing credentials:", JSON.stringify({ email: account.email ? "set" : "empty", password: account.password ? "set" : "empty", displayName: account.displayName }));
+        results.push({ success: false, message: `Skipped ${account.displayName}: missing email or password` });
+        continue;
+      }
       const result = await setupAccount(supabase, account);
       results.push(result);
     }
@@ -145,7 +170,7 @@ Deno.serve(async (req) => {
   } catch (error: any) {
     console.error("Setup review account error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: "Request failed. Please try again." }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -10,17 +10,30 @@ export default function Impressum() {
   const [language, setLanguage] = useState<"en" | "de">("de");
 
   useEffect(() => {
-    const stored = localStorage.getItem("soulvay_language") || "de";
-    setLanguage(stored as "en" | "de");
+    try {
+      const prefsRaw = localStorage.getItem("soulvay-preferences");
+      if (prefsRaw) {
+        const prefs = JSON.parse(prefsRaw);
+        if (prefs.language === "de" || prefs.language === "en") {
+          setLanguage(prefs.language);
+          return;
+        }
+      }
+      const browserLang = navigator.language || "";
+      setLanguage(browserLang.startsWith("de") ? "de" : "en");
+    } catch {
+      setLanguage("de");
+    }
   }, []);
 
   const texts = {
     de: {
       title: "Impressum",
-      subtitle: "Angaben gemäß § 5 TMG",
+      subtitle: "Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz)",
       provider: "Anbieter",
-      companyName: "MindMade",
-      businessType: "Kleingewerbe",
+      companyName: "Soulvay",
+      businessType: "Kleingewerbe (Jonathan Jansen)",
+      taxNote: "Umsatzsteuer-ID: Nicht vorhanden. Kleinunternehmer gemäß § 19 UStG — es wird keine Umsatzsteuer erhoben.",
       address: "Petersbergstraße 11",
       city: "53604 Bad Honnef",
       country: "Deutschland",
@@ -31,7 +44,7 @@ export default function Impressum() {
       representative: "Inhaber",
       representativeDesc: "Jonathan Jansen",
       responsibility: "Verantwortlich für den Inhalt",
-      responsibilityDesc: "Verantwortlich gemäß § 55 Abs. 2 RStV:",
+      responsibilityDesc: "Verantwortlich gemäß § 18 Abs. 2 MStV (Medienstaatsvertrag):",
       responsiblePerson: "Jonathan Jansen",
       responsibleAddress: "Petersbergstraße 11, 53604 Bad Honnef",
       disputeResolution: "Streitschlichtung",
@@ -39,21 +52,22 @@ export default function Impressum() {
       disputeLink: "https://ec.europa.eu/consumers/odr/",
       disputeNote: "Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.",
       liability: "Haftung für Inhalte",
-      liabilityDesc: "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.",
+      liabilityDesc: "Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.",
       liabilityLinks: "Haftung für Links",
       liabilityLinksDesc: "Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.",
       copyright: "Urheberrecht",
       copyrightDesc: "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.",
       medicalDisclaimer: "Medizinischer Hinweis",
       medicalDisclaimerDesc: "Soulvay ist kein Ersatz für professionelle psychologische oder medizinische Beratung, Diagnose oder Behandlung. Die App dient ausschließlich zur Unterstützung des persönlichen Wohlbefindens und der Selbstreflexion. Bei psychischen Problemen oder Erkrankungen wenden Sie sich bitte an qualifizierte Fachpersonen.",
-      lastUpdate: "Stand: Januar 2025",
+      lastUpdate: "Stand: März 2026",
     },
     en: {
       title: "Legal Notice",
-      subtitle: "Information according to § 5 TMG (German Telemedia Act)",
+      subtitle: "Information according to § 5 DDG (German Digital Services Act)",
       provider: "Provider",
-      companyName: "MindMade",
-      businessType: "Small Business",
+      companyName: "Soulvay",
+      businessType: "Small Business (Jonathan Jansen)",
+      taxNote: "VAT ID: Not applicable. Small business pursuant to § 19 UStG (German VAT Act) — no VAT is charged.",
       address: "Petersbergstraße 11",
       city: "53604 Bad Honnef",
       country: "Germany",
@@ -64,7 +78,7 @@ export default function Impressum() {
       representative: "Owner",
       representativeDesc: "Jonathan Jansen",
       responsibility: "Responsible for Content",
-      responsibilityDesc: "Responsible according to § 55 para. 2 RStV:",
+      responsibilityDesc: "Responsible according to § 18 para. 2 MStV (German Interstate Media Treaty):",
       responsiblePerson: "Jonathan Jansen",
       responsibleAddress: "Petersbergstraße 11, 53604 Bad Honnef",
       disputeResolution: "Dispute Resolution",
@@ -72,14 +86,14 @@ export default function Impressum() {
       disputeLink: "https://ec.europa.eu/consumers/odr/",
       disputeNote: "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board.",
       liability: "Liability for Content",
-      liabilityDesc: "As a service provider, we are responsible for our own content on these pages in accordance with general laws pursuant to § 7 para. 1 TMG. However, according to §§ 8 to 10 TMG, we are not obligated to monitor transmitted or stored third-party information or to investigate circumstances that indicate illegal activity. Obligations to remove or block the use of information under general laws remain unaffected. However, liability in this regard is only possible from the time of knowledge of a specific legal violation. Upon becoming aware of such violations, we will remove this content immediately.",
+      liabilityDesc: "As a service provider, we are responsible for our own content on these pages in accordance with general laws pursuant to § 7 para. 1 DDG. However, according to §§ 8 to 10 DDG, we are not obligated to monitor transmitted or stored third-party information or to investigate circumstances that indicate illegal activity. Obligations to remove or block the use of information under general laws remain unaffected. However, liability in this regard is only possible from the time of knowledge of a specific legal violation. Upon becoming aware of such violations, we will remove this content immediately.",
       liabilityLinks: "Liability for Links",
       liabilityLinksDesc: "Our offer contains links to external websites of third parties, over whose contents we have no influence. Therefore, we cannot assume any liability for these external contents. The respective provider or operator of the pages is always responsible for the contents of the linked pages. The linked pages were checked for possible legal violations at the time of linking. Illegal contents were not recognizable at the time of linking. However, permanent monitoring of the contents of the linked pages is not reasonable without concrete evidence of an infringement. Upon becoming aware of legal violations, we will remove such links immediately.",
       copyright: "Copyright",
       copyrightDesc: "The content and works created by the site operators on these pages are subject to German copyright law. Duplication, processing, distribution, and any kind of exploitation outside the limits of copyright law require the written consent of the respective author or creator. Downloads and copies of this page are only permitted for private, non-commercial use. Insofar as the content on this page was not created by the operator, the copyrights of third parties are respected. In particular, third-party content is marked as such. Should you nevertheless become aware of a copyright infringement, please inform us accordingly. Upon becoming aware of legal violations, we will remove such content immediately.",
       medicalDisclaimer: "Medical Disclaimer",
       medicalDisclaimerDesc: "Soulvay is not a substitute for professional psychological or medical advice, diagnosis, or treatment. The app is intended solely to support personal well-being and self-reflection. If you are experiencing mental health problems or conditions, please consult qualified professionals.",
-      lastUpdate: "Last updated: January 2025",
+      lastUpdate: "Last updated: March 2026",
     },
   };
 
@@ -118,9 +132,11 @@ export default function Impressum() {
             </div>
             <div className="pl-12 space-y-1 text-foreground">
               <p className="font-medium">{t.companyName}</p>
+              <p className="text-sm text-muted-foreground">{t.businessType}</p>
               <p>{t.address}</p>
               <p>{t.city}</p>
               <p>{t.country}</p>
+              <p className="text-sm text-muted-foreground mt-2">{t.taxNote}</p>
             </div>
           </section>
 

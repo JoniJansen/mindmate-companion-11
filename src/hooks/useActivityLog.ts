@@ -41,7 +41,7 @@ export function useActivityLog() {
         );
     } catch (e) {
       // Silent — streak logging is non-critical
-      console.warn("Activity log failed:", e);
+      if (import.meta.env.DEV) console.warn("Activity log failed:", e);
     }
   }, [user]);
 

@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
+import { getArchetype } from "@/data/companions";
 
 interface Profile {
   id: string;
@@ -35,21 +36,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Module-level dedup: prevent double-fetch from onAuthStateChange + getSession racing
+  const profileFetchInFlight = useRef<Promise<void> | null>(null);
+  const lastProfileUserId = useRef<string | null>(null);
+
   const fetchProfile = useCallback(async (userId: string) => {
+    // If we already fetched for this user and have data, skip
+    if (lastProfileUserId.current === userId && profileFetchInFlight.current) {
+      await profileFetchInFlight.current;
+      return;
+    }
+    lastProfileUserId.current = userId;
+
+    const doFetch = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (error) {
+          if (import.meta.env.DEV) console.warn("Failed to fetch profile:", error);
+          return;
+        }
+        setProfile(data);
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Failed to fetch profile:", e);
+      } finally {
+        profileFetchInFlight.current = null;
+      }
+    };
+
+    profileFetchInFlight.current = doFetch();
+    await profileFetchInFlight.current;
+  }, []);
+
+  // Create companion profile from onboarding data (runs once after first sign-in)
+  const ensureCompanionProfile = useCallback(async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
+      const stored = localStorage.getItem("soulvay-personalization");
+      if (!stored) return; // No onboarding data — skip
+
+      const personalization = JSON.parse(stored);
+      const archetypeId = personalization.companionId || "mira";
+      const arch = getArchetype(archetypeId);
+      if (!arch) return;
+
+      // Check if profile already exists
+      const { data: existing } = await supabase
+        .from("companion_profiles")
+        .select("id, archetype")
         .eq("user_id", userId)
         .maybeSingle();
 
-      if (error) {
-        console.warn("Failed to fetch profile:", error);
+      const profileData = {
+        name: arch.name,
+        archetype: arch.id,
+        personality_style: arch.personalityStyle,
+        tone: arch.tone,
+        appearance_prompt: arch.appearancePrompt,
+        avatar_url: arch.defaultAvatar,
+      };
+
+      if (existing) {
+        // If onboarding selected a different companion, update the persisted profile
+        if (existing.archetype !== arch.id) {
+          await supabase
+            .from("companion_profiles")
+            .update(profileData as any)
+            .eq("user_id", userId);
+        }
         return;
       }
-      setProfile(data);
+
+      await supabase
+        .from("companion_profiles")
+        .insert({ user_id: userId, ...profileData } as any);
     } catch (e) {
-      console.warn("Failed to fetch profile:", e);
+      if (import.meta.env.DEV) console.warn("Auto companion creation failed:", e);
     }
   }, []);
 
@@ -62,6 +127,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (session?.user) {
           setTimeout(() => fetchProfile(session.user.id), 0);
+          // Auto-create companion profile from onboarding selection
+          if (_event === "SIGNED_IN") {
+            ensureCompanionProfile(session.user.id);
+          }
         } else {
           setProfile(null);
         }
@@ -91,6 +160,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
     if (error) throw error;
+
+    // Send branded welcome email asynchronously (fire-and-forget)
+    if (data.session) {
+      supabase.functions.invoke('send-transactional-email', {
+        body: {
+          template: 'welcome',
+          data: { displayName: displayName || undefined },
+        },
+      }).catch((e) => {
+        if (import.meta.env.DEV) console.warn('Welcome email failed:', e);
+      });
+    }
+
     return data;
   }, []);
 

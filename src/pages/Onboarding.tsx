@@ -1,368 +1,383 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Check, Globe, MessageCircle, User, Sun, Moon, Target, Clock, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles, Sun, Moon, MessageCircle, Heart, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { useCompanion } from "@/hooks/useCompanion";
+import { companionArchetypes, CompanionArchetype } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
-import { companions, type Companion } from "@/data/companions";
-import { CompanionCard } from "@/components/companions/CompanionAvatar";
+import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
+import { analytics } from "@/hooks/useAnalytics";
 
 type Language = "en" | "de";
-type Tone = "gentle" | "neutral" | "structured";
-type AddressForm = "du" | "sie";
 
 interface OnboardingState {
   language: Language;
-  tone: Tone;
-  addressForm: AddressForm;
-  disclaimerAccepted: boolean;
-  focusAreas: string[];
-  reflectionFrequency: string;
-  personalGoal: string;
+  name: string;
+  need: string;
   companionId: string;
+  disclaimerAccepted: boolean;
 }
 
-const steps = ["welcome", "disclaimer", "preferences", "focus", "frequency", "goal", "companion"] as const;
+const steps = ["name", "need", "companion", "start"] as const;
 type Step = typeof steps[number];
 
-const focusOptions = {
-  en: [
-    { id: "stress", label: "Stress", emoji: "😤" },
-    { id: "anxiety", label: "Anxiety", emoji: "😰" },
-    { id: "sleep", label: "Sleep", emoji: "😴" },
-    { id: "relationships", label: "Relationships", emoji: "💛" },
-    { id: "selfworth", label: "Self-worth", emoji: "🌱" },
-    { id: "motivation", label: "Motivation", emoji: "⚡" },
-    { id: "grief", label: "Grief & Loss", emoji: "🕊️" },
-    { id: "general", label: "Just exploring", emoji: "🔍" },
-  ],
-  de: [
-    { id: "stress", label: "Stress", emoji: "😤" },
-    { id: "anxiety", label: "Angst", emoji: "😰" },
-    { id: "sleep", label: "Schlaf", emoji: "😴" },
-    { id: "relationships", label: "Beziehungen", emoji: "💛" },
-    { id: "selfworth", label: "Selbstwert", emoji: "🌱" },
-    { id: "motivation", label: "Motivation", emoji: "⚡" },
-    { id: "grief", label: "Trauer & Verlust", emoji: "🕊️" },
-    { id: "general", label: "Einfach erkunden", emoji: "🔍" },
-  ],
-};
-
-const frequencyOptions = {
-  en: [
-    { id: "daily", label: "Every day", desc: "Build a daily habit" },
-    { id: "3-4x", label: "3-4x per week", desc: "Regular check-ins" },
-    { id: "weekly", label: "Once a week", desc: "Weekly reflection" },
-    { id: "flexible", label: "When I need it", desc: "No pressure" },
-  ],
-  de: [
-    { id: "daily", label: "Jeden Tag", desc: "Eine tägliche Gewohnheit aufbauen" },
-    { id: "3-4x", label: "3-4x pro Woche", desc: "Regelmäßige Check-ins" },
-    { id: "weekly", label: "Einmal pro Woche", desc: "Wöchentliche Reflexion" },
-    { id: "flexible", label: "Wenn ich es brauche", desc: "Kein Druck" },
-  ],
+// Map needs to recommended companion
+const needToCompanion: Record<string, string[]> = {
+  understand: ["elena", "sofia", "noah"],
+  talk: ["mira", "lina", "ava"],
+  organize: ["jonas", "kai", "theo"],
 };
 
 const translations = {
   en: {
     continue: "Continue",
-    getStarted: "Begin",
-    welcome: {
-      title: "A quiet space for your mind",
-      subtitle: "Soulvay is here to listen. No pressure, no perfect words needed - just calm support when you need it.",
-      trustLine: "Private by default. No judgment.",
+    back: "Back",
+    name: {
+      title: "What should we call you?",
+      placeholder: "Your name",
     },
-    disclaimer: {
-      title: "A few words before we start",
-      text: "Soulvay is an AI companion—thoughtful, but not a therapist. It can listen and help you reflect, but it",
-      notReplacement: "cannot replace professional support",
-      textEnd: "for mental health concerns.",
-      crisis: "If you're going through something serious, please reach out to a real person. We'll always show you how.",
-      checkbox: "I understand Soulvay is not therapy or medical advice",
-    },
-    preferences: {
-      title: "Make it yours",
-      subtitle: "You can change these anytime",
-      language: "Language",
-      tone: "How should I speak?",
-      tones: { gentle: "Gentle", neutral: "Balanced", structured: "Clear" },
-      addressForm: "How should I address you?",
-      addressForms: { du: "Informal", sie: "Formal" },
-    },
-    focus: {
-      title: "What's on your mind?",
-      subtitle: "Choose what resonates — you can pick multiple.",
-    },
-    frequency: {
-      title: "How often feels right for you?",
-      subtitle: "This helps us personalize your experience.",
-    },
-    goal: {
-      title: "Imagine yourself in 4 weeks",
-      subtitle: "What would be different?",
-      placeholder: "I'd feel more calm... / I'd understand myself better... / I'd sleep better...",
-      optionalLabel: "Optional (1-5 words)",
-      presets: ["Calmer mind", "Better sleep", "Less stress", "More focus"],
-      reassurance: "You can change this anytime.",
-      skip: "Skip for now",
+    need: {
+      title: "What brings you here?",
+      options: [
+        { id: "understand", label: "I want to understand myself better", emoji: "🌱" },
+        { id: "talk", label: "I need someone to talk to", emoji: "💬" },
+        { id: "organize", label: "I want to sort my thoughts", emoji: "✨" },
+      ],
     },
     companion: {
-      title: "Choose your companion",
-      subtitle: "Each has a unique psychological approach. You can switch anytime in Settings.",
+      title: "Meet your companion",
+      subtitle: "Recommended for you",
+      showAll: "Explore all companions",
+      showLess: "Show fewer",
+    },
+    start: {
+      cta: "Start your first conversation",
+      disclaimer: "I understand Soulvay is not therapy or medical advice",
+      disclaimerNote: "Soulvay is an AI companion — thoughtful, but not a therapist.",
     },
   },
   de: {
     continue: "Weiter",
-    getStarted: "Beginnen",
-    welcome: {
-      title: "Ein ruhiger Raum für deinen Geist",
-      subtitle: "Soulvay ist hier, um zuzuhören. Kein Druck, keine perfekten Worte - einfach ruhige Begleitung, wenn du sie brauchst.",
-      trustLine: "Privat standardmäßig. Ohne Urteil.",
+    back: "Zurück",
+    name: {
+      title: "Wie dürfen wir dich nennen?",
+      placeholder: "Dein Name",
     },
-    disclaimer: {
-      title: "Ein paar Worte bevor wir starten",
-      text: "Soulvay ist ein KI-Begleiter—durchdacht, aber kein Therapeut. Es kann zuhören und dir helfen zu reflektieren, aber es",
-      notReplacement: "kann professionelle Unterstützung nicht ersetzen",
-      textEnd: "bei psychischen Anliegen.",
-      crisis: "Wenn du etwas Ernstes durchmachst, wende dich bitte an einen echten Menschen. Wir zeigen dir immer, wie.",
-      checkbox: "Ich verstehe, dass Soulvay keine Therapie oder medizinischer Rat ist",
-    },
-    preferences: {
-      title: "Mach es zu deinem",
-      subtitle: "Du kannst das jederzeit ändern",
-      language: "Sprache",
-      tone: "Wie soll ich sprechen?",
-      tones: { gentle: "Sanft", neutral: "Ausgewogen", structured: "Klar" },
-      addressForm: "Wie soll ich dich ansprechen?",
-      addressForms: { du: "Du (informell)", sie: "Sie (formell)" },
-    },
-    focus: {
-      title: "Was beschäftigt dich?",
-      subtitle: "Wähle, was sich richtig anfühlt — Mehrfachauswahl möglich.",
-    },
-    frequency: {
-      title: "Wie oft fühlt sich für dich richtig an?",
-      subtitle: "Das hilft uns, dein Erlebnis zu personalisieren.",
-    },
-    goal: {
-      title: "Stell dir vor, wie es in 4 Wochen ist",
-      subtitle: "Was wäre anders?",
-      placeholder: "Ich wäre ruhiger... / Ich würde mich besser verstehen... / Ich würde besser schlafen...",
-      optionalLabel: "Optional (1-5 Wörter)",
-      presets: ["Ruhigerer Geist", "Besser schlafen", "Weniger Stress", "Mehr Fokus"],
-      reassurance: "Du kannst das jederzeit ändern.",
-      skip: "Erstmal überspringen",
+    need: {
+      title: "Was führt dich hierher?",
+      options: [
+        { id: "understand", label: "Ich möchte mich besser verstehen", emoji: "🌱" },
+        { id: "talk", label: "Ich brauche jemanden zum Reden", emoji: "💬" },
+        { id: "organize", label: "Ich möchte meine Gedanken ordnen", emoji: "✨" },
+      ],
     },
     companion: {
-      title: "Wähle deinen Begleiter",
-      subtitle: "Jeder hat einen einzigartigen psychologischen Ansatz. Du kannst jederzeit in den Einstellungen wechseln.",
+      title: "Triff deinen Begleiter",
+      subtitle: "Empfohlen für dich",
+      showAll: "Alle Begleiter entdecken",
+      showLess: "Weniger anzeigen",
+    },
+    start: {
+      cta: "Starte dein erstes Gespräch",
+      disclaimer: "Ich verstehe, dass Soulvay keine Therapie oder medizinischer Rat ist",
+      disclaimerNote: "Soulvay ist ein KI-Begleiter — durchdacht, aber kein Therapeut.",
     },
   },
 };
 
 export default function Onboarding() {
-  const [currentStep, setCurrentStep] = useState<Step>("welcome");
+  const [currentStep, setCurrentStep] = useState<Step>("name");
   const [state, setState] = useState<OnboardingState>(() => {
-    const browserLang = navigator.language?.toLowerCase() || "";
-    const detectedLang: Language = browserLang.startsWith("de") ? "de" : "en";
+    let detectedLang: Language = "de";
+    try {
+      const stored = localStorage.getItem("soulvay-preferences");
+      if (stored) {
+        const prefs = JSON.parse(stored);
+        if (prefs.language === "en" || prefs.language === "de") {
+          detectedLang = prefs.language;
+        }
+      } else {
+        const browserLang = navigator.language?.toLowerCase() || "";
+        detectedLang = browserLang.startsWith("de") ? "de" : "en";
+      }
+    } catch {
+      const browserLang = navigator.language?.toLowerCase() || "";
+      detectedLang = browserLang.startsWith("de") ? "de" : "en";
+    }
     return {
       language: detectedLang,
-      tone: "gentle",
-      addressForm: "du",
-      disclaimerAccepted: false,
-      focusAreas: [],
-      reflectionFrequency: "",
-      personalGoal: "",
+      name: "",
+      need: "",
       companionId: "mira",
+      disclaimerAccepted: false,
     };
   });
+  
   const navigate = useNavigate();
   const { isDark, setMode: setThemeMode } = useTheme();
   const { completeOnboarding } = useOnboardingStatus();
   const { isAuthenticated } = useAuth();
+  const { selectArchetype } = useCompanion();
+  const [isFinishing, setIsFinishing] = useState(false);
+
+  // Track onboarding started once
+  useEffect(() => {
+    analytics.track("onboarding_started", {}, "onboarding_started");
+  }, []);
+
+  // Track step transitions
+  const prevStepRef = useRef(currentStep);
+  useEffect(() => {
+    if (prevStepRef.current !== currentStep) {
+      analytics.track("onboarding_step_completed", { step: prevStepRef.current, next_step: currentStep });
+      prevStepRef.current = currentStep;
+    }
+  }, [currentStep]);
 
   const currentStepIndex = steps.indexOf(currentStep);
   const t = translations[state.language];
-
-  const handleFieldFocus = (event: React.FocusEvent<HTMLTextAreaElement>) => {
-    if (!window.matchMedia("(max-width: 768px)").matches) return;
-    event.currentTarget.scrollIntoView({ block: "center", behavior: "smooth" });
-  };
 
   const handleNext = () => {
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < steps.length) {
       setCurrentStep(steps[nextIndex]);
-    } else {
-      finishOnboarding();
     }
   };
 
-  const finishOnboarding = () => {
-    // Save preferences
-    localStorage.setItem("soulvay-preferences", JSON.stringify({
-      language: state.language,
-      tone: state.tone,
-      addressForm: state.addressForm,
-      disclaimerAccepted: state.disclaimerAccepted,
-    }));
+  const handleBack = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStep(steps[currentStepIndex - 1]);
+    }
+  };
 
-    // Save personalization data separately (versioned)
+  const finishOnboarding = async () => {
+    if (!state.disclaimerAccepted) return;
+    setIsFinishing(true);
+
+    analytics.track("onboarding_completed", {
+      companion: state.companionId,
+      need: state.need,
+      language: state.language,
+    });
+
+    // Save preferences
+    const prefsPayload = JSON.stringify({
+      language: state.language,
+      tone: "gentle",
+      addressForm: "du",
+      disclaimerAccepted: true,
+    });
+    localStorage.setItem("soulvay-preferences", prefsPayload);
+
+    // Save personalization
     localStorage.setItem("soulvay-personalization", JSON.stringify({
       schemaVersion: 1,
-      focusAreas: state.focusAreas,
-      reflectionFrequency: state.reflectionFrequency || "3x_week",
-      personalGoal: state.personalGoal,
+      focusAreas: [state.need],
+      reflectionFrequency: "flexible",
+      personalGoal: "",
+      companionId: state.companionId,
+      displayName: state.name,
     }));
 
-    // Save chosen companion
-    localStorage.setItem("soulvay-companion", state.companionId);
+    // Save display name for immediate greeting
+    if (state.name.trim()) {
+      localStorage.setItem("soulvay-display-name", state.name.trim());
+    }
 
     completeOnboarding();
 
     if (isAuthenticated) {
-      navigate("/", { replace: true });
+      try {
+        await selectArchetype(state.companionId);
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("Companion persistence failed:", e);
+      }
+      setIsFinishing(false);
+      navigate("/chat", { replace: true });
     } else {
+      setIsFinishing(false);
       navigate("/auth?from=onboarding", { replace: true });
     }
   };
 
   const canProceed = () => {
-    if (currentStep === "disclaimer") return state.disclaimerAccepted;
-    if (currentStep === "focus") return state.focusAreas.length > 0;
-    if (currentStep === "frequency") return state.reflectionFrequency !== "";
+    if (currentStep === "name") return state.name.trim().length > 0;
+    if (currentStep === "need") return state.need !== "";
+    if (currentStep === "start") return state.disclaimerAccepted;
     return true;
   };
 
-  const toggleFocus = (id: string) => {
-    setState(s => ({
-      ...s,
-      focusAreas: s.focusAreas.includes(id)
-        ? s.focusAreas.filter(f => f !== id)
-        : [...s.focusAreas, id],
-    }));
-  };
+  // Get recommended companions based on need
+  const recommendedIds = needToCompanion[state.need] || ["mira", "noah", "elena"];
+  const recommended = companionArchetypes.filter(a => recommendedIds.includes(a.id));
+  const others = companionArchetypes.filter(a => !recommendedIds.includes(a.id));
 
   return (
-    <div className="bg-background flex flex-col" style={{ minHeight: "100dvh" }}>
+    <div className="bg-background flex flex-col h-[100dvh]" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
       {/* Header */}
-      <div className="flex flex-col px-4 pt-6 pb-2 safe-top">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-xs text-muted-foreground">
-            {state.language === "de"
-              ? `Schritt ${currentStepIndex + 1} von ${steps.length}`
-              : `Step ${currentStepIndex + 1} of ${steps.length}`}
-          </div>
+      <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
+        {currentStepIndex > 0 ? (
+          <button onClick={handleBack} className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all" aria-label="Back">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        ) : (
+          <div className="w-10" />
+        )}
+        <div className="flex justify-center gap-2">
+          {steps.map((step, index) => (
+            <motion.div key={step} className={`h-1.5 rounded-full transition-all duration-300 ${index === currentStepIndex ? "w-8 bg-primary" : index < currentStepIndex ? "w-3 bg-primary/40" : "w-3 bg-muted"}`} />
+          ))}
+        </div>
+        <div className="flex items-center gap-1.5">
           <button
-            onClick={() => setThemeMode(isDark ? "light" : "dark")}
-            className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            onClick={() => setState(s => ({ ...s, language: s.language === "de" ? "en" : "de" }))}
+            className="px-2 py-1 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all"
           >
-            <motion.div
-              key={isDark ? "moon" : "sun"}
-              initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              transition={{ duration: 0.2 }}
-            >
+            {state.language === "de" ? "EN" : "DE"}
+          </button>
+          <button onClick={() => setThemeMode(isDark ? "light" : "dark")} className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
+            <motion.div key={isDark ? "moon" : "sun"} initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.2 }}>
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </motion.div>
           </button>
         </div>
-        <div className="h-1 w-full bg-muted/20 rounded-full overflow-hidden mb-3">
-          <div className="h-full bg-primary transition-all duration-300" style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }} />
-        </div>
-        <div className="flex justify-center gap-2">
-          {steps.map((step, index) => (
-            <motion.div
-              key={step}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                index === currentStepIndex
-                  ? "w-8 bg-primary"
-                  : index < currentStepIndex
-                  ? "w-3 bg-primary/40"
-                  : "w-3 bg-muted"
-              }`}
-            />
-          ))}
-        </div>
       </div>
 
       {/* Content */}
-      <div
-        className="flex-1 min-h-0 flex flex-col px-4 sm:px-6 pb-4 sm:pb-6 overflow-y-auto safe-bottom"
-        style={{ WebkitOverflowScrolling: "touch" }}
-      >
-        <AnimatePresence mode="wait">
-          {currentStep === "welcome" && (
-            <motion.div key="welcome" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.2 } }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
-              <WelcomeStep t={t.welcome} />
-            </motion.div>
-          )}
-          {currentStep === "disclaimer" && (
-            <motion.div key="disclaimer" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
-              <DisclaimerStep t={t.disclaimer} accepted={state.disclaimerAccepted} onAcceptChange={(accepted) => setState(s => ({ ...s, disclaimerAccepted: accepted }))} />
-            </motion.div>
-          )}
-          {currentStep === "preferences" && (
-            <motion.div key="preferences" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
-              <PreferencesStep t={t.preferences} language={state.language} tone={state.tone} addressForm={state.addressForm} onLanguageChange={(language) => setState(s => ({ ...s, language }))} onToneChange={(tone) => setState(s => ({ ...s, tone }))} onAddressFormChange={(addressForm) => setState(s => ({ ...s, addressForm }))} />
-            </motion.div>
-          )}
-          {currentStep === "focus" && (
-            <motion.div key="focus" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
-              <FocusStep t={t.focus} options={focusOptions[state.language]} selected={state.focusAreas} onToggle={toggleFocus} />
-            </motion.div>
-          )}
-          {currentStep === "frequency" && (
-            <motion.div key="frequency" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
-              <FrequencyStep t={t.frequency} options={frequencyOptions[state.language]} selected={state.reflectionFrequency} onSelect={(f) => setState(s => ({ ...s, reflectionFrequency: f }))} />
-            </motion.div>
-          )}
-          {currentStep === "goal" && (
-            <motion.div key="goal" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
-              <GoalStep
-                t={t.goal}
-                value={state.personalGoal}
-                onChange={(g) => setState(s => ({ ...s, personalGoal: g }))}
-                onFieldFocus={handleFieldFocus}
-              />
-            </motion.div>
-          )}
-          {currentStep === "companion" && (
-            <motion.div key="companion" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
-              <CompanionStep
-                t={t.companion}
-                language={state.language}
-                selected={state.companionId}
-                onSelect={(id) => setState(s => ({ ...s, companionId: id }))}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="flex-1 min-h-0 overflow-y-auto px-5">
+        <div className="max-w-lg mx-auto">
+          <AnimatePresence mode="wait" initial={false}>
+            {currentStep === "name" && (
+              <motion.div key="name" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+                <div className="flex flex-col items-center pt-12 sm:pt-20 text-center">
+                  <div className="relative mb-8">
+                    <motion.div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-transparent blur-2xl scale-150" animate={{ opacity: [0.5, 0.8, 0.5] }} transition={{ duration: 4, repeat: Infinity }} />
+                    <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-xl ring-1 ring-primary/10">
+                      <img src={logoImage} alt="Soulvay" className="w-14 h-14 rounded-full object-cover" />
+                    </div>
+                  </div>
+                  <h1 className="text-2xl font-semibold text-foreground mb-2">{t.name.title}</h1>
+                  <p className="text-muted-foreground text-sm mb-8">
+                    {state.language === "de" ? "Dein Begleiter wird dich so nennen." : "Your companion will address you by this name."}
+                  </p>
+                  <input
+                    type="text"
+                    value={state.name}
+                    onChange={(e) => setState(s => ({ ...s, name: e.target.value }))}
+                    placeholder={t.name.placeholder}
+                    className="w-full max-w-xs h-12 bg-card border border-border/50 rounded-2xl px-5 text-center text-lg font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/10 transition-all"
+                    autoFocus
+                    onKeyDown={(e) => { if (e.key === "Enter" && canProceed()) handleNext(); }}
+                  />
+                </div>
+              </motion.div>
+            )}
 
-        {/* Continue button */}
-        <div className="mt-auto pt-4 sm:pt-6 shrink-0">
-          {currentStep === "companion" ? (
-            <Button size="xl" className="w-full" onClick={finishOnboarding}>
-              {t.getStarted}
-              <Sparkles className="w-5 h-5 ml-2" />
+            {currentStep === "need" && (
+              <motion.div key="need" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+                <div className="pt-8 sm:pt-16">
+                  <h2 className="text-2xl font-semibold text-foreground mb-2 text-center">{t.need.title}</h2>
+                  <p className="text-muted-foreground text-sm text-center mb-8">
+                    {state.name ? (state.language === "de" ? `Schön dich kennenzulernen, ${state.name}.` : `Nice to meet you, ${state.name}.`) : ""}
+                  </p>
+                  <div className="space-y-3">
+                    {t.need.options.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          setState(s => ({ ...s, need: opt.id, companionId: needToCompanion[opt.id]?.[0] || "mira" }));
+                        }}
+                        className={`w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all border ${
+                          state.need === opt.id
+                            ? "bg-primary/10 border-primary/30 shadow-sm"
+                            : "bg-card border-border/40 hover:border-border/60"
+                        }`}
+                      >
+                        <span className="text-2xl">{opt.emoji}</span>
+                        <span className={`text-sm font-medium flex-1 ${state.need === opt.id ? "text-foreground" : "text-muted-foreground"}`}>
+                          {opt.label}
+                        </span>
+                        {state.need === opt.id && (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                            <Check className="w-5 h-5 text-primary" />
+                          </motion.div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {currentStep === "companion" && (
+              <motion.div key="companion" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+                <div className="pt-4">
+                  <h2 className="text-xl font-semibold text-foreground mb-1 text-center">{t.companion.title}</h2>
+                  <p className="text-muted-foreground text-sm text-center mb-4">{t.companion.subtitle}</p>
+
+                  {/* All companions */}
+                  <div className="flex flex-col gap-2.5 pb-4">
+                    {recommended.map((arch) => (
+                      <CompanionOption key={arch.id} arch={arch} selected={state.companionId === arch.id} language={state.language} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} isRecommended />
+                    ))}
+                    {others.map((arch) => (
+                      <CompanionOption key={arch.id} arch={arch} selected={state.companionId === arch.id} language={state.language} onSelect={(id) => setState(s => ({ ...s, companionId: id }))} />
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {currentStep === "start" && (
+              <motion.div key="start" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+                {(() => {
+                  const arch = companionArchetypes.find(a => a.id === state.companionId)!;
+                  const greeting = state.language === "de" ? arch.introGreetingDe : arch.introGreeting;
+                  return (
+                    <div className="flex flex-col items-center pt-8 sm:pt-12 text-center">
+                      <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.6 }}>
+                        <CompanionAvatarAnimated archetype={arch.id} name={arch.name} size="xl" state="idle" />
+                      </motion.div>
+
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-6 space-y-2">
+                        <h2 className="text-2xl font-semibold text-foreground">{arch.name}</h2>
+                        <p className="text-primary/80 text-sm">{state.language === "de" ? arch.descriptionDe : arch.description}</p>
+                      </motion.div>
+
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-6 bg-card rounded-2xl border border-border/50 p-5 max-w-xs shadow-sm">
+                        <p className="text-foreground text-sm leading-relaxed italic">"{greeting}"</p>
+                      </motion.div>
+
+                      {/* Disclaimer */}
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="mt-8 max-w-xs">
+                        <p className="text-[11px] text-muted-foreground/70 mb-3">{t.start.disclaimerNote}</p>
+                        <label className="flex items-center gap-2.5 cursor-pointer bg-muted/40 rounded-xl p-3 transition-colors hover:bg-muted/60">
+                          <Checkbox checked={state.disclaimerAccepted} onCheckedChange={(checked) => setState(s => ({ ...s, disclaimerAccepted: checked === true }))} />
+                          <span className="text-xs text-foreground leading-relaxed">{t.start.disclaimer}</span>
+                        </label>
+                      </motion.div>
+                    </div>
+                  );
+                })()}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Bottom CTA */}
+      <div className="shrink-0 px-5 pt-3 bg-background/95 backdrop-blur-sm border-t border-border/30" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))' }}>
+        <div className="max-w-lg mx-auto">
+          {currentStep === "start" ? (
+            <Button size="xl" className="w-full gap-2" onClick={finishOnboarding} disabled={!canProceed() || isFinishing}>
+              {isFinishing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+              {t.start.cta}
             </Button>
-          ) : currentStep === "goal" ? (
-            <div className="space-y-3">
-              <Button size="xl" className="w-full" onClick={handleNext}>
-                {t.continue}
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              {!state.personalGoal && (
-                <Button variant="ghost" className="w-full text-muted-foreground" onClick={handleNext}>
-                  {t.goal.skip}
-                </Button>
-              )}
-            </div>
           ) : (
             <Button size="xl" className="w-full" onClick={handleNext} disabled={!canProceed()}>
               {t.continue}
@@ -375,275 +390,46 @@ export default function Onboarding() {
   );
 }
 
-// === Step Components ===
-
-function WelcomeStep({ t }: { t: typeof translations.en.welcome }) {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-      <div className="relative mb-12">
-        <motion.div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-primary/20 to-transparent blur-2xl scale-150" animate={{ opacity: [0.5, 0.8, 0.5], scale: [1.4, 1.6, 1.4] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
-        <motion.div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-2xl shadow-primary/20 ring-1 ring-primary/10 dark:from-primary/25 dark:to-primary/10 dark:shadow-primary/30" animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
-          <div className="w-24 h-24 rounded-full overflow-hidden">
-            <img src={logoImage} alt="Soulvay Logo" className="w-24 h-24 object-cover rounded-full" />
-          </div>
-        </motion.div>
-      </div>
-      <h1 className="text-2xl font-semibold text-foreground mb-4 text-balance">{t.title}</h1>
-      <p className="text-muted-foreground text-base leading-relaxed max-w-xs">{t.subtitle}</p>
-      <p className="text-xs text-muted-foreground mt-4">{t.trustLine}</p>
-    </div>
-  );
-}
-
-function DisclaimerStep({ t, accepted, onAcceptChange }: { t: typeof translations.en.disclaimer; accepted: boolean; onAcceptChange: (v: boolean) => void }) {
-  return (
-    <div className="flex-1 flex flex-col justify-center px-2">
-      <h2 className="text-xl font-semibold text-foreground mb-6 text-center">{t.title}</h2>
-      <div className="bg-card rounded-2xl p-5 mb-6 shadow-soft border border-border/40 dark:border-border/60 dark:bg-card/80">
-        <p className="text-foreground text-sm leading-relaxed">{t.text} <span className="font-medium text-primary">{t.notReplacement}</span> {t.textEnd}</p>
-        <p className="text-muted-foreground text-sm leading-relaxed mt-4 pt-4 border-t border-border/40 dark:border-border/60">{t.crisis}</p>
-      </div>
-      <label className="flex items-center gap-3 cursor-pointer group bg-muted/40 dark:bg-muted/60 rounded-xl p-4 transition-colors hover:bg-muted/60 dark:hover:bg-muted/80">
-        <Checkbox checked={accepted} onCheckedChange={(checked) => onAcceptChange(checked === true)} />
-        <span className="text-sm text-foreground leading-relaxed">{t.checkbox}</span>
-      </label>
-    </div>
-  );
-}
-
-function PreferencesStep({ t, language, tone, addressForm, onLanguageChange, onToneChange, onAddressFormChange }: {
-  t: typeof translations.en.preferences; language: Language; tone: Tone; addressForm: AddressForm;
-  onLanguageChange: (l: Language) => void; onToneChange: (t: Tone) => void; onAddressFormChange: (a: AddressForm) => void;
-}) {
-  return (
-    <div className="flex-1 flex flex-col pt-4">
-      <h2 className="text-xl font-semibold text-foreground mb-2 text-center">{t.title}</h2>
-      <p className="text-muted-foreground text-sm text-center mb-8">{t.subtitle}</p>
-      <div className="space-y-5">
-        <PreferenceSection icon={Globe} title={t.language}>
-          <div className="flex gap-2 flex-wrap">
-            <OptionButton selected={language === "en"} onClick={() => onLanguageChange("en")}>English</OptionButton>
-            <OptionButton selected={language === "de"} onClick={() => onLanguageChange("de")}>Deutsch</OptionButton>
-          </div>
-        </PreferenceSection>
-        <PreferenceSection icon={MessageCircle} title={t.tone}>
-          <div className="flex gap-2 flex-wrap">
-            <OptionButton selected={tone === "gentle"} onClick={() => onToneChange("gentle")}>{t.tones.gentle}</OptionButton>
-            <OptionButton selected={tone === "neutral"} onClick={() => onToneChange("neutral")}>{t.tones.neutral}</OptionButton>
-            <OptionButton selected={tone === "structured"} onClick={() => onToneChange("structured")}>{t.tones.structured}</OptionButton>
-          </div>
-        </PreferenceSection>
-        {language === "de" && (
-          <PreferenceSection icon={User} title={t.addressForm}>
-            <div className="flex gap-2 flex-wrap">
-              <OptionButton selected={addressForm === "du"} onClick={() => onAddressFormChange("du")}>{t.addressForms.du}</OptionButton>
-              <OptionButton selected={addressForm === "sie"} onClick={() => onAddressFormChange("sie")}>{t.addressForms.sie}</OptionButton>
-            </div>
-          </PreferenceSection>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function FocusStep({ t, options, selected, onToggle }: {
-  t: typeof translations.en.focus;
-  options: { id: string; label: string; emoji: string }[];
-  selected: string[];
-  onToggle: (id: string) => void;
-}) {
-  return (
-    <div className="flex-1 flex flex-col pt-4">
-      <div className="text-center mb-8">
-        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-          <Target className="w-7 h-7 text-primary" />
-        </div>
-        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
-        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {options.map((opt) => (
-          <button
-            key={opt.id}
-            type="button"
-            onClick={() => onToggle(opt.id)}
-            role="button"
-            aria-pressed={selected.includes(opt.id)}
-            className={`w-full min-h-[56px] flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all duration-200 border ${
-              selected.includes(opt.id)
-                ? "bg-primary/10 border-primary/30 shadow-sm"
-                : "bg-card border-border/40 hover:border-border/60"
-            }`}
-          >
-            <span className="text-xl">{opt.emoji}</span>
-            <span className={`text-sm font-medium ${selected.includes(opt.id) ? "text-foreground" : "text-muted-foreground"}`}>
-              {opt.label}
-            </span>
-            {selected.includes(opt.id) && <Check className="w-4 h-4 text-primary ml-auto" />}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function FrequencyStep({ t, options, selected, onSelect }: {
-  t: typeof translations.en.frequency;
-  options: { id: string; label: string; desc: string }[];
-  selected: string;
+// Compact companion option card
+function CompanionOption({ arch, selected, language, onSelect, isRecommended }: {
+  arch: CompanionArchetype;
+  selected: boolean;
+  language: Language;
   onSelect: (id: string) => void;
+  isRecommended?: boolean;
 }) {
-  return (
-    <div className="flex-1 flex flex-col pt-4">
-      <div className="text-center mb-8">
-        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-          <Clock className="w-7 h-7 text-primary" />
-        </div>
-        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
-        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
-      </div>
-      <div className="space-y-3">
-        {options.map((opt) => (
-          <button
-            key={opt.id}
-            type="button"
-            onClick={() => onSelect(opt.id)}
-            role="button"
-            aria-pressed={selected === opt.id}
-            className={`w-full min-h-[56px] flex items-center gap-4 px-4 py-3 rounded-2xl text-left transition-all duration-200 border ${
-              selected === opt.id
-                ? "bg-primary/10 border-primary/30 shadow-sm"
-                : "bg-card border-border/40 hover:border-border/60"
-            }`}
-          >
-            <div className="flex-1">
-              <p className={`text-sm font-medium ${selected === opt.id ? "text-foreground" : "text-muted-foreground"}`}>{opt.label}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
-            </div>
-            {selected === opt.id && (
-              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                <Check className="w-5 h-5 text-primary" />
-              </motion.div>
-            )}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function GoalStep({ t, value, onChange, onFieldFocus }: {
-  t: typeof translations.en.goal;
-  value: string;
-  onChange: (v: string) => void;
-  onFieldFocus: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
-}) {
-  const goalPresets = t.presets;
+  const description = language === "de" ? arch.descriptionDe : arch.description;
 
   return (
-    <div className="flex-1 flex flex-col pt-4">
-      <div className="text-center mb-8">
-        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-          <Sparkles className="w-7 h-7 text-primary" />
-        </div>
-        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
-        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
-        <p className="text-xs text-muted-foreground mt-2">{t.reassurance}</p>
-      </div>
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-foreground">{t.optionalLabel}</span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {goalPresets.map((preset) => (
-            <button
-              key={preset}
-              type="button"
-              onClick={() => onChange(preset)}
-              className={`min-h-[44px] px-3 py-2 rounded-xl text-sm border transition-colors ${
-                value === preset
-                  ? "bg-primary/10 border-primary/30 text-foreground"
-                  : "bg-muted/40 border-border/40 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {preset}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="bg-card rounded-2xl border border-border/40 p-4 mt-3">
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={onFieldFocus}
-          placeholder={t.placeholder}
-          className="w-full bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none resize-none min-h-[120px] text-base leading-relaxed"
-          rows={4}
-        />
-      </div>
-    </div>
-  );
-}
-
-// === Shared UI ===
-
-function PreferenceSection({ icon: Icon, title, children }: { icon: React.ComponentType<{ className?: string }>; title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-3">
-        <Icon className="w-4 h-4 text-muted-foreground" />
-        <span className="text-sm font-medium text-foreground">{title}</span>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function CompanionStep({ t, language, selected, onSelect }: {
-  t: { title: string; subtitle: string };
-  language: "en" | "de";
-  selected: string;
-  onSelect: (id: string) => void;
-}) {
-  return (
-    <div className="flex-1 flex flex-col pt-4">
-      <div className="text-center mb-6">
-        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-          <span className="text-2xl">🤝</span>
-        </div>
-        <h2 className="text-xl font-semibold text-foreground mb-2">{t.title}</h2>
-        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
-      </div>
-      <div className="space-y-3 pb-4">
-        {companions.map((c: Companion) => (
-          <CompanionCard
-            key={c.id}
-            companion={c}
-            selected={selected === c.id}
-            onSelect={() => onSelect(c.id)}
-            language={language}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function OptionButton({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`min-h-[44px] px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+    <motion.button
+      whileTap={{ scale: 0.98 }}
+      onClick={() => onSelect(arch.id)}
+      className={`relative w-full rounded-xl border text-left transition-all flex flex-row items-stretch overflow-hidden ${
         selected
-          ? "bg-primary text-primary-foreground shadow-md dark:shadow-primary/20"
-          : "bg-muted/50 text-muted-foreground hover:bg-muted dark:bg-muted/70 dark:text-foreground/70 dark:hover:bg-muted dark:hover:text-foreground"
+          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+          : "border-border/40 bg-card hover:border-border/60"
       }`}
     >
-      <span className="flex items-center gap-2">
-        {selected && <Check className="w-4 h-4" />}
-        {children}
-      </span>
-    </button>
+      {selected && (
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+          <Check className="w-3 h-3 text-primary-foreground" />
+        </motion.div>
+      )}
+      {isRecommended && !selected && (
+        <div className="absolute top-1.5 right-1.5 z-10">
+          <Sparkles className="w-3 h-3 text-primary/50" />
+        </div>
+      )}
+      <div className="w-16 shrink-0 bg-muted/20 min-h-[64px]">
+        <img src={arch.defaultAvatar} alt={arch.name} className="w-full h-full object-cover object-top" loading="lazy" draggable={false} />
+      </div>
+      <div className="py-2 px-2.5 flex flex-col gap-0.5 flex-1 min-w-0 justify-center">
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm shrink-0">{arch.emoji}</span>
+          <p className="font-medium text-foreground text-[13px] truncate">{arch.name}</p>
+        </div>
+        <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2">{description}</p>
+      </div>
+    </motion.button>
   );
 }

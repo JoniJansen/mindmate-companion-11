@@ -75,6 +75,8 @@ serve(async (req) => {
         body: JSON.stringify({
           text: truncatedText,
           model_id: "eleven_multilingual_v2",
+          // Force language detection for short texts
+          ...(language ? { language_code: language === "de" ? "de" : "en" } : {}),
           voice_settings: {
             stability: 0.6,
             similarity_boost: 0.75,
@@ -122,7 +124,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("TTS error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "Voice synthesis failed. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

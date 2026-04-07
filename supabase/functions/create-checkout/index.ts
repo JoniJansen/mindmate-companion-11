@@ -8,6 +8,13 @@ const corsHeaders = {
 };
 
 // Native fetch wrapper for Stripe API (avoids Deno.core.runMicrotasks crash)
+function normalizeSecret(value: string | undefined): string {
+  let normalized = (value ?? "").trim();
+  normalized = normalized.replace(/^(["'`])(.*)\1$/, "$2").trim();
+  normalized = normalized.replace(/^Bearer\s+/i, "").trim();
+  return normalized.replace(/\s+/g, "");
+}
+
 async function stripeRequest(path: string, params: Record<string, string>, stripeKey: string) {
   const res = await fetch(`https://api.stripe.com/v1${path}`, {
     method: "POST",
@@ -42,8 +49,9 @@ Deno.serve(async (req) => {
 
     const { planType, successUrl, cancelUrl } = await req.json();
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")?.trim();
+    const stripeKey = normalizeSecret(Deno.env.get("STRIPE_SECRET_KEY"));
     if (!stripeKey) throw new Error("Stripe secret key not configured");
+    if (!stripeKey.startsWith("sk_")) throw new Error("Invalid Stripe secret key format (expected sk_*)");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -72,7 +80,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const isYearly = planType === "yearly";
+    const normalizedPlanType = planType === "yearly" ? "yearly" : "monthly";
+    const isYearly = normalizedPlanType === "yearly";
     const unitAmount = isYearly ? "7900" : "999";
     const interval = isYearly ? "year" : "month";
     const trialDays = isYearly ? 0 : 7;
@@ -85,14 +94,16 @@ Deno.serve(async (req) => {
     const finalCancelUrl = cancelUrl || `${origin}/settings?canceled=true`;
 
     // Build checkout session params
+    // Do NOT specify payment_method_types — letting Stripe use automatic
+    // payment methods so Card, Apple Pay, Google Pay, PayPal, Link, Klarna,
+    // etc. appear based on device/browser/region eligibility.
     const params: Record<string, string> = {
       "customer": customerId!,
       "mode": "subscription",
-      "payment_method_types[0]": "card",
-      "payment_method_types[1]": "paypal",
       "allow_promotion_codes": "true",
       "line_items[0][price_data][currency]": "eur",
       "line_items[0][price_data][product_data][name]": "Soulvay Plus",
+      "custom_text[submit][message]": "Soulvay Plus – Dein persönlicher Begleiter",
       "line_items[0][price_data][product_data][description]": description,
       "line_items[0][price_data][unit_amount]": unitAmount,
       "line_items[0][price_data][recurring][interval]": interval,
@@ -100,7 +111,10 @@ Deno.serve(async (req) => {
       "success_url": finalSuccessUrl,
       "cancel_url": finalCancelUrl,
       "metadata[user_id]": userId,
-      "metadata[plan_type]": planType,
+      "metadata[plan_type]": normalizedPlanType,
+      "subscription_data[metadata][user_id]": userId,
+      "subscription_data[metadata][plan_type]": normalizedPlanType,
+      "subscription_data[description]": "Soulvay Plus",
     };
 
     if (trialDays > 0) {
@@ -116,7 +130,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error("Checkout error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Checkout failed. Please try again." }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

@@ -160,8 +160,8 @@ export default function DeleteAccount() {
             <div className="mt-4 p-3 bg-destructive/5 rounded-lg border border-destructive/20">
               <p className="text-sm font-medium text-destructive">
                 {isDE
-                  ? "⚠️ Die Löschung ist unwiderruflich. Alle Daten werden sofort und vollständig entfernt. Es gibt keine Aufbewahrungsfrist."
-                  : "⚠️ Deletion is irreversible. All data is removed immediately and completely. There is no retention period."}
+                  ? "⚠️ Die Löschung ist unwiderruflich. Alle personenbezogenen Daten werden innerhalb von 30 Tagen vollständig entfernt. Gesetzlich vorgeschriebene Aufbewahrungsfristen (z.B. steuerliche Unterlagen gemäß § 147 AO) bleiben unberührt."
+                  : "⚠️ Deletion is irreversible. All personal data is permanently removed within 30 days. Legally required retention periods (e.g., tax records per § 147 AO) remain unaffected."}
               </p>
             </div>
           </CardContent>
@@ -192,7 +192,7 @@ export default function DeleteAccount() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
-          Soulvay · MindMade by Jonathan Jansen
+          Soulvay · by Jonathan Jansen
         </p>
       </div>
     </div>

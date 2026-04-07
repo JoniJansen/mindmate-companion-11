@@ -50,7 +50,7 @@ export function EmotionalTimeline({
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <Clock className="w-4 h-4 text-primary" />
               </div>
-              <h3 className="font-medium text-foreground">{t("timeline.title")}</h3>
+              <h3 className="font-medium text-foreground">{t("timeline.emotionalTitle")}</h3>
             </div>
             
             <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -74,7 +74,7 @@ export function EmotionalTimeline({
                 )}
               </div>
               <div className="text-left">
-                <p className="font-medium text-foreground">{t("timeline.title")}</p>
+                <p className="font-medium text-foreground">{t("timeline.emotionalTitle")}</p>
                 <p className="text-sm text-muted-foreground">{t("timeline.description")}</p>
               </div>
             </div>

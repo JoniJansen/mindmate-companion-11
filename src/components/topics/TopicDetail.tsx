@@ -44,12 +44,13 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
   const completedSteps = topic.steps.filter(s => progress[`${topic.id}-${s.id}`]).length;
   const progressPercent = Math.round((completedSteps / topic.steps.length) * 100);
 
-  const handleStartStep = (step: TopicStep) => {
+  const handleStartStep = (step: TopicStep, index: number) => {
+    const stepDisplay = display.steps[index] || { title: step.title, description: step.description };
     if (step.type === 'chat') {
-      localStorage.setItem('chat_topic_prompt', `I'd like to explore: ${step.title}. ${step.description}`);
+      localStorage.setItem('chat_topic_prompt', stepDisplay.description);
       navigate('/chat');
     } else if (step.type === 'journal') {
-      localStorage.setItem('journal_prompt', step.title);
+      localStorage.setItem('journal_prompt', stepDisplay.title);
       navigate('/journal');
     } else {
       // For reflection and exercise, mark as complete and show a toast
@@ -147,7 +148,7 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
                   <CalmCard 
                     variant={isComplete ? "calm" : "elevated"}
                     className={`cursor-pointer ${isComplete ? 'opacity-70' : ''}`}
-                    onClick={() => !isComplete && handleStartStep(step)}
+                    onClick={() => !isComplete && handleStartStep(step, index)}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${

@@ -12,7 +12,7 @@ export default function Cancellation() {
   const content = {
     en: {
       title: "Right of Withdrawal",
-      lastUpdated: "Last updated: January 2026",
+      lastUpdated: "Last updated: March 2026",
       intro: "As a consumer in the European Union, you have specific rights regarding the cancellation of contracts concluded at a distance.",
       sections: [
         {
@@ -25,7 +25,7 @@ The withdrawal period will expire after **14 days from the day of the conclusion
 To exercise the right of withdrawal, you must inform us of your decision to withdraw from this contract by an unequivocal statement (e.g., a letter sent by post or email).
 
 **Contact for withdrawal:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
@@ -65,7 +65,7 @@ If you have requested that the provision of digital content (such as access to S
 ---
 
 **To:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
@@ -98,7 +98,7 @@ Date: _______________
     },
     de: {
       title: "Widerrufsbelehrung",
-      lastUpdated: "Zuletzt aktualisiert: Januar 2026",
+      lastUpdated: "Zuletzt aktualisiert: März 2026",
       intro: "Als Verbraucher in der Europäischen Union haben Sie bestimmte Rechte bezüglich des Widerrufs von Fernabsatzverträgen.",
       sections: [
         {
@@ -111,7 +111,7 @@ Die Widerrufsfrist beträgt **vierzehn Tage ab dem Tag des Vertragsabschlusses**
 Um Ihr Widerrufsrecht auszuüben, müssen Sie uns mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.
 
 **Kontakt für den Widerruf:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
@@ -151,7 +151,7 @@ Wenn Sie verlangt haben, dass die Bereitstellung digitaler Inhalte (wie der Zuga
 ---
 
 **An:**
-MindMade
+Soulvay
 Jonathan Jansen
 Petersbergstraße 11
 53604 Bad Honnef
