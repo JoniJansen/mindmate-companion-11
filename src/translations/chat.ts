@@ -37,7 +37,7 @@ export const chatTranslations: Translations = {
   // Chat streaming & errors
   "chat.streamError": { en: "Connection paused", de: "Verbindung unterbrochen" },
   "chat.streamErrorBody": { en: "The response was interrupted. You can try again.", de: "Die Antwort wurde unterbrochen. Du kannst es nochmal versuchen." },
-  "chat.retryMessage": { en: "Try again", de: "Nochmal versuchen" },
+  "chat.retryMessage": { en: "Try again", de: "Erneut versuchen" },
   "chat.continueMessage": { en: "Continue", de: "Fortsetzen" },
   "chat.howToStart": { en: "How would you like to start?", de: "Wie möchtest du beginnen?" },
   "chat.summary": { en: "Summary", de: "Zusammenfassung" },
