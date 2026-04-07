@@ -14,9 +14,11 @@ const config: CapacitorConfig = {
     backgroundColor: "#000000",
     scheme: "Soulvay",
     preferredContentMode: "mobile",
-    // Smooth keyboard handling
     scrollEnabled: true,
   },
+  // Ensure Info.plist includes ITSAppUsesNonExemptEncryption = false
+  // This must be added manually to ios/App/App/Info.plist:
+  // <key>ITSAppUsesNonExemptEncryption</key><false/>
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
