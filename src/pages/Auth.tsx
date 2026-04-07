@@ -383,8 +383,9 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={async () => {
+                    const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
                     const { error } = await lovable.auth.signInWithOAuth("apple" as any, {
-                      redirect_uri: window.location.origin,
+                      redirect_uri: redirectUri,
                     });
                     if (error) {
                       toast({ title: t("common.error"), description: String(error), variant: "destructive" });
