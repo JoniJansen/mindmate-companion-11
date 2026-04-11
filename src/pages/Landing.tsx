@@ -223,6 +223,21 @@ export default function Landing() {
             </span>
           </button>
         </div>
+
+        {/* Legal footer */}
+        <div className="flex items-center justify-center gap-3 mt-4 text-xs text-muted-foreground/60">
+          <button onClick={() => navigate("/terms")} className="hover:text-muted-foreground transition-colors">
+            {language === "de" ? "Nutzungsbedingungen" : "Terms"}
+          </button>
+          <span>•</span>
+          <button onClick={() => navigate("/privacy")} className="hover:text-muted-foreground transition-colors">
+            {language === "de" ? "Datenschutz" : "Privacy"}
+          </button>
+          <span>•</span>
+          <button onClick={() => navigate("/impressum")} className="hover:text-muted-foreground transition-colors">
+            {language === "de" ? "Impressum" : "Legal Notice"}
+          </button>
+        </div>
       </div>
     </div>
   );
