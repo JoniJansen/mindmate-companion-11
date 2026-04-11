@@ -387,12 +387,12 @@ export default function Auth() {
                   onClick={async () => {
                     try {
                       const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
-                      const result = await lovable.auth.signInWithOAuth("google", {
+                      const result: any = await lovable.auth.signInWithOAuth("google", {
                         redirect_uri: redirectUri,
                       });
-                      if (result.error) {
+                      if (result?.error) {
                         console.error("[Auth] Google OAuth error:", result.error);
-                        const errorMsg = typeof result.error === "string" ? result.error : (result.error as any)?.message || "";
+                        const errorMsg = typeof result.error === "string" ? result.error : result.error?.message || "";
                         const userMsg = errorMsg.includes("popup_closed") || errorMsg.includes("cancelled")
                           ? (language === "de" ? "Anmeldung abgebrochen." : "Sign-in was cancelled.")
                           : errorMsg.includes("network") || errorMsg.includes("fetch")
