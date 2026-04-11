@@ -348,6 +348,20 @@ export default function Auth() {
               </div>
             )}
 
+            {authMode === "signup" && (
+              <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                {language === "de" ? "Mit der Registrierung stimmst du unseren " : "By signing up, you agree to our "}
+                <button type="button" onClick={() => navigate("/terms")} className="text-primary hover:underline">
+                  {language === "de" ? "Nutzungsbedingungen" : "Terms of Use"}
+                </button>
+                {language === "de" ? " und der " : " and "}
+                <button type="button" onClick={() => navigate("/privacy")} className="text-primary hover:underline">
+                  {language === "de" ? "Datenschutzerklärung" : "Privacy Policy"}
+                </button>
+                {language === "de" ? " zu." : "."}
+              </p>
+            )}
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -371,12 +385,24 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={async () => {
-                    const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
-                    const { error } = await lovable.auth.signInWithOAuth("google", {
-                      redirect_uri: redirectUri,
-                    });
-                    if (error) {
-                      toast({ title: t("common.error"), description: String(error), variant: "destructive" });
+                    try {
+                      const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
+                      const result = await lovable.auth.signInWithOAuth("google", {
+                        redirect_uri: redirectUri,
+                      });
+                      if (result.error) {
+                        console.error("[Auth] Google OAuth error:", result.error);
+                        const errorMsg = typeof result.error === "string" ? result.error : (result.error as any)?.message || "";
+                        const userMsg = errorMsg.includes("popup_closed") || errorMsg.includes("cancelled")
+                          ? (language === "de" ? "Anmeldung abgebrochen." : "Sign-in was cancelled.")
+                          : errorMsg.includes("network") || errorMsg.includes("fetch")
+                          ? (language === "de" ? "Keine Verbindung. Prüfe deine Internetverbindung." : "No connection. Check your internet.")
+                          : (language === "de" ? "Anmeldung fehlgeschlagen. Bitte versuche es erneut." : "Sign-in failed. Please try again.");
+                        toast({ title: t("common.error"), description: userMsg, variant: "destructive" });
+                      }
+                    } catch (err: any) {
+                      console.error("[Auth] Google OAuth exception:", err);
+                      toast({ title: t("common.error"), description: language === "de" ? "Anmeldung fehlgeschlagen. Bitte versuche es erneut." : "Sign-in failed. Please try again.", variant: "destructive" });
                     }
                   }}
                   className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl border border-border/50 bg-card hover:bg-muted/40 transition-all text-sm font-medium text-foreground"
@@ -394,12 +420,24 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={async () => {
-                    const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
-                    const { error } = await lovable.auth.signInWithOAuth("apple" as any, {
-                      redirect_uri: redirectUri,
-                    });
-                    if (error) {
-                      toast({ title: t("common.error"), description: String(error), variant: "destructive" });
+                    try {
+                      const redirectUri = isNative ? "com.soulvay.app://auth/callback" : window.location.origin + "/auth";
+                      const result = await lovable.auth.signInWithOAuth("apple" as any, {
+                        redirect_uri: redirectUri,
+                      });
+                      if (result.error) {
+                        console.error("[Auth] Apple OAuth error:", result.error);
+                        const errorMsg = typeof result.error === "string" ? result.error : (result.error as any)?.message || "";
+                        const userMsg = errorMsg.includes("popup_closed") || errorMsg.includes("cancelled")
+                          ? (language === "de" ? "Anmeldung abgebrochen." : "Sign-in was cancelled.")
+                          : errorMsg.includes("network") || errorMsg.includes("fetch")
+                          ? (language === "de" ? "Keine Verbindung. Prüfe deine Internetverbindung." : "No connection. Check your internet.")
+                          : (language === "de" ? "Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut." : "Apple sign-in failed. Please try again.");
+                        toast({ title: t("common.error"), description: userMsg, variant: "destructive" });
+                      }
+                    } catch (err: any) {
+                      console.error("[Auth] Apple OAuth exception:", err);
+                      toast({ title: t("common.error"), description: language === "de" ? "Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut." : "Apple sign-in failed. Please try again.", variant: "destructive" });
                     }
                   }}
                   className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl border border-border/50 bg-card hover:bg-muted/40 transition-all text-sm font-medium text-foreground"
