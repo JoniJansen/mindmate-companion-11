@@ -76,13 +76,25 @@ export function shouldShowAppleStoreBadge(): boolean {
 
 /** True when OAuth sign-in should be available as an auth option */
 export function shouldShowGoogleAuth(): boolean {
-  return isWeb() || isIOSApp();
+  // Web only — iOS must not show competitor branding
+  return isWeb();
 }
 
 /** True when Apple Sign-In should be available as an auth option */
 export function shouldShowAppleAuth(): boolean {
-  // Show on web (both options available) and iOS (required by Apple)
-  return isWeb() || isIOSApp();
+  // Show on web only. On iOS, we deliberately HIDE Apple Sign-In because:
+  // 1. We don't offer Google/Facebook on iOS (shouldShowGoogleAuth() is false),
+  //    so Apple's Guideline 4.8 does NOT require Sign In with Apple here.
+  // 2. The native flow depends on the Supabase Apple provider being configured
+  //    on the backend. Hiding the button removes any risk of the reviewer
+  //    seeing an error message (Guideline 2.1a — the exact reason Build 41
+  //    was rejected).
+  // 3. Users on iOS can still sign up with email/password.
+  //
+  // Once the Supabase Apple provider is verified working end-to-end, flip this
+  // back to `isWeb() || isIOSApp()` and the native flow in src/lib/appleSignIn.ts
+  // will take over.
+  return isWeb();
 }
 
 /** True when store messaging should be shown */
@@ -92,11 +104,10 @@ export function shouldShowStoreMessaging(): boolean {
 
 /** True when the "Review / Demo Login" button should be visible */
 export function shouldShowReviewLogin(): boolean {
-  // Never show in native apps — only in dev mode or Lovable preview
-  if (isNativeApp()) return false;
   return (
     import.meta.env.DEV ||
-    (typeof window !== "undefined" && window.location.hostname.includes("lovable"))
+    (typeof window !== "undefined" && window.location.hostname.includes("lovable")) ||
+    isNativeApp()
   );
 }
 

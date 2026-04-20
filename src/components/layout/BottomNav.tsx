@@ -23,7 +23,7 @@ export function BottomNav() {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border/40"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border/50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div 
@@ -45,14 +45,14 @@ export function BottomNav() {
               <div
                 className={`flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-150 ${
                   isActive 
-                    ? "text-primary" 
-                    : "text-muted-foreground"
+                    ? "bg-primary/12 text-primary" 
+                    : "text-muted-foreground active:bg-muted/50"
                 }`}
               >
-                <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2]' : 'stroke-[1.5]'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2]' : 'stroke-[1.5]'}`} />
               </div>
               <span className={`text-[10px] mt-0.5 font-medium transition-colors duration-150 ${
-                isActive ? "text-primary" : "text-muted-foreground"
+                isActive ? "text-primary" : "text-muted-foreground/60"
               }`}>
                 {t(item.labelKey)}
               </span>

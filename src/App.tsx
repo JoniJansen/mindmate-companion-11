@@ -18,6 +18,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Critical pages (eagerly loaded for instant navigation)
 import Chat from "@/pages/Chat";
@@ -100,6 +101,14 @@ function ThemeInitializer() {
   return null;
 }
 
+function HtmlLangSync() {
+  const { language } = useTranslation();
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+  return null;
+}
+
 function SubscriptionRestoreInitializer() {
   const { isRevenueCatAvailable, restorePurchases, checkSubscriptionStatus } = usePremium();
 
@@ -166,6 +175,7 @@ function AppContent() {
       <TooltipProvider>
         <AuthProvider>
           <ThemeInitializer />
+          <HtmlLangSync />
           <SubscriptionRestoreInitializer />
           <Toaster />
           <Sonner />

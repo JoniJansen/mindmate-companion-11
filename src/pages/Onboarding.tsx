@@ -93,22 +93,8 @@ const translations = {
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState<Step>("name");
   const [state, setState] = useState<OnboardingState>(() => {
-    let detectedLang: Language = "de";
-    try {
-      const stored = localStorage.getItem("soulvay-preferences");
-      if (stored) {
-        const prefs = JSON.parse(stored);
-        if (prefs.language === "en" || prefs.language === "de") {
-          detectedLang = prefs.language;
-        }
-      } else {
-        const browserLang = navigator.language?.toLowerCase() || "";
-        detectedLang = browserLang.startsWith("de") ? "de" : "en";
-      }
-    } catch {
-      const browserLang = navigator.language?.toLowerCase() || "";
-      detectedLang = browserLang.startsWith("de") ? "de" : "en";
-    }
+    const browserLang = navigator.language?.toLowerCase() || "";
+    const detectedLang: Language = browserLang.startsWith("de") ? "de" : "en";
     return {
       language: detectedLang,
       name: "",

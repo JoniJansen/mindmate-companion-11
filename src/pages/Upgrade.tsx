@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { 
-  Sparkles, 
-  Check, 
-  ArrowLeft, 
-  Volume2, 
-  Brain, 
-  Heart, 
+import {
+  Sparkles,
+  Check,
+  ArrowLeft,
+  Volume2,
+  Brain,
+  Heart,
   Calendar,
   MessageSquare,
   Loader2,
@@ -22,11 +22,12 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { usePremium } from "@/hooks/usePremium";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-import { REVENUECAT_PRODUCTS } from "@/hooks/useRevenueCat";
+import { findPackageForPlan } from "@/hooks/useRevenueCat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { StandalonePage } from "@/components/layout/StandalonePage";
 import { analytics } from "@/hooks/useAnalytics";
+import { isIOSApp } from "@/lib/platformSeparation";
 
 export default function Upgrade() {
   const navigate = useNavigate();
@@ -113,66 +114,79 @@ export default function Upgrade() {
       });
       return;
     }
-    
+
     setIsLoading(true);
     try {
-      if (isRevenueCatAvailable && offerings) {
-        const packageId = selectedPlan === "yearly" ? "yearly" : "monthly";
-        const packageToPurchase = offerings.availablePackages.find(
-          (pkg) => pkg.identifier === packageId || 
-                   pkg.product.identifier === (selectedPlan === "yearly" 
-                     ? REVENUECAT_PRODUCTS.YEARLY 
-                     : REVENUECAT_PRODUCTS.MONTHLY)
-        );
-        
-        if (!packageToPurchase) {
-          const fallbackPackage = offerings.availablePackages.find(
-            (pkg) => pkg.product.identifier.includes(selectedPlan)
-          );
-          
-          if (fallbackPackage) {
-            const success = await purchasePackage(fallbackPackage);
-            if (success) {
-              await checkSubscriptionStatus();
-              navigate("/settings", { replace: true });
-            }
-          } else {
-            throw new Error(t("upgrade.productNotFound"));
-          }
-        } else {
-          const success = await purchasePackage(packageToPurchase);
-          if (success) {
-            await checkSubscriptionStatus();
-            navigate("/settings", { replace: true });
-          }
+      // ── iOS: RevenueCat / StoreKit ONLY ────────────────────────────
+      // Apple Guideline 3.1.1: on iOS, digital subscriptions MUST use
+      // Apple In-App Purchase. Never fall back to Stripe on iOS.
+      if (isIOSApp()) {
+        if (!isRevenueCatAvailable) {
+          toast({
+            title: t("common.error"),
+            description: language === "de"
+              ? "Der Kauf ist gerade nicht verfügbar. Bitte schließe die App und versuche es erneut."
+              : "Purchases are currently unavailable. Please close the app and try again.",
+            variant: "destructive",
+          });
+          return;
         }
-      } else {
-        // Web: use Stripe Checkout
-        const { supabase } = await import("@/integrations/supabase/client");
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        const { data, error } = await supabase.functions.invoke("create-checkout", {
-          body: {
-            userId: user?.id || crypto.randomUUID(),
-            planType: selectedPlan,
-            successUrl: `${window.location.origin}/settings?success=true`,
-            cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
-          },
-        });
 
-        if (error) throw new Error(error.message);
-        if (data?.url) {
-          window.location.href = data.url;
+        if (!offerings || !offerings.availablePackages?.length) {
+          toast({
+            title: t("common.error"),
+            description: language === "de"
+              ? "Produkte werden geladen. Bitte versuche es in einem Moment erneut."
+              : "Products are loading. Please try again in a moment.",
+            variant: "destructive",
+          });
+          return;
         }
+
+        const packageToPurchase = findPackageForPlan(offerings, selectedPlan);
+        if (!packageToPurchase) {
+          if (import.meta.env.DEV) {
+            console.error("[Upgrade] No package found for plan:", selectedPlan, "offerings:", offerings);
+          }
+          toast({
+            title: t("common.error"),
+            description: language === "de"
+              ? "Abo-Produkt nicht verfügbar. Bitte kontaktiere den Support."
+              : "Subscription product unavailable. Please contact support.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const success = await purchasePackage(packageToPurchase);
+        if (success) {
+          await checkSubscriptionStatus();
+          navigate("/settings", { replace: true });
+        }
+        return;
+      }
+
+      // ── Web only: Stripe Checkout ──────────────────────────────────
+      // Never reached on iOS (see isIOSApp guard above).
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: {
+          userId: user?.id || crypto.randomUUID(),
+          planType: selectedPlan,
+          successUrl: `${window.location.origin}/settings?success=true`,
+          cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
+        },
+      });
+
+      if (error) throw new Error(error.message);
+      if (data?.url) {
+        window.location.href = data.url;
       }
     } catch (error) {
-      const msg = (error as Error).message || "";
-      const isEdgeFunctionError = msg.includes("Edge Function") || msg.includes("non-2xx");
       toast({
         title: t("common.error"),
-        description: isEdgeFunctionError
-          ? (language === "de" ? "Das hat leider nicht geklappt. Bitte versuche es später nochmal." : "Something went wrong. Please try again later.")
-          : msg,
+        description: (error as Error).message,
         variant: "destructive",
       });
     } finally {
@@ -189,13 +203,9 @@ export default function Upgrade() {
         navigate("/settings", { replace: true });
       }
     } catch (error) {
-      const msg = (error as Error).message || "";
-      const isEdgeFunctionError = msg.includes("Edge Function") || msg.includes("non-2xx");
       toast({
         title: t("common.error"),
-        description: isEdgeFunctionError
-          ? (language === "de" ? "Das hat leider nicht geklappt. Bitte versuche es später nochmal." : "Something went wrong. Please try again later.")
-          : msg,
+        description: (error as Error).message,
         variant: "destructive",
       });
     } finally {
@@ -482,7 +492,7 @@ export default function Upgrade() {
                 {selectedPlan === "monthly" && t("upgrade.afterTrial")}
               </p>
               <p className="pt-1">
-                {isRevenueCatAvailable ? t("upgrade.applePaymentInfo") : t("upgrade.stripePaymentInfo")}
+                {isIOSApp() ? t("upgrade.applePaymentInfo") : t("upgrade.stripePaymentInfo")}
               </p>
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
@@ -493,13 +503,13 @@ export default function Upgrade() {
               <Link to="/privacy" className="text-xs text-primary hover:underline">
                 {t("upgrade.privacyPolicy")}
               </Link>
-              {isRevenueCatAvailable && (
+              {isIOSApp() && (
                 <>
                   <span className="text-muted-foreground">•</span>
-                  <a 
-                    href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-xs text-primary hover:underline"
                   >
                     Apple EULA
@@ -511,7 +521,7 @@ export default function Upgrade() {
 
           <div className="text-center space-y-2">
             <p className="text-xs text-muted-foreground">
-              {isRevenueCatAvailable ? t("upgrade.secureApple") : t("upgrade.secureStripe")}
+              {isIOSApp() ? t("upgrade.secureApple") : t("upgrade.secureStripe")}
             </p>
           </div>
         </motion.div>

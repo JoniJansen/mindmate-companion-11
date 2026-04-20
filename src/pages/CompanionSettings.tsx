@@ -17,7 +17,7 @@ export default function CompanionSettings() {
   const { toast } = useToast();
   const { isPremium } = usePremium();
   const { companion, isLoading, selectArchetype, updateName } = useCompanion();
-  const avatarSignedUrl = useAvatarUrl(companion?.avatar_url, companion?.archetype);
+  const avatarSignedUrl = useAvatarUrl(companion?.avatar_url);
 
   if (isLoading) {
     return (

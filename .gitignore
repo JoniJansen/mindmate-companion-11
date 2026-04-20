@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Signing secrets — NEVER commit
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+android/keystore.properties
+android/key.properties
+
+# Local Claude Code settings
+.claude/
+
+# Env files (already-committed .env stays as-is, do not remove from git history)
+.env.local
+.env.*.local

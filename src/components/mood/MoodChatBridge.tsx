@@ -21,7 +21,7 @@ export function MoodChatBridge({ moodValue, feelings, note, onDismiss }: MoodCha
   const { t, language } = useTranslation();
   const { companion } = useCompanion();
   const navigate = useNavigate();
-  const avatarUrl = useAvatarUrl(companion?.avatar_url, companion?.archetype);
+  const avatarUrl = useAvatarUrl(companion?.avatar_url);
   const companionName = companion?.name || "Soulvay";
 
   // Track prompt shown once

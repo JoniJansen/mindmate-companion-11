@@ -116,7 +116,7 @@ export const settingsTranslations: Translations = {
   "voice.generating": { en: "Generating...", de: "Wird generiert..." },
   "voice.notSupported": { en: "Voice input is not available", de: "Spracheingabe ist nicht verfügbar" },
   "voice.tryChrome": { en: "Voice features require microphone access in your device settings", de: "Sprachfunktionen benötigen Mikrofonzugriff in deinen Geräteeinstellungen" },
-  "voice.speaking": { en: "Speaking...", de: "Spricht..." },
+  "voice.speaking": { en: "Soulvay speaking...", de: "Soulvay spricht..." },
   "voice.loading": { en: "One moment...", de: "Einen Moment..." },
   "voice.listeningStatus": { en: "Listening...", de: "Ich höre zu..." },
 };

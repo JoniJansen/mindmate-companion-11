@@ -4,13 +4,12 @@
 
 @layer base {
   :root {
-    /* DESIGN PHILOSOPHY: Premium iOS native feel
-       - SF Pro-style system font stack
-       - Warm off-white background (#F8F9FA)
-       - Sophisticated warm green (#3D7A5E)
-       - Clean cards on pure white */
+    /* DESIGN PHILOSOPHY: Clean, premium mental health space
+       - White/neutral backgrounds — no blue tint
+       - Sophisticated green accents — trustworthy, calming
+       - Warm neutrals for emotional safety */
 
-    --background: 210 20% 98%;
+    --background: 0 0% 98%;
     --foreground: 150 8% 15%;
 
     --card: 0 0% 100%;
@@ -19,8 +18,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 150 8% 15%;
 
-    /* Primary: warm forest green #3D7A5E → hsl(152, 33%, 36%) */
-    --primary: 152 33% 36%;
+    /* Primary: refined forest green — premium, trustworthy */
+    --primary: 152 32% 36%;
     --primary-foreground: 0 0% 99%;
     --primary-soft: 150 20% 94%;
 
@@ -28,9 +27,9 @@
     --secondary: 148 18% 93%;
     --secondary-foreground: 150 20% 30%;
 
-    /* Muted: warm neutral gray — muted text #6B7280 → hsl(220, 9%, 46%) */
-    --muted: 210 11% 93%;
-    --muted-foreground: 220 9% 46%;
+    /* Muted: warm neutral gray */
+    --muted: 140 6% 93%;
+    --muted-foreground: 150 6% 46%;
 
     /* Accent: vibrant but refined green */
     --accent: 152 38% 42%;
@@ -52,26 +51,26 @@
     --destructive-foreground: 0 0% 99%;
 
     /* Borders: neutral, clean */
-    --border: 210 14% 89%;
-    --input: 210 14% 89%;
-    --ring: 152 33% 36%;
+    --border: 150 8% 89%;
+    --input: 150 8% 89%;
+    --ring: 152 32% 36%;
 
     --radius: 0.875rem;
 
     /* Professional shadows */
-    --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.03), 0 1px 3px 0 rgb(0 0 0 / 0.04);
-    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 2px 8px -2px rgb(0 0 0 / 0.06);
-    --shadow-elevated: 0 4px 16px -4px rgb(0 0 0 / 0.08), 0 8px 24px -8px rgb(0 0 0 / 0.06);
+    --shadow-soft: 0 1px 3px -1px hsl(150 10% 20% / 0.04), 0 2px 6px -2px hsl(150 10% 20% / 0.03);
+    --shadow-card: 0 2px 8px -3px hsl(150 10% 20% / 0.06), 0 4px 12px -4px hsl(150 10% 20% / 0.04);
+    --shadow-elevated: 0 4px 16px -4px hsl(150 10% 20% / 0.08), 0 8px 24px -8px hsl(150 10% 20% / 0.06);
 
     /* Sidebar */
     --sidebar-background: 0 0% 99%;
     --sidebar-foreground: 150 8% 18%;
-    --sidebar-primary: 152 33% 36%;
+    --sidebar-primary: 152 32% 36%;
     --sidebar-primary-foreground: 0 0% 99%;
     --sidebar-accent: 148 10% 96%;
     --sidebar-accent-foreground: 150 8% 18%;
-    --sidebar-border: 210 14% 92%;
-    --sidebar-ring: 152 33% 36%;
+    --sidebar-border: 150 6% 92%;
+    --sidebar-ring: 152 32% 36%;
   }
 
   .dark {
@@ -86,24 +85,30 @@
     --popover: 158 10% 10%;
     --popover-foreground: 150 6% 90%;
 
+    /* Primary: muted emerald — elegant, not glowing */
     --primary: 152 30% 42%;
     --primary-foreground: 160 10% 5%;
     --primary-soft: 152 14% 14%;
 
+    /* Secondary: subtle dark surface */
     --secondary: 155 8% 14%;
     --secondary-foreground: 150 10% 76%;
 
+    /* Muted: neutral dark gray with green undertone */
     --muted: 155 8% 12%;
     --muted-foreground: 150 5% 48%;
 
+    /* Accent: refined sage */
     --accent: 150 22% 36%;
     --accent-foreground: 150 6% 92%;
     --accent-soft: 150 10% 12%;
 
+    /* Calm: deep forest green */
     --calm: 155 22% 34%;
     --calm-foreground: 150 6% 92%;
     --calm-soft: 155 12% 11%;
 
+    /* Gentle: warm sage */
     --gentle: 148 18% 36%;
     --gentle-foreground: 150 6% 92%;
     --gentle-soft: 148 10% 11%;
@@ -111,10 +116,12 @@
     --destructive: 4 48% 44%;
     --destructive-foreground: 150 6% 94%;
 
+    /* Borders */
     --border: 155 8% 15%;
     --input: 155 8% 15%;
     --ring: 152 30% 42%;
 
+    /* Shadows */
     --shadow-soft: 0 1px 3px -1px hsl(160 15% 3% / 0.3);
     --shadow-card: 0 2px 8px -3px hsl(160 15% 3% / 0.4);
     --shadow-elevated: 0 4px 16px -4px hsl(160 15% 3% / 0.5);
@@ -146,17 +153,17 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', system-ui, 'Helvetica Neue', sans-serif;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     height: 100%;
     height: 100svh;
     overscroll-behavior: none;
     overflow: hidden;
     position: fixed;
     width: 100%;
-    line-height: 1.5;
-    letter-spacing: -0.01em;
-    font-size: 15px;
+    /* Trust layer: generous line-height for calm reading */
+    line-height: 1.65;
+    letter-spacing: -0.008em;
   }
   
   #root {
@@ -171,21 +178,22 @@
     margin: 0;
   }
 
-  /* === TYPOGRAPHY HIERARCHY: SF Pro-style === */
+  /* === TYPOGRAPHY HIERARCHY: Clear visual weight === */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
+    @apply font-semibold tracking-tight;
     letter-spacing: -0.02em;
+    /* Fixed heights prevent text jumping */
     min-height: 1.2em;
   }
 
-  h1 { font-size: 24px; line-height: 1.2; }
-  h2 { font-size: 20px; line-height: 1.25; }
-  h3 { font-size: 17px; line-height: 1.3; font-weight: 600; }
+  h1 { @apply text-2xl md:text-3xl leading-tight; }
+  h2 { @apply text-xl md:text-2xl leading-tight; }
+  h3 { @apply text-lg md:text-xl leading-snug; }
 
+  /* Paragraph spacing for calm reading */
   p {
-    font-size: 15px;
-    line-height: 1.5;
-    letter-spacing: -0.005em;
+    line-height: 1.7;
+    letter-spacing: 0.002em;
   }
 
   /* === TAP TARGETS: All interactive elements ≥ 44px === */
@@ -195,22 +203,25 @@
   input,
   select,
   textarea {
+    /* Ensure minimum touch target */
     min-height: 44px;
     min-width: 44px;
   }
 
+  /* Exception for inline elements */
   a:not([class*="button"]):not([class*="btn"]) {
     min-height: auto;
     min-width: auto;
   }
 
-  /* === ACTIVE/PRESS STATES: iOS-style spring press === */
+  /* === ACTIVE/PRESS STATES: Subtle darkening, no hover feel === */
   button:active:not(:disabled),
   [role="button"]:active:not(:disabled) {
-    transform: scale(0.97);
-    transition: transform 0.1s ease;
+    filter: brightness(0.92);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
+  /* Clean focus states - subtle ring */
   *:focus-visible {
     @apply outline-none ring-2 ring-primary/20 ring-offset-1 ring-offset-background;
   }
@@ -243,6 +254,7 @@
     display: none;
   }
 
+  /* === SCROLL STABILITY: Firm, controlled, no bounce === */
   .scroll-container {
     overflow-y: auto;
     overflow-x: hidden;
@@ -250,6 +262,7 @@
     -webkit-overflow-scrolling: touch;
     flex: 1;
     min-height: 0;
+    /* Controlled scroll end - no springy feel */
     scroll-behavior: auto;
   }
 
@@ -258,6 +271,7 @@
     overflow: hidden;
   }
 
+  /* === SKELETON LOADING: Calm, static placeholders === */
   .skeleton {
     @apply bg-muted/50 rounded-lg;
     background: linear-gradient(
@@ -275,6 +289,7 @@
     100% { background-position: -200% 0; }
   }
 
+  /* === TRUST LAYER: Gentle error states === */
   .error-gentle {
     @apply text-muted-foreground bg-muted/30 border border-border/50 rounded-xl p-4;
   }
@@ -283,6 +298,7 @@
     @apply text-muted-foreground/70;
   }
 
+  /* === KEYBOARD HANDLING: No layout jump === */
   @supports (height: 100dvh) {
     .keyboard-aware {
       height: 100dvh;

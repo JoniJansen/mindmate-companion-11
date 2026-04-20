@@ -32,7 +32,7 @@ export function VoiceAvatar({
 
   // Status text
   const getStatusText = () => {
-    if (isSpeaking) return language === "de" ? "Spricht..." : "Speaking...";
+    if (isSpeaking) return language === "de" ? "Soulvay spricht..." : "Soulvay speaking...";
     if (isListening) return language === "de" ? "Ich höre zu..." : "Listening...";
     return language === "de" ? "Tippe zum Sprechen" : "Tap to speak";
   };

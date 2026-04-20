@@ -378,15 +378,18 @@ export const topicTranslations: Record<string, {
 
 export function useTranslation() {
   const [language, setLanguage] = useState<Language>(() => {
-    // Default to German — always. Only switch to English if user explicitly chose it.
+    // Default to German for DACH region, unless user explicitly chose English
     try {
       const stored = localStorage.getItem("soulvay-preferences");
       if (stored) {
         const prefs = JSON.parse(stored);
-        if (prefs.language === "en" || prefs.language === "de") return prefs.language;
+        if (prefs.language) return prefs.language;
       }
     } catch {}
-    return "de"; // Always default to German
+    // No stored preference: detect browser language, default to German
+    const browserLang = navigator.language?.toLowerCase() || "";
+    if (browserLang.startsWith("en")) return "en";
+    return "de"; // Default to German for DACH and all other locales
   });
 
   useEffect(() => {

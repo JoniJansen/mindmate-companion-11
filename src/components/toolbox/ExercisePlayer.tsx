@@ -291,7 +291,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     setIsPlaying(false);
   }, [clearAdvanceTimeout, stop]);
 
-  const queueAdvance = useCallback((delay = 1200) => {
+  const queueAdvance = useCallback((delay = 900) => {
     clearAdvanceTimeout();
     setIsTransitioning(true);
 
@@ -326,7 +326,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
       return;
     }
 
-    queueAdvance(600);
+    queueAdvance(450);
   };
 
   // Auto-progress after minimum duration; actual step change happens only once via queueAdvance
@@ -356,7 +356,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     if (!isPlaying || isComplete || isTransitioning || !isCurrentStepMinDurationMet) return;
     if (voiceEnabled && (isCurrentStepSpeaking || isLoading)) return;
 
-    queueAdvance(1200);
+    queueAdvance(900);
   }, [
     isCurrentStepMinDurationMet,
     isCurrentStepSpeaking,
@@ -537,10 +537,10 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
             <AnimatePresence mode="wait">
               <motion.h2
                 key={currentStep}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
                 className="text-lg font-medium text-foreground leading-relaxed mb-4"
               >
                 {getStepInstruction(currentStep)}
