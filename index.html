@@ -1,16 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#2d5a3d" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Soulvay" />
     
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="manifest" href="/manifest.json" />
@@ -49,8 +46,8 @@
     <!-- Additional SEO -->
     <meta name="application-name" content="Soulvay" />
     <meta name="msapplication-TileColor" content="#2d5a3d" />
-    <meta name="format-detection" content="telephone=no" />
-    
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
@@ -60,18 +57,58 @@
       "alternateName": "Soulvay – Dein psychologischer Begleiter",
       "description": "A calm, modern AI companion for mental wellness. Chat, journal, track your mood, and discover helpful exercises.",
       "url": "https://soulvay.com",
+      "inLanguage": ["de-DE", "en-US"],
       "applicationCategory": "HealthApplication",
       "operatingSystem": "Web, iOS",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "EUR"
-      }
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free",
+          "price": "0",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "name": "Soulvay Plus Monthly",
+          "price": "9.99",
+          "priceCurrency": "EUR",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "9.99",
+            "priceCurrency": "EUR",
+            "unitCode": "MON",
+            "billingDuration": "P1M"
+          },
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "name": "Soulvay Plus Yearly",
+          "price": "79.00",
+          "priceCurrency": "EUR",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "79.00",
+            "priceCurrency": "EUR",
+            "unitCode": "ANN",
+            "billingDuration": "P1Y"
+          },
+          "availability": "https://schema.org/InStock"
+        }
+      ]
     }
     </script>
   </head>
 
   <body class="bg-background">
+    <noscript>
+      <div style="padding:2rem;text-align:center;font-family:system-ui,-apple-system,sans-serif;color:#2d5a3d;">
+        <h1>Soulvay</h1>
+        <p>Diese App benötigt JavaScript, um zu funktionieren. Bitte aktiviere JavaScript in deinem Browser.</p>
+        <p>This app requires JavaScript to run. Please enable JavaScript in your browser.</p>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

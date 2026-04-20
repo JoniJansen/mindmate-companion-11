@@ -112,22 +112,18 @@ export function CookieConsent() {
     const handleStorageChange = () => {
       setLanguage(detectLanguage());
     };
-    
+    const handleLangChange = () => {
+      setLanguage(detectLanguage());
+    };
+
     window.addEventListener("storage", handleStorageChange);
-    
-    // Also poll for same-tab changes (localStorage events don't fire in same tab)
-    const interval = setInterval(() => {
-      const newLang = detectLanguage();
-      if (newLang !== language) {
-        setLanguage(newLang);
-      }
-    }, 500);
-    
+    window.addEventListener("soulvay-preferences-changed", handleLangChange);
+
     return () => {
       window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
+      window.removeEventListener("soulvay-preferences-changed", handleLangChange);
     };
-  }, [language]);
+  }, []);
 
   // Listen for external open event
   useEffect(() => {
@@ -224,11 +220,11 @@ export function CookieConsent() {
                       </a>
                     </p>
                     <div className="flex flex-wrap gap-3">
-                      <Button onClick={handleAcceptAll} className="gap-2">
+                      <Button variant="outline" onClick={handleAcceptAll} className="gap-2 flex-1 sm:flex-none sm:min-w-[9rem]">
                         <Check className="w-4 h-4" />
                         {t.acceptAll}
                       </Button>
-                      <Button variant="outline" onClick={handleRejectAll} className="gap-2">
+                      <Button variant="outline" onClick={handleRejectAll} className="gap-2 flex-1 sm:flex-none sm:min-w-[9rem]">
                         <X className="w-4 h-4" />
                         {t.rejectAll}
                       </Button>

@@ -3,28 +3,11 @@ import { ArrowLeft, Building2, Mail, Phone, Globe, Scale, Shield } from "lucide-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { StandalonePage } from "@/components/layout/StandalonePage";
-import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Impressum() {
   const navigate = useNavigate();
-  const [language, setLanguage] = useState<"en" | "de">("de");
-
-  useEffect(() => {
-    try {
-      const prefsRaw = localStorage.getItem("soulvay-preferences");
-      if (prefsRaw) {
-        const prefs = JSON.parse(prefsRaw);
-        if (prefs.language === "de" || prefs.language === "en") {
-          setLanguage(prefs.language);
-          return;
-        }
-      }
-      const browserLang = navigator.language || "";
-      setLanguage(browserLang.startsWith("de") ? "de" : "en");
-    } catch {
-      setLanguage("de");
-    }
-  }, []);
+  const { language } = useTranslation();
 
   const texts = {
     de: {

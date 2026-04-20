@@ -3,6 +3,13 @@ import App from "./App.tsx";
 import "./index.css";
 import { migrateLegacyKeys } from "./lib/migrateLegacyKeys";
 
+// Self-hosted Plus Jakarta Sans — no Google Fonts network request (DSGVO-safe).
+import "@fontsource/plus-jakarta-sans/300.css";
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
+
 // Run localStorage migration before anything else
 migrateLegacyKeys();
 
