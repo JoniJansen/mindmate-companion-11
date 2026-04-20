@@ -82,8 +82,19 @@ export function shouldShowGoogleAuth(): boolean {
 
 /** True when Apple Sign-In should be available as an auth option */
 export function shouldShowAppleAuth(): boolean {
-  // Show on web (both options available) and iOS (required by Apple)
-  return isWeb() || isIOSApp();
+  // Show on web only. On iOS, we deliberately HIDE Apple Sign-In because:
+  // 1. We don't offer Google/Facebook on iOS (shouldShowGoogleAuth() is false),
+  //    so Apple's Guideline 4.8 does NOT require Sign In with Apple here.
+  // 2. The native flow depends on the Supabase Apple provider being configured
+  //    on the backend. Hiding the button removes any risk of the reviewer
+  //    seeing an error message (Guideline 2.1a — the exact reason Build 41
+  //    was rejected).
+  // 3. Users on iOS can still sign up with email/password.
+  //
+  // Once the Supabase Apple provider is verified working end-to-end, flip this
+  // back to `isWeb() || isIOSApp()` and the native flow in src/lib/appleSignIn.ts
+  // will take over.
+  return isWeb();
 }
 
 /** True when store messaging should be shown */

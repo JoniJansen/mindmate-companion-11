@@ -3,13 +3,65 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 // RevenueCat Product IDs - must match App Store Connect & RevenueCat Dashboard
+// NOTE: historical product IDs used the "mindmate_plus_*" prefix (before the rename).
+// Lookup is tolerant of both prefixes — see findPackageForPlan() below.
 export const REVENUECAT_PRODUCTS = {
   MONTHLY: 'soulvay_plus_monthly',
   YEARLY: 'soulvay_plus_yearly',
 } as const;
 
+// Legacy product IDs kept for backwards compatibility with existing
+// App Store Connect configuration.
+export const LEGACY_REVENUECAT_PRODUCTS = {
+  MONTHLY: 'mindmate_plus_monthly',
+  YEARLY: 'mindmate_plus_yearly',
+} as const;
+
 // RevenueCat Entitlement ID - must match RevenueCat Dashboard
 export const PREMIUM_ENTITLEMENT = 'premium';
+
+/**
+ * Find a RevenueCat package for a given plan type.
+ * Tolerant of both the current ("soulvay_plus_*") and legacy ("mindmate_plus_*")
+ * product-ID conventions, AND of package identifier naming in the RevenueCat
+ * dashboard (e.g. "monthly", "$rc_monthly", "yearly", "$rc_annual").
+ *
+ * This is the single source of truth for matching plan -> package.
+ */
+export function findPackageForPlan(
+  offerings: { availablePackages: Array<{ identifier: string; product: { identifier: string } }> } | null,
+  plan: 'monthly' | 'yearly'
+): any | null {
+  if (!offerings?.availablePackages?.length) return null;
+
+  const pkgs = offerings.availablePackages;
+
+  // 1. Exact identifier match on package (most reliable)
+  const packageIdentifierMatch = pkgs.find(
+    (p) => p.identifier === plan ||
+           p.identifier === `$rc_${plan}` ||
+           (plan === 'yearly' && (p.identifier === '$rc_annual' || p.identifier === 'annual')) ||
+           (plan === 'monthly' && p.identifier === '$rc_monthly'),
+  );
+  if (packageIdentifierMatch) return packageIdentifierMatch;
+
+  // 2. Exact product identifier match (current or legacy ID)
+  const currentId = plan === 'yearly' ? REVENUECAT_PRODUCTS.YEARLY : REVENUECAT_PRODUCTS.MONTHLY;
+  const legacyId = plan === 'yearly' ? LEGACY_REVENUECAT_PRODUCTS.YEARLY : LEGACY_REVENUECAT_PRODUCTS.MONTHLY;
+  const productIdentifierMatch = pkgs.find(
+    (p) => p.product.identifier === currentId || p.product.identifier === legacyId,
+  );
+  if (productIdentifierMatch) return productIdentifierMatch;
+
+  // 3. Substring match on product identifier (e.g. "…_monthly" anywhere)
+  const substringMatch = pkgs.find((p) => p.product.identifier.toLowerCase().includes(plan));
+  if (substringMatch) return substringMatch;
+
+  // 4. If only one package is available, return it as a last resort
+  if (pkgs.length === 1) return pkgs[0];
+
+  return null;
+}
 
 interface Package {
   identifier: string;

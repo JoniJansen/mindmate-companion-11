@@ -12,9 +12,10 @@ import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
 import { activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
 import { supabase } from "@/integrations/supabase/client";
-import { isNativeApp } from "@/lib/nativeDetect";
+import { isNativeApp, isNativeIOS } from "@/lib/nativeDetect";
 import { lovable } from "@/integrations/lovable/index";
 import { shouldShowReviewLogin, shouldShowGoogleAuth, shouldShowAppleAuth } from "@/lib/platformSeparation";
+import { signInWithAppleNative } from "@/lib/appleSignIn";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
@@ -382,11 +383,27 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={async () => {
-                    const { error } = await lovable.auth.signInWithOAuth("apple" as any, {
-                      redirect_uri: window.location.origin,
-                    });
-                    if (error) {
-                      toast({ title: t("common.error"), description: String(error), variant: "destructive" });
+                    try {
+                      if (isNativeIOS()) {
+                        // iOS: use the native Apple Sign-In sheet (required by Apple Guideline 2.1a)
+                        const success = await signInWithAppleNative();
+                        if (!success) return; // user cancelled
+                        // Auth state change listener handles the navigation
+                      } else {
+                        // Web: use OAuth redirect via Lovable cloud-auth
+                        const { error } = await lovable.auth.signInWithOAuth("apple" as any, {
+                          redirect_uri: window.location.origin,
+                        });
+                        if (error) {
+                          toast({ title: t("common.error"), description: String(error), variant: "destructive" });
+                        }
+                      }
+                    } catch (err: any) {
+                      toast({
+                        title: t("common.error"),
+                        description: err?.message ?? String(err),
+                        variant: "destructive",
+                      });
                     }
                   }}
                   className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl border border-border/50 bg-card hover:bg-muted/40 transition-all text-sm font-medium text-foreground"

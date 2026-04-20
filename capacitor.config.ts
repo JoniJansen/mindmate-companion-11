@@ -1,7 +1,10 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "com.jonathanjansen.soulvay",
+  // Internal bundle ID stays "mindmate" — the app predates the Soulvay rebrand
+  // and all App Store Connect history, screenshots, IAP products and 40+ builds
+  // are tied to this identifier. The user-facing app name is "Soulvay".
+  appId: "com.jonathanjansen.mindmate",
   appName: "Soulvay",
   webDir: "dist",
   server: {
