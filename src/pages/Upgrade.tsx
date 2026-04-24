@@ -282,7 +282,7 @@ export default function Upgrade() {
           </div>
           <div>
             <h1 className="text-2xl font-semibold text-foreground">
-              {language === "de" ? "Eine tiefere Verbindung" : "A deeper connection"}
+              Soulvay Plus
             </h1>
             <p className="text-muted-foreground mt-3 leading-relaxed max-w-xs mx-auto">
               {language === "de"
@@ -455,7 +455,7 @@ export default function Upgrade() {
             ) : (
               <>
                 <Sparkles className="w-5 h-5 mr-2" />
-                {selectedPlan === "yearly" ? t("upgrade.startYearly") : t("upgrade.startMonthly")}
+                {t("upgrade.startSubscription")}
               </>
             )}
           </Button>
@@ -496,26 +496,13 @@ export default function Upgrade() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
-              <Link to="/terms" className="text-xs text-primary hover:underline">
+              <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
                 {t("upgrade.termsOfUse")}
-              </Link>
+              </a>
               <span className="text-muted-foreground">•</span>
-              <Link to="/privacy" className="text-xs text-primary hover:underline">
+              <a href="https://soulvay.com/privacy" target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
                 {t("upgrade.privacyPolicy")}
-              </Link>
-              {isIOSApp() && (
-                <>
-                  <span className="text-muted-foreground">•</span>
-                  <a
-                    href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Apple EULA
-                  </a>
-                </>
-              )}
+              </a>
             </div>
           </div>
 
