@@ -1,14 +1,14 @@
 /**
  * Review Mode Configuration
  * 
- * This module provides robust App Store review support.
- * Review accounts get automatic premium access and bypass rate limits.
+ * This module provides App Store review account detection only.
+ * Review accounts must follow the same premium and purchase flow as regular users.
  */
 
 // Review account emails — passwords are stored server-side as secrets
 export const REVIEW_EMAILS_CONFIG = {
   apple: "apple-review@mindmate.de",
-  secondary: "apple-review@soulvay.com",
+  secondary: "apple-review@soulvay.de",
 } as const;
 
 // All review emails for checking
@@ -33,20 +33,9 @@ export const isReviewModeActive = (): boolean => {
   }
 };
 
-// Activate review mode
+// Legacy no-op: kept for backward compatibility with old imports.
 export const activateReviewMode = (): void => {
-  try {
-    localStorage.setItem("soulvay_review_mode", "active");
-    localStorage.setItem("soulvay-premium-state", JSON.stringify({
-      isPremium: true,
-      dailyMessagesUsed: 0,
-      lastResetDate: new Date().toISOString().split("T")[0],
-      planType: "review",
-      subscriptionStatus: "active",
-    }));
-  } catch {
-    if (import.meta.env.DEV) console.warn("Failed to activate review mode");
-  }
+  deactivateReviewMode();
 };
 
 // Deactivate review mode
