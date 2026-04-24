@@ -10,13 +10,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
-import { activateReviewMode, isReviewAccount } from "@/lib/reviewMode";
-import { supabase } from "@/integrations/supabase/client";
+import { REVIEW_EMAILS_CONFIG, deactivateReviewMode, isReviewAccount } from "@/lib/reviewMode";
 import { isNativeApp } from "@/lib/nativeDetect";
 import { lovable } from "@/integrations/lovable/index";
 import { shouldShowReviewLogin, shouldShowGoogleAuth, shouldShowAppleAuth } from "@/lib/platformSeparation";
 
 type AuthMode = "login" | "signup" | "forgot-password";
+
+const REVIEW_LOGIN_PASSWORD = "MindMate2026Review!";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -46,36 +47,21 @@ export default function Auth() {
     }
   }, [isAuthenticated, authLoading, navigate, searchParams]);
 
-  // Review/Demo Login - credentials fetched server-side
+  // Review/Demo Login — normal email/password auth only, no premium bypass.
   const handleReviewLogin = async () => {
     setIsReviewLoading(true);
     
     try {
-      // Call edge function to get review session (credentials never leave server)
-      const { data, error } = await supabase.functions.invoke("review-login", {
-        body: { platform: "apple" },
-      });
-
-      if (error || data?.error) {
-        throw new Error(data?.error || error?.message || "Review login failed");
-      }
-
-      // Set the session from the server response
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-      });
-
-      if (sessionError) throw sessionError;
-
-      activateReviewMode();
+      deactivateReviewMode();
+      localStorage.removeItem("soulvay-premium-state");
+      await signIn(REVIEW_EMAILS_CONFIG.apple, REVIEW_LOGIN_PASSWORD);
       
       toast({
         title: "Review Login Successful",
-        description: "Welcome! All premium features are unlocked.",
+        description: language === "de" ? "Demo-Konto angemeldet. Premium folgt der normalen Abo-Prüfung." : "Demo account signed in. Premium follows the normal subscription check.",
       });
       
-      navigate("/review-instructions", { replace: true });
+      navigate("/upgrade", { replace: true });
     } catch (error: any) {
       if (import.meta.env.DEV) console.error("[Review Login] Error:", error);
       
@@ -100,12 +86,13 @@ export default function Auth() {
         await signIn(normalizedEmail, password);
         
         if (isReviewAccount(normalizedEmail)) {
-          activateReviewMode();
+          deactivateReviewMode();
+          localStorage.removeItem("soulvay-premium-state");
           toast({
-            title: "Review Mode Active",
-            description: "All premium features are unlocked.",
+            title: "Review Login Successful",
+            description: language === "de" ? "Demo-Konto angemeldet. Premium folgt der normalen Abo-Prüfung." : "Demo account signed in. Premium follows the normal subscription check.",
           });
-          navigate("/review-instructions", { replace: true });
+          navigate("/upgrade", { replace: true });
           return;
         }
         

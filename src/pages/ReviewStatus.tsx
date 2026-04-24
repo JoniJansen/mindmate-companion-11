@@ -18,7 +18,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
-import { isReviewModeActive, getDeviceInfo, isReviewAccount } from "@/lib/reviewMode";
+import { getDeviceInfo, isReviewAccount } from "@/lib/reviewMode";
 
 interface StatusCheck {
   name: string;
@@ -76,11 +76,11 @@ export default function ReviewStatus() {
 
     await new Promise(r => setTimeout(r, 300));
 
-    const isReview = isReviewAccount(user?.email) || isReviewModeActive();
+    const isReview = isReviewAccount(user?.email);
     results[results.length - 1] = {
       name: "Review Account",
       status: isReview ? "success" : "warning",
-      message: isReview ? "Review mode active" : "Not a review account",
+      message: isReview ? "Review account signed in" : "Not a review account",
       icon: <Shield className="w-5 h-5" />,
     };
     setChecks([...results]);
@@ -132,7 +132,7 @@ export default function ReviewStatus() {
       status: isPremium ? "success" : "warning",
       message: isPremium 
         ? `Premium active (${subscriptionStatus || "active"})` 
-        : "Free tier (review accounts get auto-premium)",
+        : "Free tier — purchase flow must be tested through the paywall",
       icon: <CreditCard className="w-5 h-5" />,
     };
     setChecks([...results]);

@@ -55,28 +55,6 @@ async function setupAccount(
       console.log("Email confirmed for", account.email);
     }
 
-    // Ensure subscription exists
-    const { data: subscription } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("user_id", existingUser.id)
-      .maybeSingle();
-
-    if (!subscription) {
-      await supabase.from("subscriptions").insert({
-        user_id: existingUser.id,
-        user_session_id: existingUser.id,
-        status: "active",
-        plan_type: "review",
-        current_period_start: new Date().toISOString(),
-        current_period_end: new Date(
-          Date.now() + 365 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        cancel_at_period_end: false,
-      });
-      console.log("Created subscription for", account.email);
-    }
-
     return {
       success: true,
       message: `Account ${account.email} already exists`,
@@ -106,19 +84,6 @@ async function setupAccount(
     user_id: newUser.user.id,
     display_name: account.displayName,
     language: "en",
-  });
-
-  // Create permanent subscription
-  await supabase.from("subscriptions").insert({
-    user_id: newUser.user.id,
-    user_session_id: newUser.user.id,
-    status: "active",
-    plan_type: "review",
-    current_period_start: new Date().toISOString(),
-    current_period_end: new Date(
-      Date.now() + 365 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-    cancel_at_period_end: false,
   });
 
   return {

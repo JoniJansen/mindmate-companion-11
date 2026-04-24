@@ -1,5 +1,15 @@
 import { motion } from "framer-motion";
-import { type Companion } from "@/data/companions";
+import { type CompanionArchetype } from "@/data/companions";
+
+type LocalizedText = Partial<Record<"en" | "de", string>>;
+type Companion = CompanionArchetype & {
+  color?: string;
+  pronouns?: string;
+  pronounsDe?: string;
+  approach?: LocalizedText;
+  specialty?: LocalizedText;
+  tagline?: LocalizedText;
+};
 
 interface CompanionAvatarProps {
   companion: Companion;
@@ -50,8 +60,9 @@ export function CompanionAvatar({
   className = "",
 }: CompanionAvatarProps) {
   const { outer, text, ring } = sizeMap[size];
-  const bg = colorMap[companion.color] ?? "bg-gradient-to-br from-primary to-primary/70";
-  const ringColor = ringColorMap[companion.color] ?? "ring-primary/40";
+  const companionColor = companion.color ?? "primary";
+  const bg = colorMap[companionColor] ?? "bg-gradient-to-br from-primary to-primary/70";
+  const ringColor = ringColorMap[companionColor] ?? "ring-primary/40";
 
   return (
     <motion.div
@@ -74,7 +85,8 @@ export function CompanionBadge({
   companion: Companion;
   className?: string;
 }) {
-  const bg = colorMap[companion.color] ?? "bg-gradient-to-br from-primary to-primary/70";
+  const companionColor = companion.color ?? "primary";
+  const bg = colorMap[companionColor] ?? "bg-gradient-to-br from-primary to-primary/70";
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium text-white ${bg} ${className}`}
@@ -97,8 +109,9 @@ export function CompanionCard({
   onSelect: () => void;
   language?: "en" | "de";
 }) {
-  const bg = colorMap[companion.color] ?? "bg-gradient-to-br from-primary to-primary/70";
-  const ringColor = ringColorMap[companion.color] ?? "ring-primary/40";
+  const companionColor = companion.color ?? "primary";
+  const bg = colorMap[companionColor] ?? "bg-gradient-to-br from-primary to-primary/70";
+  const ringColor = ringColorMap[companionColor] ?? "ring-primary/40";
 
   return (
     <motion.button
@@ -123,24 +136,24 @@ export function CompanionCard({
           <div className="flex items-center gap-2 mb-0.5">
             <span className="font-semibold text-foreground">{companion.name}</span>
             <span className="text-xs text-muted-foreground">
-              {language === "de" ? companion.pronounsDe : companion.pronouns}
+              {language === "de" ? companion.pronounsDe ?? "" : companion.pronouns ?? ""}
             </span>
             {selected && (
               <span className="ml-auto text-xs font-medium text-primary">✓</span>
             )}
           </div>
           <p className="text-xs text-muted-foreground line-clamp-1 mb-1">
-            {companion.approach[language]}
+            {companion.approach?.[language] ?? (language === "de" ? companion.descriptionDe : companion.description)}
           </p>
           <p className="text-sm text-foreground/80 leading-snug line-clamp-2">
-            {companion.specialty[language]}
+            {companion.specialty?.[language] ?? companion.personalityStyle}
           </p>
         </div>
       </div>
 
       {/* Tagline */}
       <p className="mt-2.5 text-xs italic text-muted-foreground pl-15">
-        "{companion.tagline[language]}"
+        "{companion.tagline?.[language] ?? (language === "de" ? companion.introGreetingDe : companion.introGreeting)}"
       </p>
     </motion.button>
   );
