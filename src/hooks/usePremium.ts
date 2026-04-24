@@ -393,13 +393,10 @@ export function usePremium() {
   const simOverride = getSimulatedPremiumOverride();
   
   // Compute final premium status:
-  // Priority: Simulator (DEV only) > Server-verified > RevenueCat > cached localStorage
-  // In production, serverVerifiedPremium is the source of truth once loaded.
-  // localStorage is only used as a brief cache while the server check is in flight.
-  const serverOrCachedPremium = serverVerifiedPremium !== null 
-    ? serverVerifiedPremium 
-    : (state.isPremium || isRevenueCatPremium); // cache fallback only before server responds
-  const finalIsPremium = simOverride !== null ? simOverride.isPremium : serverOrCachedPremium;
+  // Priority: Simulator (DEV only) > RevenueCat entitlement > server-verified backend subscription.
+  // localStorage is cache/UX state only and never authorizes premium access.
+  const verifiedPremium = isRevenueCatPremium || serverVerifiedPremium === true;
+  const finalIsPremium = simOverride !== null ? simOverride.isPremium : verifiedPremium;
   const finalPlanType = simOverride !== null ? simOverride.planType : state.planType;
   const finalSubscriptionStatus = simOverride !== null ? simOverride.subscriptionStatus : state.subscriptionStatus;
 
