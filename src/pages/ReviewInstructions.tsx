@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
-import { isReviewModeActive } from "@/lib/reviewMode";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 
@@ -29,20 +28,19 @@ interface Step {
 export default function ReviewInstructions() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const isReviewMode = isReviewModeActive();
 
-  // Redirect if not in review mode and not authenticated
+  // Redirect if not authenticated
   useEffect(() => {
-    if (!isReviewMode && !isAuthenticated) {
+    if (!isAuthenticated) {
       navigate("/auth");
     }
-  }, [isReviewMode, isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate]);
 
   const steps: Step[] = [
     {
       icon: <Shield className="w-6 h-6 text-green-500" />,
       title: "1. Login Complete",
-      description: "You are logged in with the review account. Premium features are automatically unlocked.",
+      description: "You are logged in with the review account. Premium features require the normal subscription flow.",
     },
     {
       icon: <MessageSquare className="w-6 h-6 text-primary" />,
@@ -77,7 +75,7 @@ export default function ReviewInstructions() {
     {
       icon: <CreditCard className="w-6 h-6 text-violet-500" />,
       title: "7. Premium Features",
-      description: "All premium features are unlocked for review. No purchase required during testing.",
+      description: "Open Soulvay Plus to test the StoreKit in-app purchase flow after the free tier limits.",
       route: "/upgrade",
     },
   ];
@@ -104,9 +102,9 @@ export default function ReviewInstructions() {
                   <Star className="w-6 h-6 text-green-500" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">Review Mode Active</h3>
+                  <h3 className="font-semibold text-foreground">Review Account Active</h3>
                   <p className="text-sm text-muted-foreground">
-                    All premium features are unlocked for testing
+                    Premium access follows the normal subscription and StoreKit purchase flow
                   </p>
                 </div>
               </div>
