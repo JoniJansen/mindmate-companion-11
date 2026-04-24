@@ -61,7 +61,7 @@ export default function Auth() {
         description: language === "de" ? "Demo-Konto angemeldet. Premium folgt der normalen Abo-Prüfung." : "Demo account signed in. Premium follows the normal subscription check.",
       });
       
-      navigate("/home", { replace: true });
+      navigate("/upgrade", { replace: true });
     } catch (error: any) {
       if (import.meta.env.DEV) console.error("[Review Login] Error:", error);
       
@@ -92,7 +92,7 @@ export default function Auth() {
             title: "Review Login Successful",
             description: language === "de" ? "Demo-Konto angemeldet. Premium folgt der normalen Abo-Prüfung." : "Demo account signed in. Premium follows the normal subscription check.",
           });
-          navigate("/home", { replace: true });
+          navigate("/upgrade", { replace: true });
           return;
         }
         
