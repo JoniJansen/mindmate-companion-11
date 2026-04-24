@@ -414,9 +414,17 @@ export default function Upgrade() {
             />
             <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
               {t("upgrade.acceptTermsLabel")}{" "}
-              <Link to="/terms" className="text-primary hover:underline">{t("upgrade.termsLink")}</Link>
+              {isIOSApp() ? (
+                <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{t("upgrade.termsLink")}</a>
+              ) : (
+                <Link to="/terms" className="text-primary hover:underline">{t("upgrade.termsLink")}</Link>
+              )}
               {" "}{t("upgrade.andThe")}{" "}
-              <Link to="/privacy" className="text-primary hover:underline">{t("upgrade.privacyLink")}</Link>.
+              {isIOSApp() ? (
+                <a href="https://soulvay.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{t("upgrade.privacyLink")}</a>
+              ) : (
+                <Link to="/privacy" className="text-primary hover:underline">{t("upgrade.privacyLink")}</Link>
+              )}.
             </label>
           </div>
           
