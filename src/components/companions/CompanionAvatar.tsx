@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import { type Companion } from "@/data/companions";
+import { type CompanionArchetype } from "@/data/companions";
+
+type Companion = CompanionArchetype & { color?: string };
 
 interface CompanionAvatarProps {
   companion: Companion;
@@ -50,8 +52,9 @@ export function CompanionAvatar({
   className = "",
 }: CompanionAvatarProps) {
   const { outer, text, ring } = sizeMap[size];
-  const bg = colorMap[companion.color] ?? "bg-gradient-to-br from-primary to-primary/70";
-  const ringColor = ringColorMap[companion.color] ?? "ring-primary/40";
+  const companionColor = companion.color ?? "primary";
+  const bg = colorMap[companionColor] ?? "bg-gradient-to-br from-primary to-primary/70";
+  const ringColor = ringColorMap[companionColor] ?? "ring-primary/40";
 
   return (
     <motion.div
@@ -74,7 +77,8 @@ export function CompanionBadge({
   companion: Companion;
   className?: string;
 }) {
-  const bg = colorMap[companion.color] ?? "bg-gradient-to-br from-primary to-primary/70";
+  const companionColor = companion.color ?? "primary";
+  const bg = colorMap[companionColor] ?? "bg-gradient-to-br from-primary to-primary/70";
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium text-white ${bg} ${className}`}
