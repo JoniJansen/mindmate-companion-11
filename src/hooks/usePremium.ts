@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useTranslation } from "./useTranslation";
-import { isReviewAccount, isReviewModeActive, activateReviewMode } from "@/lib/reviewMode";
-import { useRevenueCat, PREMIUM_ENTITLEMENT } from "./useRevenueCat";
+import { deactivateReviewMode } from "@/lib/reviewMode";
+import { useRevenueCat } from "./useRevenueCat";
 import { getSimulatedPremiumOverride } from "./useEntitlementSimulator";
 
 export interface PremiumState {
@@ -75,6 +75,12 @@ export function usePremium() {
       if (stored) {
         const parsed: StoredState = JSON.parse(stored);
         const today = getToday();
+        if (parsed.isReviewMode || parsed.planType === "review") {
+          deactivateReviewMode();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(getDefaultState()));
+          setState(getDefaultState());
+          return;
+        }
         
         // Reset daily counter if it's a new day
         if (parsed.lastResetDate !== today) {
@@ -112,27 +118,6 @@ export function usePremium() {
     }
   }, [isRevenueCatPremium, state.isPremium]);
 
-  // Check for review mode and auto-grant premium
-  useEffect(() => {
-    if (user) {
-      const isReview = isReviewAccount(user.email) || isReviewModeActive();
-      
-      if (isReview && !state.isPremium) {
-        if (import.meta.env.DEV) console.log("[Premium] Review mode detected, granting premium access");
-        activateReviewMode();
-        
-        const reviewState: StoredState = {
-          ...state,
-          isPremium: true,
-          planType: "review",
-          subscriptionStatus: "active",
-          isReviewMode: true,
-        };
-        saveState(reviewState);
-      }
-    }
-  }, [user, state.isPremium]);
-
   // Reset module-level cache when user logs out to prevent cross-account stale state
   useEffect(() => {
     if (!user) {
@@ -146,12 +131,6 @@ export function usePremium() {
   // Uses module-level deduplication to prevent N parallel calls from N hook instances.
   const checkSubscriptionStatus = useCallback(async (force = false) => {
     if (!user) return;
-
-    // Review accounts don't need backend subscription checks — they're locally granted
-    if (isReviewAccount(user.email) || isReviewModeActive()) {
-      setServerVerifiedPremium(true);
-      return;
-    }
 
     // Deduplication: skip if a recent check already ran (unless forced)
     const now = Date.now();
@@ -414,14 +393,13 @@ export function usePremium() {
   const simOverride = getSimulatedPremiumOverride();
   
   // Compute final premium status:
-  // Priority: Simulator (DEV only) > Review mode > Server-verified > RevenueCat > cached localStorage
+  // Priority: Simulator (DEV only) > Server-verified > RevenueCat > cached localStorage
   // In production, serverVerifiedPremium is the source of truth once loaded.
   // localStorage is only used as a brief cache while the server check is in flight.
-  const isReviewModePremium = state.isReviewMode && state.isPremium;
   const serverOrCachedPremium = serverVerifiedPremium !== null 
     ? serverVerifiedPremium 
     : (state.isPremium || isRevenueCatPremium); // cache fallback only before server responds
-  const finalIsPremium = simOverride !== null ? simOverride.isPremium : (isReviewModePremium || serverOrCachedPremium);
+  const finalIsPremium = simOverride !== null ? simOverride.isPremium : serverOrCachedPremium;
   const finalPlanType = simOverride !== null ? simOverride.planType : state.planType;
   const finalSubscriptionStatus = simOverride !== null ? simOverride.subscriptionStatus : state.subscriptionStatus;
 
