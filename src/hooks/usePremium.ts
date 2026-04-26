@@ -429,6 +429,8 @@ export function usePremium() {
     
     // RevenueCat specific
     isRevenueCatAvailable,
+    isRevenueCatUnavailable,
+    initializeRevenueCat,
     offerings,
     purchasePackage,
     restorePurchases,
