@@ -99,10 +99,12 @@ interface CustomerInfo {
 
 interface UseRevenueCatReturn {
   isAvailable: boolean;
+  isUnavailable: boolean;
   isLoading: boolean;
   isPremium: boolean;
   offerings: Offering | null;
   customerInfo: CustomerInfo | null;
+  initializeIfNeeded: () => Promise<void>;
   purchasePackage: (packageToPurchase: Package) => Promise<boolean>;
   restorePurchases: () => Promise<boolean>;
   checkEntitlements: () => Promise<boolean>;
