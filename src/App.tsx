@@ -15,7 +15,8 @@ import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 // Hooks
-import { usePremium } from "@/hooks/usePremium";
+// usePremium intentionally not imported here — RevenueCat is now lazy-initialized
+// from the /upgrade page, not at app startup. (Build 43 iPad-crash hardening.)
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
