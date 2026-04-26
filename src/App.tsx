@@ -110,16 +110,12 @@ function HtmlLangSync() {
 }
 
 function SubscriptionRestoreInitializer() {
-  const { isRevenueCatAvailable, restorePurchases, checkSubscriptionStatus } = usePremium();
-
-  useEffect(() => {
-    // Auto-check subscription status on app start
-    // RevenueCat handles restore internally when checking entitlements
-    if (isRevenueCatAvailable) {
-      checkSubscriptionStatus();
-    }
-  }, [isRevenueCatAvailable, checkSubscriptionStatus]);
-
+  // NOTE: RevenueCat is no longer auto-initialized at app launch (caused
+  // crashes on some iPad devices, e.g. iPad Air M3 / Build 43 rejection).
+  // RevenueCat now lazy-initializes only when the user opens /upgrade or
+  // explicitly calls restorePurchases. The server-side subscription check
+  // (manage-subscription edge function) still runs inside usePremium itself
+  // for authenticated users, so no extra work is needed here.
   return null;
 }
 
