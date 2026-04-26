@@ -462,9 +462,26 @@ export default function Upgrade() {
           transition={{ delay: 0.35 }}
           className="space-y-4"
         >
+          {/* In-App-Purchase unavailable banner (iOS only, RevenueCat init failed) */}
+          {isIOSApp() && isRevenueCatUnavailable && (
+            <div
+              role="alert"
+              className="rounded-xl border border-amber-300/40 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm text-amber-900 dark:text-amber-200"
+            >
+              {language === "de"
+                ? "Käufe sind aktuell nicht verfügbar. Bitte schließe die App vollständig und öffne sie erneut. Falls das Problem bestehen bleibt, prüfe deine Internetverbindung oder kontaktiere den Support."
+                : "Purchases are currently unavailable. Please fully close and reopen the app. If the issue persists, check your connection or contact support."}
+            </div>
+          )}
+
           <Button
             onClick={handleUpgrade}
-            disabled={isLoading || !acceptedTerms || !acceptedWithdrawal}
+            disabled={
+              isLoading ||
+              !acceptedTerms ||
+              !acceptedWithdrawal ||
+              (isIOSApp() && isRevenueCatUnavailable)
+            }
             className="w-full h-12 text-base"
           >
             {isLoading ? (
