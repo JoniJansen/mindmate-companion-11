@@ -60,6 +60,19 @@ export function CompanionAvatar({
   className = "",
 }: CompanionAvatarProps) {
   const { outer, text, ring } = sizeMap[size];
+
+  // Defensive: if companion data has not loaded yet (or comes back malformed
+  // from a slow network on iPad), render a neutral fallback instead of
+  // crashing the whole tree.
+  if (!companion) {
+    return (
+      <div
+        className={`${outer} rounded-full bg-muted ${ring} ring-border/40 flex items-center justify-center ${className}`}
+        aria-hidden="true"
+      />
+    );
+  }
+
   const companionColor = companion.color ?? "primary";
   const bg = colorMap[companionColor] ?? "bg-gradient-to-br from-primary to-primary/70";
   const ringColor = ringColorMap[companionColor] ?? "ring-primary/40";
@@ -70,8 +83,8 @@ export function CompanionAvatar({
       animate={animate ? { scale: [1, 1.04, 1] } : undefined}
       transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
     >
-      <span className={`${text} leading-none`} role="img" aria-label={companion.name}>
-        {companion.emoji}
+      <span className={`${text} leading-none`} role="img" aria-label={companion.name ?? "Companion"}>
+        {companion.emoji ?? "🌿"}
       </span>
     </motion.div>
   );

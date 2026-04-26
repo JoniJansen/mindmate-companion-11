@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -99,10 +99,12 @@ interface CustomerInfo {
 
 interface UseRevenueCatReturn {
   isAvailable: boolean;
+  isUnavailable: boolean;
   isLoading: boolean;
   isPremium: boolean;
   offerings: Offering | null;
   customerInfo: CustomerInfo | null;
+  initializeIfNeeded: () => Promise<void>;
   purchasePackage: (packageToPurchase: Package) => Promise<boolean>;
   restorePurchases: () => Promise<boolean>;
   checkEntitlements: () => Promise<boolean>;
@@ -134,12 +136,14 @@ const REVENUECAT_PUBLIC_KEY = 'appl_VatNsFmCDlJPOPkBGnzmhHyZrYy';
 
 export const useRevenueCat = (): UseRevenueCatReturn => {
   const [isAvailable, setIsAvailable] = useState(false);
+  const [isUnavailable, setIsUnavailable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [offerings, setOfferings] = useState<Offering | null>(null);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const { toast } = useToast();
   const hasInitializedRef = useRef(false);
+  const initInFlightRef = useRef<Promise<void> | null>(null);
   const purchasesRef = useRef<any>(null);
 
   // Sync subscription status to backend
@@ -206,51 +210,84 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     }
   }, [syncSubscriptionToBackend]);
 
-  // Initialize RevenueCat
-  useEffect(() => {
-    const initializeRevenueCat = async () => {
-      if (hasInitializedRef.current) return;
+  /**
+   * Lazy RevenueCat initializer.
+   *
+   * IMPORTANT: This is NO LONGER auto-called on app startup. It MUST be invoked
+   * explicitly when the user navigates to /upgrade or triggers restorePurchases.
+   * This avoids native StoreKit init crashes (e.g. on iPad Air M3) from killing
+   * the entire app at launch.
+   *
+   * Wrapped in a double try/catch — both the dynamic import and the native
+   * Purchases.configure() call are isolated. Any failure flips an internal
+   * `isUnavailable` flag and returns gracefully without throwing.
+   */
+  const initializeIfNeeded = useCallback(async (): Promise<void> => {
+    if (hasInitializedRef.current) return;
+    if (initInFlightRef.current) return initInFlightRef.current;
+
+    const work = (async () => {
       hasInitializedRef.current = true;
 
-      const Purchases = await getPurchasesPlugin();
-      if (!Purchases) {
-        if (import.meta.env.DEV) console.log('RevenueCat: Not available (not on iOS)');
+      // Outer try/catch — guards the dynamic plugin import itself.
+      let Purchases: any = null;
+      try {
+        Purchases = await getPurchasesPlugin();
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("[RevenueCat] plugin import failed:", e);
+        setIsUnavailable(true);
         return;
       }
 
+      if (!Purchases) {
+        if (import.meta.env.DEV) console.log("[RevenueCat] not available (not on iOS)");
+        return;
+      }
+
+      // Inner try/catch — guards the native bridge call.
       try {
-        // Configure RevenueCat
-        await Purchases.configure({
-          apiKey: REVENUECAT_PUBLIC_KEY,
-        });
+        await Purchases.configure({ apiKey: REVENUECAT_PUBLIC_KEY });
 
         purchasesRef.current = Purchases;
         setIsAvailable(true);
-        if (import.meta.env.DEV) console.log('RevenueCat: Initialized successfully');
+        setIsUnavailable(false);
+        if (import.meta.env.DEV) console.log("[RevenueCat] initialized");
 
-        // Identify user with Supabase user ID
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await Purchases.logIn({ appUserID: user.id });
-          if (import.meta.env.DEV) console.log('RevenueCat: User identified:', user.id);
+        // Identify user (best-effort, don't crash on failure)
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) await Purchases.logIn({ appUserID: user.id });
+        } catch (e) {
+          if (import.meta.env.DEV) console.warn("[RevenueCat] logIn failed:", e);
         }
 
-        // Get offerings
-        const { offerings: offeringsData } = await Purchases.getOfferings();
-        if (offeringsData.current) {
-          setOfferings(offeringsData.current);
-          if (import.meta.env.DEV) console.log('RevenueCat: Offerings loaded');
+        // Load offerings (best-effort)
+        try {
+          const { offerings: offeringsData } = await Purchases.getOfferings();
+          if (offeringsData?.current) setOfferings(offeringsData.current);
+        } catch (e) {
+          if (import.meta.env.DEV) console.warn("[RevenueCat] getOfferings failed:", e);
         }
 
-        // Check current entitlements
-        await checkEntitlements();
-
+        // Check entitlements (best-effort)
+        try {
+          await checkEntitlements();
+        } catch (e) {
+          if (import.meta.env.DEV) console.warn("[RevenueCat] checkEntitlements failed:", e);
+        }
       } catch (error) {
-        if (import.meta.env.DEV) console.error('RevenueCat initialization failed:', error);
+        if (import.meta.env.DEV) console.error("[RevenueCat] configure failed:", error);
+        setIsUnavailable(true);
+        purchasesRef.current = null;
       }
-    };
+    })();
 
-    initializeRevenueCat();
+    initInFlightRef.current = work;
+    try {
+      await work;
+    } finally {
+      initInFlightRef.current = null;
+    }
   }, [checkEntitlements]);
 
   // Purchase a package
@@ -305,8 +342,12 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     }
   }, [syncSubscriptionToBackend, toast]);
 
-  // Restore purchases
+  // Restore purchases — auto-initializes RevenueCat lazily.
   const restorePurchases = useCallback(async (): Promise<boolean> => {
+    if (!purchasesRef.current) {
+      // Try lazy init first.
+      await initializeIfNeeded();
+    }
     if (!purchasesRef.current) {
       toast({
         title: 'Nicht verfügbar',
@@ -350,14 +391,16 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     } finally {
       setIsLoading(false);
     }
-  }, [syncSubscriptionToBackend, toast]);
+  }, [syncSubscriptionToBackend, toast, initializeIfNeeded]);
 
   return {
     isAvailable,
+    isUnavailable,
     isLoading,
     isPremium,
     offerings,
     customerInfo,
+    initializeIfNeeded,
     purchasePackage,
     restorePurchases,
     checkEntitlements,

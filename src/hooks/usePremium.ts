@@ -61,8 +61,10 @@ export function usePremium() {
   // RevenueCat integration for iOS
   const { 
     isAvailable: isRevenueCatAvailable, 
+    isUnavailable: isRevenueCatUnavailable,
     isPremium: isRevenueCatPremium,
     offerings,
+    initializeIfNeeded: initializeRevenueCat,
     purchasePackage,
     restorePurchases,
     checkEntitlements,
@@ -427,6 +429,8 @@ export function usePremium() {
     
     // RevenueCat specific
     isRevenueCatAvailable,
+    isRevenueCatUnavailable,
+    initializeRevenueCat,
     offerings,
     purchasePackage,
     restorePurchases,

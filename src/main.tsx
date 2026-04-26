@@ -29,15 +29,45 @@ if (import.meta.env.DEV) {
   };
 }
 
-// Global unhandled error capture — prevents silent crashes
+// Detect Capacitor (native iOS/Android) — used to skip browser-only features.
+const isCapacitorNative = (): boolean => {
+  try {
+    return typeof window !== "undefined" &&
+      "Capacitor" in window &&
+      typeof (window as any).Capacitor?.isNativePlatform === "function" &&
+      (window as any).Capacitor.isNativePlatform();
+  } catch {
+    return false;
+  }
+};
+
+// Global unhandled error capture — defensive only. Logs in DEV, swallows in
+// production to prevent silent crashes from killing the WebView (iOS Capacitor).
+// We deliberately do NOT throw, exit, or rethrow inside these handlers.
 window.addEventListener("unhandledrejection", (event) => {
   if (import.meta.env.DEV) console.error("[UnhandledRejection]", event.reason);
-  // Prevent default browser error logging in production
+  // Swallow on native to prevent the WebView from showing its default crash UI.
   event.preventDefault();
 });
 
 window.addEventListener("error", (event) => {
   if (import.meta.env.DEV) console.error("[GlobalError]", event.error || event.message);
+  // Do not call preventDefault for runtime errors — let React's ErrorBoundary
+  // and the dev overlay still receive them. We just refuse to crash the bundle.
 });
+
+// Service Worker — register only on real browsers, NEVER inside Capacitor.
+// VitePWA injects the registration glue automatically; on Capacitor that glue
+// produces noisy warnings and (in some cases) interferes with native bridge
+// initialization. Best practice: actively unregister any existing SW when
+// running natively.
+if (isCapacitorNative()) {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((regs) => regs.forEach((r) => r.unregister().catch(() => {})))
+      .catch(() => {});
+  }
+}
 
 createRoot(document.getElementById("root")!).render(<App />);
