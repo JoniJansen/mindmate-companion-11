@@ -38,6 +38,8 @@ export default function Upgrade() {
     isPremium, 
     checkSubscriptionStatus,
     isRevenueCatAvailable,
+    isRevenueCatUnavailable,
+    initializeRevenueCat,
     offerings,
     purchasePackage,
     restorePurchases,
