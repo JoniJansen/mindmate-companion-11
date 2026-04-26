@@ -51,6 +51,16 @@ export default function Upgrade() {
   const { user } = useAuth();
   const [userStats, setUserStats] = useState({ chatSessions: 0, journalEntries: 0, moodCheckins: 0, exercisesCompleted: 0 });
 
+  // Lazy-initialize RevenueCat ONLY when the user actually opens the paywall.
+  // (Auto-init at app launch was crashing iPad Air M3 in Build 43.)
+  useEffect(() => {
+    if (isIOSApp() && !isRevenueCatAvailable && !isRevenueCatUnavailable) {
+      initializeRevenueCat().catch((e) => {
+        if (import.meta.env.DEV) console.warn("[Upgrade] RC lazy init failed:", e);
+      });
+    }
+  }, [isRevenueCatAvailable, isRevenueCatUnavailable, initializeRevenueCat]);
+
   // Load user stats for progress display
   useEffect(() => {
     if (!user) return;
