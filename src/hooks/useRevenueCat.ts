@@ -342,8 +342,12 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     }
   }, [syncSubscriptionToBackend, toast]);
 
-  // Restore purchases
+  // Restore purchases — auto-initializes RevenueCat lazily.
   const restorePurchases = useCallback(async (): Promise<boolean> => {
+    if (!purchasesRef.current) {
+      // Try lazy init first.
+      await initializeIfNeeded();
+    }
     if (!purchasesRef.current) {
       toast({
         title: 'Nicht verfügbar',
@@ -387,14 +391,16 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     } finally {
       setIsLoading(false);
     }
-  }, [syncSubscriptionToBackend, toast]);
+  }, [syncSubscriptionToBackend, toast, initializeIfNeeded]);
 
   return {
     isAvailable,
+    isUnavailable,
     isLoading,
     isPremium,
     offerings,
     customerInfo,
+    initializeIfNeeded,
     purchasePackage,
     restorePurchases,
     checkEntitlements,
