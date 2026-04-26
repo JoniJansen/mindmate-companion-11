@@ -136,12 +136,14 @@ const REVENUECAT_PUBLIC_KEY = 'appl_VatNsFmCDlJPOPkBGnzmhHyZrYy';
 
 export const useRevenueCat = (): UseRevenueCatReturn => {
   const [isAvailable, setIsAvailable] = useState(false);
+  const [isUnavailable, setIsUnavailable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [offerings, setOfferings] = useState<Offering | null>(null);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const { toast } = useToast();
   const hasInitializedRef = useRef(false);
+  const initInFlightRef = useRef<Promise<void> | null>(null);
   const purchasesRef = useRef<any>(null);
 
   // Sync subscription status to backend
