@@ -7,8 +7,8 @@
 
 // Review account emails — passwords are stored server-side as secrets
 export const REVIEW_EMAILS_CONFIG = {
-  apple: "apple-review@mindmate.de",
-  secondary: "apple-review@soulvay.de",
+  apple: "apple-review@soulvay.de",
+  secondary: "apple-review@mindmate.de",
 } as const;
 
 // All review emails for checking
