@@ -281,7 +281,22 @@ export default function Upgrade() {
 
   return (
     <StandalonePage>
-    <div className="min-h-screen bg-background pb-24">
+    {/*
+      iPad scroll fix (Apple Review Guideline 3.1.2(a)):
+      The outer StandalonePage already provides `fixed inset-0 overflow-y-auto`.
+      Here we ensure the inner content has NO height cap (no min-h-screen, which
+      can short-circuit overflow on iPad) and reserves bottom safe-area space so
+      the Restore Purchases button + legal links remain reachable on notched
+      iPads. `touch-action: pan-y` defends against any global touch handler.
+    */}
+    <div
+      className="bg-background w-full"
+      style={{
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 96px)",
+        WebkitOverflowScrolling: "touch",
+        touchAction: "pan-y",
+      }}
+    >
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50">
         <div className="px-4 py-4 max-w-lg mx-auto">
