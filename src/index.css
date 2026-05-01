@@ -178,6 +178,25 @@
     margin: 0;
   }
 
+  /* === STANDALONE PAGES: release body/root scroll lock ===
+     StandalonePage adds this class while mounted so the iOS WKWebView
+     can drive native body scroll. Without this, body+#root remain
+     position:fixed/overflow:hidden and touch-scroll fails on iPad. */
+  body.standalone-scroll {
+    position: static;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+    min-height: 100svh;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.standalone-scroll #root {
+    position: static;
+    overflow: visible;
+    height: auto;
+    min-height: 100svh;
+  }
+
   /* === TYPOGRAPHY HIERARCHY: Clear visual weight === */
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
