@@ -1,67 +1,28 @@
 /**
- * Review Mode Configuration
- * 
- * This module provides App Store review account detection only.
- * Review accounts must follow the same premium and purchase flow as regular users.
+ * Device detection helpers used by the diagnostics page.
+ *
+ * NOTE: All previous review-account logic (REVIEW_EMAILS_CONFIG, isReviewAccount,
+ * activateReviewMode, deactivateReviewMode, isReviewModeActive) was REMOVED.
+ *
+ * The Apple-review demo flow no longer touches Supabase auth at all — it runs
+ * entirely client-side via `isDemoMode` in AuthContext. See AuthContext.tsx.
  */
-
-// Review account emails — passwords are stored server-side as secrets
-export const REVIEW_EMAILS_CONFIG = {
-  apple: "apple-review@soulvay.de",
-  secondary: "apple-review@mindmate.de",
-} as const;
-
-// All review emails for checking
-const REVIEW_EMAILS = [
-  REVIEW_EMAILS_CONFIG.apple.toLowerCase(),
-  REVIEW_EMAILS_CONFIG.secondary.toLowerCase(),
-];
-
-// Check if current user is a review account
-export const isReviewAccount = (email?: string | null): boolean => {
-  if (!email) return false;
-  return REVIEW_EMAILS.includes(email.toLowerCase().trim());
-};
-
-// Check if review mode is active (based on localStorage flag or account)
-export const isReviewModeActive = (): boolean => {
-  try {
-    if (localStorage.getItem("soulvay_review_mode") === "active") return true;
-    return false;
-  } catch {
-    return false;
-  }
-};
-
-// Legacy no-op: kept for backward compatibility with old imports.
-export const activateReviewMode = (): void => {
-  deactivateReviewMode();
-};
-
-// Deactivate review mode
-export const deactivateReviewMode = (): void => {
-  try {
-    localStorage.removeItem("soulvay_review_mode");
-  } catch {
-    if (import.meta.env.DEV) console.warn("Failed to deactivate review mode");
-  }
-};
 
 // Check if running on iOS (for iPad-specific adjustments)
 export const isIOSDevice = (): boolean => {
   if (typeof window === "undefined") return false;
-  
+
   const userAgent = window.navigator.userAgent.toLowerCase();
-  return /iphone|ipad|ipod/.test(userAgent) || 
+  return /iphone|ipad|ipod/.test(userAgent) ||
     (userAgent.includes("mac") && "ontouchend" in document);
 };
 
 // Check if running on iPad specifically
 export const isIPad = (): boolean => {
   if (typeof window === "undefined") return false;
-  
+
   const userAgent = window.navigator.userAgent.toLowerCase();
-  return userAgent.includes("ipad") || 
+  return userAgent.includes("ipad") ||
     (userAgent.includes("mac") && "ontouchend" in document && window.innerWidth >= 768);
 };
 
