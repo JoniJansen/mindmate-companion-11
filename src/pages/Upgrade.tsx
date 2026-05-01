@@ -48,7 +48,7 @@ export default function Upgrade() {
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedWithdrawal, setAcceptedWithdrawal] = useState(false);
-  const { user } = useAuth();
+  const { user, isDemoMode } = useAuth();
   const [userStats, setUserStats] = useState({ chatSessions: 0, journalEntries: 0, moodCheckins: 0, exercisesCompleted: 0 });
 
   // Lazy-initialize RevenueCat ONLY when the user actually opens the paywall.
@@ -110,12 +110,13 @@ export default function Upgrade() {
     }
   }, []);
 
-  // Redirect if already premium
+  // Redirect if already premium — skipped in demo mode (reviewer is always "free").
   useEffect(() => {
+    if (isDemoMode) return;
     if (isPremium) {
       navigate("/settings");
     }
-  }, [isPremium, navigate]);
+  }, [isPremium, navigate, isDemoMode]);
 
   const handleUpgrade = async () => {
     if (!acceptedTerms || !acceptedWithdrawal) {
@@ -180,6 +181,18 @@ export default function Upgrade() {
 
       // ── Web only: Stripe Checkout ──────────────────────────────────
       // Never reached on iOS (see isIOSApp guard above).
+      // In demo mode there is no Supabase session — supabase.auth.getUser()
+      // returns null, and a Stripe checkout would fail. Show a friendly message.
+      if (isDemoMode) {
+        toast({
+          title: t("common.error"),
+          description: language === "de"
+            ? "Demo-Modus: Web-Checkout nicht verfügbar. Bitte teste den Kauf in der iOS-App."
+            : "Demo mode: web checkout unavailable. Please test the purchase in the iOS app.",
+          variant: "destructive",
+        });
+        return;
+      }
       const { data: { user } } = await supabase.auth.getUser();
 
       const { data, error } = await supabase.functions.invoke("create-checkout", {
