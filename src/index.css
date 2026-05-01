@@ -185,16 +185,17 @@
      !important is required because the base body/#root rules above
      have equal specificity and would otherwise win cascade order in
      some WebView edge cases. */
-  body.standalone-scroll,
+  body.standalone-scroll {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 100dvh !important;
+    overscroll-behavior: auto !important;
+  }
   html:has(body.standalone-scroll) {
     position: static !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+    overflow: visible !important;
     height: auto !important;
-  }
-  body.standalone-scroll {
-    min-height: 100svh !important;
-    -webkit-overflow-scrolling: touch;
   }
   body.standalone-scroll #root {
     position: static !important;
