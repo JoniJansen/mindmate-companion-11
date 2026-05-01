@@ -38,3 +38,4 @@ android/key.properties
 # Env files (already-committed .env stays as-is, do not remove from git history)
 .env.local
 .env.*.local
+ios/App/CapApp-SPM/build/
