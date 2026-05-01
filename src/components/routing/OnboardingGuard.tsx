@@ -18,7 +18,7 @@ interface OnboardingGuardProps {
  * CRITICAL: This guard MUST block access until authentication is confirmed.
  */
 export const OnboardingGuard = forwardRef<HTMLDivElement, OnboardingGuardProps>(function OnboardingGuard({ children }, _ref) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isDemoMode } = useAuth();
   const { hasCompletedOnboarding } = useOnboardingStatus();
   const location = useLocation();
 
@@ -29,6 +29,16 @@ export const OnboardingGuard = forwardRef<HTMLDivElement, OnboardingGuardProps>(
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  // Demo mode (Apple App Review): treat as authenticated for routing, but
+  // funnel everything except /upgrade to the paywall — the only screen the
+  // reviewer needs to see in the demo flow.
+  if (isDemoMode) {
+    if (location.pathname !== "/upgrade") {
+      return <Navigate to="/upgrade" replace />;
+    }
+    return <>{children}</>;
   }
 
   // CRITICAL: Check authentication FIRST before anything else

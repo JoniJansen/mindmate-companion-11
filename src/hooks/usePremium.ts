@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useTranslation } from "./useTranslation";
-import { deactivateReviewMode } from "@/lib/reviewMode";
+// reviewMode.ts no longer exports auth helpers — demo flow is in-memory only.
 import { useRevenueCat } from "./useRevenueCat";
 import { getSimulatedPremiumOverride } from "./useEntitlementSimulator";
 
@@ -78,7 +78,7 @@ export function usePremium() {
         const parsed: StoredState = JSON.parse(stored);
         const today = getToday();
         if (parsed.isReviewMode || parsed.planType === "review") {
-          deactivateReviewMode();
+          // Legacy cache from old review-mode flow — wipe it.
           localStorage.setItem(STORAGE_KEY, JSON.stringify(getDefaultState()));
           setState(getDefaultState());
           return;

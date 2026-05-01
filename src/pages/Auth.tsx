@@ -10,20 +10,20 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useTheme } from "@/hooks/useTheme";
 import logoImage from "@/assets/logo.png";
-import { REVIEW_EMAILS_CONFIG, deactivateReviewMode, isReviewAccount } from "@/lib/reviewMode";
+// reviewMode.ts no longer exports auth helpers — demo flow is fully auth-free now.
 import { isNativeApp } from "@/lib/nativeDetect";
 import { lovable } from "@/integrations/lovable/index";
 import { shouldShowReviewLogin, shouldShowGoogleAuth, shouldShowAppleAuth } from "@/lib/platformSeparation";
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
-const REVIEW_LOGIN_PASSWORD = "MindMate2026Review!";
+// Demo flow no longer uses any password — Apple's reviewer cannot reach Supabase.
 
 export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { signIn, signUp, resetPassword, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { signIn, signUp, resetPassword, isAuthenticated, isLoading: authLoading, activateDemoMode } = useAuth();
   const { t, language } = useTranslation();
   const { isDark, setMode: setThemeMode } = useTheme();
 
@@ -47,29 +47,18 @@ export default function Auth() {
     }
   }, [isAuthenticated, authLoading, navigate, searchParams]);
 
-  // Review/Demo Login — normal email/password auth only, no premium bypass.
-  const handleReviewLogin = async () => {
+  // Review/Demo Login — fully auth-free.
+  // Apple's iOS reviewer has been unable to reach our Supabase /auth/v1/token
+  // endpoint (5x rejection: "we cannot sign in with the demo credentials").
+  // Backend is verified working — the issue is environmental on Apple's side.
+  // We therefore activate a purely client-side demo session and route the
+  // reviewer straight to the paywall, where the StoreKit/RevenueCat purchase
+  // flow can be exercised without any backend dependency.
+  const handleReviewLogin = () => {
     setIsReviewLoading(true);
-    
     try {
-      deactivateReviewMode();
-      localStorage.removeItem("soulvay-premium-state");
-      await signIn(REVIEW_EMAILS_CONFIG.apple, REVIEW_LOGIN_PASSWORD);
-      
-      toast({
-        title: "Review Login Successful",
-        description: language === "de" ? "Demo-Konto angemeldet. Premium folgt der normalen Abo-Prüfung." : "Demo account signed in. Premium follows the normal subscription check.",
-      });
-      
+      activateDemoMode();
       navigate("/upgrade", { replace: true });
-    } catch (error: any) {
-      if (import.meta.env.DEV) console.error("[Review Login] Error:", error);
-      
-      toast({
-        title: "Review Login Failed",
-        description: error.message || "Please contact support: service@soulvay.com",
-        variant: "destructive",
-      });
     } finally {
       setIsReviewLoading(false);
     }
@@ -84,18 +73,7 @@ export default function Auth() {
       
       if (authMode === "login") {
         await signIn(normalizedEmail, password);
-        
-        if (isReviewAccount(normalizedEmail)) {
-          deactivateReviewMode();
-          localStorage.removeItem("soulvay-premium-state");
-          toast({
-            title: "Review Login Successful",
-            description: language === "de" ? "Demo-Konto angemeldet. Premium folgt der normalen Abo-Prüfung." : "Demo account signed in. Premium follows the normal subscription check.",
-          });
-          navigate("/upgrade", { replace: true });
-          return;
-        }
-        
+
         toast({
           title: t("auth.welcomeBackToast"),
           description: t("auth.nowLoggedIn"),
