@@ -13,12 +13,46 @@ interface Profile {
   updated_at: string;
 }
 
+/**
+ * Demo user object used exclusively for the Apple App Review demo flow.
+ * This object is NEVER persisted, NEVER sent to Supabase, and NEVER touches
+ * any backend. It exists only so the reviewer can see the paywall + StoreKit
+ * purchase flow without needing valid backend credentials.
+ *
+ * Apple has rejected the app multiple times because their reviewer cannot
+ * reach our Supabase /auth/v1/token endpoint. The demo flow is now fully
+ * auth-free — see activateDemoMode() below.
+ */
+export interface DemoUser {
+  id: "demo-apple-review";
+  email: "apple-review@soulvay.de";
+  displayName: "Apple Reviewer";
+  subscriptionTier: "free";
+  isPremium: false;
+  hasActiveSubscription: false;
+}
+
+const DEMO_USER: DemoUser = {
+  id: "demo-apple-review",
+  email: "apple-review@soulvay.de",
+  displayName: "Apple Reviewer",
+  subscriptionTier: "free",
+  isPremium: false,
+  hasActiveSubscription: false,
+};
+
 interface AuthContextValue {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  // ── Demo-mode (Apple App Review) ────────────────────────────────────────
+  isDemoMode: boolean;
+  demoUser: DemoUser | null;
+  activateDemoMode: () => void;
+  deactivateDemoMode: () => void;
+  // ────────────────────────────────────────────────────────────────────────
   signUp: (email: string, password: string, displayName?: string) => Promise<any>;
   signIn: (email: string, password: string) => Promise<any>;
   signOut: () => Promise<void>;
@@ -35,6 +69,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Demo-mode state — in-memory only, never persisted to localStorage.
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [demoUser, setDemoUser] = useState<DemoUser | null>(null);
 
   // Module-level dedup: prevent double-fetch from onAuthStateChange + getSession racing
   const profileFetchInFlight = useRef<Promise<void> | null>(null);
@@ -181,6 +218,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data;
   }, []);
 
+  const activateDemoMode = useCallback(() => {
+    setDemoUser(DEMO_USER);
+    setIsDemoMode(true);
+    // eslint-disable-next-line no-console
+    console.log("[DemoMode] activated, routing to paywall");
+  }, []);
+
+  const deactivateDemoMode = useCallback(() => {
+    setDemoUser(null);
+    setIsDemoMode(false);
+  }, []);
+
   const signOut = useCallback(async () => {
     // Clear user-specific caches BEFORE sign-out to prevent cross-account bleed
     try {
@@ -190,9 +239,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
     lastProfileUserId.current = null;
     profileFetchInFlight.current = null;
+
+    // Demo mode: there is NO Supabase session to terminate. Calling
+    // supabase.auth.signOut() here would produce a 401 because no JWT exists.
+    if (isDemoMode) {
+      deactivateDemoMode();
+      return;
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-  }, []);
+  }, [isDemoMode, deactivateDemoMode]);
 
   const resetPassword = useCallback(async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -225,7 +282,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     profile,
     isLoading,
-    isAuthenticated: !!user,
+    // Demo mode counts as "authenticated" for routing purposes only.
+    // No backend calls will succeed because there is no real JWT.
+    isAuthenticated: !!user || isDemoMode,
+    isDemoMode,
+    demoUser,
+    activateDemoMode,
+    deactivateDemoMode,
     signUp,
     signIn,
     signOut,
