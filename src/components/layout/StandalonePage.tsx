@@ -1,19 +1,28 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 /**
  * Wrapper for standalone pages (not inside AppLayout).
  *
- * Previously used `fixed inset-0 overflow-y-auto` to bypass the #root
- * `overflow:hidden` constraint. That approach is fragile inside the iOS
- * Capacitor WKWebView — touch events do not reliably reach the scroll
- * handler of a fixed-positioned overflow container, leaving the page
- * unscrollable on iPad (Apple Review reject risk under 3.1.2(a)).
+ * iOS Capacitor WKWebView quirk: a `fixed inset-0 overflow-y-auto`
+ * container does not reliably receive touch-scroll events on iPad,
+ * which left the /upgrade paywall unscrollable (Apple Review reject
+ * risk under 3.1.2(a)).
  *
- * New approach: render in normal document flow with `min-h-[100dvh]` so
- * the WebView's native body scroll handles touch gestures. Pages that
- * need a sticky header should use `position: sticky` themselves.
+ * Fix: render in normal document flow with `min-h-[100dvh]` and let
+ * the WebView's native scroll handle the gesture. Because the global
+ * `body` and `#root` are locked to `position:fixed; overflow:hidden`
+ * (required by AppLayout's internal scroll containers), we toggle a
+ * `standalone-scroll` body class while this wrapper is mounted that
+ * releases that lock so native body scroll works.
  */
 export function StandalonePage({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    document.body.classList.add("standalone-scroll");
+    return () => {
+      document.body.classList.remove("standalone-scroll");
+    };
+  }, []);
+
   return (
     <div
       className="min-h-[100dvh] w-full bg-background"
