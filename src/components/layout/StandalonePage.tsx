@@ -18,8 +18,15 @@ import { ReactNode, useEffect } from "react";
 export function StandalonePage({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.body.classList.add("standalone-scroll");
+    // Debug instrumentation — verify class application + computed style on iPad WebView.
+    console.log("[StandalonePage] Mounted, body classes:", document.body.className);
+    console.log(
+      "[StandalonePage] Body computed overflow:",
+      window.getComputedStyle(document.body).overflow,
+    );
     return () => {
       document.body.classList.remove("standalone-scroll");
+      console.log("[StandalonePage] Unmounted, body classes:", document.body.className);
     };
   }, []);
 
