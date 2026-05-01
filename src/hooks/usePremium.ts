@@ -50,7 +50,7 @@ const getDefaultState = (): StoredState => ({
 });
 
 export function usePremium() {
-  const { user } = useAuth();
+  const { user, isDemoMode } = useAuth();
   const { language } = useTranslation();
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -132,6 +132,11 @@ export function usePremium() {
   // Check subscription status from backend (source of truth)
   // Uses module-level deduplication to prevent N parallel calls from N hook instances.
   const checkSubscriptionStatus = useCallback(async (force = false) => {
+    // Demo mode (Apple App Review): never call Supabase. Reviewer is always "free".
+    if (isDemoMode) {
+      setServerVerifiedPremium(false);
+      return;
+    }
     if (!user) return;
 
     // Deduplication: skip if a recent check already ran (unless forced)
@@ -221,7 +226,7 @@ export function usePremium() {
 
     _checkInFlight = doCheck();
     await _checkInFlight;
-  }, [user, isRevenueCatAvailable, checkEntitlements]);
+  }, [user, isRevenueCatAvailable, checkEntitlements, isDemoMode]);
 
   // Check subscription on mount, when user changes, and every 15 minutes
   useEffect(() => {
@@ -397,7 +402,8 @@ export function usePremium() {
   // Compute final premium status:
   // Priority: Simulator (DEV only) > RevenueCat entitlement > server-verified backend subscription.
   // localStorage is cache/UX state only and never authorizes premium access.
-  const verifiedPremium = isRevenueCatPremium || serverVerifiedPremium === true;
+  // Demo mode hard-overrides everything: reviewer must always see paywall, never premium.
+  const verifiedPremium = isDemoMode ? false : (isRevenueCatPremium || serverVerifiedPremium === true);
   const finalIsPremium = simOverride !== null ? simOverride.isPremium : verifiedPremium;
   const finalPlanType = simOverride !== null ? simOverride.planType : state.planType;
   const finalSubscriptionStatus = simOverride !== null ? simOverride.subscriptionStatus : state.subscriptionStatus;
