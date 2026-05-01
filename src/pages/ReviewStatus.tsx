@@ -18,7 +18,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
-import { getDeviceInfo, isReviewAccount } from "@/lib/reviewMode";
+import { getDeviceInfo } from "@/lib/reviewMode";
 
 interface StatusCheck {
   name: string;
@@ -65,24 +65,16 @@ export default function ReviewStatus() {
     }
     setChecks([...results]);
 
-    // 2. Review Account Check
+    // 2. Review Account Check — DEPRECATED.
+    // The review/demo flow no longer uses a Supabase account; it runs fully
+    // client-side via isDemoMode in AuthContext. This check is kept as a
+    // neutral placeholder so the diagnostics layout doesn't shift.
     results.push({
       name: "Review Account",
-      status: "checking",
-      message: "Checking review account status...",
+      status: "warning",
+      message: "Demo flow is now auth-free (client-side only)",
       icon: <Shield className="w-5 h-5" />,
     });
-    setChecks([...results]);
-
-    await new Promise(r => setTimeout(r, 300));
-
-    const isReview = isReviewAccount(user?.email);
-    results[results.length - 1] = {
-      name: "Review Account",
-      status: isReview ? "success" : "warning",
-      message: isReview ? "Review account signed in" : "Not a review account",
-      icon: <Shield className="w-5 h-5" />,
-    };
     setChecks([...results]);
 
     // 3. Database Connection
