@@ -48,6 +48,33 @@ We do NOT collect:
 • Data from persons we know to be under 16 years of age`
         },
         {
+          icon: Bot,
+          title: "Data Sharing with Google (AI Service)",
+          content: `To provide the AI feature, Soulvay uses **Google Gemini** by Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA.
+
+**What is transmitted:**
+• Text of your chat messages and journal entries
+• Your selected conversation tone and address-form preference
+
+**What is NOT transmitted:**
+• Email address or identifiers
+• User ID, location, device information
+
+**Server location:** USA. Encrypted via TLS 1.3.
+
+**Adequacy:** Google is certified under the EU-US Data Privacy Framework (EU Commission adequacy decision of 10 July 2023).
+
+**Use:** Data is used solely to generate the AI response and not to train models (per Google's Generative AI API terms).
+
+**Legal basis:** Art. 6(1)(a) GDPR (your consent).
+
+**Withdrawal:** At any time in the app under Settings → Privacy & AI.
+
+More info:
+• Google Privacy: https://policies.google.com/privacy
+• Google Gemini API Terms: https://ai.google.dev/gemini-api/terms`
+        },
+        {
           icon: Shield,
           title: "How We Protect Your Data",
           content: `Your mental wellness data deserves the highest protection:
@@ -210,6 +237,33 @@ Wir erheben NICHT:
 • Finanzinformationen (Zahlungen werden sicher über unsere Zahlungsabwickler abgewickelt)
 • Daten von anderen Apps auf deinem Gerät
 • Daten von Personen, von denen wir wissen, dass sie unter 16 Jahre alt sind`
+        },
+        {
+          icon: Bot,
+          title: "Datenweitergabe an Google (KI-Service)",
+          content: `Zur Erbringung der KI-Funktion nutzt Soulvay den Dienst **Google Gemini** der Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA.
+
+**Was übertragen wird:**
+• Texte deiner Chat-Nachrichten und Tagebucheinträge
+• Dein gewählter Gesprächston und deine Anredeform-Präferenz
+
+**Was NICHT übertragen wird:**
+• E-Mail-Adresse oder Identifikatoren
+• User-ID, Standort, Geräteinformationen
+
+**Server-Standort:** USA. Verschlüsselt via TLS 1.3.
+
+**Datenschutzniveau:** Google ist nach dem EU-US Data Privacy Framework zertifiziert (Angemessenheitsbeschluss der EU-Kommission vom 10.07.2023).
+
+**Verwendung:** Daten werden ausschließlich zur Generierung der KI-Antwort verwendet, nicht zum Training der Modelle (gemäß Google's Generative AI API-Bedingungen).
+
+**Rechtsgrundlage:** Art. 6 Abs. 1 lit. a DSGVO (deine Einwilligung).
+
+**Widerruf:** Jederzeit in der App unter Einstellungen → Datenschutz & KI.
+
+Weitere Infos:
+• Google Datenschutz: https://policies.google.com/privacy
+• Google Gemini API Terms: https://ai.google.dev/gemini-api/terms`
         },
         {
           icon: Shield,

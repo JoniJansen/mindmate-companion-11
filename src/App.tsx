@@ -13,6 +13,7 @@ import { TourProvider } from "@/components/tour/TourProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AIConsentModal } from "@/components/AIConsentModal";
 
 // Hooks
 // usePremium intentionally not imported here — RevenueCat is now lazy-initialized
@@ -159,6 +160,13 @@ function DelayedCookieConsent() {
   return <CookieConsent />;
 }
 
+// Mounts the AI consent modal for authenticated (non-demo) users that haven't accepted yet.
+function AIConsentGate() {
+  const { isAuthenticated, isDemoMode, aiConsentGiven, giveAIConsent } = useAuth();
+  if (!isAuthenticated || isDemoMode || aiConsentGiven) return null;
+  return <AIConsentModal onAccept={giveAIConsent} />;
+}
+
 // Shared loading fallback for lazy routes
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -179,6 +187,7 @@ function AppContent() {
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TourProvider>
               <DelayedCookieConsent />
+              <AIConsentGate />
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   {/* Root - intelligent redirect */}

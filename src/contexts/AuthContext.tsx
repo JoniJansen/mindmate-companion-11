@@ -52,6 +52,10 @@ interface AuthContextValue {
   demoUser: DemoUser | null;
   activateDemoMode: () => void;
   deactivateDemoMode: () => void;
+  // ── AI processing consent (GDPR Art. 6(1)(a) + Apple 5.1.1(i)/5.1.2(i)) ─
+  aiConsentGiven: boolean;
+  giveAIConsent: () => void;
+  revokeAIConsent: () => void;
   // ────────────────────────────────────────────────────────────────────────
   signUp: (email: string, password: string, displayName?: string) => Promise<any>;
   signIn: (email: string, password: string) => Promise<any>;
@@ -72,6 +76,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Demo-mode state — in-memory only, never persisted to localStorage.
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [demoUser, setDemoUser] = useState<DemoUser | null>(null);
+  // AI processing consent — persisted in localStorage so it survives reloads.
+  const [aiConsentGiven, setAiConsentGiven] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem("soulvay_ai_consent") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const giveAIConsent = useCallback(() => {
+    try {
+      localStorage.setItem("soulvay_ai_consent", "true");
+    } catch {}
+    setAiConsentGiven(true);
+  }, []);
+
+  const revokeAIConsent = useCallback(() => {
+    try {
+      localStorage.removeItem("soulvay_ai_consent");
+    } catch {}
+    setAiConsentGiven(false);
+  }, []);
 
   // Module-level dedup: prevent double-fetch from onAuthStateChange + getSession racing
   const profileFetchInFlight = useRef<Promise<void> | null>(null);
@@ -285,6 +312,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Demo mode counts as "authenticated" for routing purposes only.
     // No backend calls will succeed because there is no real JWT.
     isAuthenticated: !!user || isDemoMode,
+    aiConsentGiven,
+    giveAIConsent,
+    revokeAIConsent,
     isDemoMode,
     demoUser,
     activateDemoMode,

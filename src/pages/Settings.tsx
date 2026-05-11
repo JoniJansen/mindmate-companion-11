@@ -16,6 +16,7 @@ import { SettingsSupportSection } from "@/components/settings/SettingsSupportSec
 import { SettingsAccountSection } from "@/components/settings/SettingsAccountSection";
 import { SettingsLegalSection } from "@/components/settings/SettingsLegalSection";
 import { SettingsCompanionSection } from "@/components/settings/SettingsCompanionSection";
+import { SettingsAIConsentSection } from "@/components/settings/SettingsAIConsentSection";
 
 interface Preferences {
   language: "en" | "de";
@@ -93,6 +94,8 @@ export default function Settings() {
           />
 
           <SettingsSupportSection isAdmin={isAdmin} />
+
+          <SettingsAIConsentSection />
 
           <SettingsAccountSection language={preferences.language} />
 
