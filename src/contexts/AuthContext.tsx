@@ -312,6 +312,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Demo mode counts as "authenticated" for routing purposes only.
     // No backend calls will succeed because there is no real JWT.
     isAuthenticated: !!user || isDemoMode,
+    aiConsentGiven,
+    giveAIConsent,
+    revokeAIConsent,
     isDemoMode,
     demoUser,
     activateDemoMode,
