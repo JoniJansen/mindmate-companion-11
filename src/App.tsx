@@ -187,6 +187,7 @@ function AppContent() {
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TourProvider>
               <DelayedCookieConsent />
+              <AIConsentGate />
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   {/* Root - intelligent redirect */}
