@@ -52,6 +52,10 @@ interface AuthContextValue {
   demoUser: DemoUser | null;
   activateDemoMode: () => void;
   deactivateDemoMode: () => void;
+  // ── AI processing consent (GDPR Art. 6(1)(a) + Apple 5.1.1(i)/5.1.2(i)) ─
+  aiConsentGiven: boolean;
+  giveAIConsent: () => void;
+  revokeAIConsent: () => void;
   // ────────────────────────────────────────────────────────────────────────
   signUp: (email: string, password: string, displayName?: string) => Promise<any>;
   signIn: (email: string, password: string) => Promise<any>;
