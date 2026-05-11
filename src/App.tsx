@@ -160,6 +160,13 @@ function DelayedCookieConsent() {
   return <CookieConsent />;
 }
 
+// Mounts the AI consent modal for authenticated (non-demo) users that haven't accepted yet.
+function AIConsentGate() {
+  const { isAuthenticated, isDemoMode, aiConsentGiven, giveAIConsent } = useAuth();
+  if (!isAuthenticated || isDemoMode || aiConsentGiven) return null;
+  return <AIConsentModal onAccept={giveAIConsent} />;
+}
+
 // Shared loading fallback for lazy routes
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
