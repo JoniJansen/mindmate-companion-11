@@ -209,6 +209,7 @@ Wir erheben NICHT:
 • Kontaktlisten
 • Finanzinformationen (Zahlungen werden sicher über unsere Zahlungsabwickler abgewickelt)
 • Daten von anderen Apps auf deinem Gerät
+• Daten von Personen, von denen wir wissen, dass sie unter 16 Jahre alt sind`
         },
         {
           icon: Bot,
