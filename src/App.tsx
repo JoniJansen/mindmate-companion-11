@@ -13,6 +13,7 @@ import { TourProvider } from "@/components/tour/TourProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AIConsentModal } from "@/components/AIConsentModal";
 
 // Hooks
 // usePremium intentionally not imported here — RevenueCat is now lazy-initialized
