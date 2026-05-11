@@ -64,10 +64,29 @@ export function AIConsentModal({ onAccept }: AIConsentModalProps) {
             </p>
           </div>
 
+          <div>
+            <p className="font-medium text-foreground mb-1">Kein Training auf deinen Daten:</p>
+            <p>
+              Soulvay nutzt die Google Gemini API im kostenpflichtigen Paid Tier. Deine Eingaben
+              und die generierten Antworten werden <strong className="text-foreground">nicht zum
+              Training</strong> von Googles Modellen verwendet.
+            </p>
+          </div>
+
+          <div>
+            <p className="font-medium text-foreground mb-1">Auftragsverarbeitung:</p>
+            <p>
+              Google handelt im Sinne von Art. 28 DSGVO als Auftragsverarbeiter für Soulvay
+              (Cloud Data Processing Addendum inkl. EU-Standardvertragsklauseln).
+            </p>
+          </div>
+
           <p>
             <strong className="text-foreground">Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO
             (deine Einwilligung). Widerruf jederzeit in Einstellungen → Datenschutz & KI.
           </p>
+
+          <p className="text-xs opacity-70">Zuletzt aktualisiert: 11. Mai 2026</p>
 
           <p>
             Mehr Details:{" "}

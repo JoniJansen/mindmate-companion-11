@@ -12,7 +12,7 @@ export default function Privacy() {
   const content = {
     en: {
       title: "Privacy Policy",
-      lastUpdated: "Last updated: March 2026",
+      lastUpdated: "Last updated: 11 May 2026",
       intro: "Your privacy matters to us. Soulvay is designed with your privacy and security as core principles. This policy explains how we handle your personal information in accordance with the EU General Data Protection Regulation (GDPR) and applicable German data protection law.",
       controller: {
         icon: Scale,
@@ -64,7 +64,9 @@ We do NOT collect:
 
 **Adequacy:** Google is certified under the EU-US Data Privacy Framework (EU Commission adequacy decision of 10 July 2023).
 
-**Use:** Data is used solely to generate the AI response and not to train models (per Google's Generative AI API terms).
+**Use:** Soulvay uses the Google Gemini API on the **paid tier**. Per Google's Gemini API Additional Terms of Service, your inputs and the generated outputs are **not used to train Google's models** and are not used to improve Google's products. Data is processed solely to generate the AI response in real time.
+
+**Processor relationship:** Google acts as a **data processor** on Soulvay's behalf within the meaning of Art. 28 GDPR. Processing is governed by Google's Data Processing Addendum (Cloud Data Processing Addendum) and the EU Standard Contractual Clauses, which apply automatically to paid Gemini API usage.
 
 **Legal basis:** Art. 6(1)(a) GDPR (your consent).
 
@@ -203,7 +205,7 @@ We will provide at least 14 days notice before material changes take effect. Con
     },
     de: {
       title: "Datenschutzerklärung",
-      lastUpdated: "Zuletzt aktualisiert: März 2026",
+      lastUpdated: "Zuletzt aktualisiert: 11. Mai 2026",
       intro: "Deine Privatsphäre ist uns wichtig. Soulvay wurde mit Datenschutz und Sicherheit als Grundprinzipien entwickelt. Diese Erklärung informiert dich gemäß der EU-Datenschutz-Grundverordnung (DSGVO) und dem geltenden deutschen Datenschutzrecht über den Umgang mit deinen personenbezogenen Daten.",
       controller: {
         icon: Scale,
@@ -255,7 +257,9 @@ Wir erheben NICHT:
 
 **Datenschutzniveau:** Google ist nach dem EU-US Data Privacy Framework zertifiziert (Angemessenheitsbeschluss der EU-Kommission vom 10.07.2023).
 
-**Verwendung:** Daten werden ausschließlich zur Generierung der KI-Antwort verwendet, nicht zum Training der Modelle (gemäß Google's Generative AI API-Bedingungen).
+**Verwendung:** Soulvay nutzt die Google Gemini API im **kostenpflichtigen Paid Tier**. Gemäß Googles Gemini API Additional Terms of Service werden deine Eingaben sowie die generierten Antworten **nicht zum Training von Googles Modellen** und nicht zur Verbesserung von Google-Produkten verwendet. Die Verarbeitung erfolgt ausschließlich in Echtzeit zur Erzeugung der KI-Antwort.
+
+**Auftragsverarbeitung:** Google handelt im Sinne von Art. 28 DSGVO als **Auftragsverarbeiter** für Soulvay. Grundlage ist Googles Data Processing Addendum (Cloud Data Processing Addendum) inklusive der EU-Standardvertragsklauseln, die bei kostenpflichtiger Gemini-API-Nutzung automatisch gelten.
 
 **Rechtsgrundlage:** Art. 6 Abs. 1 lit. a DSGVO (deine Einwilligung).
 
