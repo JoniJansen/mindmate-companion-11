@@ -95,6 +95,8 @@ export default function Settings() {
 
           <SettingsSupportSection isAdmin={isAdmin} />
 
+          <SettingsAIConsentSection />
+
           <SettingsAccountSection language={preferences.language} />
 
           <SettingsLegalSection />
