@@ -209,7 +209,33 @@ Wir erheben NICHT:
 • Kontaktlisten
 • Finanzinformationen (Zahlungen werden sicher über unsere Zahlungsabwickler abgewickelt)
 • Daten von anderen Apps auf deinem Gerät
-• Daten von Personen, von denen wir wissen, dass sie unter 16 Jahre alt sind`
+        },
+        {
+          icon: Bot,
+          title: "Datenweitergabe an Google (KI-Service)",
+          content: `Zur Erbringung der KI-Funktion nutzt Soulvay den Dienst **Google Gemini** der Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA.
+
+**Was übertragen wird:**
+• Texte deiner Chat-Nachrichten und Tagebucheinträge
+• Dein gewählter Gesprächston und deine Anredeform-Präferenz
+
+**Was NICHT übertragen wird:**
+• E-Mail-Adresse oder Identifikatoren
+• User-ID, Standort, Geräteinformationen
+
+**Server-Standort:** USA. Verschlüsselt via TLS 1.3.
+
+**Datenschutzniveau:** Google ist nach dem EU-US Data Privacy Framework zertifiziert (Angemessenheitsbeschluss der EU-Kommission vom 10.07.2023).
+
+**Verwendung:** Daten werden ausschließlich zur Generierung der KI-Antwort verwendet, nicht zum Training der Modelle (gemäß Google's Generative AI API-Bedingungen).
+
+**Rechtsgrundlage:** Art. 6 Abs. 1 lit. a DSGVO (deine Einwilligung).
+
+**Widerruf:** Jederzeit in der App unter Einstellungen → Datenschutz & KI.
+
+Weitere Infos:
+• Google Datenschutz: https://policies.google.com/privacy
+• Google Gemini API Terms: https://ai.google.dev/gemini-api/terms`
         },
         {
           icon: Shield,
