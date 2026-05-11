@@ -76,6 +76,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Demo-mode state — in-memory only, never persisted to localStorage.
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [demoUser, setDemoUser] = useState<DemoUser | null>(null);
+  // AI processing consent — persisted in localStorage so it survives reloads.
+  const [aiConsentGiven, setAiConsentGiven] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem("soulvay_ai_consent") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const giveAIConsent = useCallback(() => {
+    try {
+      localStorage.setItem("soulvay_ai_consent", "true");
+    } catch {}
+    setAiConsentGiven(true);
+  }, []);
+
+  const revokeAIConsent = useCallback(() => {
+    try {
+      localStorage.removeItem("soulvay_ai_consent");
+    } catch {}
+    setAiConsentGiven(false);
+  }, []);
 
   // Module-level dedup: prevent double-fetch from onAuthStateChange + getSession racing
   const profileFetchInFlight = useRef<Promise<void> | null>(null);
