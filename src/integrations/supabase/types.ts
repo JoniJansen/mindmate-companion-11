@@ -375,6 +375,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_consent_at: string | null
+          ai_consent_given: boolean
           avatar_url: string | null
           created_at: string
           display_name: string | null
@@ -385,6 +387,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_consent_at?: string | null
+          ai_consent_given?: boolean
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -395,6 +399,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_consent_at?: string | null
+          ai_consent_given?: boolean
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
