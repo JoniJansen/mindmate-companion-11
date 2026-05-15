@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { requireUser } from "../_shared/auth.ts";
+import { requireAIConsent } from "../_shared/auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
 const corsHeaders = {
@@ -697,7 +697,7 @@ serve(async (req) => {
     // JWT auth: extract user from token
     let userId: string;
     try {
-      const { user } = await requireUser(req);
+      const { user } = await requireAIConsent(req);
       userId = user.id;
     } catch (authError) {
       if (authError instanceof Response) return authError;

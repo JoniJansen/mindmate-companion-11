@@ -42,7 +42,7 @@ export default function Chat() {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, aiConsentGiven } = useAuth();
   const { t, language } = useTranslation();
   const { isOnline } = useNetworkStatus();
   const { canUseVoice } = usePremium();
@@ -225,19 +225,29 @@ export default function Chat() {
         composer.setMessages(injectedMessages);
         composer.chatMessageCountRef.current = injectedMessages.filter(m => m.role === "user").length;
 
-        // Send a seamless continuation prompt so the AI references demo context
+        // Send a seamless continuation prompt so the AI references demo context.
+        // Gated by aiConsentGiven (Apple 5.1.1(i)/5.1.2(i) — must not auto-fire
+        // Gemini calls before the user has accepted the consent modal). The
+        // injected demo messages remain visible so the user has context.
         const lastUserMsg = [...demoData.messages].reverse().find(m => m.role === "user");
         const continuationPrompt = savedLang === "de"
           ? `[System: Der Nutzer hat gerade ein Konto erstellt, um dieses Gespräch fortzusetzen. Beziehe dich auf das, was bereits besprochen wurde. Reagiere nicht mit einer neuen Begrüßung – setze das Gespräch nahtlos fort. Gehe etwas tiefer als zuvor.]`
           : `[System: The user just signed up to continue this conversation. Reference what was already discussed. Do NOT send a new greeting – continue the conversation seamlessly. Go slightly deeper than before.]`;
-        composer.handleSend(continuationPrompt, true, undefined, handleStreamDone);
+        if (aiConsentGiven) {
+          composer.handleSend(continuationPrompt, true, undefined, handleStreamDone);
+        }
         analytics.track("demo_conversation_continued", { demo_messages: demoData.messages.length });
         return;
       }
 
       if (initialMessage) {
-        localStorage.removeItem('soulvay-initial-message');
-        composer.handleSend(initialMessage, false, undefined, handleStreamDone);
+        // Same consent gate: do not auto-fire Gemini before user accepts modal.
+        // Keep initialMessage in localStorage until consent is given, so the
+        // reviewer's first prompt isn't silently lost during the consent step.
+        if (aiConsentGiven) {
+          localStorage.removeItem('soulvay-initial-message');
+          composer.handleSend(initialMessage, false, undefined, handleStreamDone);
+        }
       } else {
         const personalLine = getPersonalizedGreeting();
         const cName = companionName;
@@ -259,6 +269,19 @@ export default function Chat() {
     };
     init();
   }, []);
+
+  // If the user reaches /chat with a pending initialMessage but consent is not
+  // yet given, the init useEffect above leaves the message in localStorage.
+  // Once the AIConsentGate modal is accepted, this effect fires the pending
+  // message exactly once. Guarded by initDone so it doesn't race init().
+  useEffect(() => {
+    if (!initDone || !aiConsentGiven) return;
+    const pending = localStorage.getItem("soulvay-initial-message");
+    if (!pending) return;
+    localStorage.removeItem("soulvay-initial-message");
+    composer.handleSend(pending, false, undefined, handleStreamDone);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiConsentGiven, initDone]);
 
   // Update greeting when companion loads (if still showing fallback name)
   useEffect(() => {

@@ -5,6 +5,8 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface WeeklyRecapProps {
   userId: string;
@@ -22,6 +24,8 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
   const [hasEnoughData, setHasEnoughData] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const { language } = useTranslation();
+  const { aiConsentGiven } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     checkDataAvailability();
@@ -41,6 +45,18 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
   };
 
   const generateRecap = async () => {
+    // Client-side AI consent gate: server's requireAIConsent will 403 anyway,
+    // but blocking here gives the user a cleaner message than a generic error.
+    if (!aiConsentGiven) {
+      toast({
+        title: language === "de" ? "KI-Einwilligung erforderlich" : "AI consent required",
+        description: language === "de"
+          ? "Bitte akzeptiere die KI-Datenschutzhinweise in den Einstellungen, um den Wochenrückblick zu nutzen."
+          : "Please accept the AI data-processing notice in Settings to use the weekly recap.",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const weekAgo = new Date();
@@ -63,7 +79,22 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Surface AI consent errors specifically — the server enforces this
+        // via requireAIConsent (Apple 5.1.1(i) / 5.1.2(i)).
+        const isConsentErr = (error as any)?.context?.status === 403
+          || /AI_CONSENT_REQUIRED/i.test(error.message || "");
+        if (isConsentErr) {
+          toast({
+            title: language === "de" ? "KI-Einwilligung erforderlich" : "AI consent required",
+            description: language === "de"
+              ? "Bitte akzeptiere die KI-Datenschutzhinweise, um den Wochenrückblick zu nutzen."
+              : "Please accept the AI data-processing notice to use the weekly recap.",
+          });
+          return;
+        }
+        throw error;
+      }
 
       setRecap({
         themes: data.themes || [],

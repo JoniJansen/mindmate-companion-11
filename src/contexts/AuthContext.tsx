@@ -11,6 +11,10 @@ interface Profile {
   language: string;
   created_at: string;
   updated_at: string;
+  // AI processing consent (Apple Guidelines 5.1.1(i) / 5.1.2(i); DSGVO Art. 6(1)(a)).
+  // Server-side source of truth — enforced in Supabase Edge Functions via requireAIConsent.
+  ai_consent_given?: boolean;
+  ai_consent_at?: string | null;
 }
 
 /**
@@ -53,9 +57,12 @@ interface AuthContextValue {
   activateDemoMode: () => void;
   deactivateDemoMode: () => void;
   // ── AI processing consent (GDPR Art. 6(1)(a) + Apple 5.1.1(i)/5.1.2(i)) ─
+  // Server-side source of truth: profiles.ai_consent_given (enforced in Edge Funcs).
+  // localStorage is UX cache only; both setters persist to Supabase first.
   aiConsentGiven: boolean;
-  giveAIConsent: () => void;
-  revokeAIConsent: () => void;
+  aiConsentLoading: boolean;
+  giveAIConsent: () => Promise<void>;
+  revokeAIConsent: () => Promise<void>;
   // ────────────────────────────────────────────────────────────────────────
   signUp: (email: string, password: string, displayName?: string) => Promise<any>;
   signIn: (email: string, password: string) => Promise<any>;
@@ -76,7 +83,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Demo-mode state — in-memory only, never persisted to localStorage.
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [demoUser, setDemoUser] = useState<DemoUser | null>(null);
-  // AI processing consent — persisted in localStorage so it survives reloads.
+  // AI processing consent — server-side source of truth lives in profiles.ai_consent_given.
+  // localStorage cache exists only for fast UX on first render before profile fetches.
+  // Apple App Review rejection May 14, 2026 made client-only consent insufficient:
+  // Edge Functions now enforce via requireAIConsent helper.
   const [aiConsentGiven, setAiConsentGiven] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     try {
@@ -85,19 +95,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     }
   });
+  const [aiConsentLoading, setAiConsentLoading] = useState(false);
 
-  const giveAIConsent = useCallback(() => {
+  // We need a ref to user to use inside the consent setters without re-creating
+  // them on every user state change.
+  const userRef = useRef<User | null>(null);
+
+  const giveAIConsent = useCallback(async () => {
+    setAiConsentLoading(true);
     try {
-      localStorage.setItem("soulvay_ai_consent", "true");
-    } catch {}
-    setAiConsentGiven(true);
+      const currentUser = userRef.current;
+      if (currentUser) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ ai_consent_given: true, ai_consent_at: new Date().toISOString() } as any)
+          .eq("user_id", currentUser.id);
+        if (error) {
+          if (import.meta.env.DEV) console.error("[AIConsent] persist failed:", error);
+          throw new Error(error.message || "Failed to save AI consent");
+        }
+      }
+      try {
+        localStorage.setItem("soulvay_ai_consent", "true");
+      } catch {}
+      setAiConsentGiven(true);
+    } finally {
+      setAiConsentLoading(false);
+    }
   }, []);
 
-  const revokeAIConsent = useCallback(() => {
+  const revokeAIConsent = useCallback(async () => {
+    setAiConsentLoading(true);
     try {
-      localStorage.removeItem("soulvay_ai_consent");
-    } catch {}
-    setAiConsentGiven(false);
+      const currentUser = userRef.current;
+      if (currentUser) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ ai_consent_given: false, ai_consent_at: null } as any)
+          .eq("user_id", currentUser.id);
+        if (error) {
+          if (import.meta.env.DEV) console.error("[AIConsent] revoke failed:", error);
+          throw new Error(error.message || "Failed to revoke AI consent");
+        }
+      }
+      try {
+        localStorage.removeItem("soulvay_ai_consent");
+      } catch {}
+      setAiConsentGiven(false);
+    } finally {
+      setAiConsentLoading(false);
+    }
   }, []);
 
   // Module-level dedup: prevent double-fetch from onAuthStateChange + getSession racing
@@ -125,6 +172,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
         setProfile(data);
+        // Hydrate AI consent state from server (source of truth).
+        // localStorage may be stale (e.g. user revoked on another device).
+        if (data && typeof (data as any).ai_consent_given === "boolean") {
+          const serverConsent = (data as any).ai_consent_given as boolean;
+          setAiConsentGiven(serverConsent);
+          try {
+            if (serverConsent) localStorage.setItem("soulvay_ai_consent", "true");
+            else localStorage.removeItem("soulvay_ai_consent");
+          } catch {}
+        }
       } catch (e) {
         if (import.meta.env.DEV) console.warn("Failed to fetch profile:", e);
       } finally {
@@ -185,6 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setUser(session?.user ?? null);
+        userRef.current = session?.user ?? null;
         setSession(session);
         setIsLoading(false);
 
@@ -202,6 +260,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      userRef.current = session?.user ?? null;
       setSession(session);
       setIsLoading(false);
 
@@ -313,6 +372,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // No backend calls will succeed because there is no real JWT.
     isAuthenticated: !!user || isDemoMode,
     aiConsentGiven,
+    aiConsentLoading,
     giveAIConsent,
     revokeAIConsent,
     isDemoMode,

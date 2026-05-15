@@ -53,7 +53,7 @@ export function useChatComposer(chatMode: ChatMode) {
   const chatMessageCountRef = useRef(0);
   const preferences = useRef<ChatPreferences>(getPreferences());
 
-  const { user } = useAuth();
+  const { user, isDemoMode } = useAuth();
   const { t, language } = useTranslation();
   const { isOnline } = useNetworkStatus();
   const { logActivity } = useActivityLog();
@@ -122,6 +122,16 @@ export function useChatComposer(chatMode: ChatMode) {
 
       if (!resp.ok) {
         const errorData = await resp.json().catch(() => ({}));
+        // Apple 5.1.1(i) / 5.1.2(i) — server-side AI consent gate (Build 51).
+        // 403 with code AI_CONSENT_REQUIRED means the user has not accepted
+        // the AI data-processing modal. Surface a clear, calm message that
+        // does not look like a generic technical error.
+        if (resp.status === 403 && errorData?.error === "AI_CONSENT_REQUIRED") {
+          onError(language === "de"
+            ? "Bitte stimme der KI-Datenverarbeitung zu, um den Chat zu nutzen."
+            : "Please accept the AI data-processing notice to use chat.");
+          return;
+        }
         if (resp.status === 429) {
           onError(t("error.rateLimitedBody"));
         } else {
@@ -184,6 +194,18 @@ export function useChatComposer(chatMode: ChatMode) {
   ) => {
     const trimmed = content.trim();
     if (!trimmed || isLoading) return;
+
+    // Demo-Mode gate (Apple Review): never call backend or Gemini in demo mode.
+    // Reviewer reaches /chat without a Supabase session → would 401 otherwise.
+    if (isDemoMode) {
+      toast({
+        title: language === "de" ? "Demo-Modus" : "Demo mode",
+        description: language === "de"
+          ? "Der Chat ist in der Review-Demo deaktiviert. Bitte nutze den Paywall-Bildschirm, um den Abo-Flow zu prüfen."
+          : "Chat is disabled in the review demo. Please use the paywall screen to verify the subscription flow.",
+      });
+      return;
+    }
 
     // Guard: prevent rapid double-sends
     if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {

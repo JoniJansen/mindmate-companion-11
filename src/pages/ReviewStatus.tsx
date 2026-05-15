@@ -172,36 +172,38 @@ export default function ReviewStatus() {
     });
     setChecks([...results]);
 
-    // 7. Chat API
+    // 7. Backend connectivity (Build 51 — no Gemini-touching diagnostic).
+    // Previous version invoked the `chat` Edge Function with a real message,
+    // which Apple's reviewer-environment detected as pre-consent AI data
+    // egress (rejection May 14, 2026, Guideline 5.1.1(i) / 5.1.2(i)).
+    // We now ping a non-AI endpoint to verify backend reachability only.
     results.push({
-      name: "Chat API",
+      name: "Backend",
       status: "checking",
-      message: "Testing chat API...",
+      message: "Testing backend connectivity...",
       icon: <Wifi className="w-5 h-5" />,
     });
     setChecks([...results]);
 
     try {
-      const { error } = await supabase.functions.invoke("chat", {
-        body: { 
-          messages: [{ role: "user", content: "test" }],
-          test: true 
-        },
-      });
-      await new Promise(r => setTimeout(r, 300));
-      
-      // Even if there's an error, the function is reachable
+      const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) || "";
+      const reachable = supabaseUrl
+        ? await fetch(`${supabaseUrl}/auth/v1/health`, { method: "GET" })
+            .then(r => r.ok || r.status === 401 || r.status === 404)
+            .catch(() => false)
+        : false;
+
       results[results.length - 1] = {
-        name: "Chat API",
-        status: "success",
-        message: "Chat API reachable",
+        name: "Backend",
+        status: reachable ? "success" : "error",
+        message: reachable ? "Backend reachable" : "Backend unreachable",
         icon: <Wifi className="w-5 h-5" />,
       };
     } catch (e: any) {
       results[results.length - 1] = {
-        name: "Chat API",
+        name: "Backend",
         status: "error",
-        message: `Chat API error: ${e.message}`,
+        message: `Backend error: ${e.message}`,
         icon: <Wifi className="w-5 h-5" />,
       };
     }

@@ -42,6 +42,43 @@ export async function requireUser(req: Request) {
 }
 
 /**
+ * Requires the authenticated user to have accepted the AI data-processing
+ * disclosure (profiles.ai_consent_given === true).
+ *
+ * Server-side gate that prevents Gemini calls from running before consent.
+ * The client-side AIConsentModal is a UX layer only — this check is the
+ * source of truth.
+ *
+ * Apple App Review rejection May 14, 2026 (Guidelines 5.1.1(i) / 5.1.2(i)):
+ * the prior client-only gate did not prevent parallel auto-fire requests
+ * from leaving the device before the modal was acknowledged.
+ *
+ * Throws Response 403 { error: "AI_CONSENT_REQUIRED" } if no consent.
+ * Returns the same { user, supabase } shape as requireUser().
+ */
+export async function requireAIConsent(req: Request) {
+  const { user, supabase } = await requireUser(req);
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("ai_consent_given")
+    .eq("user_id", user.id)
+    .single();
+
+  if (error || !data?.ai_consent_given) {
+    throw new Response(
+      JSON.stringify({
+        error: "AI_CONSENT_REQUIRED",
+        message: "AI consent is required before using AI features.",
+      }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  return { user, supabase };
+}
+
+/**
  * Requires the user to have the 'admin' role.
  * Returns user + admin supabase client.
  */

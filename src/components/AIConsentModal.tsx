@@ -1,16 +1,36 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Shield } from "lucide-react";
+import { Shield, Loader2 } from "lucide-react";
 
 interface AIConsentModalProps {
-  onAccept: () => void;
+  onAccept: () => void | Promise<void>;
 }
 
 /**
  * Full-screen, non-dismissable AI data-processing consent modal.
  * Required by Apple App Review (Guidelines 5.1.1(i) + 5.1.2(i)) and GDPR Art. 6(1)(a).
  * Shown to every authenticated user (except demo-mode reviewers) until they accept.
+ *
+ * After Build 51 hardening: persistence is awaited before the modal closes.
+ * The Edge Functions independently enforce consent (requireAIConsent), so
+ * tearing down the modal before the DB write completed is no longer just
+ * a UX hazard — it would let the user click features that 403 anyway.
  */
 export function AIConsentModal({ onAccept }: AIConsentModalProps) {
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleAccept = async () => {
+    setError(null);
+    setIsAccepting(true);
+    try {
+      await onAccept();
+      // Parent will unmount us via aiConsentGiven flip.
+    } catch (e: any) {
+      setError(e?.message || "Speichern fehlgeschlagen — bitte versuche es erneut.");
+      setIsAccepting(false);
+    }
+  };
   return (
     <div
       role="dialog"
@@ -102,14 +122,30 @@ export function AIConsentModal({ onAccept }: AIConsentModalProps) {
         </div>
 
         <div className="space-y-2 pt-2">
-          <Button onClick={onAccept} size="lg" className="w-full">
-            Ich verstehe und stimme zu
+          {error && (
+            <p className="text-sm text-destructive text-center" role="alert">{error}</p>
+          )}
+          <Button
+            onClick={handleAccept}
+            size="lg"
+            className="w-full"
+            disabled={isAccepting}
+          >
+            {isAccepting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Wird gespeichert…
+              </>
+            ) : (
+              "Ich verstehe und stimme zu"
+            )}
           </Button>
           <Button
             asChild
             variant="ghost"
             size="lg"
             className="w-full"
+            disabled={isAccepting}
           >
             <a href="https://soulvay.com/privacy" target="_blank" rel="noopener noreferrer">
               Datenschutzerklärung lesen

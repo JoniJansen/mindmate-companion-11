@@ -51,6 +51,15 @@ export default function Upgrade() {
   const { user, isDemoMode } = useAuth();
   const [userStats, setUserStats] = useState({ chatSessions: 0, journalEntries: 0, moodCheckins: 0, exercisesCompleted: 0 });
 
+  // Apple App Review rejection May 14, 2026 (Guideline 2.1(b)):
+  // Reviewer tapped "Start Subscription" before RC lazy init completed and got
+  // a generic loading/error toast. The button is now disabled until RevenueCat
+  // is initialized AND offerings are populated. The "Abo wird vorbereitet…"
+  // label communicates state transparently instead of producing an error toast.
+  const hasOfferings = !!offerings && (offerings.availablePackages?.length ?? 0) > 0;
+  const iosPurchaseReady = !isIOSApp() || (isRevenueCatAvailable && hasOfferings);
+  const iosPurchasePreparing = isIOSApp() && !isRevenueCatUnavailable && !iosPurchaseReady;
+
   // Lazy-initialize RevenueCat ONLY when the user actually opens the paywall.
   // (Auto-init at app launch was crashing iPad Air M3 in Build 43.)
   useEffect(() => {
@@ -508,7 +517,8 @@ export default function Upgrade() {
               isLoading ||
               !acceptedTerms ||
               !acceptedWithdrawal ||
-              (isIOSApp() && isRevenueCatUnavailable)
+              (isIOSApp() && isRevenueCatUnavailable) ||
+              iosPurchasePreparing
             }
             className="w-full h-12 text-base"
           >
@@ -516,6 +526,11 @@ export default function Upgrade() {
               <>
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
                 {t("upgrade.loading")}
+              </>
+            ) : iosPurchasePreparing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                {language === "de" ? "Abo wird vorbereitet…" : "Preparing subscription…"}
               </>
             ) : (
               <>
