@@ -355,9 +355,12 @@ export default function Chat() {
     { id: "grounding-54321", label: t("chat.exercise.grounding"), icon: Anchor },
   ], [t]);
 
-  // Voice mode toggle with premium gate
+  // Voice mode toggle with premium gate (Face-to-Face stays Premium)
   const handleToggleVoiceMode = () => {
-    if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
+    if (!canUseVoice) {
+      analytics.track("mic_to_f2f_paywall_triggered", {});
+      setUpgradeReason("voice"); setShowUpgradePrompt(true); return;
+    }
     if (realtimeAvailable && agentId) {
       if (useRealtimeMode && realtimeVoice.isConnected) {
         realtimeVoice.endSession();
@@ -371,18 +374,27 @@ export default function Chat() {
     voice.toggleVoiceMode();
   };
 
+  // Mic-Input (STT) is FREE for all users — Build 60 #1A
   const handleToggleRecording = () => {
-    if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
+    if (!canUseVoice) {
+      analytics.track("mic_free_attempt", { isSpeechSupported: voice.isSpeechSupported });
+    }
     voice.toggleRecording();
   };
 
   const handleToggleAutoPlay = () => {
-    if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
+    if (!canUseVoice) {
+      analytics.track("mic_to_tts_paywall_triggered", { source: "autoplay_toggle" });
+      setUpgradeReason("voice"); setShowUpgradePrompt(true); return;
+    }
     voice.updateSetting("autoPlayReplies", !voice.voiceSettings.autoPlayReplies);
   };
 
   const handlePlayMessage = (message: { id: string; content: string; role: "user" | "assistant"; timestamp: Date; isError?: boolean }) => {
-    if (!canUseVoice) { setUpgradeReason("voice"); setShowUpgradePrompt(true); return; }
+    if (!canUseVoice) {
+      analytics.track("mic_to_tts_paywall_triggered", { source: "play_message" });
+      setUpgradeReason("voice"); setShowUpgradePrompt(true); return;
+    }
     voice.playMessage(message);
   };
 
