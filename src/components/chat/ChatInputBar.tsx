@@ -38,11 +38,11 @@ export const ChatInputBar = React.memo(function ChatInputBar({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost" size="icon"
-                  className={`shrink-0 h-9 w-9 rounded-full ${canUseVoice && autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                  className={`relative shrink-0 h-9 w-9 rounded-full ${canUseVoice && autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
                   onClick={onToggleAutoPlay}
                 >
                   {canUseVoice && autoPlayReplies ? <Volume2 className="w-[18px] h-[18px]" /> : <VolumeX className="w-[18px] h-[18px]" />}
-                  {!canUseVoice && <Lock className="w-2 h-2 absolute -bottom-0.5 -right-0.5" />}
+                  {!canUseVoice && <Lock className="w-2 h-2 absolute -bottom-0.5 -right-0.5 text-muted-foreground" />}
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top" className="text-xs">
