@@ -42,8 +42,13 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
   const { isListening, fullTranscript, isSupported: isSpeechSupported, startListening, stopListening, resetTranscript, error: sttError } = useSpeechRecognition(speechLang, {
     continuous: true,
     onFinalTranscript: (transcript) => {
-      if (transcript.trim() && canUseVoice) {
+      if (transcript.trim()) {
+        // Build 60 #1A: STT is FREE for all users; pendingTranscript flow is shared.
         setPendingTranscript(prev => (prev + " " + transcript).trim());
+        analytics.track("mic_transcription_success", {
+          tier: canUseVoice ? "premium" : "free",
+          charCount: transcript.trim().length,
+        });
       }
     },
   });
