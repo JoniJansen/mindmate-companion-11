@@ -53,18 +53,38 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     },
   });
 
-  // Handle STT errors
+  // Handle STT errors + permission telemetry
   const hasShownMicErrorRef = useRef(false);
+  const hasTrackedDeniedRef = useRef(false);
   useEffect(() => {
-    // Only show mic permission toast when NOT in voice mode panel
-    // (the panel has its own inline error display; showing both = duplicate)
-    if (sttError === "not-allowed" && !hasShownMicErrorRef.current && !voiceModeEnabled) {
-      hasShownMicErrorRef.current = true;
-      toast({ title: t("voice.micPermissionDenied"), description: t("voice.enableMic"), variant: "destructive" });
+    if (sttError === "not-allowed") {
+      if (!hasTrackedDeniedRef.current) {
+        hasTrackedDeniedRef.current = true;
+        analytics.track("mic_permission_denied", { tier: canUseVoice ? "premium" : "free" });
+      }
+      if (!hasShownMicErrorRef.current && !voiceModeEnabled) {
+        hasShownMicErrorRef.current = true;
+        toast({ title: t("voice.micPermissionDenied"), description: t("voice.enableMic"), variant: "destructive" });
+      }
+    } else if (sttError && sttError !== "not-allowed") {
+      analytics.track("mic_transcription_failure", {
+        tier: canUseVoice ? "premium" : "free",
+        errorCode: sttError,
+      });
     } else if (!sttError) {
       hasShownMicErrorRef.current = false;
+      hasTrackedDeniedRef.current = false;
     }
-  }, [sttError, t, toast, voiceModeEnabled]);
+  }, [sttError, t, toast, voiceModeEnabled, canUseVoice]);
+
+  // Track first successful mic-listen as permission_granted
+  const hasTrackedGrantedRef = useRef(false);
+  useEffect(() => {
+    if (isListening && !hasTrackedGrantedRef.current) {
+      hasTrackedGrantedRef.current = true;
+      analytics.track("mic_permission_granted", { tier: canUseVoice ? "premium" : "free" });
+    }
+  }, [isListening, canUseVoice]);
 
   // Track cooldown phase: brief pause after speaking ends before re-enabling mic
   const [isCooldown, setIsCooldown] = useState(false);
