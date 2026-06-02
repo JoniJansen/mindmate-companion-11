@@ -79,7 +79,14 @@ export type AnalyticsEvent =
   | "chat_saved_to_journal"
   | "demo_chat_google_signup_clicked"
   | "demo_chat_apple_signup_clicked"
-  | "demo_conversation_continued";
+  | "demo_conversation_continued"
+  | "mic_free_attempt"
+  | "mic_permission_granted"
+  | "mic_permission_denied"
+  | "mic_transcription_success"
+  | "mic_transcription_failure"
+  | "mic_to_tts_paywall_triggered"
+  | "mic_to_f2f_paywall_triggered";
 
 interface EventProperties {
   [key: string]: string | number | boolean | undefined;
