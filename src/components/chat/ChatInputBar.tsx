@@ -79,7 +79,7 @@ export const ChatInputBar = React.memo(function ChatInputBar({
               value={inputValue}
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend(); } }}
-              placeholder={isListening && canUseVoice ? t("voice.listening") : t("chat.inputPlaceholder")}
+              placeholder={isListening ? t("voice.listening") : t("chat.inputPlaceholder")}
               className="w-full h-11 bg-muted/20 border border-border/40 rounded-full px-4 pr-12 text-[15px] focus:outline-none focus:border-primary/30 focus:bg-background focus:ring-1 focus:ring-primary/10 transition-colors placeholder:text-muted-foreground/60"
               disabled={isLoading || (!canSendMessage() && !isPremium) || !isOnline}
               autoComplete="off"
