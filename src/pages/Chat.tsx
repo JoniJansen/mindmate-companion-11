@@ -633,7 +633,7 @@ export default function Chat() {
       />
 
       {/* Voice Transcript */}
-      {voice.showTranscriptConfirm && voice.pendingTranscript && canUseVoice && (
+      {voice.showTranscriptConfirm && voice.pendingTranscript && (
         <div className="shrink-0 px-4 pb-2 bg-background">
           <div className="max-w-lg mx-auto">
             <VoiceTranscriptConfirm
