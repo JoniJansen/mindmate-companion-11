@@ -58,19 +58,16 @@ export const ChatInputBar = React.memo(function ChatInputBar({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isListening && canUseVoice ? "destructive" : "outline"}
+                    variant={isListening ? "destructive" : "outline"}
                     size="icon" className="shrink-0 h-9 w-9 rounded-full relative"
                     onClick={onToggleRecording}
                   >
-                    {isListening && canUseVoice ? <MicOff className="w-[18px] h-[18px]" /> : <Mic className="w-[18px] h-[18px]" />}
-                    {isListening && canUseVoice && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-destructive rounded-full animate-pulse" />}
-                    {!canUseVoice && <Lock className="w-2 h-2 absolute -bottom-0.5 -right-0.5 text-muted-foreground" />}
+                    {isListening ? <MicOff className="w-[18px] h-[18px]" /> : <Mic className="w-[18px] h-[18px]" />}
+                    {isListening && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-destructive rounded-full animate-pulse" />}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="text-xs">
-                  {canUseVoice
-                    ? (isListening ? t("chat.stopRecording") : t("chat.voiceInput"))
-                    : t("chat.voiceInputPlus")}
+                  {isListening ? t("chat.stopRecording") : t("chat.voiceInput")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
