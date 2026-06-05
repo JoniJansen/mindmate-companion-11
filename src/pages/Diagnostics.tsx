@@ -85,8 +85,8 @@ export default function Diagnostics() {
     }
   }, [micTestState]);
 
-  // Double guard: redirect in production
-  if (!import.meta.env.DEV) {
+  // Double guard: allow DEV + Lovable Sandbox hosts; redirect everywhere else (e.g. soulvay.com)
+  if (!isDiagnosticsAllowed()) {
     return <Navigate to="/chat" replace />;
   }
 
