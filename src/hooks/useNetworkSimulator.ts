@@ -1,3 +1,4 @@
+import { isDiagnosticsAllowed } from "@/lib/diagnosticsAccess";
 /**
  * DEV-only Network Simulator
  * Provides deterministic control over network status for testing.
@@ -16,7 +17,7 @@ interface NetworkSimState {
 }
 
 function getStoredMode(): NetworkSimMode {
-  if (!import.meta.env.DEV) return "real";
+  if (!isDiagnosticsAllowed()) return "real";
   try {
     return (localStorage.getItem(STORAGE_KEY) as NetworkSimMode) || "real";
   } catch {
@@ -30,7 +31,7 @@ function getStoredMode(): NetworkSimMode {
  */
 export function useNetworkSimulator() {
   // Always return null in production — tree-shaken by bundler
-  if (!import.meta.env.DEV) return null;
+  if (!isDiagnosticsAllowed()) return null;
 
   const [mode, setModeState] = useState<NetworkSimMode>(getStoredMode);
 
@@ -51,7 +52,7 @@ export function useNetworkSimulator() {
  * Called from useNetworkStatus to override real status in DEV.
  */
 export function getSimulatedOnlineStatus(): boolean | null {
-  if (!import.meta.env.DEV) return null;
+  if (!isDiagnosticsAllowed()) return null;
   try {
     const mode = localStorage.getItem(STORAGE_KEY) as NetworkSimMode;
     if (mode === "offline") return false;
