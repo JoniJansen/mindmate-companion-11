@@ -11,6 +11,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { Copy, Check, Mic, MicOff, Wifi, WifiOff, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navigate } from "react-router-dom";
+import { isDiagnosticsAllowed } from "@/lib/diagnosticsAccess";
 
 interface DiagEntry {
   label: string;
