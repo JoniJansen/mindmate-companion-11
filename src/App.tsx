@@ -241,10 +241,11 @@ function AppContent() {
                   
                   {/* DEV-ONLY */}
                   {import.meta.env.DEV && (
-                    <>
-                      <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
-                      <Route path="/diagnostics" element={<Diagnostics />} />
-                    </>
+                    <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
+                  )}
+                  {/* DEV + Lovable Sandbox (never on soulvay.com) */}
+                  {isDiagnosticsAllowed() && (
+                    <Route path="/diagnostics" element={<Diagnostics />} />
                   )}
                   
                   {/* Catch-all */}
