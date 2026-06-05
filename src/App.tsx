@@ -56,8 +56,9 @@ const ChatHistory = lazy(() => import("@/pages/ChatHistory"));
 const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+import { isDiagnosticsAllowed } from "@/lib/diagnosticsAccess";
 const DevQA = import.meta.env.DEV ? lazy(() => import("@/pages/DevQA")) : () => null;
-const Diagnostics = import.meta.env.DEV ? lazy(() => import("@/pages/Diagnostics")) : () => null;
+const Diagnostics = isDiagnosticsAllowed() ? lazy(() => import("@/pages/Diagnostics")) : () => null;
 const CompanionSettings = lazy(() => import("@/pages/CompanionSettings"));
 
 const queryClient = new QueryClient({
@@ -240,10 +241,11 @@ function AppContent() {
                   
                   {/* DEV-ONLY */}
                   {import.meta.env.DEV && (
-                    <>
-                      <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
-                      <Route path="/diagnostics" element={<Diagnostics />} />
-                    </>
+                    <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
+                  )}
+                  {/* DEV + Lovable Sandbox (never on soulvay.com) */}
+                  {isDiagnosticsAllowed() && (
+                    <Route path="/diagnostics" element={<Diagnostics />} />
                   )}
                   
                   {/* Catch-all */}

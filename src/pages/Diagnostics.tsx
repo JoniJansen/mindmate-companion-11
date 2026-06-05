@@ -11,6 +11,7 @@ import { CalmCard } from "@/components/shared/CalmCard";
 import { Copy, Check, Mic, MicOff, Wifi, WifiOff, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navigate } from "react-router-dom";
+import { isDiagnosticsAllowed } from "@/lib/diagnosticsAccess";
 
 interface DiagEntry {
   label: string;
@@ -84,8 +85,8 @@ export default function Diagnostics() {
     }
   }, [micTestState]);
 
-  // Double guard: redirect in production
-  if (!import.meta.env.DEV) {
+  // Double guard: allow DEV + Lovable Sandbox hosts; redirect everywhere else (e.g. soulvay.com)
+  if (!isDiagnosticsAllowed()) {
     return <Navigate to="/chat" replace />;
   }
 

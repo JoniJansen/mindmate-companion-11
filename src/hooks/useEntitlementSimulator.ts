@@ -1,3 +1,4 @@
+import { isDiagnosticsAllowed } from "@/lib/diagnosticsAccess";
 /**
  * DEV-only Entitlement Simulator
  * Provides deterministic control over premium/subscription states for testing.
@@ -10,7 +11,7 @@ export type SimulatedEntitlement = "real" | "free" | "trial" | "active" | "cance
 const STORAGE_KEY = "soulvay-dev-entitlement-sim";
 
 function getStoredEntitlement(): SimulatedEntitlement {
-  if (!import.meta.env.DEV) return "real";
+  if (!isDiagnosticsAllowed()) return "real";
   try {
     return (localStorage.getItem(STORAGE_KEY) as SimulatedEntitlement) || "real";
   } catch {
@@ -26,7 +27,7 @@ export function getSimulatedPremiumOverride(): {
   planType: string;
   subscriptionStatus: string;
 } | null {
-  if (!import.meta.env.DEV) return null;
+  if (!isDiagnosticsAllowed()) return null;
   try {
     const sim = localStorage.getItem(STORAGE_KEY) as SimulatedEntitlement;
     if (!sim || sim === "real") return null;
@@ -56,7 +57,7 @@ export function getSimulatedPremiumOverride(): {
  * Returns simulator controls in DEV, or null in production.
  */
 export function useEntitlementSimulator() {
-  if (!import.meta.env.DEV) return null;
+  if (!isDiagnosticsAllowed()) return null;
 
   const [entitlement, setEntitlementState] = useState<SimulatedEntitlement>(getStoredEntitlement);
 
