@@ -145,3 +145,113 @@ User-GO einholen → dann §9 aus `BUILD60_ITEM_01B_DIAGNOSIS.md` schrittweise a
 - Kein `npx cap sync`
 - Keine Manifest-Edits
 - Keine Hook-Erstellung
+
+---
+
+# Phase B0 — Verifikations-Ergebnisse (2026-06-08)
+
+## Aufgabe 1: SPM-Verifikation — ❌ **BLOCKER**
+
+**Ergebnis:** Plugin liefert **KEIN `Package.swift`**.
+
+Repo-Root-Inhalt (via GitHub API):
+```
+CapacitorCommunitySpeechRecognition.podspec   ← nur Pod
+android/, ios/, src/
+package.json, README.md, ...
+```
+- `curl https://raw.githubusercontent.com/.../main/Package.swift` → 404
+- `curl https://raw.githubusercontent.com/.../master/Package.swift` → 404
+- `ios/` enthält `Podfile`, `Plugin.xcworkspace`, `Plugin.xcodeproj` — klassisches CocoaPods-Layout
+- Plugin `package.json` `capacitor.ios.src: "ios"` (Pod-Pattern)
+
+**Soulvay-Realität:**
+- `ios/App/CapApp-SPM/Package.swift` ist die einzige iOS-Dependency-Quelle
+- Kein `Podfile` im Projekt
+- RevenueCat ist via SPM eingebunden (`path: "../../../node_modules/@revenuecat/purchases-capacitor"` mit eigener `Package.swift`)
+
+**Konsequenz:** `npx cap sync ios` würde das Plugin nicht in die SPM-Struktur einbinden. Build-Failure ist zu erwarten.
+
+## Aufgabe 2: GitHub-Issues-Quick-Scan
+
+**Capacitor-8-Suche:** Keine offenen Showstopper-Issues mit Cap-8-Tag erkennbar (Suche `is:issue capacitor 8` lieferte keine relevanten Treffer im Top-Sample).
+
+**SPM-Suche:** Keine offene SPM-Support-Diskussion sichtbar — Plugin-Community hat das Thema (noch) nicht adressiert.
+
+**Letzte Plugin-Aktivität:**
+- Letzter Commit: `2026-05-29` (GH-Action-Update, kein Code)
+- Letzter Code-Fix: `2025-06-09` — `fix: gracefully handle AVAudioSession conflict when mic is busy` (#116)
+- Release 7.0.1: 2025-06-09 (nicht 2026-01-29 wie initial geschätzt — npm `time.modified` war Metadaten-Timestamp, nicht Release). Echtes Release ~12 Monate alt.
+
+→ **Maintenance-Realität korrigiert:** Aktiv, aber langsamer als angenommen. Keine Cap-8-/SPM-Migration in Sicht.
+
+## Aufgabe 3: Plugin-Config-Anforderungen
+
+- Keine speziellen `capacitor.config.ts`-Erfordernisse
+- iOS: `NSSpeechRecognitionUsageDescription` + `NSMicrophoneUsageDescription` in `Info.plist` (bei Soulvay bereits deklariert ✅)
+- Android: laut README "No further action required" (aber Manifest-Permissions `RECORD_AUDIO` sind in der Praxis nötig, siehe Diagnose §4)
+
+## Korrektur Bundle-Size-Schätzung
+
+Im Pre-Install-Check hatte ich Release-Datum `2026-01-29` aus `npm view time.modified`. Das ist npm-Metadaten-Touch, nicht Release. Tatsächlicher Plugin-Release **7.0.1** = **2025-06-09** (~12 Monate alt). Plugin-Maintenance ist langsamer als zunächst signalisiert.
+
+---
+
+# Empfehlung Phase B0 → Phase B1
+
+## ❌ **NO-GO für direkten `bun add @capacitor-community/speech-recognition@7.0.1`**
+
+**Begründung:** SPM-Inkompatibilität ist Hard-Blocker. Plugin liefert keine `Package.swift`, Soulvay nutzt reines SPM. `cap sync ios` würde scheitern oder Plugin nicht registrieren.
+
+## Drei realistische Pfade
+
+### Pfad A — Hybrid-Mode (Pod neben SPM aktivieren)
+- `npx cap add ios` neu mit Podfile, oder manuell `Podfile` ergänzen
+- Capacitor 8 unterstützt Hybrid-Setup (SPM für Core + Pods für Plugins, die noch nicht migriert sind)
+- Aufwand: 2-3 h Setup + Test, dass RevenueCat-SPM weiter funktioniert
+- Risiko: Doppelte Dependency-Quellen, mögliche Build-Order-Konflikte, neue Reject-Klasse auf Apple-Review-Seite (selten, aber vorhanden)
+
+### Pfad B — Fork + `Package.swift` ergänzen
+- Fork `capacitor-community/speech-recognition`
+- `Package.swift` analog zu offiziellen Cap-8-SPM-Plugins schreiben (~30 Zeilen)
+- Soulvay-`Package.swift` referenziert Fork via `path:` (wie RevenueCat) oder Git-URL
+- Aufwand: 3-4 h (inkl. Test-Build)
+- Risiko: Maintenance-Burden für den Fork (zukünftige Upstream-Updates manuell mergen)
+- Vorteil: Saubere SPM-Architektur bleibt erhalten
+
+### Pfad C — Verschiebung auf Build 60.5 / 61
+- Build 60 ohne Native-Mic submitten
+- #1A Web-Mic-Free als sichtbares Free-Feature reicht (Web bleibt funktional)
+- Native-Mic in eigenem Build später nachreichen
+- Aufwand: 0 h jetzt
+- Trade-off: Native-Free-User sehen keinen Mic-Button → Feature-Lücke bleibt
+
+## Meine Empfehlung
+
+**Pfad B (Fork + Package.swift)** vor Pfad A.
+
+Begründung:
+- SPM ist Soulvays etablierte iOS-Architektur (Cap 8 + RevenueCat laufen sauber darauf)
+- Hybrid-Mode bricht eine bewährte Konfiguration auf
+- Fork ist klein (~30 Zeilen Package.swift), Wartungsaufwand pro Upstream-Update vernachlässigbar
+- Upstream-PR mit dem Package.swift wäre dazu ein netter Community-Beitrag (kein Blocker für Soulvay)
+
+Falls User Pfad B ablehnt: Pfad C (Verschiebung) ist sauberer als Pfad A.
+
+## Stop-Bedingungen — Status
+
+| Bedingung | Status |
+|-----------|--------|
+| Plugin SPM-kompatibel | **❌ EINGETRETEN** — kein Package.swift |
+| Cap-8-Showstopper-Issue | ✅ keiner gefunden |
+| iOS-Target-Konflikt | ✅ keiner |
+| Android-Target-Konflikt | ✅ keiner |
+
+**→ STOPP. User-Entscheidung nötig: Pfad A, B oder C.**
+
+## Was nicht gemacht wurde
+
+- Kein `bun add`
+- Keine Code-Änderungen
+- Kein `cap sync`
+- Keine Fork-Erstellung (das wäre Phase B1 unter Pfad B)
