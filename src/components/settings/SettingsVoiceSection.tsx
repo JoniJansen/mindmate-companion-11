@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
-import { Volume2, Globe, MessageSquare, ChevronRight, Check, Mic } from "lucide-react";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Volume2, Globe, MessageSquare, ChevronRight, Check, Mic, Lock } from "lucide-react";
 import { Circle, AudioLines, Smile } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Switch } from "@/components/ui/switch";
@@ -7,6 +8,10 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useVoiceSettings, VoiceType, VoiceSpeed, VoiceLanguage, AvatarStyle } from "@/hooks/useVoiceSettings";
 import { useToast } from "@/hooks/use-toast";
 import { MicrophoneSelector } from "@/components/settings/MicrophoneSelector";
+import { usePremium } from "@/hooks/usePremium";
+import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
+import { useNavigate } from "react-router-dom";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface Props {
   expandedSection: string | null;
@@ -17,6 +22,10 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
   const { t, language } = useTranslation();
   const { settings: voiceSettings, updateSetting: updateVoiceSetting } = useVoiceSettings();
   const { toast } = useToast();
+  const { isPremium } = usePremium();
+  const navigate = useNavigate();
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const canUseVoice = isPremium;
 
   const voiceTypeOptions: { value: VoiceType; label: string; description: string }[] = [
     { value: "female", label: language === "de" ? "Warm" : "Warm", description: language === "de" ? "Ruhig & vertraut" : "Calm & familiar" },
