@@ -236,5 +236,30 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
         </CalmCard>
       </div>
     </motion.div>
+
+    <AnimatePresence>
+      {showUpgradePrompt && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          onClick={() => setShowUpgradePrompt(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md">
+            <UpgradePrompt
+              reason="voice"
+              variant="modal"
+              onUpgrade={() => { setShowUpgradePrompt(false); navigate("/upgrade"); }}
+              onDismiss={() => setShowUpgradePrompt(false)}
+            />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
   );
+}
 }
