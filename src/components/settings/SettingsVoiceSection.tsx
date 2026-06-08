@@ -146,17 +146,37 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
         <CalmCard variant="elevated">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+              <div className="relative w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                 <Volume2 className="w-5 h-5 text-foreground" />
+                {!canUseVoice && (
+                  <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-background border border-border flex items-center justify-center">
+                    <Lock className="w-2.5 h-2.5 text-muted-foreground" />
+                  </span>
+                )}
               </div>
               <div>
                 <p className="font-medium text-foreground">{t("voice.autoPlay")}</p>
-                <p className="text-sm text-muted-foreground">{t("voice.autoPlayDesc")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {canUseVoice ? t("voice.autoPlayDesc") : t("chat.voiceOutputPlus")}
+                </p>
               </div>
             </div>
-            <Switch checked={voiceSettings.autoPlayReplies} onCheckedChange={(checked) => { updateVoiceSetting("autoPlayReplies", checked); saved(); }} />
+            <Switch
+              checked={canUseVoice ? voiceSettings.autoPlayReplies : false}
+              onCheckedChange={(checked) => {
+                if (!canUseVoice) {
+                  analytics.track("mic_to_tts_paywall_triggered", { source: "autoplay_settings" });
+                  setShowUpgradePrompt(true);
+                  return;
+                }
+                updateVoiceSetting("autoPlayReplies", checked);
+                saved();
+              }}
+              aria-label={t("voice.autoPlay")}
+            />
           </div>
         </CalmCard>
+
 
         {/* Avatar Style */}
         <CalmCard variant="elevated">
