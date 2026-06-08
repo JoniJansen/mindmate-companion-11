@@ -225,6 +225,40 @@ export default function DevQA() {
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <div className="px-4 py-4 pb-32 max-w-lg mx-auto space-y-4">
+          {/* Developer-only warning banner */}
+          <div className="bg-destructive/10 border border-destructive/30 rounded-2xl p-4 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-destructive">⚠️ Developer Testing</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Diese Seite ist nicht für End-User. Direkt-URL only — niemals von Navigation aus verlinken.
+              </p>
+            </div>
+          </div>
+
+          {/* Sentry test crash trigger */}
+          <div className="bg-card rounded-2xl border border-border/40 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Bug className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold">Sentry Crash-Reporting</h2>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Crash-Reporting Consent:{" "}
+              <span className={isCrashReportingAllowed() ? "text-primary font-medium" : "text-destructive font-medium"}>
+                {isCrashReportingAllowed() ? "ON (events go to Sentry)" : "OFF (events dropped by beforeSend)"}
+              </span>
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmCrashOpen(true)}
+              className="gap-2 w-full"
+            >
+              <Bug className="w-3.5 h-3.5" />
+              Send Test Crash
+            </Button>
+          </div>
+
           {/* Summary */}
           <div className="bg-card rounded-2xl border border-border/40 p-4">
             <h2 className="text-sm font-semibold text-muted-foreground mb-3">Summary</h2>
