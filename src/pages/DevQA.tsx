@@ -6,9 +6,21 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, RefreshCw, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { ChevronLeft, RefreshCw, CheckCircle, AlertTriangle, XCircle, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { sendTestCrash, isCrashReportingAllowed } from "@/lib/sentry";
+import { toast } from "@/hooks/use-toast";
 
 interface LayoutCheck {
   name: string;
@@ -21,7 +33,28 @@ export default function DevQA() {
   const navigate = useNavigate();
   const [checks, setChecks] = useState<LayoutCheck[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [confirmCrashOpen, setConfirmCrashOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleSendTestCrash = () => {
+    try {
+      sendTestCrash("devqa-manual");
+      toast({
+        title: "Test crash sent",
+        description: isCrashReportingAllowed()
+          ? "Check Sentry dashboard (filter tag test:true)."
+          : "Sent — but crash-reporting consent is OFF, event will be dropped by beforeSend.",
+      });
+    } catch (e) {
+      toast({
+        title: "Sentry not initialized",
+        description: e instanceof Error ? e.message : String(e),
+        variant: "destructive",
+      });
+    }
+    setConfirmCrashOpen(false);
+  };
+
 
   const runChecks = () => {
     setIsRefreshing(true);
@@ -192,6 +225,40 @@ export default function DevQA() {
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <div className="px-4 py-4 pb-32 max-w-lg mx-auto space-y-4">
+          {/* Developer-only warning banner */}
+          <div className="bg-destructive/10 border border-destructive/30 rounded-2xl p-4 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-destructive">⚠️ Developer Testing</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Diese Seite ist nicht für End-User. Direkt-URL only — niemals von Navigation aus verlinken.
+              </p>
+            </div>
+          </div>
+
+          {/* Sentry test crash trigger */}
+          <div className="bg-card rounded-2xl border border-border/40 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Bug className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold">Sentry Crash-Reporting</h2>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Crash-Reporting Consent:{" "}
+              <span className={isCrashReportingAllowed() ? "text-primary font-medium" : "text-destructive font-medium"}>
+                {isCrashReportingAllowed() ? "ON (events go to Sentry)" : "OFF (events dropped by beforeSend)"}
+              </span>
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmCrashOpen(true)}
+              className="gap-2 w-full"
+            >
+              <Bug className="w-3.5 h-3.5" />
+              Send Test Crash
+            </Button>
+          </div>
+
           {/* Summary */}
           <div className="bg-card rounded-2xl border border-border/40 p-4">
             <h2 className="text-sm font-semibold text-muted-foreground mb-3">Summary</h2>
@@ -259,6 +326,23 @@ Safe Areas:
           </p>
         </div>
       </div>
+
+      <AlertDialog open={confirmCrashOpen} onOpenChange={setConfirmCrashOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Wirklich Test-Crash auslösen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Das sendet einen Test-Error an Sentry mit Tag <code>test:true</code>.
+              Nur für Entwickler-Verifikation gedacht. App stürzt NICHT ab — wir nutzen
+              <code> captureException</code>, kein <code>throw</code>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSendTestCrash}>Test-Crash senden</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

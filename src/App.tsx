@@ -9,6 +9,7 @@ import { useEffect, lazy, Suspense } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { OnboardingGuard } from "@/components/routing/OnboardingGuard";
 import { CookieConsent } from "@/components/gdpr/CookieConsent";
+import { NativeCrashConsentModal } from "@/components/gdpr/NativeCrashConsentModal";
 import { TourProvider } from "@/components/tour/TourProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
@@ -57,7 +58,9 @@ const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 import { isDiagnosticsAllowed } from "@/lib/diagnosticsAccess";
-const DevQA = import.meta.env.DEV ? lazy(() => import("@/pages/DevQA")) : () => null;
+// DevQA is loadable in all builds but only reachable via direct URL `/dev-qa`
+// (not linked anywhere) — required for TestFlight crash-verification (Sentry test crash).
+const DevQA = lazy(() => import("@/pages/DevQA"));
 const Diagnostics = isDiagnosticsAllowed() ? lazy(() => import("@/pages/Diagnostics")) : () => null;
 const CompanionSettings = lazy(() => import("@/pages/CompanionSettings"));
 
@@ -188,6 +191,7 @@ function AppContent() {
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TourProvider>
               <DelayedCookieConsent />
+              <NativeCrashConsentModal />
               <AIConsentGate />
               <Suspense fallback={<PageLoader />}>
                 <Routes>
@@ -239,10 +243,8 @@ function AppContent() {
                   <Route path="/review-status" element={<ReviewStatus />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   
-                  {/* DEV-ONLY */}
-                  {import.meta.env.DEV && (
-                    <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
-                  )}
+                  {/* Developer / TestFlight verification — direct-URL only, not linked. */}
+                  <Route path="/dev-qa" element={<OnboardingGuard><DevQA /></OnboardingGuard>} />
                   {/* DEV + Lovable Sandbox (never on soulvay.com) */}
                   {isDiagnosticsAllowed() && (
                     <Route path="/diagnostics" element={<Diagnostics />} />

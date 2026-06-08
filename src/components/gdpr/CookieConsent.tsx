@@ -9,6 +9,7 @@ type ConsentSettings = {
   essential: boolean;
   analytics: boolean;
   marketing: boolean;
+  crashReporting: boolean;
   timestamp: string;
 };
 
@@ -16,6 +17,7 @@ const defaultSettings: ConsentSettings = {
   essential: true,
   analytics: false,
   marketing: false,
+  crashReporting: false,
   timestamp: "",
 };
 
@@ -86,6 +88,7 @@ export function CookieConsent() {
         essential: true,
         analytics: false,
         marketing: false,
+        crashReporting: false, // Native uses separate opt-in modal (NativeCrashConsentModal)
         timestamp: new Date().toISOString(),
       };
       localStorage.setItem("cookie_consent", JSON.stringify(essentialOnly));
@@ -144,6 +147,8 @@ export function CookieConsent() {
       analyticsDesc: "Help us understand how you use the app to improve it.",
       marketing: "Marketing Cookies",
       marketingDesc: "Used to show you relevant content and offers.",
+      crashReporting: "Stability Data",
+      crashReportingDesc: "Helps us detect crashes and errors so we can keep the app stable. Anonymous, EU-hosted (Sentry GmbH).",
       acceptAll: "Accept All",
       rejectAll: "Reject All",
       customize: "Customize",
@@ -159,6 +164,8 @@ export function CookieConsent() {
       analyticsDesc: "Helfen uns zu verstehen, wie du die App nutzt, um sie zu verbessern.",
       marketing: "Marketing-Cookies",
       marketingDesc: "Werden verwendet, um dir relevante Inhalte und Angebote zu zeigen.",
+      crashReporting: "Stabilitätsdaten",
+      crashReportingDesc: "Hilft uns, Abstürze und Fehler zu erkennen, damit wir die App stabil halten können. Anonymisiert, EU-Hosting (Sentry GmbH).",
       acceptAll: "Alle akzeptieren",
       rejectAll: "Alle ablehnen",
       customize: "Anpassen",
@@ -183,11 +190,11 @@ export function CookieConsent() {
   };
 
   const handleAcceptAll = () => {
-    saveConsent({ ...settings, analytics: true, marketing: true });
+    saveConsent({ ...settings, analytics: true, marketing: true, crashReporting: true });
   };
 
   const handleRejectAll = () => {
-    saveConsent({ ...settings, analytics: false, marketing: false });
+    saveConsent({ ...settings, analytics: false, marketing: false, crashReporting: false });
   };
 
   const handleSaveSettings = () => {
@@ -277,6 +284,17 @@ export function CookieConsent() {
               <Switch
                 checked={settings.marketing}
                 onCheckedChange={(checked) => setSettings({ ...settings, marketing: checked })}
+              />
+            </div>
+
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h4 className="font-medium text-foreground">{t.crashReporting}</h4>
+                <p className="text-sm text-muted-foreground">{t.crashReportingDesc}</p>
+              </div>
+              <Switch
+                checked={settings.crashReporting}
+                onCheckedChange={(checked) => setSettings({ ...settings, crashReporting: checked })}
               />
             </div>
           </div>

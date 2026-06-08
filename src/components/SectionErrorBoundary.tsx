@@ -2,6 +2,7 @@ import { Component, ErrorInfo, ReactNode } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { logError } from "@/lib/logger";
+import { captureException } from "@/lib/sentry";
 
 interface Props {
   children: ReactNode;
@@ -31,6 +32,11 @@ export class SectionErrorBoundary extends Component<Props, State> {
     logError(this.props.section, "render_crash", {
       message: error.message,
       componentStack: errorInfo.componentStack?.substring(0, 500),
+    });
+    captureException(error, {
+      boundary: "section",
+      section: this.props.section,
+      componentStack: errorInfo.componentStack?.substring(0, 1000),
     });
   }
 

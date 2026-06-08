@@ -2,6 +2,11 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { migrateLegacyKeys } from "./lib/migrateLegacyKeys";
+import { initSentry } from "./lib/sentry";
+
+// Initialize Sentry crash reporting BEFORE React renders so early crashes are captured.
+// No-op if VITE_SENTRY_DSN is unset or user consent not granted (beforeSend filter).
+initSentry();
 
 // Self-hosted Plus Jakarta Sans — no Google Fonts network request (DSGVO-safe).
 import "@fontsource/plus-jakarta-sans/300.css";
