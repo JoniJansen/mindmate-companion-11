@@ -33,7 +33,28 @@ export default function DevQA() {
   const navigate = useNavigate();
   const [checks, setChecks] = useState<LayoutCheck[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [confirmCrashOpen, setConfirmCrashOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleSendTestCrash = () => {
+    try {
+      sendTestCrash("devqa-manual");
+      toast({
+        title: "Test crash sent",
+        description: isCrashReportingAllowed()
+          ? "Check Sentry dashboard (filter tag test:true)."
+          : "Sent — but crash-reporting consent is OFF, event will be dropped by beforeSend.",
+      });
+    } catch (e) {
+      toast({
+        title: "Sentry not initialized",
+        description: e instanceof Error ? e.message : String(e),
+        variant: "destructive",
+      });
+    }
+    setConfirmCrashOpen(false);
+  };
+
 
   const runChecks = () => {
     setIsRefreshing(true);
