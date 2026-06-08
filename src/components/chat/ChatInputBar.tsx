@@ -40,6 +40,9 @@ export const ChatInputBar = React.memo(function ChatInputBar({
                   variant="ghost" size="icon"
                   className={`relative shrink-0 h-9 w-9 rounded-full ${canUseVoice && autoPlayReplies ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
                   onClick={onToggleAutoPlay}
+                  aria-label={canUseVoice
+                    ? (autoPlayReplies ? t("chat.aiSpeaksAuto") : t("chat.textOnly"))
+                    : t("chat.voiceOutputPlus")}
                 >
                   {canUseVoice && autoPlayReplies ? <Volume2 className="w-[18px] h-[18px]" /> : <VolumeX className="w-[18px] h-[18px]" />}
                   {!canUseVoice && <Lock className="w-2 h-2 absolute -bottom-0.5 -right-0.5 text-muted-foreground" />}
@@ -61,6 +64,7 @@ export const ChatInputBar = React.memo(function ChatInputBar({
                     variant={isListening ? "destructive" : "outline"}
                     size="icon" className="shrink-0 h-9 w-9 rounded-full relative"
                     onClick={onToggleRecording}
+                    aria-label={isListening ? t("chat.stopRecording") : t("chat.voiceInput")}
                   >
                     {isListening ? <MicOff className="w-[18px] h-[18px]" /> : <Mic className="w-[18px] h-[18px]" />}
                     {isListening && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-destructive rounded-full animate-pulse" />}

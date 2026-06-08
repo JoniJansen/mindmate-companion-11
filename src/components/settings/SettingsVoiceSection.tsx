@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
-import { Volume2, Globe, MessageSquare, ChevronRight, Check, Mic } from "lucide-react";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Volume2, Globe, MessageSquare, ChevronRight, Check, Mic, Lock } from "lucide-react";
 import { Circle, AudioLines, Smile } from "lucide-react";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Switch } from "@/components/ui/switch";
@@ -7,6 +8,10 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useVoiceSettings, VoiceType, VoiceSpeed, VoiceLanguage, AvatarStyle } from "@/hooks/useVoiceSettings";
 import { useToast } from "@/hooks/use-toast";
 import { MicrophoneSelector } from "@/components/settings/MicrophoneSelector";
+import { usePremium } from "@/hooks/usePremium";
+import { UpgradePrompt } from "@/components/premium/UpgradePrompt";
+import { useNavigate } from "react-router-dom";
+import { analytics } from "@/hooks/useAnalytics";
 
 interface Props {
   expandedSection: string | null;
@@ -17,6 +22,10 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
   const { t, language } = useTranslation();
   const { settings: voiceSettings, updateSetting: updateVoiceSetting } = useVoiceSettings();
   const { toast } = useToast();
+  const { isPremium } = usePremium();
+  const navigate = useNavigate();
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const canUseVoice = isPremium;
 
   const voiceTypeOptions: { value: VoiceType; label: string; description: string }[] = [
     { value: "female", label: language === "de" ? "Warm" : "Warm", description: language === "de" ? "Ruhig & vertraut" : "Calm & familiar" },
@@ -49,6 +58,7 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
   const saved = () => toast({ title: t("settings.saved"), description: t("settings.preferencesUpdated") });
 
   return (
+    <>
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
       <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">{t("voice.title")}</h2>
       <div className="space-y-3">
@@ -137,17 +147,37 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
         <CalmCard variant="elevated">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+              <div className="relative w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                 <Volume2 className="w-5 h-5 text-foreground" />
+                {!canUseVoice && (
+                  <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-background border border-border flex items-center justify-center">
+                    <Lock className="w-2.5 h-2.5 text-muted-foreground" />
+                  </span>
+                )}
               </div>
               <div>
                 <p className="font-medium text-foreground">{t("voice.autoPlay")}</p>
-                <p className="text-sm text-muted-foreground">{t("voice.autoPlayDesc")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {canUseVoice ? t("voice.autoPlayDesc") : t("chat.voiceOutputPlus")}
+                </p>
               </div>
             </div>
-            <Switch checked={voiceSettings.autoPlayReplies} onCheckedChange={(checked) => { updateVoiceSetting("autoPlayReplies", checked); saved(); }} />
+            <Switch
+              checked={canUseVoice ? voiceSettings.autoPlayReplies : false}
+              onCheckedChange={(checked) => {
+                if (!canUseVoice) {
+                  analytics.track("mic_to_tts_paywall_triggered", { source: "autoplay_settings" });
+                  setShowUpgradePrompt(true);
+                  return;
+                }
+                updateVoiceSetting("autoPlayReplies", checked);
+                saved();
+              }}
+              aria-label={t("voice.autoPlay")}
+            />
           </div>
         </CalmCard>
+
 
         {/* Avatar Style */}
         <CalmCard variant="elevated">
@@ -206,5 +236,29 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
         </CalmCard>
       </div>
     </motion.div>
+
+    <AnimatePresence>
+      {showUpgradePrompt && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          onClick={() => setShowUpgradePrompt(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md">
+            <UpgradePrompt
+              reason="voice"
+              variant="modal"
+              onUpgrade={() => { setShowUpgradePrompt(false); navigate("/upgrade"); }}
+              onDismiss={() => setShowUpgradePrompt(false)}
+            />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
   );
 }
