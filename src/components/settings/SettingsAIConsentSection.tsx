@@ -29,7 +29,7 @@ export function SettingsAIConsentSection() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
-      <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">Datenschutz & KI</h2>
+      <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">Datenschutz</h2>
       <CalmCard>
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 min-w-0">

@@ -161,8 +161,27 @@ Begründung:
 |---|---|---|
 | F1 | `VITE_APP_VERSION` env-var nicht gesetzt → Release-Tag = `soulvay@dev` | Build-Pipeline nachziehen, Item #X |
 | F2 | DevQA-Banner ist nur Visual, kein technischer Gate gegen End-User | OK — Route-Discovery-Risiko niedrig genug |
-| F3 | Settings-Page hat noch keine UI um Crash-Consent nachträglich auf Native zu ändern | Item #X — small follow-up, ein Toggle-Switch im Privacy-Block |
+| F3 | ✅ **CLOSED (2026-06-08)** — Settings-UI für Native-Crash-Consent-Widerruf | `SettingsCrashReportingSection.tsx` neu, gemounted nach `SettingsAIConsentSection`. Header "Datenschutz & KI" → "Datenschutz" (konsolidiert beide Toggles). `setNativeCrashConsent(false)` resetet `_initialized` damit Re-Opt-In funktioniert. AlertDialog nur bei ON→OFF. Web-User sieht Section nicht (isNativeApp-Gate). |
 | F4 | Bundle-Size nicht gemessen (Sandbox baut nicht produktiv) | User-Verifikation nach `bun run build` |
+
+---
+
+## 11. Test F + G — Settings-Toggle Round-Trip (F3-Closure)
+
+### Test F — Native Settings-Toggle Round-Trip (TestFlight)
+1. Frischer Install → First-Launch-Modal → "Ja, helfen" → `soulvay-crash-consent-native = "granted"`.
+2. Settings öffnen → unter Header "Datenschutz" zwei Cards sichtbar: AI-Consent + "Absturzberichte teilen" (Toggle ON).
+3. Toggle klicken → AlertDialog "Absturzberichte deaktivieren?" erscheint → "Deaktivieren".
+4. `localStorage["soulvay-crash-consent-native"] === "denied"`, Toggle visuell OFF.
+5. `/dev-qa` → Status "OFF" → "Send Test Crash" → **kein Event** in Sentry-Dashboard (60s warten).
+6. Settings → Toggle wieder ON → **kein** Confirm-Dialog (silent activation).
+7. `localStorage` zeigt `"granted"`, Toggle visuell ON.
+8. `/dev-qa` → "Send Test Crash" → Event arrives in Sentry < 30s (Tag `test:true`).
+
+### Test G — Web-User sieht Section nicht
+1. Sandbox-Preview (Web-Mode) öffnen.
+2. `/settings` öffnen → unter "Datenschutz" **nur** die AI-Consent-Card, **keine** Crash-Reporting-Card.
+3. Cookie-Consent-Banner (Footer-Link) öffnen → Toggle "Stabilitätsdaten" weiterhin vorhanden (Web-Pfad unverändert).
 
 ---
 
