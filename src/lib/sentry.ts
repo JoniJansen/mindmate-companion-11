@@ -60,6 +60,14 @@ export function nativeCrashConsentDecided(): boolean {
 export function setNativeCrashConsent(granted: boolean) {
   try {
     localStorage.setItem(CRASH_CONSENT_KEY_NATIVE, granted ? "granted" : "denied");
+    if (!granted) {
+      // IMPORTANT: Reset _initialized so a subsequent setNativeCrashConsent(true) +
+      // initSentry() call can re-trigger init. Without this reset, after the user
+      // opts out and back in, Sentry would stay disabled because the init guard
+      // short-circuits. The cookie_consent_updated listener inside initSentry()
+      // also calls Sentry.close() to flush queued events.
+      _initialized = false;
+    }
     window.dispatchEvent(new CustomEvent("cookie_consent_updated"));
   } catch {
     /* ignore */
