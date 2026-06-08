@@ -239,9 +239,43 @@ let package = Package(
 
 ---
 
+## 9. Klärungen-Log (Iteration 2)
+- **Klärung 1 (bun GitHub-Tag-Resolution):** integriert in §5 B1.1 — Mini-Vorab-Check + npm-Fallback dokumentiert.
+- **Klärung 2 (SPM-Build-Test-Pfad):** integriert in §5 B1.0 — zwei Pfade `B1.0-mac` / `B1.0-nomac` explizit definiert. **Wartet auf User-Antwort: Mac mit Xcode verfügbar?**
+- **Klärung 3 (Mixed-Swift+ObjC-Risiko):** siehe §10 unten.
+
+---
+
+## 10. Mixed-Swift+ObjC-Target-Risiko (geschärft)
+
+### 10.1 Wahrscheinlichkeitsabschätzung
+**~10-15%** für Header-Resolution-Issues bei der vorgeschlagenen Single-Target-Konfiguration mit `publicHeadersPath: "."`. Basis:
+- Capacitor-Community-Plugins mit ähnlicher Struktur (`@capacitor-community/admob`, `barcode-scanner`) haben SPM-Migration ohne Header-Split geschafft → Single-Target funktioniert in der Mehrheit.
+- Risiko entsteht v.a. bei `#import "Plugin.h"`-Statements in `Plugin.m`, die in SPM-Kontext einen Modulemap-Eintrag brauchen. SPM generiert den meist auto, aber bei ungewöhnlicher Header-Struktur (z.B. Header außerhalb `include/`-Konvention) bricht es.
+- Plugin nutzt nur 4 iOS-Dateien — geringe Komplexität, geringe Bruch-Oberfläche.
+
+### 10.2 Implementations-Aufwand falls Issue auftritt
+- **Diagnose:** 30-60 Min (Header-Path debuggen, Modulemap analysieren).
+- **Fix Option A — bestehende Header-Struktur belassen + explizite `modulemap`:** ~1 h.
+- **Fix Option B — strukturelle Plugin-Änderung:** `Plugin.h`/`Plugin.m` in Sub-Verzeichnis `ios/Plugin/include/` verschieben + `publicHeadersPath: "include"`. ~1-2 h Aufwand. **Bricht die Upstream-File-Struktur.**
+
+### 10.3 Konsequenz für Upstream-PR
+- **Option A (modulemap-Workaround):** PR bleibt additiv, **Annahme-Wahrscheinlichkeit unverändert ~70%**.
+- **Option B (File-Move):** PR enthält strukturelle Änderung am Plugin-Layout. Capacitor-Community-Maintainer akzeptieren ungern strukturelle Änderungen, weil sie Cocoapods-Konsumenten zwingen, Path-Referenzen zu prüfen. **Annahme-Wahrscheinlichkeit sinkt auf ~40-50%.**
+- **Worst Case:** Option B + PR-Ablehnung → Fork bleibt dauerhaft hard, keine Upstream-Convergence. Maintenance-Aufwand bleibt bei 1-2 h/Quartal langfristig statt 0 nach Merge.
+
+### 10.4 Mitigations-Reihenfolge bei Auftritt
+1. Erst Option A (modulemap) versuchen — bewahrt PR-Chance.
+2. Nur falls A fehlschlägt: Option B (File-Move) mit dokumentierter Begründung im PR-Body.
+3. Bei B mit Ablehnung: User-Entscheidung GO/NO-GO auf dauerhaftem Hard-Fork.
+
+---
+
 ## Status
 - [x] §0 Honest-Check abgeschlossen → Fork bleibt richtig
 - [x] §1-§8 Strategie-Doku komplett
-- [ ] **User-GO auf diese Doku** ← nächster Schritt
+- [x] §9-§10 Klärungen 1-3 integriert (Iteration 2)
+- [ ] **User-Antwort:** Mac mit Xcode verfügbar? → bestimmt B1.0-Pfad
+- [ ] **User-GO auf diese Doku** ← nach Mac-Antwort
 - [ ] Phase B1.0 (Fork-Erstellung) — benötigt User-Aktion (GitHub-Fork-Klick)
 - [ ] Phasen B1.1-B1.4
