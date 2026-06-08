@@ -262,4 +262,3 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
     </>
   );
 }
-}
