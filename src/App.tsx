@@ -9,6 +9,7 @@ import { useEffect, lazy, Suspense } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { OnboardingGuard } from "@/components/routing/OnboardingGuard";
 import { CookieConsent } from "@/components/gdpr/CookieConsent";
+import { NativeCrashConsentModal } from "@/components/gdpr/NativeCrashConsentModal";
 import { TourProvider } from "@/components/tour/TourProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
@@ -190,6 +191,7 @@ function AppContent() {
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TourProvider>
               <DelayedCookieConsent />
+              <NativeCrashConsentModal />
               <AIConsentGate />
               <Suspense fallback={<PageLoader />}>
                 <Routes>
