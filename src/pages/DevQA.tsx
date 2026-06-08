@@ -326,6 +326,23 @@ Safe Areas:
           </p>
         </div>
       </div>
+
+      <AlertDialog open={confirmCrashOpen} onOpenChange={setConfirmCrashOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Wirklich Test-Crash auslösen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Das sendet einen Test-Error an Sentry mit Tag <code>test:true</code>.
+              Nur für Entwickler-Verifikation gedacht. App stürzt NICHT ab — wir nutzen
+              <code> captureException</code>, kein <code>throw</code>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSendTestCrash}>Test-Crash senden</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
