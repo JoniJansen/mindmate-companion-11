@@ -6,9 +6,21 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, RefreshCw, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { ChevronLeft, RefreshCw, CheckCircle, AlertTriangle, XCircle, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { sendTestCrash, isCrashReportingAllowed } from "@/lib/sentry";
+import { toast } from "@/hooks/use-toast";
 
 interface LayoutCheck {
   name: string;
