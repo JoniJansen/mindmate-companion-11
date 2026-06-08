@@ -164,13 +164,36 @@ let package = Package(
 3. Lovable bereitet `Package.swift` + README-Patch als Diff-Vorschlag (Text in Audit-Doku, da Lovable nicht ins Fork-Repo schreibt).
 4. User committed `Package.swift` + README-Patch auf `main` des Forks (oder gibt Lovable temporär Push-Rechte — sicherheitstechnisch **nicht empfohlen**, besser User pusht).
 5. User taggt `v7.0.1-spm.1`.
-6. **Verifikation:** `swift build` im Fork-Root muss grün sein. Falls Mac fehlt: Soulvays `npx cap sync ios` in Phase B1.1 ist erster echter Build-Test.
+6. **Verifikation — zwei Pfade je nach User-Setup:**
+   - **Pfad B1.0-mac** (User hat Mac mit Xcode/Swift, was bei TestFlight-Builds der Fall ist):
+     1. `git clone <fork-url> && cd <fork>`
+     2. `swift build` im Fork-Root — muss grün sein, dauert <30s.
+     3. Falls "header not found" o.ä.: §10 Mixed-Target-Risiko greift, STOPP.
+     4. Vorteil: Isolierter SPM-Test, Fehler werden vom Soulvay-Build entkoppelt diagnostiziert.
+   - **Pfad B1.0-nomac** (kein Mac verfügbar):
+     1. Skip lokalen `swift build`-Test.
+     2. Erster echter Build-Test ist `npx cap sync ios` in B1.1 auf User's Mac (oder CI).
+     3. Nachteil: Fehler erscheinen tief im Soulvay-Build-Prozess, Diagnose teurer (Mixed mit Soulvay-spezifischen SPM-Resolutions).
+     4. Mitigation: In B1.1 zwei separate Sub-Schritte — erst Fork allein in einem leeren Test-Cap-Projekt linken, dann erst in Soulvay einbinden.
 
 ### B1.1 — Soulvay konsumiert Fork
+**Mini-Vorab-Check (bun-GitHub-Resolution):**
+- `bun pm cache rm` (Cache leeren, verhindert stale GitHub-Tarball-Caches)
 - `bun add github:<user>/capacitor-speech-recognition-spm#v7.0.1-spm.1`
+- Verifikation:
+  - `bun.lock` muss Eintrag mit Git-Commit-SHA (nicht nur Tag-Name) enthalten — gewährleistet Determinismus.
+  - `cat node_modules/@capacitor-community/speech-recognition/package.json` muss Fork-Inhalt zeigen (Achtung: `bun add github:` legt Package unter Original-`name`-Field aus dessen `package.json` ab, also `@capacitor-community/speech-recognition`).
+- **Fallback-Plan falls bun-Resolution scheitert** (bekannte Quirks: aggressives Caching, Lockfile-Inkonsistenzen):
+  1. `bun install --force` versuchen.
+  2. Wenn weiter Fehler: temporär `npm install github:<user>/capacitor-speech-recognition-spm#v7.0.1-spm.1 --no-save` zum Sanity-Check der GitHub-Resolution selbst.
+  3. Wenn npm grün, bun rot: Issue dokumentieren, ggf. dauerhaft `overrides` in `package.json` setzen oder bun-Version pinnen.
+  4. Worst Case: `package.json` direkt editieren mit `"@capacitor-community/speech-recognition": "github:<user>/...#<tag>"` und `bun install` triggern.
+
+**Build-Verifikation:**
 - Vite-/TypeScript-Build muss grün sein.
 - `npx cap sync ios` muss Plugin erkennen + `Package.resolved` updaten.
-- **STOPP-Punkt:** Wenn SPM-Resolution fehlschlägt → §8 Stop-Bedingung 2 greift.
+- `npx cap sync android` muss Plugin erkennen + Gradle-Sync triggern.
+- **STOPP-Punkt:** Wenn SPM-Resolution fehlschlägt → §8 Stop-Bedingung 2 greift; wenn bun-Resolution fehlschlägt → Fallback-Plan oben durchlaufen, danach Stop-Bedingung 3 prüfen.
 
 ### B1.2 — Wrapper-Hook
 - Neuer File `src/hooks/useNativeSpeechRecognition.ts` als dünner Adapter.
@@ -216,9 +239,43 @@ let package = Package(
 
 ---
 
+## 9. Klärungen-Log (Iteration 2)
+- **Klärung 1 (bun GitHub-Tag-Resolution):** integriert in §5 B1.1 — Mini-Vorab-Check + npm-Fallback dokumentiert.
+- **Klärung 2 (SPM-Build-Test-Pfad):** integriert in §5 B1.0 — zwei Pfade `B1.0-mac` / `B1.0-nomac` explizit definiert. **Wartet auf User-Antwort: Mac mit Xcode verfügbar?**
+- **Klärung 3 (Mixed-Swift+ObjC-Risiko):** siehe §10 unten.
+
+---
+
+## 10. Mixed-Swift+ObjC-Target-Risiko (geschärft)
+
+### 10.1 Wahrscheinlichkeitsabschätzung
+**~10-15%** für Header-Resolution-Issues bei der vorgeschlagenen Single-Target-Konfiguration mit `publicHeadersPath: "."`. Basis:
+- Capacitor-Community-Plugins mit ähnlicher Struktur (`@capacitor-community/admob`, `barcode-scanner`) haben SPM-Migration ohne Header-Split geschafft → Single-Target funktioniert in der Mehrheit.
+- Risiko entsteht v.a. bei `#import "Plugin.h"`-Statements in `Plugin.m`, die in SPM-Kontext einen Modulemap-Eintrag brauchen. SPM generiert den meist auto, aber bei ungewöhnlicher Header-Struktur (z.B. Header außerhalb `include/`-Konvention) bricht es.
+- Plugin nutzt nur 4 iOS-Dateien — geringe Komplexität, geringe Bruch-Oberfläche.
+
+### 10.2 Implementations-Aufwand falls Issue auftritt
+- **Diagnose:** 30-60 Min (Header-Path debuggen, Modulemap analysieren).
+- **Fix Option A — bestehende Header-Struktur belassen + explizite `modulemap`:** ~1 h.
+- **Fix Option B — strukturelle Plugin-Änderung:** `Plugin.h`/`Plugin.m` in Sub-Verzeichnis `ios/Plugin/include/` verschieben + `publicHeadersPath: "include"`. ~1-2 h Aufwand. **Bricht die Upstream-File-Struktur.**
+
+### 10.3 Konsequenz für Upstream-PR
+- **Option A (modulemap-Workaround):** PR bleibt additiv, **Annahme-Wahrscheinlichkeit unverändert ~70%**.
+- **Option B (File-Move):** PR enthält strukturelle Änderung am Plugin-Layout. Capacitor-Community-Maintainer akzeptieren ungern strukturelle Änderungen, weil sie Cocoapods-Konsumenten zwingen, Path-Referenzen zu prüfen. **Annahme-Wahrscheinlichkeit sinkt auf ~40-50%.**
+- **Worst Case:** Option B + PR-Ablehnung → Fork bleibt dauerhaft hard, keine Upstream-Convergence. Maintenance-Aufwand bleibt bei 1-2 h/Quartal langfristig statt 0 nach Merge.
+
+### 10.4 Mitigations-Reihenfolge bei Auftritt
+1. Erst Option A (modulemap) versuchen — bewahrt PR-Chance.
+2. Nur falls A fehlschlägt: Option B (File-Move) mit dokumentierter Begründung im PR-Body.
+3. Bei B mit Ablehnung: User-Entscheidung GO/NO-GO auf dauerhaftem Hard-Fork.
+
+---
+
 ## Status
 - [x] §0 Honest-Check abgeschlossen → Fork bleibt richtig
 - [x] §1-§8 Strategie-Doku komplett
-- [ ] **User-GO auf diese Doku** ← nächster Schritt
+- [x] §9-§10 Klärungen 1-3 integriert (Iteration 2)
+- [ ] **User-Antwort:** Mac mit Xcode verfügbar? → bestimmt B1.0-Pfad
+- [ ] **User-GO auf diese Doku** ← nach Mac-Antwort
 - [ ] Phase B1.0 (Fork-Erstellung) — benötigt User-Aktion (GitHub-Fork-Klick)
 - [ ] Phasen B1.1-B1.4
