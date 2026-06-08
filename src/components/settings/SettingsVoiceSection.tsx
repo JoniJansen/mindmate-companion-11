@@ -58,6 +58,7 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
   const saved = () => toast({ title: t("settings.saved"), description: t("settings.preferencesUpdated") });
 
   return (
+    <>
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
       <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">{t("voice.title")}</h2>
       <div className="space-y-3">
