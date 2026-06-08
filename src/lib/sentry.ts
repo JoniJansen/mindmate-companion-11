@@ -119,8 +119,6 @@ export function initSentry() {
         release: `soulvay@${(import.meta.env.VITE_APP_VERSION as string) || "dev"}`,
         sendDefaultPii: false,
         tracesSampleRate: 0.1,
-        replaysSessionSampleRate: 0,
-        replaysOnErrorSampleRate: 1.0,
         maxBreadcrumbs: 50,
         beforeSend(event) {
           if (!isCrashReportingAllowed()) return null;
