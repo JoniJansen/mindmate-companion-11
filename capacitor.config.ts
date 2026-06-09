@@ -35,6 +35,11 @@ const config: CapacitorConfig = {
       resize: "body",
       resizeOnFullScreen: true,
     },
+    SpeechRecognition: {
+      // No specific configuration needed — plugin uses platform defaults
+      // iOS: SFSpeechRecognizer with on-device recognition where available
+      // Android: SpeechRecognizer with default service (declared via <queries> in AndroidManifest)
+    },
   },
 };
 
