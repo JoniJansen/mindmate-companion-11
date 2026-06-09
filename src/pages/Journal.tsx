@@ -16,7 +16,7 @@ import { AISummaryDetail } from "@/components/journal/AISummaryDetail";
 import { JournalPrompts } from "@/components/journal/JournalPrompts";
 import { AIReflectionPanel } from "@/components/journal/AIReflectionPanel";
 import { useAuth } from "@/hooks/useAuth";
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useSpeech } from "@/hooks/useSpeech";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -134,7 +134,7 @@ export default function Journal() {
   };
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
-  const { isListening, fullTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition(speechLang, { continuous: true });
+  const { isListening, fullTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeech(speechLang, { continuous: true });
 
   useEffect(() => {
     if (user) loadEntries();
