@@ -57,7 +57,7 @@ export default function Home() {
     startListening,
     stopListening,
     resetTranscript
-  } = useSpeechRecognition(speechLang, { continuous: true });
+  } = useSpeech(speechLang, { continuous: true });
 
   // Load recent conversations
   useEffect(() => {
