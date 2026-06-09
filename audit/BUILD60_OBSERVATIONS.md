@@ -30,3 +30,50 @@ Laufendes Logbuch über Befunde, Lücken und Folge-Items, die während Build-60-
 
 ## Hinzufügen weiterer Beobachtungen
 Pro Item ein Block mit Datum + Item-Referenz. Jede Beobachtung mit eindeutiger ID (`O{n}`) für Querverweise.
+
+---
+
+# Browser-Test-Befunde (Claude Code / Sandbox)
+
+> Below: detailed observations from browser-based testing in Lovable Sandbox.
+> Complements Lovable's roadmap observations above with concrete UI/UX
+> findings from Item #1A verification sessions.
+
+# BUILD60_OBSERVATIONS.md — Beobachtungen während Build-60-Verifikation
+
+Sammlung von Befunden, die NICHT direkt zu einem Item gehören, aber dokumentiert werden sollten.
+
+## Companion-State-Inconsistency Beobachtung (2026-06-06, Item #1A Verifikation)
+
+**Befund**: Auf der Chat-Seite (Sandbox-Preview, eingeloggt mit User-Account, Free-Entitlement) gibt es eine sichtbare State-Diskrepanz:
+
+- **Header zeigt Companion**: **"Elena"** (Avatar + Name "Elena", "Dein Reflexionsbegleiter")
+- **Welcome-Message im Chat-Body**: `"Hello. I'm Jonas, and I'm here to listen. Take your time – share what's on your mind."`
+
+Header und Body-Welcome-Message zeigen unterschiedliche Companions.
+
+### Mögliche Ursachen
+
+(a) **Historischer State** — kein Bug: User hat in der Vergangenheit mit Jonas gechattet, dann Companion auf Elena gewechselt. Vorhandene Messages bleiben (Companion-Wechsel verändert keine historischen Messages). Welcome-Message ist persistiert als historischer Eintrag.
+
+(b) **State-Sync-Bug** — echter User-facing Bug: Companion-Selection und Welcome-Message-Generation sind nicht synchronisiert. User wechselt Companion → bekommt aber weiterhin Welcome-Text vom alten Companion.
+
+### Klassifikation — UPDATE 2026-06-08
+
+- **Status**: ✅ **AUFGELÖST — Szenario A bestätigt (kein Bug)**
+- **Verifikation**: Während Test 2.D Premium-Regression wurde Entitlement-Simulator auf "Active" geschaltet und zurück nach `/chat` navigiert. Welcome-Message rendete dann als **"Hello. I'm Elena, and I'm here to listen."** — Companion und Welcome-Message SYNCHRON.
+- **Erklärung**: Der ursprüngliche Mismatch war historisch — vermutlich Companion-Wechsel in einer früheren Session, alte "Jonas"-Message blieb persistiert. Nach `/chat`-Reload (State-Reset durch Premium-Toggle) wurde Welcome-Message neu generiert mit aktueller Companion "Elena".
+
+### Folge-Aktion
+
+- ✅ Keine Code-Action nötig
+- 📝 Knowledge-Base: dokumentiert dass Welcome-Messages bei Companion-Wechsel NICHT historisch nachgepatcht werden (designtechnisch sinnvoll — User soll vorhandene Konversationen nicht "verlieren")
+- 🔎 Optional: prüfen ob Lovable einen "Konversation zurücksetzen"-CTA bei Companion-Wechsel anbietet (UX-Polish)
+
+### Screenshot-Referenz
+
+`/tmp/sim_*` Screenshots der Chat-Seite zeigen den Befund. Live verifizierbar via `https://id-preview--dc1f3645-...lovable.app/chat` mit eingeloggtem User-Account.
+
+---
+
+(Weitere Beobachtungen folgen hier.)
