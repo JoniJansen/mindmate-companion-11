@@ -134,7 +134,7 @@ export default function Journal() {
   };
 
   const speechLang = language === "de" ? "de-DE" : "en-US";
-  const { isListening, fullTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition(speechLang, { continuous: true });
+  const { isListening, fullTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeech(speechLang, { continuous: true });
 
   useEffect(() => {
     if (user) loadEntries();
