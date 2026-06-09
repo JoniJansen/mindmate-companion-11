@@ -243,3 +243,189 @@ Bei jedem Fehler: **vollständigen Terminal-Output kopieren** und in den Chat ei
 - [x] Mac-Verifikations-Pfad mit Fehler-Tabelle
 - [ ] **User-Aktion:** Sektionen 3 → 4 → 5 abarbeiten
 - [ ] Rückmeldung an Lovable für Phase B1.1
+
+---
+
+# Phase B1.0.2 — `prepare`-Script Fix (v7.0.1-spm.3)
+
+**Status:** Lokal-Build empirisch verifiziert. Patch bereit für User-Push. Soulvay-Re-Install pending.
+
+## 1. Root Cause Recap
+
+`bun add github:JoniJansen/capacitor-speech-recognition-spm#v7.0.1-spm.2` installiert das Repo, aber **kein `dist/`** — npm/bun führen bei GitHub-Installs **kein `prepublishOnly`** aus, nur `prepare`. Das Plugin-`package.json` definiert aber nur `prepublishOnly`. Resultat: `main`/`module`/`types` zeigen ins Leere → TS2307 in `nativeSpeech.ts`.
+
+## 2. Lokal-Build-Verifikation (durchgeführt)
+
+```bash
+git clone --branch v7.0.1-spm.2 \
+  https://github.com/JoniJansen/capacitor-speech-recognition-spm.git /tmp/spm-test
+cd /tmp/spm-test
+npm install          # 523 packages, 11s — grün
+npm run build        # docgen + tsc + rollup — grün
+ls dist/             # docs.json, esm/, plugin.cjs.js, plugin.js (+maps)
+ls dist/esm/         # index.{js,d.ts}, definitions.{js,d.ts}, web.{js,d.ts}
+```
+
+**Ergebnis:** Build-Pipeline (clean → docgen → tsc → rollup) funktioniert out-of-the-box mit `npm install` allein. Keine Mock-Fixes nötig, keine fehlenden devDependencies.
+
+## 3. Aktuelles `scripts`-Block im Fork-`package.json`
+
+```json
+"scripts": {
+  "verify": "...",
+  "verify:ios": "...",
+  "verify:android": "...",
+  "verify:web": "npm run build",
+  "lint": "...",
+  "fmt": "...",
+  "eslint": "...",
+  "prettier": "...",
+  "swiftlint": "...",
+  "docgen": "docgen --api SpeechRecognitionPlugin --output-readme README.md --output-json dist/docs.json",
+  "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.mjs",
+  "clean": "rimraf ./dist",
+  "watch": "tsc --watch",
+  "prepublishOnly": "npm run build",
+  "release": "commit-and-tag-version"
+}
+```
+
+**`prepare` fehlt — das ist der einzige Patch.**
+
+## 4. Patch (genau eine Zeile)
+
+In `package.json` der Fork-Wurzel, im `scripts`-Block, **eine neue Zeile** ergänzen (am Ende, vor der schließenden `}`):
+
+**Vorher (letzter Eintrag):**
+```json
+    "release": "commit-and-tag-version"
+  },
+```
+
+**Nachher:**
+```json
+    "release": "commit-and-tag-version",
+    "prepare": "npm run build"
+  },
+```
+
+Begründung:
+- `prepare` läuft automatisch nach `npm install` / `bun add` aus Git-Sources
+- Ruft das vorhandene `build`-Script (clean → docgen → tsc → rollup) auf
+- Keine neuen devDependencies nötig (alle bereits in `devDependencies` vorhanden)
+- `prepublishOnly` bleibt für npm-Registry-Publish redundant erhalten — schadet nicht
+
+## 5. User-Push-Anleitung
+
+**Option A — GitHub Web-Editor (5 Min, niedrigste Toolchain-Last):**
+
+1. https://github.com/JoniJansen/capacitor-speech-recognition-spm/blob/master/package.json öffnen
+2. Stift-Icon (Edit) klicken
+3. Im `scripts`-Block die Zeile `"release": "commit-and-tag-version"` zu `"release": "commit-and-tag-version",` ergänzen (Komma hinzufügen)
+4. Direkt darunter neue Zeile: `    "prepare": "npm run build"`
+5. Commit-Message: `feat(build): add prepare script for auto-build on git-source install`
+6. Commit description (optional):
+   ```
+   Without this script, `npm install` / `bun add` from GitHub URLs
+   skips the build step (only `prepublishOnly` was defined, which
+   runs only for registry publishes). Consumers then get a package
+   with no dist/ and TS2307 errors. The `prepare` lifecycle hook
+   runs after install from git sources and produces dist/ as
+   expected by main/module/types fields.
+   ```
+7. Commit directly to the `master` branch
+8. Nach Commit: Release erstellen
+   - https://github.com/JoniJansen/capacitor-speech-recognition-spm/releases/new
+   - Tag: `v7.0.1-spm.3` (Target: master, latest commit)
+   - Title: `v7.0.1-spm.3 — Add prepare script for git-source install`
+   - Description: siehe Sektion 7 unten
+   - Publish
+
+**Option B — gh CLI lokal (für Power-User):**
+
+```bash
+cd /pfad/zu/capacitor-speech-recognition-spm
+git pull origin master
+# package.json editieren (Komma + neue Zeile, siehe Sektion 4)
+git add package.json
+git commit -m "feat(build): add prepare script for auto-build on git-source install"
+git push origin master
+git tag v7.0.1-spm.3
+git push origin v7.0.1-spm.3
+gh release create v7.0.1-spm.3 --title "v7.0.1-spm.3 — Add prepare script" --notes-file RELEASE_NOTES_spm3.md
+```
+
+## 6. Soulvay-Re-Install nach Tag-Veröffentlichung
+
+```bash
+bun pm cache rm
+bun add github:JoniJansen/capacitor-speech-recognition-spm#v7.0.1-spm.3
+```
+
+Verifikations-Checks:
+
+| Check | Erwartung |
+|---|---|
+| `package.json` Dependency | `"github:JoniJansen/capacitor-speech-recognition-spm#v7.0.1-spm.3"` |
+| `node_modules/.../dist/` existiert | ✅ (vorher: fehlt) |
+| `node_modules/.../dist/esm/index.js` | enthält Plugin-Registrierung |
+| `node_modules/.../dist/esm/index.d.ts` | Type-Declarations vorhanden |
+| `node_modules/.../ios/Plugin/` | nur `Info.plist`, `Plugin.swift`, `Package.swift` (Pure-Swift bleibt) |
+| TypeScript-Compile (Harness) | grün, kein TS2307 mehr |
+| `nativeSpeech.ts` Import | resolved cleanly |
+| Vite-Build (Harness) | grün, Plugin nicht im Web-Bundle (kein Import-Pfad lädt es) |
+
+## 7. Release-Notes für v7.0.1-spm.3
+
+```markdown
+# v7.0.1-spm.3 — Add prepare script for git-source install
+
+## What's New
+
+Adds a `prepare` script to `package.json` so that `npm install` / `bun add`
+from a GitHub URL automatically builds the `dist/` output.
+
+## Why
+
+The package's `main`, `module`, and `types` fields point to `dist/...`,
+but `dist/` is gitignored. Previously only `prepublishOnly` triggered
+the build, which runs only on `npm publish` — not on git-source installs.
+Consumers installing via `bun add github:JoniJansen/...#tag` therefore
+got a package with no compiled output and TypeScript module resolution
+errors (TS2307).
+
+The `prepare` lifecycle hook runs automatically after install from git
+sources (and before publish), producing the expected `dist/` tree.
+
+## Includes
+
+- All changes from v7.0.1-spm.2 (Pure-Swift `CAPBridgedPlugin` migration,
+  SPM Package.swift, no Plugin.m/h)
+- One-line addition: `"prepare": "npm run build"` in `scripts`
+
+## Verification
+
+Locally cloned, ran `npm install && npm run build` — produced clean
+`dist/{esm,plugin.js,plugin.cjs.js,docs.json}`. No devDependency
+changes required.
+
+## Consumer install
+
+    bun add github:JoniJansen/capacitor-speech-recognition-spm#v7.0.1-spm.3
+
+After install, `node_modules/@capacitor-community/speech-recognition/dist/`
+should exist and TypeScript imports should resolve.
+```
+
+## 8. Stop-Bedingungen NACH Re-Install
+
+- `dist/` fehlt trotzdem → `prepare` hat nicht gefeuert; bun-spezifisches Issue prüfen, Fallback: `postinstall` als zusätzlicher Hook
+- TS2307 bleibt → Cache nicht geleert, oder Tag nicht gepusht
+- Neue Compile-Errors aus Plugin-Code → STOPP, Plugin-API hat sich gegenüber Snapshot geändert
+- Vite-Build bricht weil Plugin im Web-Bundle landet → Tree-Shaking-Issue, separater Brief
+
+## 9. Was nach Phase B1.0.2 wartet
+
+Sobald v7.0.1-spm.3 installiert und TS-Compile grün:
+- `src/lib/nativeSpeech.ts` ist bereits geschrieben (Phase B1.1 Schritt 2) und wird automatisch valide
+- GO für Schritt 3 (`useSpeech.ts` Selector-Hook)
