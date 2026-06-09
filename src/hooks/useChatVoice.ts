@@ -39,7 +39,7 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
     },
   });
 
-  const { isListening, fullTranscript, isSupported: isSpeechSupported, startListening, stopListening, resetTranscript, error: sttError } = useSpeechRecognition(speechLang, {
+  const { isListening, fullTranscript, isSupported: isSpeechSupported, startListening, stopListening, resetTranscript, error: sttError } = useSpeech(speechLang, {
     continuous: true,
     onFinalTranscript: (transcript) => {
       if (transcript.trim()) {
