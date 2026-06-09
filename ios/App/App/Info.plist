@@ -27,9 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Soulvay uses your microphone for voice-based conversations with your AI companion.</string>
+	<string>Soulvay uses the microphone for voice input in chats and journal entries. Audio is processed on your device and via Apple's speech recognition.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Soulvay uses speech recognition to transcribe your voice messages to your companion.</string>
+	<string>Soulvay uses speech recognition to transcribe your voice into text for chats and journaling. Recognition happens via Apple's on-device speech engine.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
