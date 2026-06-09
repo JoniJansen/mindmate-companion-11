@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useSpeech } from "@/hooks/useSpeech";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { analytics } from "@/hooks/useAnalytics";
 import { useVoiceSettings, voiceIds } from "@/hooks/useVoiceSettings";
