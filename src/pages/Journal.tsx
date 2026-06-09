@@ -16,7 +16,7 @@ import { AISummaryDetail } from "@/components/journal/AISummaryDetail";
 import { JournalPrompts } from "@/components/journal/JournalPrompts";
 import { AIReflectionPanel } from "@/components/journal/AIReflectionPanel";
 import { useAuth } from "@/hooks/useAuth";
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useSpeech } from "@/hooks/useSpeech";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
