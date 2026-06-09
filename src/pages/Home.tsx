@@ -4,7 +4,7 @@ import { Mic, MicOff, Send, MessageCircle, ChevronRight, Loader2, Settings } fro
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useSpeech } from "@/hooks/useSpeech";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
