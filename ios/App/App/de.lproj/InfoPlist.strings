@@ -1,0 +1,3 @@
+"NSMicrophoneUsageDescription" = "Soulvay nutzt das Mikrofon für Spracheingaben in Chats und Tagebucheinträgen. Die Audio-Verarbeitung erfolgt auf deinem Gerät und über Apples Spracherkennung.";
+
+"NSSpeechRecognitionUsageDescription" = "Soulvay nutzt Spracherkennung, um deine Stimme für Chats und Tagebucheinträge in Text umzuwandeln. Die Erkennung läuft über Apples geräteinternen Sprachdienst.";
