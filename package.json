@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@capacitor-community/speech-recognition": "github:JoniJansen/capacitor-speech-recognition-spm#v7.0.1-spm.2",
+    "@capacitor-community/speech-recognition": "github:JoniJansen/capacitor-speech-recognition-spm#v7.0.1-spm.3",
     "@capacitor/android": "^8.0.1",
     "@capacitor/cli": "^8.0.1",
     "@capacitor/core": "^8.0.1",
