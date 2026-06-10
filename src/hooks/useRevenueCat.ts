@@ -283,11 +283,12 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
 
         // Load offerings (best-effort, with 15s timeout to prevent UI hang)
         try {
-          const { offerings: offeringsData } = await withTimeout(
+          const result: any = await withTimeout(
             Purchases.getOfferings(),
             15000,
             'getOfferings',
           );
+          const offeringsData = result?.offerings;
           if (offeringsData?.current && (offeringsData.current.availablePackages?.length ?? 0) > 0) {
             setOfferings(offeringsData.current);
             setOfferingsLoadFailed(false);
