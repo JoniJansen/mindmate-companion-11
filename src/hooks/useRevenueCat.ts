@@ -365,9 +365,14 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     setIsLoading(true);
 
     try {
-      const { customerInfo: info } = await purchasesRef.current.purchasePackage({
-        aPackage: packageToPurchase,
-      });
+      // 60s timeout — long enough for slow StoreKit + Apple ID prompts, but
+      // never indefinite. Prevents the "Abo wird vorbereitet…" infinite spinner.
+      const { customerInfo: info } = await withTimeout(
+        purchasesRef.current.purchasePackage({ aPackage: packageToPurchase }),
+        60000,
+        'purchasePackage',
+      ) as any;
+
 
       setCustomerInfo(info);
       
