@@ -385,6 +385,58 @@ git add audit/BUILD64_APPLE_REVIEW_FIXES.md \
 
 ---
 
+## Lesson 11 — Bundle-grep ist Pflicht vor "Fix done" Declaration
+
+**Vorfall** (Build 64, 2026-06-10 ~20:00): Lovable hat einen Apple-Review-Fix in `src/components/topics/TopicDetail.tsx` gemacht. File-Edit war korrekt im Source. Aber:
+
+- TopicDetail.tsx hat 0 Importer in der Codebase
+- Vite tree-shaked die File aus dem Production-Bundle
+- Fix-Marker `journal_prompt` war 0 Treffer im Bundle
+- Echter Step-Handler war in `src/pages/Topics.tsx` (`handleStepAction`)
+
+**Hätte Apple-Reject mit Guideline 2.1 ausgelöst.** Empirie-Check via Bundle-grep hat den Wais-Patch rechtzeitig entdeckt.
+
+**Regel**: Source-Code-Edit ist NICHT hinreichend. **Bundle-grep für distinctive Fix-Marker** ist Pflicht-Verifikation vor "Fix done".
+
+**Solo-Founder-Pre-Submit-Check (verbindlich ab Build 65)**:
+
+1. **Source-Edit done** ✅
+2. **Bundle-grep für distinctive Fix-Marker** ≥ 1 Treffer ✅
+   - Wähle einen Marker der charakteristisch + nicht-minifiable ist (z.B. Analytics-Event-Name, lokalStorage-Key, hardcoded UI-String)
+   - Pattern: `grep -l "MARKER" ios/App/App/public/assets/*.js`
+3. **Bei Apple-Review-relevanten Fixes**: empirische TestFlight-Verifikation auf iPhone
+4. **Bei Tree-Shaking-Risiko-Files** (Components ohne klaren Importer): Vor Patch checken `grep -rln "ComponentName" src/`
+
+**Anti-Pattern**:
+- "Lovable hat die richtige File gefunden, also ist's gefixt" → Wais-Patch-Risiko
+- "Source kompiliert ohne Fehler" → Tree-Shaking versteckt Fehler
+- "Audit-Doc sagt 'fix applied'" → Doc-Drift vs Bundle-Realität
+
+**Pattern für Future-Fixes mit AI-Agents**:
+```bash
+# 1. Vor Patch: ist die File überhaupt im aktiven Code-Pfad?
+grep -rln "FileName\|from.*path/to/FileName" src/
+
+# 2. Source-Edit
+# 3. Build
+bun run build:ios
+
+# 4. Bundle-grep für distinctive Marker
+grep -l "distinctive_marker" ios/App/App/public/assets/*.js
+# Muss ≥ 1 Treffer haben
+
+# 5. Bei 0 Treffer: STOP — Fix ist im Bundle nicht vorhanden, Wais-Patch-Risiko
+```
+
+**Strategische Erkenntnis**: Bei Vite/React/Capacitor-Apps gibt es 3 separate Code-Welten:
+- Source (`src/**`) — was Mensch + AI editieren
+- Dist (`dist/**`) — was Vite kompiliert (tree-shaking, minify, code-split)
+- Bundle (`ios/App/App/public/**`) — was wirklich auf dem Device läuft
+
+Diese sind nicht synonym. Bundle ist Wahrheit.
+
+---
+
 ## Connection zu Build-60-Submission-Plan
 
 Diese Lessons sind **nicht** Submission-Blocker. Build 61 ist auf TestFlight, alle 3 Issues sind gefixt + dokumentiert. Submission-Pfad bleibt:

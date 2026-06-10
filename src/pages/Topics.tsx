@@ -268,14 +268,20 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
           state: { initialMessage: stepDisplay.description },
         });
         break;
+      case "reflection":
+        // Apple 2.1: reflection steps must route to journal with prompt
+        // (previously default-break = dead-button reject in Build 63 review)
+        localStorage.setItem('journal_prompt', stepDisplay.description);
+        navigate("/journal");
+        break;
       case "journal":
+        localStorage.setItem('journal_prompt', stepDisplay.description);
         navigate("/journal");
         break;
       case "exercise":
         navigate("/toolbox");
         break;
       default:
-        // Reflection - just mark complete
         break;
     }
   };

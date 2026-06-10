@@ -1,3 +1,16 @@
+/**
+ * @deprecated NICHT NUTZEN — Diese Komponente ist nicht im aktiven Code-Pfad.
+ *
+ * Topics werden in src/pages/Topics.tsx gerendert via handleStepAction (Zeile 253-285).
+ * Diese Datei existiert nur noch um Wais-Patches durch Lovable/AI-Agents zu verhindern.
+ *
+ * Wenn du Step-Logik anpassen willst → bearbeite src/pages/Topics.tsx (handleStepAction).
+ *
+ * Forensik-Befund 10. Juni 2026: Lovable hat in Build 63→64 hier Fix 2 für Apple 2.1
+ * patched, aber File war bereits tot (0 Importer, Vite tree-shaked aus dem Bundle).
+ * Fix musste manuell in Topics.tsx cherry-picked werden.
+ */
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, MessageCircle, BookOpen, Dumbbell, CheckCircle2, Circle, Play, Clock } from "lucide-react";

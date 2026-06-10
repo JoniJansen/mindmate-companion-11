@@ -177,6 +177,59 @@ Lovable hat geprüft und bestätigt:
 
 ---
 
+## Critical Update — Forensik-Befund + Manuelle Korrekturen (10. Juni 2026, ~20:00)
+
+### Befund — Lovable's Fix 2 war Wais-Patch
+
+`src/components/topics/TopicDetail.tsx` ist **tote File**:
+- 0 Importer in der Codebase (`grep -rln "from.*components/topics" src/` = 0 Treffer)
+- Vite tree-shaked sie aus dem Production-Bundle
+- Lovable's reflection-step-Fix war im Source aber NICHT im Bundle
+
+Echter Step-Handler: `src/pages/Topics.tsx` `handleStepAction` (Zeile 253-285).
+Switch hatte keinen `case "reflection"` → `default` break ohne Action → Dead-Button bestätigt.
+
+**Hätten wir Build 64 ohne Empirie-Check submitted → Apple-Reject mit Guideline 2.1 garantiert.**
+
+### Forensik-Workflow Evidenz
+
+Workflow Run `wf_b3e6dd0d-214` mit 3 parallel Forensik-Agents + Senior-Synthese:
+1. Real-Handler-Trace: `Topics.tsx:253-285` `handleStepAction`
+2. Step-Types-Handler: Switch fehlt `case "reflection"`
+3. Fix1-And-Other-Fabricated: CommunityInsights ✅ wirksam in `Mood.tsx:394`
+
+### Manuelle Korrekturen Build 64
+
+1. **`src/pages/Topics.tsx`**: 12-Zeilen-Diff
+   - Neuer `case "reflection"` mit `localStorage.setItem('journal_prompt', ...)` + `navigate("/journal")`
+   - `case "journal"` ergänzt um `localStorage.setItem` (war vorher leer)
+   - Default-Branch: Reflection-Kommentar entfernt
+2. **`src/components/topics/TopicDetail.tsx`**: @deprecated JSDoc-Marker am File-Anfang
+   - Verhindert Wais-Patches durch Lovable/AI in Zukunft
+   - File bleibt erhalten (sicherer Pfad)
+3. **`src/pages/Safety.tsx`**: KEIN CHANGE
+   - "24 Jahre Erfahrung" ist real → Jutta Jansen mit Website juttajansen.com belegbar
+   - Apple-Reviewer kann verifizieren
+
+### Bundle-Verifikation post-Patch (KRITISCH)
+
+| Marker | Vorher | Nachher | Status |
+|---|---|---|---|
+| `mic_free_attempt` (Item #1A) | 1 | 1 | ✅ |
+| `viele Menschen` (Fix 1 - Apple 2.3.1) | 1 | 1 | ✅ |
+| `23%` (Pre-Fix-1 fabricated stat) | 0 | 0 | ✅ |
+| **`journal_prompt` (Fix 2 - Apple 2.1)** | **0** | **1** (in `Topics-Dw8H0kGF.js`) | ✅ **CRITICAL FIX** |
+
+### Git-Commits
+
+- Lovable's commits (`298a535`, `374eb47`, `412f5b0`): bleiben — Fix 1 (CommunityInsights) ist wirksam, Fix 2 (TopicDetail) ist deprecated-markiert
+- Manueller Patch: `src/pages/Topics.tsx` + `src/components/topics/TopicDetail.tsx`
+- Info.plist: 63 → 64
+- Audit-Doc-Update: dieses File
+- Lesson 11 zu `BUILD60_ENGINEERING_LESSONS_MASTER.md`
+
+---
+
 ## Tomorrow-Plan (2026-06-11 morgens)
 
 ### Phase 1: Build 64 Vorbereitung (10 Min)
