@@ -49,14 +49,18 @@ export function TopicDetail({ topic, onBack, progress, onStepComplete }: TopicDe
     if (step.type === 'chat') {
       localStorage.setItem('chat_topic_prompt', stepDisplay.description);
       navigate('/chat');
-    } else if (step.type === 'journal') {
-      localStorage.setItem('journal_prompt', stepDisplay.title);
+    } else if (step.type === 'journal' || step.type === 'reflection') {
+      // Apple 2.1: reflection steps now route to journal with the step's
+      // description as prompt instead of silently completing (was dead-button).
+      localStorage.setItem('journal_prompt', `${stepDisplay.title} — ${stepDisplay.description}`);
+      onStepComplete(step.id);
       navigate('/journal');
     } else {
-      // For reflection and exercise, mark as complete and show a toast
+      // exercise → mark complete + toast (handled by parent)
       onStepComplete(step.id);
     }
   };
+
 
   const handleStartExercise = (exercise: TopicExercise) => {
     navigate('/toolbox');
