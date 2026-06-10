@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:ios": "rm -rf dist && vite build && npx cap sync ios",
+    "verify:ios": "grep -q 'mic_free_attempt' ios/App/App/public/assets/*.js && echo '✅ Item #1A im Bundle' || (echo '❌ FAIL: Item #1A NICHT im Bundle' && exit 1)",
     "lint": "eslint .",
     "preview": "vite preview"
   },
