@@ -323,6 +323,34 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     }
   }, [checkEntitlements]);
 
+  // Retry offerings load (user-initiated, from paywall retry button).
+  const refreshOfferings = useCallback(async (): Promise<void> => {
+    if (!purchasesRef.current) {
+      // Not initialized yet — kick off init first.
+      await initializeIfNeeded();
+      return;
+    }
+    setOfferingsLoadFailed(false);
+    try {
+      const result: any = await withTimeout(
+        purchasesRef.current.getOfferings(),
+        15000,
+        'getOfferings',
+      );
+      const offeringsData = result?.offerings;
+      if (offeringsData?.current && (offeringsData.current.availablePackages?.length ?? 0) > 0) {
+        setOfferings(offeringsData.current);
+        setOfferingsLoadFailed(false);
+      } else {
+        setOfferingsLoadFailed(true);
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("[RevenueCat] refreshOfferings failed:", e);
+      setOfferingsLoadFailed(true);
+    }
+  }, []);
+
+
   // Purchase a package
   const purchasePackage = useCallback(async (packageToPurchase: Package): Promise<boolean> => {
     if (!purchasesRef.current) {
