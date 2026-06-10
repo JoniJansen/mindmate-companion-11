@@ -470,6 +470,8 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     isLoading,
     isPremium,
     offerings,
+    offeringsLoadFailed,
+    refreshOfferings,
     customerInfo,
     initializeIfNeeded,
     purchasePackage,
