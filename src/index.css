@@ -222,6 +222,16 @@
     letter-spacing: 0.002em;
   }
 
+  /* === iOS input-zoom guard ===
+     iOS Safari/WKWebView auto-zooms when a focused input has font-size <16px.
+     Force ≥16px on all native form controls so the layout never "jumps" on
+     focus (Build 60 Cluster A — Journal zoom-effect). */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1rem);
+  }
+
   /* === TAP TARGETS: All interactive elements ≥ 44px === */
   button, 
   [role="button"],
