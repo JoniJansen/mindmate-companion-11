@@ -37,12 +37,11 @@ export function CommunityInsights({ checkins }: CommunityInsightsProps) {
       : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
     if (minDay >= 0 && minAvg < 3.5) {
-      // Simulated community percentage (seeded from day index)
-      const pct = 58 + (minDay * 7) % 15; // 58-72%
+      // Apple 2.3.1: no fabricated user statistics — use qualitative wording.
       results.push(
         language === "de"
-          ? `Du bist nicht allein: ${pct}% der Nutzer berichten ähnliche Gefühle am ${dayNames[minDay]}.`
-          : `You're not alone: ${pct}% of users report similar feelings on ${dayNames[minDay]}s.`
+          ? `Du bist nicht allein — viele Menschen berichten ähnliche Gefühle am ${dayNames[minDay]}.`
+          : `You're not alone — many people report similar feelings on ${dayNames[minDay]}s.`
       );
     }
 
@@ -57,19 +56,20 @@ export function CommunityInsights({ checkins }: CommunityInsightsProps) {
     if (topFeeling) {
       results.push(
         language === "de"
-          ? `Viele Nutzer teilen das Gefühl „${topFeeling[0]}" — du bist damit nicht allein.`
-          : `Many users share the feeling "${topFeeling[0]}" — you're not alone in this.`
+          ? `Viele Menschen teilen das Gefühl „${topFeeling[0]}" — du bist damit nicht allein.`
+          : `Many people share the feeling "${topFeeling[0]}" — you're not alone in this.`
       );
     }
 
-    // General encouragement based on consistency
+    // General encouragement based on consistency (no fabricated percentages — Apple 2.3.1)
     if (checkins.length >= 7) {
       results.push(
         language === "de"
-          ? `Du trackst regelmäßig — das machen nur 23% der Nutzer so konsequent. Starke Leistung!`
-          : `You track consistently — only 23% of users are this dedicated. Great job!`
+          ? `Du trackst regelmäßig — das ist eine starke Leistung. Weiter so!`
+          : `You track consistently — that takes real dedication. Keep it up!`
       );
     }
+
 
     return results.slice(0, 2);
   }, [checkins, language]);
