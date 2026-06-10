@@ -432,7 +432,16 @@ export default function Journal() {
   // Write mode
   if (viewMode === "write") {
     return (
-      <div className="flex flex-col h-full bg-background overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 24px)' }}>
+      <div
+        className="flex flex-col h-full bg-background overflow-y-auto overscroll-contain max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full"
+        style={{
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 24px)',
+          paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 16px)',
+          paddingRight: 'calc(env(safe-area-inset-right, 0px) + 16px)',
+          // Reserve room so the sticky mic doesn't sit on top of textarea content
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)',
+        }}
+      >
         <div className="flex justify-between mb-6">
           <Button variant="ghost" size="sm" onClick={() => { setViewMode("list"); setDraftContent(""); setSelectedPrompt(null); setSelectedTags([]); }}>
             <X className="w-4 h-4 mr-1" />{t("common.cancel")}
@@ -463,16 +472,30 @@ export default function Journal() {
           <p className="text-sm text-muted-foreground flex items-center gap-2"><Tag className="w-4 h-4" />{t("journal.tagsOptional")}</p>
           <div className="flex flex-wrap gap-2">
             {ALL_JOURNAL_TAG_IDS.map(tagId => (
-              <button key={tagId} onClick={() => toggleTag(tagId)} className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedTags.includes(tagId) ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}>
+              <button key={tagId} onClick={() => toggleTag(tagId)} className={`px-3 py-1 rounded-full text-base font-medium transition-all min-h-[36px] ${selectedTags.includes(tagId) ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}>
                 {t(getTagI18nKey(tagId))}
               </button>
             ))}
           </div>
         </div>
 
+        {/* Mic — fixed above keyboard so it stays reachable when typing.
+            With Capacitor Keyboard resize:'body' the viewport shrinks and
+            position:fixed bottom stays glued to the (resized) bottom edge. */}
         {isSupported && (
-          <div className="flex justify-center mt-6">
-            <Button variant={isListening ? "destructive" : "outline"} size="lg" className="rounded-full w-14 h-14" onClick={() => isListening ? stopListening() : (resetTranscript(), startListening())}>
+          <div
+            className="fixed left-0 right-0 z-30 flex justify-center pointer-events-none"
+            style={{
+              bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)',
+            }}
+          >
+            <Button
+              variant={isListening ? "destructive" : "default"}
+              size="lg"
+              className="rounded-full w-14 h-14 shadow-lg pointer-events-auto"
+              onClick={() => isListening ? stopListening() : (resetTranscript(), startListening())}
+              aria-label={isListening ? t("voice.stopRecording") : t("voice.startRecording")}
+            >
               {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
             </Button>
           </div>
@@ -486,6 +509,7 @@ export default function Journal() {
       </div>
     );
   }
+
 
   // List mode
   return (

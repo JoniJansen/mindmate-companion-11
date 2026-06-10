@@ -306,12 +306,19 @@ export default function Upgrade() {
         touchAction: "pan-y",
       }}
     >
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50">
+      {/* Header — safe-area-top so back button never overlaps iOS status bar */}
+      <div
+        className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50"
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+        }}
+      >
         <div className="px-4 py-4 max-w-lg mx-auto">
            <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="text-sm">{t("common.back")}</span>

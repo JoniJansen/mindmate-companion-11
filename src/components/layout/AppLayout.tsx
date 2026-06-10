@@ -22,6 +22,8 @@ export function AppLayout() {
         left: 0,
         right: 0,
         bottom: 0,
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
         paddingBottom: shouldHideNav ? 'env(safe-area-inset-bottom, 0px)' : '0px'
       }}
     >
