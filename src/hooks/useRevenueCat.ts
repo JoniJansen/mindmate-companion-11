@@ -103,6 +103,8 @@ interface UseRevenueCatReturn {
   isLoading: boolean;
   isPremium: boolean;
   offerings: Offering | null;
+  offeringsLoadFailed: boolean;
+  refreshOfferings: () => Promise<void>;
   customerInfo: CustomerInfo | null;
   initializeIfNeeded: () => Promise<void>;
   purchasePackage: (packageToPurchase: Package) => Promise<boolean>;
