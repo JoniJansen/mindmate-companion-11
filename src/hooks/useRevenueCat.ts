@@ -136,17 +136,35 @@ const getPurchasesPlugin = async (): Promise<any | null> => {
 // RevenueCat Public API Key (safe to include in client code)
 const REVENUECAT_PUBLIC_KEY = 'appl_VatNsFmCDlJPOPkBGnzmhHyZrYy';
 
+// Timeout helper — guarantees a promise never hangs indefinitely.
+// On timeout, rejects with an Error tagged with `code: 'TIMEOUT'`.
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      const err: any = new Error(`${label} timed out after ${ms}ms`);
+      err.code = 'TIMEOUT';
+      reject(err);
+    }, ms);
+    p.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); },
+    );
+  });
+}
+
 export const useRevenueCat = (): UseRevenueCatReturn => {
   const [isAvailable, setIsAvailable] = useState(false);
   const [isUnavailable, setIsUnavailable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [offerings, setOfferings] = useState<Offering | null>(null);
+  const [offeringsLoadFailed, setOfferingsLoadFailed] = useState(false);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const { toast } = useToast();
   const hasInitializedRef = useRef(false);
   const initInFlightRef = useRef<Promise<void> | null>(null);
   const purchasesRef = useRef<any>(null);
+
 
   // Sync subscription status to backend
   const syncSubscriptionToBackend = useCallback(async (info: CustomerInfo) => {
