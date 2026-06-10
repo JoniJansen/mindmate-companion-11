@@ -199,8 +199,8 @@ export default function Mood() {
         subtitle={t("mood.subtitle")}
       />
 
-      <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-8">
-        <div className="max-w-lg mx-auto space-y-5">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-5 pb-8">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full space-y-5">
           <TabHint tabId="mood" />
 
           {/* Today's Check-in */}
