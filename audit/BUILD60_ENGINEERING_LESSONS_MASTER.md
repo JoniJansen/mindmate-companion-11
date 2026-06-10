@@ -351,6 +351,40 @@ Solo-Founder dürfen nicht annehmen "App ist live" = "Monetization funktioniert"
 
 ---
 
+## Lesson 10 — Selektives git add bei Multi-File-Audit-Verzeichnissen
+
+**Vorfall** (2026-06-10 Abend): `git add audit/` hat 26 Files mit-committet (`b22a4be`) wo nur 2 explizit angefragt waren. Inklusive `.claude_local_backup`-Files die conventional als "lokal-only" markiert sind.
+
+**Regel**:
+- **IMMER selektiv**: `git add audit/SPECIFIC_FILE.md` oder `git add path/to/file.ext`
+- **NIEMALS directory-wide** bei Multi-File-Verzeichnissen mit Mixed-Content
+- Bei Audit-Trail-Verzeichnissen die Local-Backups oder Tool-Artefakte enthalten könnten: **Single-File-Adds erzwingen**
+
+**Anti-Pattern**:
+```bash
+git add audit/        # Fügt alle 26 Files hinzu inkl. Backups
+git add src/          # Fügt unwillkürlich alle Source-Files hinzu
+git add .             # Worst case — fügt alles hinzu
+```
+
+**Pattern**:
+```bash
+git add audit/BUILD64_APPLE_REVIEW_FIXES.md \
+         audit/BUILD61_BLOCKER_SUBSCRIPTION_FLOW.md \
+         audit/BUILD60_ENGINEERING_LESSONS_MASTER.md
+```
+
+**Wenn versehentlich passiert**:
+- Soft-Revert via `git rm <files> + commit + push` (history bleibt sichtbar, kein force-push)
+- `.gitignore`-Eintrag für Tool-Artefakte hinzufügen (z.B. `audit/*.claude_local_backup`)
+- **NIEMALS force-push** ohne explizite User-Genehmigung (history-destructive)
+
+**Prävention für Build 64+**:
+- Pre-Commit-Hook der bei `git add audit/` warnt und um Bestätigung fragt
+- Konvention im RELEASE.md festschreiben
+
+---
+
 ## Connection zu Build-60-Submission-Plan
 
 Diese Lessons sind **nicht** Submission-Blocker. Build 61 ist auf TestFlight, alle 3 Issues sind gefixt + dokumentiert. Submission-Pfad bleibt:

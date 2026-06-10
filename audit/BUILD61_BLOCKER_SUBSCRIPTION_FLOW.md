@@ -238,15 +238,21 @@ Subscriptions waren während Review nicht kaufbar (Silent-Failure-Pattern in `ge
 
 → **Soulvay hat seit Live-Gang keinen User-Kauf abschließen können.** Erkenntnis rechtzeitig VOR Marketing-Push entdeckt. Build 63 ist der erste Binary der Apples Guideline-3.1.1-Anforderung erfüllen kann.
 
-### Aktionsplan
+### Aktionsplan (Updated 2026-06-10 Abend)
 
 1. ✅ Build 63 vorbereitet (commit `506b042`) und gepusht
-2. ⏳ Build 63 in Xcode archivieren + zu ASC uploaden
-3. ⏳ ASC: Neue Version 1.1 anlegen
-4. ⏳ Build 63 mit Version 1.1 verknüpfen
-5. ⏳ Beide Subscriptions in Version 1.1 als "Bundled In-App Purchase" anhaken
-6. ⏳ Review-Screenshot pro Subscription erstellen + hochladen
-7. ⏳ Review-Notes mit Sandbox-Test-Account-Credentials
-8. ⏳ Version 1.1 zur Apple-Review einreichen
-9. ⏳ Apple-Review abwarten (24-48h)
-10. ⏳ Nach Approval: Subscriptions "Cleared for Sale"
+2. ✅ Build 63 in Xcode archivieren + zu ASC uploaden
+3. ✅ ASC Submission-Infrastruktur verifiziert komplett (Demo-Account, Paywall-Screenshots, Review-Notes, Sandbox-Tester)
+4. ✅ Apple-Review-Risk-Fixes für Build 64 implementiert (Lovable commits `298a535`, `374eb47`, `412f5b0`):
+   - Apple Guideline 2.3.1 — fabrizierte Statistiken in CommunityInsights.tsx entfernt
+   - Apple Guideline 2.1 — Dead-Button "Stresssignale erkennen" → Journal-Navigation
+   - Apple Guideline 5.1.1 — Sentry-Consent-Modal verifiziert konform (keine Änderung)
+5. ⏳ Build 64 Archive + Upload (morgen früh 2026-06-11, 8:30-9:30)
+6. ⏳ ASC: Neue Version 1.1 anlegen
+7. ⏳ Build 64 mit Version 1.1 verknüpfen
+8. ⏳ Beide Subscriptions in Version 1.1 als "Bundled In-App Purchase" anhaken
+9. ⏳ Version 1.1 zur Apple-Review einreichen
+10. ⏳ Apple-Review abwarten (24-48h, erwartete Live-Time: 13.-15. Juni 2026)
+11. ⏳ Nach Approval: Subscriptions "Cleared for Sale"
+
+Vollständige Build-64-Doku in `audit/BUILD64_APPLE_REVIEW_FIXES.md`.
