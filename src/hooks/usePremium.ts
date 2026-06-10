@@ -440,6 +440,8 @@ export function usePremium() {
     isRevenueCatUnavailable,
     initializeRevenueCat,
     offerings,
+    offeringsLoadFailed,
+    refreshOfferings,
     purchasePackage,
     restorePurchases,
     
