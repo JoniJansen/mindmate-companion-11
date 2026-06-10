@@ -64,6 +64,8 @@ export function usePremium() {
     isUnavailable: isRevenueCatUnavailable,
     isPremium: isRevenueCatPremium,
     offerings,
+    offeringsLoadFailed,
+    refreshOfferings,
     initializeIfNeeded: initializeRevenueCat,
     purchasePackage,
     restorePurchases,
