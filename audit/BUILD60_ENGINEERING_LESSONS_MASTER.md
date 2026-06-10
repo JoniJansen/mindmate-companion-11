@@ -437,6 +437,70 @@ Diese sind nicht synonym. Bundle ist Wahrheit.
 
 ---
 
+## Lesson 12 — Senior-Cherry-Pick wenn AI in totem Code patched
+
+**Vorfall** (Build 64, 2026-06-10 ~20:00): Nach Lovable's Wais-Patch in `TopicDetail.tsx` standen wir vor 3 Optionen:
+- **A** STOP, Lovable nachbessern lassen (24h Verzögerung)
+- **B** Submit trotzdem (~100% Reject-Wahrscheinlichkeit)
+- **C** Senior-Cherry-Pick: 8-Zeilen-Diff manuell in `src/pages/Topics.tsx`
+
+Senior-Engineer-Synthesis (Workflow `wf_b3e6dd0d-214`): **Option C**, weil Lovable den Trust-Faktor verloren hat durch falsches File-Targeting, und ein zweiter Versuch ohne Senior-Aufsicht Glücksspiel ist.
+
+**Wann Option C richtig ist**:
+- Patch ist klein (< 20 Zeilen)
+- Forensik hat den exakten Patch-Punkt identifiziert
+- Bundle-grep für distinctive Marker ist möglich (deterministische Verifikation)
+- Submission-Deadline-Druck rechtfertigt 30 Min Senior-Investment statt 24h Wait-Loop
+- Wais-Patch-Risiko hoch (totes File hat AI-Agent verwirrt)
+
+**Wann Option A richtig ist**:
+- Patch ist groß (> 50 Zeilen, komplexe Logik)
+- Architektur-Verständnis fehlt (z.B. unbekannte Codebasis)
+- AI hat noch keinen Trust-Faktor verloren
+- Submission-Deadline-Druck niedrig
+
+**Senior-Cherry-Pick-Protokoll**:
+1. **Forensik**: Wo ist der echte Code-Pfad? (`grep -rln "ComponentName"`)
+2. **Diff-Suggestion**: Exakter Patch identifiziert (kleinster möglicher Diff)
+3. **Wais-File-Marker**: `@deprecated` JSDoc auf das tote File (verhindert Re-Patching)
+4. **Build + Bundle-grep**: Distinctive Marker im Bundle ≥1 Treffer (Lesson 11)
+5. **Commit-Message**: Klar dokumentieren WARUM Senior-Cherry-Pick statt Lovable-Iteration
+6. **Audit-Doc-Update**: Forensik-Befund + Cherry-Pick-Begründung
+
+**Anti-Pattern**: "Ich patch mal schnell selber" ohne Forensik + Bundle-grep → führt zu eigenem Wais-Patch.
+
+---
+
+## Lesson 13 — Apple Store Connect UI vs. dokumentierter Workflow
+
+**Vorfall** (Build 64 Tag-3-Schluss, 2026-06-10 21:45): Apple-Banner auf ASC Subscription-Group-Seite verlangt:
+> *"Erstelle dein Abo, wähle es dann im Bereich 'In-App-Käufe oder Abos' der App auf der Versionsseite aus, bevor du die Version an die App-Prüfung übermittelst."*
+
+Aber: Dieser Bereich erscheint NICHT in der ASC UI für Soulvay Version 1.1.
+
+**Apple Store Connect UI kann unstimmig sein zur dokumentierten Workflow-Anweisung.** Banner-Anweisungen sind nicht immer 1:1 mit aktuellem UI-Verhalten umsetzbar.
+
+**Solo-Founder-Rule bei UI-Workflow-Inkonsistenz**:
+- ❌ NICHT submitten und hoffen
+- ❌ NICHT trotz UI-Mauer durchklicken versuchen
+- ✅ Apple Developer Support kontaktieren mit präzisem Ticket
+- ✅ Parallel: Apple Developer Forums durchsuchen
+- ✅ Parallel: andere Solo-Founder fragen (Lovable, Reddit r/iOSProgramming)
+- ✅ Bei Klärung: Workflow umsetzen, dann submitten
+
+**Warum nicht trotzdem submitten?**:
+| Pfad | Outcome |
+|---|---|
+| Submit ohne Subscriptions | App approved → bleibt monetization-broken |
+| Submit + hoffen Apple verknüpft selbst | Guideline 3.1.1 nicht erfüllt → Reject |
+| Klären, dann submitten | Sicher, 24-48h Apple-Support-Wait |
+
+**Apple-Submission ist die irreversible Schwelle.** Wenn Workflow unklar → Klarheit beschaffen, dann submitten.
+
+**Strategische Erkenntnis**: Apple-Workflows sind nicht immer dokumentiert wie sie aktuell funktionieren. UI-Updates lagging behind Doku ist normal. Solo-Founder müssen Support-Tickets als legitimen Engineering-Tool verstehen — nicht als "Aufgabe" sondern als Workflow-Klarung.
+
+---
+
 ## Connection zu Build-60-Submission-Plan
 
 Diese Lessons sind **nicht** Submission-Blocker. Build 61 ist auf TestFlight, alle 3 Issues sind gefixt + dokumentiert. Submission-Pfad bleibt:
