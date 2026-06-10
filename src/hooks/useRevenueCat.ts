@@ -397,9 +397,14 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
       }
 
       if (import.meta.env.DEV) console.error('Purchase failed:', error);
+      const isTimeout = error?.code === 'TIMEOUT';
       toast({
-        title: 'Kauf fehlgeschlagen',
-        description: error.message || 'Der Kauf konnte nicht abgeschlossen werden',
+        title: isTimeout
+          ? 'Verbindung zu Apple zu langsam'
+          : 'Kauf fehlgeschlagen',
+        description: isTimeout
+          ? 'Die Verbindung zu Apple dauert länger als gewöhnlich. Bitte prüfe deine Internetverbindung und versuche es erneut.'
+          : (error?.message || 'Der Kauf konnte nicht abgeschlossen werden'),
         variant: 'destructive',
       });
       return false;
