@@ -242,6 +242,73 @@ Alle drei Bugs ließen sich durch File-System-Inspection vor/nach jedem Schritt 
 
 ---
 
+## Lesson 4 — Layout-Native-Feel: Safe-Area-Padding reicht nicht
+
+### Was passiert ist
+
+Build 61 enthielt Lovable-Layout-Fixes für mehrere Cluster-A-Symptome (Tagebuch-Zoom, Avatar-Sichtbarkeit, Abo-Seite-Statusbar). User-Test auf TestFlight Build 61 zeigte:
+
+| Was Build 61 fixen sollte | Resultat |
+|---|---|
+| Tagebuch Zoom-Effekt beim Tippen | ⚠️ Teilweise besser — "manchmal Layout-Probleme" |
+| Avatar-Sichtbarkeit | ✅ OK (Start-Screen sauber) |
+| Statusbar beim Scrollen | ❌ NEU FAIL — Seiten "verrutschen", schwarzer Statusbar-Bereich |
+| Chat-Header-Tabs | ❌ NEU FAIL — "Frei reden / Klären / Beruhigen / Muster" abgequetscht/schlecht formatiert |
+| Generelles Look-and-Feel | ⚠️ "Fühlt sich wie Internetseite an, nicht wie native App" |
+
+### Root Cause
+
+**Safe-Area-Padding (CSS `env(safe-area-inset-*)`) reicht nicht** für ein iOS-Native-Look-and-Feel auf Capacitor-Apps.
+
+Was Capacitor-Apps brauchen die nur mit CSS-Safe-Area schwer zu erreichen sind:
+1. **Statusbar-State während Scrolling**: iOS-Native-Apps lassen die Statusbar bei Scroll-Verhalten dynamisch transparent/opaque werden (mit Background-Match). WebView-Default ist statisch.
+2. **Tab-Bar Native-Layout**: Tab-Komponenten in WebView werden als HTML rendered, brauchen sehr genaue CSS-Anpassung an iOS-System-Defaults (Höhe, Padding, Schrift, Active-State).
+3. **Bounce-Scrolling und Pull-Refresh**: Native-iOS hat Bounce + Pull-Refresh out-of-box. WebView-Default ist gestoppt.
+4. **Keyboard-Behavior**: Native iOS verschiebt Input automatisch oberhalb Tastatur. WebView braucht expliziten `ResizeMode`-Setup in Capacitor-Config + JS-Listener.
+5. **System-Tap-Highlight**: Native-iOS hat subtilen Tap-Highlight. WebView hat default-`-webkit-tap-highlight-color` der oft falsch aussieht.
+
+### Was Build 62 braucht (Tiefere iOS-WebView-Anpassungen)
+
+```css
+/* Bessere Tap-Behavior */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* Bounce-Scrolling enabled */
+html, body { overscroll-behavior-y: auto; -webkit-overflow-scrolling: touch; }
+
+/* iOS-System-Font-Stack */
+body { font-family: -apple-system, BlinkMacSystemFont, ...; }
+```
+
+Plus Capacitor-Config-Edit (`capacitor.config.ts`):
+```typescript
+{
+  ios: {
+    contentInset: 'always',          // Status-Bar overlay
+    scrollEnabled: true,
+    backgroundColor: '#...',         // Match-Color für Statusbar-Background
+    // Plus StatusBar-Plugin für dynamic State-Management
+  }
+}
+```
+
+Plus Status-Bar-Plugin: `@capacitor/status-bar` mit `setStyle(...)` + `setBackgroundColor(...)` Calls bei Route-Changes.
+
+### Lesson für Build 62 Layout-Aufträge
+
+**Anders als der erste Lovable-Auftrag (CSS Safe-Area-Padding) erfordert "Native-Feel" mehrere Layer**:
+
+1. **CSS-Layer**: Safe-Area, Tap-Highlight, Font-Stack, Overflow-Behavior
+2. **Capacitor-Config-Layer**: contentInset, StatusBar-Plugin, Keyboard-Plugin
+3. **Component-Layer**: Tab-Components mit iOS-spezifischem Styling
+4. **JS-Layer**: Status-Bar-State-Management bei Route-Changes
+
+Layout-Bugs auf Native sind oft **Layer-übergreifend**. Ein CSS-Fix alleine reicht nicht — die Capacitor-Config + Plugin-Calls müssen mit-fixed werden.
+
+→ **Build-62-Lovable-Aufträge sollten Layout-Bugs in Schichten formulieren**, nicht "fix dieses CSS-Detail".
+
+---
+
 ## Meta-Lesson: Engineering-Disziplin in Solo-Founder-Mode
 
 Diese 3 Lessons in 24h zeigen ein robustes Pattern:

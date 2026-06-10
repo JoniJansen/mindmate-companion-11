@@ -300,3 +300,101 @@ User folgt **Option C** (Berater-Empfehlung): Verifikations-Test (15 Min) + Stic
 - Origin: `9ab2e6d` (1 commit behind)
 - **KEIN push** bis User-GO nach TestFlight-Test-Success
 - Push-Plan: Nach Cluster-Test → falls B1 grün → push origin/main
+
+---
+
+## Build 61 — TestFlight-Test-Resultate (2026-06-10 Abend)
+
+### Test-Strategie und -Methodik
+
+User-Test auf iPhone via TestFlight Build 1.1 (61). Option-C-Strategie (Verifikation + Stichproben, ~25 Min). 11 Tests in 3 Clustern plus offene Empirie.
+
+### Test-Resultate kompakt
+
+**Cluster A — Layout-Stabilität:**
+
+| Test | Ergebnis | Detail |
+|---|---|---|
+| Start-Screen | ✅ OK | Tageszeit-Begrüßung funktioniert sauber |
+| A3 Tagebuch Zoom-Effekt | ⚠️ Teilweise | Stabiler aber "Layout-Probleme manchmal" |
+| A4 Tagebuch Mic-Position | ❌ FAIL | Mic unverändert unten, nicht näher am Textfeld |
+| Generell-Empfindung | ⚠️ "Fühlt sich wie Internetseite an, nicht wie native App" |
+| **NEU** Statusbar beim Scrollen | ❌ FAIL | Seiten "verrutschen", Statusbar-Bereich wird schwarz |
+| **NEU** Chat-Header-Tabs | ❌ FAIL | "Frei reden / Klären / Beruhigen / Muster" abgequetscht/schlecht formatiert auf iPhone |
+
+**Cluster B — Native-Mic (HAUPTERFOLG):**
+
+| Test | Ergebnis | Detail |
+|---|---|---|
+| B1 Mic-Symbol | ✅ **OK** | KEIN Schloss, Aufnahme startet einwandfrei |
+| B2 Lautsprecher | ✅ **OK** | MIT Schloss, Premium-Modal "Sprachgespräche" (korrekt gated) |
+
+→ **Pipeline-Fix war wirksam.** Item #1A funktioniert auf Native iOS wie erwartet. Cluster B komplett gefixt.
+
+**Cluster C — Stichproben:**
+
+| Test | Ergebnis | Detail |
+|---|---|---|
+| C1 Sentry-Consent | ✅ **OK** | Modal "Hilfst du uns, Soulvay stabiler zu machen?" erschien beim Start auf Native iOS |
+| C2 "Stresssignale erkennen" Dead Button | ⏳ Nicht erneut getestet | Verbleibt für Build-62-Run |
+| C3 Jonas Begrüßung | ❌ FAIL | Weiterhin auf Englisch: *"I'm here to listen. Take your time – share what's on your mind."* — sollte Deutsch sein |
+| C4 Settings-Sprache | ⏳ Nicht erneut getestet | Verbleibt für Build-62-Run |
+| C5 Stimmung 30-Tage-Filter | ❌ FAIL | Zeigt 90-Tage-Daten statt 30 |
+
+→ **Item #0 Test D (Sentry Native-Crash-Reporting) ist hiermit empirisch PASSED.** C1-Befund auf iPhone bestätigt die Sentry-Confirmation-Email von vorhin. End-to-End-Pipeline (Native iOS → Sentry-SDK → Sentry-Backend) ist funktional.
+
+### Neuer Kritischer Bug (Blocker für App-Store-Submission)
+
+**❌ Soulvay Plus Abo-Flow hängt bei "Abo wird vorbereitet..."**
+
+Reproduktion auf TestFlight Build 61:
+1. Settings → Plus entdecken
+2. Jahres-Abo wählen
+3. AGB-Häkchen setzen
+4. Widerruf-Häkchen setzen
+5. "Abo wird vorbereitet" klicken
+6. **Symptom**: Lädt endlos, kein Abo-Abschluss möglich
+
+**Impact**: BLOCKER für App-Store-Submission von Version 1.1. Build 51 (1.0) ist live aber 1.1 mit neuen Features (Native-Mic, Sentry, Privacy-Manifest) kann nicht released werden ohne funktionierenden Abo-Flow.
+
+Vollständige Diagnose + Hypothesen + Action-Items in `audit/BUILD61_BLOCKER_SUBSCRIPTION_FLOW.md`.
+
+### Build-60 → Build-61 Gefixt-Übersicht
+
+| Was Build 61 gefixt hat | Beweis |
+|---|---|
+| Mic-Symbol Lock-Icon entfernt auf Native | B1 ✅ |
+| Mic-Klick triggert keine Premium-Modal | B1 ✅ |
+| Lautsprecher korrekt gated (TTS Premium) | B2 ✅ |
+| Sentry-Consent-Modal auf Native iOS | C1 ✅ |
+| Sentry-Backend empfängt Events (Item #0 Test D) | Sentry-Confirmation-Email + C1 |
+| Tagebuch Zoom-Effekt | A3 ⚠️ teilweise besser |
+
+### Bleibt für Build 62
+
+**Kritisch (Blocker)**:
+- ❌ Abo-Flow hängt (siehe separate Doc)
+
+**Hoch (UI-Polish + Compliance)**:
+- ❌ Jonas Begrüßung auf Englisch (Sprach-Inkonsistenz)
+- ❌ Stimmung-Filter 30-Tage zeigt 90-Tage-Daten
+- ❌ Statusbar-Verhalten beim Scrollen (Native-Feel)
+- ❌ Chat-Header-Tabs schlechte Formatierung iPhone
+- ❌ Tagebuch Mic-Position
+
+**Mittel (Optimierung)**:
+- ⚠️ Tagebuch Layout-Probleme manchmal
+- ⚠️ Genereller "Internetseite-Look" — tiefere iOS-WebView-Anpassungen nötig
+
+**Verbleibend (nicht erneut getestet)**:
+- ⏳ C2 Stresssignale-Dead-Button
+- ⏳ C4 Settings-Sprache
+
+### Push-Entscheidung
+
+**B1 ✅ verifiziert** → Pipeline-Fix-Wirksamkeit bestätigt → Pre-Push-Checkliste in `RELEASE.md` durchlaufen → **Push origin/main genehmigt.**
+
+3 Commits werden geleinsam gepusht:
+- `46b0264 fix(build): Build 61 pipeline-fix`
+- `987649d docs(release): consolidate Build 60 engineering lessons`
+- `<NEW> docs: Build 61 test results + Abo-Blocker-Diagnose` (dieser Commit)
