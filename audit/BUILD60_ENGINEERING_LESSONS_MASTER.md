@@ -323,6 +323,34 @@ Solo-Founder-Engineering-Niveau erreicht durch Disziplin, nicht durch Genialitä
 
 ---
 
+## Lesson 9 — App Store Connect Subscription-Approval-Chain
+
+Apple-Guideline 3.1.1: Subscriptions können nicht approved werden bevor ein Binary existiert das die IAPs kaufbar macht.
+
+**Circular Dependency**:
+- Build braucht Subscription-Setup
+- Subscription-Setup braucht Build mit funktionalen IAPs
+
+**Lösung**:
+1. Build mit funktionalen IAPs hochladen
+2. ASC neue App-Version-Submission anlegen
+3. Subscriptions mit Build verknüpfen
+4. Apple reviewed Build + Subscriptions gemeinsam
+5. Bei Erfolg: "Cleared for Sale"
+
+**Wichtigste strategische Erkenntnis**:
+Solo-Founder dürfen nicht annehmen "App ist live" = "Monetization funktioniert". Beides muss separat verifiziert werden.
+
+**Solo-Founder-Pre-Marketing-Checklist**:
+- [ ] App ist im App Store erhältlich
+- [ ] Subscriptions sind "Cleared for Sale"
+- [ ] Echter Sandbox-Kauf mit Test-Account verifiziert
+- [ ] RevenueCat zeigt aktive Customer-Sessions
+
+**Soulvay-Fall**: Build 59 ist live, aber Subscriptions sind nicht "Cleared for Sale" → Build 63 ist erster Binary der Guideline-3.1.1 erfüllen kann.
+
+---
+
 ## Connection zu Build-60-Submission-Plan
 
 Diese Lessons sind **nicht** Submission-Blocker. Build 61 ist auf TestFlight, alle 3 Issues sind gefixt + dokumentiert. Submission-Pfad bleibt:

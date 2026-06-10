@@ -191,3 +191,62 @@ Build 62 Subscription-Flow:
 ## Push-Decision
 
 Build-61-Audit + dieses Blocker-Doc werden zu origin/main gepusht. Lovable-Auftrag #1 (Abo-Blocker) bekommt diesen Doc als Referenz mit.
+
+---
+
+## POST-MORTEM 10. Juni 2026 — Chrome-Claude RC + ASC Diagnose
+
+### Befund 1 — RevenueCat ist KORREKT konfiguriert
+
+Via Chrome-Claude-Analyse verifiziert: Default Offering mit 3 Packages (Monthly, Yearly, Lifetime), Premium Entitlement korrekt mit Soulvay_plus_yearly + Soulvay_plus_monthly verknüpft, Bundle ID `com.jonathanjansen.mindmate` korrekt, In-app purchase P8-Key hinterlegt als "Valid credentials". Project: Soulvay (`app82b65f8106`). Initial-Verdacht "RC nicht konfiguriert" damit entkräftet.
+
+App Store Connect API-Key in RevenueCat: NICHT hochgeladen — das ist aber nur Monitoring-Limit ("Could not check" Dashboard-Hinweis), kein Funktions-Blocker.
+
+### Befund 2 — Apple Product IDs sind Text-Style, nicht numerisch
+
+Apple unterscheidet:
+- **Apple-ID** (intern numerisch, für Berichte): `6759345265` (Yearly), `6759344728` (Monthly)
+- **Product-ID** (Text, für Integrationen wie RevenueCat): `Soulvay_plus_yearly`, `Soulvay_plus_monthly`
+
+RC ist exakt korrekt konfiguriert mit den Text-Style-Identifiern. Frühere Annahme dass die numerischen IDs eingetragen sein müssten war falsch.
+
+### Befund 3 — App Store Connect Subscription-Approval-Chain ist der ECHTE Blocker
+
+Apple-Guideline 3.1.1 verlangt: Subscriptions können nicht approved werden bevor ein Binary existiert das die IAPs kaufbar macht.
+
+**Circular Dependency**:
+- Build braucht Subscription-Setup
+- Subscription-Setup braucht Build mit funktionalen IAPs
+
+**Aktueller ASC-Status**:
+- Build 59 ist live (Version 1.0)
+- Beide Subscriptions Status: "Entwickleraktion erforderlich"
+- Apple-Ablehnungsgrund: Guideline 3.1.1
+
+**Apple-Ablehnungstext** (verbatim):
+> "We have begun the review of your In-App Purchases but aren't able to continue because your submitted In-App Purchases indicate a change of business model for the app. In order to approve your new In-App Purchase business model, we have to verify the purchasability of the items being sold. Please upload a new binary and make sure that your new In-App Purchase products are available for purchase at the time of review."
+
+**Auflösung**:
+1. Upload Build mit funktionalen IAPs
+2. Neue App-Version-Submission mit verknüpften Subscriptions
+3. Apple reviewed Build + Subscriptions gemeinsam
+4. Bei Erfolg: Subscriptions werden "Cleared for Sale"
+
+### Befund 4 — Build 59 (Live) hat noch nie funktionierende Abos gehabt
+
+Subscriptions waren während Review nicht kaufbar (Silent-Failure-Pattern in `getOfferings()` — der gleiche Bug den Lovable jetzt in Build 63 mit `withTimeout` gefixt hat). Apple konnte deshalb nicht approven.
+
+→ **Soulvay hat seit Live-Gang keinen User-Kauf abschließen können.** Erkenntnis rechtzeitig VOR Marketing-Push entdeckt. Build 63 ist der erste Binary der Apples Guideline-3.1.1-Anforderung erfüllen kann.
+
+### Aktionsplan
+
+1. ✅ Build 63 vorbereitet (commit `506b042`) und gepusht
+2. ⏳ Build 63 in Xcode archivieren + zu ASC uploaden
+3. ⏳ ASC: Neue Version 1.1 anlegen
+4. ⏳ Build 63 mit Version 1.1 verknüpfen
+5. ⏳ Beide Subscriptions in Version 1.1 als "Bundled In-App Purchase" anhaken
+6. ⏳ Review-Screenshot pro Subscription erstellen + hochladen
+7. ⏳ Review-Notes mit Sandbox-Test-Account-Credentials
+8. ⏳ Version 1.1 zur Apple-Review einreichen
+9. ⏳ Apple-Review abwarten (24-48h)
+10. ⏳ Nach Approval: Subscriptions "Cleared for Sale"
