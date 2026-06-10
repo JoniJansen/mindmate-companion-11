@@ -211,5 +211,92 @@ Engineering-Reifung: 4 separate Fehler-Klassen über 2 Tage. Alle empirisch entd
 1. **Migrate Info.plist to `$(MARKETING_VERSION)` / `$(CURRENT_PROJECT_VERSION)` variables** (aus Build 60 Lesson)
 2. **Xcode-Run-Script-Phase**: `npm run verify:ios` vor Copy-Resources
 3. **CI-Gate**: Release-Gate-Test um Bundle-Inhalts-Check erweitern
-4. **`RELEASE.md`**: Pre-Archive-Checkliste dokumentieren
+4. ~~**`RELEASE.md`**: Pre-Archive-Checkliste dokumentieren~~ — ✅ erledigt in Build 61 (siehe `RELEASE.md`)
 5. **Build-Cluster A, C-I**: nach Build 61 User-Test priorisieren
+6. **Sentry-dSYM-Upload-Pipeline**: dSYM-Warning beim Build 61 Upload — siehe unten
+
+---
+
+## Build 61 — Upload-Status (2026-06-10 17:15-17:25)
+
+### Upload erfolgreich
+
+| Item | Status |
+|---|---|
+| Xcode Archive | ✅ Erstellt, Version 1.1 (61) |
+| Organizer-Anzeige | ✅ "1.1 (61)" bestätigt |
+| Distribute App → App Store Connect → Upload | ✅ Erfolgreich |
+| Apple-Email | ✅ "Soulvay 1.1 (61) is ready to test on iOS" |
+| TestFlight-Processing | ✅ Apple processed in <60 Min |
+
+### dSYM-Warning beim Upload (non-blocking)
+
+**Wortlaut**:
+```
+Upload Symbols Failed
+The archive did not include a dSYM for the Sentry.framework with the
+UUIDs [4F5D2992-8CC4-3EAC-83D9-F3544DB4142A]. Ensure that the archive's
+dSYM folder includes a DWARF file for Sentry.framework with the
+expected UUIDs.
+```
+
+**Bedeutung**:
+- Apple konnte für `Sentry.framework` keine Debug-Symbols (.dSYM) extrahieren
+- Build 61 wurde **trotzdem erfolgreich uploaded** — die Warning ist non-blocking
+- Bedeutung für Crash-Reports: Falls Sentry.framework selbst crashed, kann Apple den Stack-Trace nicht symbolizieren (zeigt nur Adressen statt Methoden-Namen). **App-Code-Crashes sind unbetroffen.**
+
+**Root Cause (vermutlich)**:
+- `@sentry/capacitor@4.0.0` SPM-Plugin liefert `Sentry.framework` ohne mit-eingebettete dSYMs
+- Capacitor-SPM-Setup hat keinen automatischen dSYM-Upload-Pfad zu Sentry oder Apple konfiguriert
+
+**Action für Build 62 (NICHT für Build 61)**:
+1. Prüfen ob Sentry-Capacitor-Plugin neuere Version (4.0.1+) dSYMs mit-bundlet
+2. Falls nicht: SourceMap-Upload-Script in Xcode-Build-Phase einfügen (Sentry hat offiziellen Wizard: `npx @sentry/wizard@latest -i ios`)
+3. Bei nächstem Archive verifizieren: Organizer → Archive auswählen → "Download Debug Symbols" verfügbar?
+
+**Sicherheitscheck Build 61**: ✅ Apple-Validierung lief durch, App ist auf TestFlight, kein Reject-Risiko aus dieser Warning.
+
+### Sentry-Confirmation — Item #0 Native-Test D PASSED
+
+**Sentry-Email-Bestätigung (aus separater Quelle)**:
+> "You've sent a few events to Sentry — congrats, you've made great progress in your setup"
+
+**Bedeutung**:
+- Sentry-SDK initialisiert sich auf Native-iOS erfolgreich
+- Mindestens 1 Event wurde an Sentry-Backend übermittelt
+- End-to-End-Pipeline funktioniert: App → Sentry-SDK → Sentry-Backend
+- **Item #0 (Native-Crash-Reporting Test D) ist damit empirisch positiv**
+
+**Verbleibender Test für Item #0**:
+- Test E: Real-Crash auf Native auslösen + verifizieren dass Sentry-Dashboard Event empfängt (pending iPhone-Test)
+
+### Was Build 61 ändert vs Build 60
+
+| Verhalten | Build 60 (Stale Bundle) | Build 61 (Frisches Bundle) |
+|---|---|---|
+| Mic-Button Schloss-Icon | JA (Pre-#1A-Code) | KEIN Schloss (#1A wirksam) |
+| Mic-Klick | Premium-Modal | Permission-Dialog / Aufnahme startet |
+| Lautsprecher-Klick | Premium-Modal | Premium-Modal (korrekt, TTS gated) |
+| Layout-Bugs (Cluster A) | Pre-Lovable-Fix-Code | Lovable-Layout-Fixes wirksam |
+| Item #1A im Bundle | 0 Treffer (`mic_free_attempt`) | 1 Treffer (verifiziert) |
+
+### Test-Strategie Build 61
+
+User folgt **Option C** (Berater-Empfehlung): Verifikations-Test (15 Min) + Stichproben (10-15 Min) = 25-30 Min.
+
+**11 Tests in 3 Clustern** (siehe Berater-Checkliste):
+- A1-A4: Layout-Verifikation
+- B1-B2: Mic-Gate-Verifikation (Kernfrage)
+- C1-C5: Stichproben (Sentry-Toggle, Dead-Buttons, Sprach-Inkonsistenz, Stimmungs-Filter)
+
+**Erwartung**:
+- B1-B2 müssen ✅ sein (Pipeline-Fix sollte Mic-Gate eliminieren)
+- A1-A4 müssen ✅ sein (wenn Lovable-Layout-Fixes im Source sind)
+- C1-C5: Mix — manche zeigen Bundle-Cache-Artefakte (auto-gefixt), andere bleiben echte Code-Bugs für Lovable
+
+### Verbleibender git-Status nach Phase 2
+
+- Local HEAD: `46b0264` (Pipeline-Fix-Commit)
+- Origin: `9ab2e6d` (1 commit behind)
+- **KEIN push** bis User-GO nach TestFlight-Test-Success
+- Push-Plan: Nach Cluster-Test → falls B1 grün → push origin/main
