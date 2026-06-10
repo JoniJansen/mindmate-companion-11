@@ -41,6 +41,8 @@ export default function Upgrade() {
     isRevenueCatUnavailable,
     initializeRevenueCat,
     offerings,
+    offeringsLoadFailed,
+    refreshOfferings,
     purchasePackage,
     restorePurchases,
   } = usePremium();
@@ -56,9 +58,18 @@ export default function Upgrade() {
   // a generic loading/error toast. The button is now disabled until RevenueCat
   // is initialized AND offerings are populated. The "Abo wird vorbereitet…"
   // label communicates state transparently instead of producing an error toast.
+  //
+  // Build 63 hardening: offerings load now has a 15s timeout. If it fails,
+  // `offeringsLoadFailed` flips true and the user sees a retry button instead
+  // of an infinite "preparing" spinner.
   const hasOfferings = !!offerings && (offerings.availablePackages?.length ?? 0) > 0;
   const iosPurchaseReady = !isIOSApp() || (isRevenueCatAvailable && hasOfferings);
-  const iosPurchasePreparing = isIOSApp() && !isRevenueCatUnavailable && !iosPurchaseReady;
+  const iosPurchasePreparing =
+    isIOSApp() &&
+    !isRevenueCatUnavailable &&
+    !offeringsLoadFailed &&
+    !iosPurchaseReady;
+  const iosOfferingsFailed = isIOSApp() && offeringsLoadFailed && !hasOfferings;
 
   // Lazy-initialize RevenueCat ONLY when the user actually opens the paywall.
   // (Auto-init at app launch was crashing iPad Air M3 in Build 43.)
