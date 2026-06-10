@@ -281,13 +281,25 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
           if (import.meta.env.DEV) console.warn("[RevenueCat] logIn failed:", e);
         }
 
-        // Load offerings (best-effort)
+        // Load offerings (best-effort, with 15s timeout to prevent UI hang)
         try {
-          const { offerings: offeringsData } = await Purchases.getOfferings();
-          if (offeringsData?.current) setOfferings(offeringsData.current);
+          const { offerings: offeringsData } = await withTimeout(
+            Purchases.getOfferings(),
+            15000,
+            'getOfferings',
+          );
+          if (offeringsData?.current && (offeringsData.current.availablePackages?.length ?? 0) > 0) {
+            setOfferings(offeringsData.current);
+            setOfferingsLoadFailed(false);
+          } else {
+            if (import.meta.env.DEV) console.warn("[RevenueCat] getOfferings returned no packages");
+            setOfferingsLoadFailed(true);
+          }
         } catch (e) {
-          if (import.meta.env.DEV) console.warn("[RevenueCat] getOfferings failed:", e);
+          if (import.meta.env.DEV) console.warn("[RevenueCat] getOfferings failed/timed out:", e);
+          setOfferingsLoadFailed(true);
         }
+
 
         // Check entitlements (best-effort)
         try {
