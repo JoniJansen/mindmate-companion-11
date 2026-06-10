@@ -529,6 +529,29 @@ export default function Upgrade() {
             </div>
           )}
 
+          {/* Offerings load failed (iOS, 15s timeout) — show retry button */}
+          {iosOfferingsFailed && (
+            <div
+              role="alert"
+              className="rounded-xl border border-amber-300/40 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm text-amber-900 dark:text-amber-200 space-y-3"
+            >
+              <p>
+                {language === "de"
+                  ? "Die Abo-Produkte konnten nicht von Apple geladen werden. Das passiert manchmal bei langsamer Verbindung."
+                  : "Subscription products could not be loaded from Apple. This can happen on slow connections."}
+              </p>
+              <Button
+                onClick={() => refreshOfferings()}
+                variant="outline"
+                size="sm"
+                className="w-full"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                {language === "de" ? "Erneut versuchen" : "Try again"}
+              </Button>
+            </div>
+          )}
+
           <Button
             onClick={handleUpgrade}
             disabled={
@@ -536,6 +559,7 @@ export default function Upgrade() {
               !acceptedTerms ||
               !acceptedWithdrawal ||
               (isIOSApp() && isRevenueCatUnavailable) ||
+              iosOfferingsFailed ||
               iosPurchasePreparing
             }
             className="w-full h-12 text-base"
@@ -557,6 +581,7 @@ export default function Upgrade() {
               </>
             )}
           </Button>
+
 
           {/* Restore Purchases */}
           {isRevenueCatAvailable && (
