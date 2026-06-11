@@ -95,5 +95,22 @@ NICHT in der Review-Queue. Die DTS-Antwort widerlegt das: "Waiting for Review"
 = bereits submitted. Das 3.1.1-Reject von damals kam, weil die Subs gegen ein
 Binary OHNE funktionierenden Kauf-Flow reviewt wurden. Build 64 hat den
 funktionierenden Flow → das 3.1.1-Risiko ist materiell anders als damals.
-Weg A ist damit nicht mehr "riskant", sondern der von Apple dokumentierte
-Normalfall — sofern der API-Cancel (Pfad 1) nicht verfügbar ist.
+
+## Finale Entscheidung: Weg 4 — Direkte Submission mit Review-Notes (11. Juni 2026)
+
+**Entscheidung:** API-Cancel (Weg 3) wird NICHT verfolgt.
+**Begründung:** Risiko eines unbeabsichtigten Status-Resets ("Entwickleraktion erforderlich") überwiegt den marginalen Nutzen. Apple DTS sagt explizit: "there is nothing to do".
+
+**Weg 4 Ablauf:**
+1. Version 1.1 (Build 64) direkt zur Prüfung übermitteln.
+2. Subscriptions sind bereits in Apples Review-Queue ("Waiting for Review").
+3. Apple reviewt automatisch beide Subs gegen Build 64 im Sandbox.
+4. Review-Notes enthalten expliziten Test-Hinweis für Reviewer.
+
+**Review-Notes-Text-Block (App-Prüfungs-Informationen, englisch, max 500 Zeichen):**
+
+```
+Both auto-renewable subscriptions (Soulvay Plus Monthly & Yearly) are currently in "Waiting for Review" from a prior submission. Build 64 includes the functional purchase flow missing before. Please test with demo account apple-review@soulvay.de (Settings → Soulvay Plus → select plan → complete sandbox purchase). Approving these subscriptions should resolve the previous Guideline 3.1.1 finding.
+```
+
+**Erwarteter Live-Date:** 13.–15. Juni 2026 (24–48h Apple-Review).
