@@ -501,6 +501,36 @@ Aber: Dieser Bereich erscheint NICHT in der ASC UI für Soulvay Version 1.1.
 
 ---
 
+## Lesson 14 — Apple Banner Stale: IAP-Bereich ist status-gated, nicht UI-broken
+
+**Vorfall** (Tag 3 → Tag 4, 2026-06-10/11): Apple-Banner auf ASC Subscription-Group-Seite forderte "Subs im IAP-Bereich der Versionsseite verknüpfen". Aber IAP-Bereich erschien nicht in Soulvay Version 1.1 UI.
+
+**Tag-3-Interpretation (falsch)**: ASC UI-Bug oder Workflow-Inkonsistenz → Apple-Support-Ticket geplant.
+
+**Tag-4-Klärung via Lovable Web-Recherche** (`audit/ASC_SUBS_WAITING_FOR_REVIEW_FINDINGS.md`):
+
+**Apple DTS Engineer (wörtlich, April 2026 forum thread)**:
+> *"The In-App Purchases and Subscriptions section only appears when you have one or more products with the **Ready to Submit** status. If their status is **Waiting for Review** or In Review, there is nothing to do. You already submitted them for review."*
+
+**Bedeutung**:
+- IAP-Bereich ist STATUS-GATED (nicht UI-broken)
+- "Waiting for Review" / "In Review" Subs sind bereits in Apple's Queue
+- Banner-Anweisung ist für DIESEN Status stale/misleading
+- Submit ohne IAP-Verknüpfung ist korrekt — Apple reviewed App + Subs separat parallel
+
+**Solo-Founder-Regel bei "fehlenden" ASC UI-Bereichen**:
+1. **Status-Check zuerst**: Sind die betroffenen Produkte (Subs/IAPs) in "Ready to Submit"?
+   - Wenn nein (Waiting for Review/In Review): Bereich erscheint per Design nicht
+2. **Web-Recherche vor Apple-Support**: Apple Developer Forums oft mit DTS-Antworten zu identischen Fällen
+3. **Lovable als Researcher**: Hat im Tag-4-Fall die DTS-Antwort in 1.5 Std gefunden — schneller als Support-Ticket-Loop
+4. **Wenn weiterhin unklar**: Feedback-Assistant-Ticket (feedbackassistant.apple.com → iOS & iPadOS → App Store → "Incorrect & Unexpected behavior") — laut Apple-Engineer der primäre Pfad
+
+**Lerneffekt**: "Banner sagt X, aber UI zeigt Y" ist nicht automatisch ein Bug. Apple-UIs sind oft state-conditional, und Banner sind nicht immer state-aware. Vor Support-Ticket: Web-Recherche + DTS-Antworten checken.
+
+**Tag-3-Hypothese**: 1-3 Tage Apple-Support-Wait. **Tag-4-Realität**: 1.5 Std Lovable-Web-Recherche + direkt Submit. → Web-Recherche-First ist 10-20× schneller als Support-Ticket bei dokumentierten Issues.
+
+---
+
 ## Connection zu Build-60-Submission-Plan
 
 Diese Lessons sind **nicht** Submission-Blocker. Build 61 ist auf TestFlight, alle 3 Issues sind gefixt + dokumentiert. Submission-Pfad bleibt:

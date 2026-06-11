@@ -238,30 +238,32 @@ Subscriptions waren während Review nicht kaufbar (Silent-Failure-Pattern in `ge
 
 → **Soulvay hat seit Live-Gang keinen User-Kauf abschließen können.** Erkenntnis rechtzeitig VOR Marketing-Push entdeckt. Build 63 ist der erste Binary der Apples Guideline-3.1.1-Anforderung erfüllen kann.
 
-### Aktionsplan (Updated 2026-06-10 Tag-3-Schluss, 21:45)
+### Aktionsplan (Updated 2026-06-11 Tag-4, ~17:30)
 
 1. ✅ Build 63 vorbereitet (commit `506b042`) und gepusht
 2. ✅ Build 63 in Xcode archivieren + zu ASC uploaded
-3. ✅ ASC Submission-Infrastruktur verifiziert komplett (Demo-Account, Paywall-Screenshots, Review-Notes, Sandbox-Tester)
-4. ✅ Apple-Review-Risk-Fixes für Build 64 implementiert:
-   - Lovable Fix 1 (Apple 2.3.1): fabrizierte Statistiken in CommunityInsights.tsx entfernt — Bundle-verifiziert
-   - Lovable Fix 2 (Apple 2.1): TopicDetail.tsx — Wais-Patch entdeckt, manuell cherry-picked in Topics.tsx (commit `3115950`)
-   - Apple Guideline 5.1.1 — Sentry-Consent-Modal verifiziert konform
-   - Safety.tsx Authority-Claim (Apple 2.3): Jutta Jansen empirisch als real verifiziert (Website + Telefon)
-5. ✅ Build 64 lokal vorbereitet (Info.plist 1.1 (64), Bundle-Marker alle grün)
-6. ✅ Build 64 Xcode Archive + Upload (20:25)
+3. ✅ ASC Submission-Infrastruktur verifiziert komplett
+4. ✅ Apple-Review-Risk-Fixes für Build 64 implementiert (Cherry-Pick `3115950`)
+5. ✅ Build 64 lokal vorbereitet + Bundle-Marker grün
+6. ✅ Build 64 Xcode Archive + Upload (10. Juni 20:25)
 7. ✅ ASC Version 1.1 angelegt + Build 64 verknüpft + alle Texte
-8. ✅ Subscriptions Lokalisierung gefixt (49→45 Zeichen "Sprachaufnahmen, lange Gespräche, Reflexionen")
-9. ⏸ **ASC Subscription-Verknüpfung BLOCKIERT** (UI-Issue: "In-App-Käufe oder Abos" Bereich erscheint nicht in Version 1.1 Seite)
-10. ⏳ Morgen früh (2026-06-11): Apple Developer Support kontaktieren
-11. ⏳ Parallel: Apple Developer Forums + Lovable konsultieren
-12. ⏳ Sobald Workflow klar: Subscriptions verknüpfen + Submission
-13. ⏳ Apple-Review abwarten (24-48h nach Submit)
-14. ⏳ Nach Approval: Subscriptions "Cleared for Sale" → Soulvay's first functional monetization
+8. ✅ Subscriptions Lokalisierung gefixt
+9. ✅ **ASC UI-"Block" via Lovable Web-Recherche geklärt** (11. Juni ~15:00 UTC):
+   - DTS-Antwort gefunden: IAP-Bereich ist status-gated, nicht UI-broken
+   - Subs waren bereits in Apple Review-Queue ("Waiting for Review") seit früherer Submission
+   - Banner-Anweisung war für DIESEN Status stale → Submit ohne IAP-Verknüpfung ist korrekt
+   - Doc: `audit/ASC_SUBS_WAITING_FOR_REVIEW_FINDINGS.md` (Lovable 116 Zeilen)
+10. ✅ **Build 64 Apple-Review submitted** (11. Juni ~16:00-17:30):
+    - Direkter Submit ohne IAP-Verknüpfung (per DTS-Empfehlung)
+    - App Version 1.1 + Build 64: Status "Waiting for Review"
+    - Beide Subscriptions (Yearly + Monthly): Status "Waiting for Review"
+    - Doc: `audit/BUILD64_SUBMITTED.md`
+11. ⏳ Apple-Review-Wait (24-48h, erwartete Approval: 12.-14. Juni)
+12. ⏳ Nach Approval: Subscriptions "Cleared for Sale" → **Soulvay's erste funktionierende Monetization seit Live-Gang**
+13. ⏳ Realistisches Live-Date: Samstag 14. - Montag 16. Juni 2026
 
-**Verzögerung durch ASC UI-Block**: 1-3 Tage Apple-Support-Wait.
-**Neues erwartetes Live-Date**: Samstag 14. - Montag 16. Juni 2026.
-
-Vollständige Build-64-Doku:
-- `audit/BUILD64_APPLE_REVIEW_FIXES.md` — Engineering-Fixes inkl. Cherry-Pick-Forensik
-- `audit/BUILD64_SUBMISSION_BLOCKED_BY_ASC_UI.md` — UI-Blocker + Apple-Support-Aktionsplan
+Vollständige Submission-Doku:
+- `audit/BUILD64_APPLE_REVIEW_FIXES.md` — Engineering-Fixes + Cherry-Pick-Forensik
+- `audit/BUILD64_SUBMISSION_BLOCKED_BY_ASC_UI.md` — Tag-3-Hypothese (überholt durch Tag-4-Klärung)
+- `audit/ASC_SUBS_WAITING_FOR_REVIEW_FINDINGS.md` — Lovable's DTS-Web-Recherche
+- `audit/BUILD64_SUBMITTED.md` — Submission-Erfolg (Tag 4)
