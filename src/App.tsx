@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { MotionConfig } from "framer-motion";
 import { useEffect, lazy, Suspense } from "react";
 
 // Layout & Providers
@@ -181,6 +182,11 @@ const PageLoader = () => (
 function AppContent() {
   return (
     <QueryClientProvider client={queryClient}>
+      {/* MotionConfig respects the user's OS-level prefers-reduced-motion setting.
+          Important for a mental-health app — vestibular disorders / migraine
+          sufferers can be physically harmed by motion. CSS kill-switch in
+          index.css catches non-framer-motion animations. */}
+      <MotionConfig reducedMotion="user">
       <TooltipProvider>
         <AuthProvider>
           <ThemeInitializer />
@@ -258,6 +264,7 @@ function AppContent() {
           </BrowserRouter>
         </AuthProvider>
       </TooltipProvider>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

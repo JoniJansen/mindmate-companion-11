@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === REDUCED MOTION KILL-SWITCH ===
+   Respects the user's OS-level prefers-reduced-motion setting.
+   Framer-motion is handled globally via <MotionConfig reducedMotion="user"/>
+   in App.tsx; this rule catches everything else (CSS keyframes, transitions,
+   smooth-scroll). Vestibular disorders and migraine sufferers can be
+   physically harmed by motion — this is a care-level accessibility fix,
+   not a nice-to-have. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer base {
   :root {
     /* DESIGN PHILOSOPHY: Clean, premium mental health space
