@@ -18,6 +18,7 @@ export interface AppPreferences {
 }
 
 const STORAGE_KEY = "soulvay-preferences";
+const LEGACY_STORAGE_KEY = "mindmate-preferences";
 
 const DEFAULT_PREFERENCES: AppPreferences = {
   language: "en",
@@ -31,6 +32,15 @@ const DEFAULT_PREFERENCES: AppPreferences = {
 let _cached: AppPreferences | null = null;
 let _listeners: Array<(prefs: AppPreferences) => void> = [];
 
+function readKey(key: string): Partial<AppPreferences> | null {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Read current preferences. Returns cached value if available.
  * Falls back to localStorage → legacy key → defaults.
@@ -38,15 +48,17 @@ let _listeners: Array<(prefs: AppPreferences) => void> = [];
 export function getPreferences(): AppPreferences {
   if (_cached) return _cached;
 
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      _cached = { ...DEFAULT_PREFERENCES, ...parsed };
-      return _cached;
-    }
-  } catch {
-    // Corrupted storage — return defaults
+  const primary = readKey(STORAGE_KEY);
+  if (primary) {
+    _cached = { ...DEFAULT_PREFERENCES, ...primary };
+    return _cached;
+  }
+
+  // Legacy fallback: users from before the mindmate → Soulvay rebrand.
+  const legacy = readKey(LEGACY_STORAGE_KEY);
+  if (legacy) {
+    _cached = { ...DEFAULT_PREFERENCES, ...legacy };
+    return _cached;
   }
 
   _cached = { ...DEFAULT_PREFERENCES };
@@ -65,16 +77,19 @@ export function setPreferences(partial: Partial<AppPreferences>): AppPreferences
   try {
     const json = JSON.stringify(updated);
     localStorage.setItem(STORAGE_KEY, json);
+    // Dual-write to legacy key while migration is ongoing — protects users
+    // who still read from mindmate-preferences (e.g. old cached bundles).
+    localStorage.setItem(LEGACY_STORAGE_KEY, json);
   } catch {
     // Storage full or unavailable
   }
 
   _cached = updated;
   _listeners.forEach(fn => fn(updated));
-  
+
   // Dispatch custom event for same-tab reactivity (useTranslation, etc.)
   try { window.dispatchEvent(new Event("soulvay-preferences-changed")); } catch {}
-  
+
   return updated;
 }
 
