@@ -66,6 +66,7 @@ serve(async (req: Request) => {
       "journal_entries",
       "weekly_recaps",
       "subscriptions",
+      "analytics_events",
     ];
 
     for (const table of tablesToDelete) {
