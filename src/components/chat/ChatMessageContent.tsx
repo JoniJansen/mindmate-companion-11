@@ -13,8 +13,13 @@ interface ChatMessageContentProps {
  * - Bullet points (• or - at line start) → styled list
  * - Line breaks preserved
  * - Animated cursor when streaming
+ *
+ * Wrapped in React.memo — Elite-Audit #7: markdown parsing was re-running
+ * for every non-streaming message on every drip-tick of the streaming one.
+ * With memo + primitive props (content/isUser/isStreaming), the shallow
+ * compare correctly skips re-parsing when nothing changed.
  */
-export function ChatMessageContent({ content, isUser, isStreaming = false }: ChatMessageContentProps) {
+export const ChatMessageContent = React.memo(function ChatMessageContent({ content, isUser, isStreaming = false }: ChatMessageContentProps) {
   if (isUser) {
     return <p className="text-[15px] leading-[1.65] whitespace-pre-wrap">{content}</p>;
   }
@@ -68,7 +73,7 @@ export function ChatMessageContent({ content, isUser, isStreaming = false }: Cha
       {isStreaming && <StreamingCursor />}
     </div>
   );
-}
+});
 
 /** Animated typing cursor with fade-out on disappear */
 function StreamingCursor() {

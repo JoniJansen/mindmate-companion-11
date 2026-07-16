@@ -329,6 +329,16 @@ export default function Chat() {
     voice.setShowTranscriptConfirm(false);
   }, [composer, handleStreamDone]);
 
+  // Stable callbacks for ChatMessages (Elite-Audit #7): inline arrows
+  // rebuilt every render and broke the child memoization.
+  const handleRetryStable = useCallback(() => {
+    composer.handleRetry(handleStreamDone);
+  }, [composer, handleStreamDone]);
+
+  const handleContinueStable = useCallback(() => {
+    composer.handleContinue(handleStreamDone);
+  }, [composer, handleStreamDone]);
+
   // Mode change with premium gating
   const handleModeChange = (mode: ChatMode) => {
     if ((mode === "clarify" && !composer.canUseClarifyMode) || (mode === "patterns" && !composer.canUsePatternMode)) {
@@ -564,8 +574,8 @@ export default function Chat() {
         isLoading={composer.isLoading}
         isStreamingActive={composer.isStreamingActive}
         isRestoringConversation={composer.isRestoringConversation}
-        onRetry={() => composer.handleRetry(handleStreamDone)}
-        onContinue={() => composer.handleContinue(handleStreamDone)}
+        onRetry={handleRetryStable}
+        onContinue={handleContinueStable}
         onPlayMessage={handlePlayMessage}
         onStopTTS={voice.stopTTS}
         onSaveMessage={saveActions.handleSaveMessage}
