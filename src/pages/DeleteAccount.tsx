@@ -10,7 +10,7 @@ export default function DeleteAccount() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const isDE = language === "de";
+  const isDE = language !== "en";
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

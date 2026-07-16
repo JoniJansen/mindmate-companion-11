@@ -113,7 +113,7 @@ export default function AudioLibrary() {
       return;
     }
 
-    const text = language === "de" ? session.script.de : session.script.en;
+    const text = session.script[language];
     player.togglePlayPause(session.id, text, VOICE_ID, 0.9);
   };
 
@@ -255,8 +255,8 @@ export default function AudioLibrary() {
         {/* Sessions */}
         <div className="space-y-3">
           {audioSessions.map((session, i) => {
-            const title = language === "de" ? session.titleDe : session.titleEn;
-            const desc = language === "de" ? session.descDe : session.descEn;
+            const title = language === "en" ? session.titleEn : session.titleDe;
+            const desc = language === "en" ? session.descEn : session.descDe;
             const isActive = player.activeSessionId === session.id;
             const isPlaying = isActive && player.state === "playing";
             const isLoading = isActive && player.state === "loading";

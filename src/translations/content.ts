@@ -182,4 +182,18 @@ export const contentTranslations: Translations = {
   "summary.share.prefix": { en: "My Soulvay session touched on: ", de: "Meine Soulvay-Sitzung behandelte: " },
   "summary.share.separator": { en: " and ", de: " und " },
   "summary.share.nextStep": { en: ". My next step: ", de: ". Mein nächster Schritt: " },
+
+  // About page
+  "about.ourValues": { en: "Our Values", de: "Unsere Werte" },
+
+  // Admin page
+  "admin.usersTab": { en: "Users", de: "Nutzer" },
+
+  // Install page
+  "install.openInMobileBrowser": { en: "Open this page in your mobile browser to install the app.", de: "Öffne diese Seite in deinem mobilen Browser, um die App zu installieren." },
+
+  // FAQ — mobile app
+  "faq.mobileApp.q": { en: "Is there a mobile app?", de: "Gibt es eine mobile App?" },
+  "faq.mobileApp.aNative": { en: "You're already using the Soulvay app! All features are available right here.", de: "Du nutzt bereits die Soulvay App! Alle Funktionen stehen dir direkt hier zur Verfügung." },
+  "faq.mobileApp.aWeb": { en: "Yes! Soulvay is available as a mobile app. You can also install it directly from your browser.", de: "Ja! Soulvay ist als mobile App verfügbar. Du kannst die App auch direkt über deinen Browser installieren." },
 };

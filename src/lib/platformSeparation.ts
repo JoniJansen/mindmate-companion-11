@@ -118,14 +118,23 @@ export function shouldShowReviewLogin(): boolean {
 export function getMobileAppFAQ(language: "en" | "de"): { q: string; a: string } {
   const platform = getPlatform();
 
+  const q = {
+    de: "Gibt es eine mobile App?",
+    en: "Is there a mobile app?",
+  }[language];
+
   if (platform !== "web") {
-    return language === "de"
-      ? { q: "Gibt es eine mobile App?", a: "Du nutzt bereits die Soulvay App! Alle Funktionen stehen dir direkt hier zur Verfügung." }
-      : { q: "Is there a mobile app?", a: "You're already using the Soulvay app! All features are available right here." };
+    const a = {
+      de: "Du nutzt bereits die Soulvay App! Alle Funktionen stehen dir direkt hier zur Verfügung.",
+      en: "You're already using the Soulvay app! All features are available right here.",
+    }[language];
+    return { q, a };
   }
 
   // Web
-  return language === "de"
-    ? { q: "Gibt es eine mobile App?", a: "Ja! Soulvay ist als mobile App verfügbar. Du kannst die App auch direkt über deinen Browser installieren." }
-    : { q: "Is there a mobile app?", a: "Yes! Soulvay is available as a mobile app. You can also install it directly from your browser." };
+  const a = {
+    de: "Ja! Soulvay ist als mobile App verfügbar. Du kannst die App auch direkt über deinen Browser installieren.",
+    en: "Yes! Soulvay is available as a mobile app. You can also install it directly from your browser.",
+  }[language];
+  return { q, a };
 }

@@ -12,7 +12,7 @@ interface CommunityInsightsProps {
  * Data is simulated — no real user data is shared.
  */
 export function CommunityInsights({ checkins }: CommunityInsightsProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
 
   const insights = useMemo(() => {
     if (checkins.length < 3) return [];
@@ -32,16 +32,13 @@ export function CommunityInsights({ checkins }: CommunityInsightsProps) {
       if (avg !== null && avg < minAvg) { minAvg = avg; minDay = i; }
     });
 
-    const dayNames = language === "de"
-      ? ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
-      : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+    const dayNames = dayKeys.map((d) => t(`mood.community.dayName.${d}`));
 
     if (minDay >= 0 && minAvg < 3.5) {
       // Apple 2.3.1: no fabricated user statistics — use qualitative wording.
       results.push(
-        language === "de"
-          ? `Du bist nicht allein — viele Menschen berichten ähnliche Gefühle am ${dayNames[minDay]}.`
-          : `You're not alone — many people report similar feelings on ${dayNames[minDay]}s.`
+        `${t("mood.community.notAlonePrefix")}${dayNames[minDay]}${t("mood.community.notAloneSuffix")}`
       );
     }
 
@@ -55,24 +52,18 @@ export function CommunityInsights({ checkins }: CommunityInsightsProps) {
     const topFeeling = [...feelingCounts.entries()].sort((a, b) => b[1] - a[1])[0];
     if (topFeeling) {
       results.push(
-        language === "de"
-          ? `Viele Menschen teilen das Gefühl „${topFeeling[0]}" — du bist damit nicht allein.`
-          : `Many people share the feeling "${topFeeling[0]}" — you're not alone in this.`
+        `${t("mood.community.shareFeelingPrefix")}${topFeeling[0]}${t("mood.community.shareFeelingSuffix")}`
       );
     }
 
     // General encouragement based on consistency (no fabricated percentages — Apple 2.3.1)
     if (checkins.length >= 7) {
-      results.push(
-        language === "de"
-          ? `Du trackst regelmäßig — das ist eine starke Leistung. Weiter so!`
-          : `You track consistently — that takes real dedication. Keep it up!`
-      );
+      results.push(t("mood.community.trackConsistent"));
     }
 
 
     return results.slice(0, 2);
-  }, [checkins, language]);
+  }, [checkins, t]);
 
   if (insights.length === 0) return null;
 

@@ -57,17 +57,17 @@ export default function ChatHistory() {
 
     if (diffDays === 0) return t("chatHistory.today");
     if (diffDays === 1) return t("chatHistory.yesterday");
-    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
+    return date.toLocaleDateString(language === "en" ? "en-US" : "de-DE", {
       month: "short",
       day: "numeric",
     });
   };
 
   const modeLabels: Record<string, string> = {
-    talk: language === "de" ? "Freireden" : "Talk",
-    clarify: language === "de" ? "Klären" : "Clarify",
-    calm: language === "de" ? "Beruhigen" : "Calm",
-    patterns: language === "de" ? "Muster" : "Patterns",
+    talk: t("chat.mode.talk"),
+    clarify: t("chat.mode.clarify"),
+    calm: t("chat.mode.calm"),
+    patterns: t("chat.mode.patterns"),
   };
 
   return (

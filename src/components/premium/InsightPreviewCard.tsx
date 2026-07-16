@@ -3,18 +3,20 @@ import { motion } from "framer-motion";
 import { TrendingUp, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { analytics } from "@/hooks/useAnalytics";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface InsightPreviewCardProps {
   insightText: string;
   isPremium: boolean;
-  language: "en" | "de";
+  language?: "en" | "de";
 }
 
 /**
  * Shows a blurred preview of a weekly insight for free users, with a gentle premium CTA.
  */
-export function InsightPreviewCard({ insightText, isPremium, language }: InsightPreviewCardProps) {
+export function InsightPreviewCard({ insightText, isPremium }: InsightPreviewCardProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const trackedRef = useRef(false);
 
   const shouldShow = !isPremium && !!insightText;
@@ -28,9 +30,7 @@ export function InsightPreviewCard({ insightText, isPremium, language }: Insight
 
   if (!shouldShow) return null;
 
-  const copy = language === "de"
-    ? { label: "Wöchentlicher Einblick", cta: "Vollständig lesen mit Plus" }
-    : { label: "Weekly insight", cta: "Read in full with Plus" };
+  const copy = { label: t("insightPreview.label"), cta: t("insightPreview.cta") };
 
   return (
     <motion.div

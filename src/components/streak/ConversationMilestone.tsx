@@ -60,7 +60,7 @@ const milestoneConfig: Record<string, {
 };
 
 export function ConversationMilestone({ type, count, onDismiss, onShare }: ConversationMilestoneProps) {
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const [show, setShow] = useState(true);
 
   const config = milestoneConfig[type];
@@ -111,7 +111,7 @@ export function ConversationMilestone({ type, count, onDismiss, onShare }: Conve
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-primary/70 uppercase tracking-wider mb-1">
-                  {language === "de" ? "Meilenstein" : "Milestone"}
+                  {t("conversationMilestone.label")}
                 </p>
                 <p className="text-sm text-foreground/90 leading-relaxed">{message}</p>
               </div>
@@ -129,7 +129,7 @@ export function ConversationMilestone({ type, count, onDismiss, onShare }: Conve
                 onClick={handleShare}
               >
                 <Share2 className="w-3 h-3" />
-                {language === "de" ? "Teilen" : "Share"}
+                {t("common.share")}
               </Button>
             </div>
           </div>

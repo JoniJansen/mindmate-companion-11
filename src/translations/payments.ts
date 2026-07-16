@@ -139,4 +139,41 @@ export const paymentsTranslations: Translations = {
   "weeklyRecap.aiConsentRequired": { en: "AI consent required", de: "KI-Einwilligung erforderlich" },
   "weeklyRecap.aiConsentInSettings": { en: "Please accept the AI data-processing notice in Settings to use the weekly recap.", de: "Bitte akzeptiere die KI-Datenschutzhinweise in den Einstellungen, um den Wochenrückblick zu nutzen." },
   "weeklyRecap.aiConsentDesc": { en: "Please accept the AI data-processing notice to use the weekly recap.", de: "Bitte akzeptiere die KI-Datenschutzhinweise, um den Wochenrückblick zu nutzen." },
+
+  // UpgradePrompt (Elite-Audit #9 round 4 migration)
+  "upgradePrompt.feat.unlimitedChats": { en: "Unlimited chats", de: "Unbegrenzte Chats" },
+  "upgradePrompt.dismiss": { en: "Dismiss", de: "Schließen" },
+  "upgradePrompt.noPressure": { en: "You can upgrade anytime. No pressure.", de: "Du kannst jederzeit upgraden. Kein Druck." },
+
+  // MessageLimitIndicator (Elite-Audit #9 round 4 migration)
+  "messageLimit.dailyReached": { en: "Daily limit reached — continue tomorrow", de: "Tageslimit erreicht — morgen geht es weiter" },
+  "messageLimit.ofSep": { en: " of ", de: " von " },
+  "messageLimit.messagesTodaySuffix": { en: " messages today", de: " Nachrichten heute" },
+
+  // VoiceTrialCard (Elite-Audit #9 round 4 migration)
+  "voiceTrialCard.titlePrefix": { en: "Want to talk with ", de: "Möchtest du mit " },
+  "voiceTrialCard.titleSuffix": { en: "?", de: " sprechen?" },
+  "voiceTrialCard.subtitle": { en: "Experience what a personal conversation feels like.", de: "Erlebe, wie sich ein persönliches Gespräch anfühlt." },
+  "voiceTrialCard.cta": { en: "Try it", de: "Ausprobieren" },
+
+  // InsightPreviewCard (Elite-Audit #9 round 4 migration)
+  "insightPreview.label": { en: "Weekly insight", de: "Wöchentlicher Einblick" },
+  "insightPreview.cta": { en: "Read in full with Plus", de: "Vollständig lesen mit Plus" },
+
+  // ChatVoiceTrialPrompt (Elite-Audit #9 round 4 migration)
+  "chatVoiceTrialPrompt.lead": { en: "Want to try this in person?", de: "Willst du das mal persönlich ausprobieren?" },
+  "chatVoiceTrialPrompt.subPrefix": { en: "You can speak with ", de: "Du kannst einmal kostenlos mit " },
+  "chatVoiceTrialPrompt.subSuffix": { en: " once for free.", de: " sprechen." },
+  "chatVoiceTrialPrompt.cta": { en: "Start Face-to-Face", de: "Face-to-Face starten" },
+
+  // FeatureMatrix (Elite-Audit #9 round 4 migration)
+  "featureMatrix.feature": { en: "Feature", de: "Funktion" },
+
+  // ChatLimitPrompt (Elite-Audit #9 round 4 migration)
+  "chatLimit.atLimit.line1": { en: "You've shared enough for today.", de: "Du hast heute genug geteilt." },
+  "chatLimit.atLimit.line2Template": { en: "{name} will be back tomorrow —", de: "{name} ist morgen wieder da —" },
+  "chatLimit.atLimit.line3": { en: "or anytime with Plus.", de: "oder jederzeit mit Plus." },
+  "chatLimit.atLimit.cta": { en: "Explore Plus", de: "Plus entdecken" },
+  "chatLimit.approaching.singular": { en: "{n} message left today. Unlimited with Plus.", de: "Noch {n} Nachricht heute. Mit Plus unbegrenzt." },
+  "chatLimit.approaching.plural": { en: "{n} messages left today. Unlimited with Plus.", de: "Noch {n} Nachrichten heute. Mit Plus unbegrenzt." },
 };

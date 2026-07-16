@@ -15,7 +15,7 @@ export const AppTour = forwardRef<HTMLDivElement>(function AppTour(_props, _ref)
     prevStep, 
     skipTour 
   } = useAppTour();
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
@@ -135,10 +135,10 @@ export const AppTour = forwardRef<HTMLDivElement>(function AppTour(_props, _ref)
             {/* Content */}
             <div className="p-5">
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {language === "de" ? currentStepData.title.de : currentStepData.title.en}
+                {currentStepData.title[language]}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {language === "de" ? currentStepData.description.de : currentStepData.description.en}
+                {currentStepData.description[language]}
               </p>
             </div>
 
@@ -164,7 +164,7 @@ export const AppTour = forwardRef<HTMLDivElement>(function AppTour(_props, _ref)
                   className="gap-1"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  {language === "de" ? "Zurück" : "Back"}
+                  {t("common.back")}
                 </Button>
               ) : (
                 <Button
@@ -172,20 +172,20 @@ export const AppTour = forwardRef<HTMLDivElement>(function AppTour(_props, _ref)
                   size="sm"
                   onClick={skipTour}
                 >
-                  {language === "de" ? "Überspringen" : "Skip"}
+                  {t("tour.skip")}
                 </Button>
               )}
-              
+
               <Button
                 size="sm"
                 onClick={nextStep}
                 className="gap-1"
               >
                 {isLast ? (
-                  language === "de" ? "Los geht's!" : "Let's go!"
+                  t("tour.letsGo")
                 ) : (
                   <>
-                    {language === "de" ? "Weiter" : "Next"}
+                    {t("common.next")}
                     <ChevronRight className="w-4 h-4" />
                   </>
                 )}

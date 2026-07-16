@@ -113,7 +113,7 @@ export default function Toolbox() {
               onClick={() => setActiveCategory(cat.id)}
               className="shrink-0"
             >
-              {language === "de" ? cat.labelDe : cat.labelEn}
+              {language === "en" ? cat.labelEn : cat.labelDe}
             </Button>
           ))}
         </div>

@@ -27,7 +27,7 @@ const featureRows: FeatureRow[] = [
 ];
 
 export function FeatureMatrix() {
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
 
   return (
     <motion.div
@@ -39,7 +39,7 @@ export function FeatureMatrix() {
       {/* Header */}
       <div className="grid grid-cols-[1fr_60px_60px] bg-muted/40 px-4 py-2.5 border-b border-border/30">
         <span className="text-xs font-medium text-muted-foreground">
-          {language === "de" ? "Funktion" : "Feature"}
+          {t("featureMatrix.feature")}
         </span>
         <span className="text-xs font-medium text-muted-foreground text-center">Free</span>
         <span className="text-xs font-medium text-primary text-center">Plus</span>
@@ -53,7 +53,7 @@ export function FeatureMatrix() {
           } ${!row.free ? "bg-primary/[0.02]" : ""}`}
         >
           <span className="text-sm text-foreground">
-            {language === "de" ? row.name.de : row.name.en}
+            {row.name[language]}
           </span>
           <div className="flex justify-center">
             {row.free ? (

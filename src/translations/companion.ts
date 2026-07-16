@@ -33,4 +33,17 @@ export const companionTranslations: Translations = {
   "demoChat.messageSingular": { en: "message", de: "Nachricht" },
   "demoChat.messagePlural": { en: "messages", de: "Nachrichten" },
   "demoChat.remainingSuffix": { en: " remaining · No signup needed", de: " verbleibend · Ohne Anmeldung" },
+
+  // AppTour (Elite-Audit #9 round 4 migration)
+  "tour.skip": { en: "Skip", de: "Überspringen" },
+  "tour.letsGo": { en: "Let's go!", de: "Los geht's!" },
+
+  // BondIndicator (Elite-Audit #9 round 4 migration)
+  "bondIndicator.yourConnection": { en: "Your connection", de: "Eure Verbindung" },
+
+  // ConversationMilestone (Elite-Audit #9 round 4 migration)
+  "conversationMilestone.label": { en: "Milestone", de: "Meilenstein" },
+
+  // StreakMilestone (Elite-Audit #9 round 4 migration)
+  "streakMilestone.daysOfReflection": { en: "Days of Reflection", de: "Tage Reflexion" },
 };

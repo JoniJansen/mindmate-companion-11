@@ -71,13 +71,13 @@ export function AdaptiveSuggestions({ suggestions, onStartExercise }: AdaptiveSu
       </div>
 
       {suggestions.map((suggestion, index) => {
-        const title = language === "de" ? suggestion.titleDe : suggestion.title;
+        const title = language === "en" ? suggestion.title : suggestion.titleDe;
         const desc = suggestion.exercise
           ? getExerciseDisplay(suggestion.exercise.id, {
               title: suggestion.exercise.title,
               description: suggestion.exercise.description,
             }).title
-          : language === "de" ? suggestion.descriptionDe : suggestion.description;
+          : language === "en" ? suggestion.description : suggestion.descriptionDe;
 
         return (
           <motion.button

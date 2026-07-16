@@ -7,7 +7,7 @@ import { StandalonePage } from "@/components/layout/StandalonePage";
 
 export default function About() {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { language, t: tr } = useTranslation();
 
   const content = {
     en: {
@@ -163,7 +163,7 @@ export default function About() {
             transition={{ delay: 0.2 }}
           >
             <h2 className="text-lg font-semibold text-foreground mb-4">
-              {language === "de" ? "Unsere Werte" : "Our Values"}
+              {tr("about.ourValues")}
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {t.values.map((value, index) => (

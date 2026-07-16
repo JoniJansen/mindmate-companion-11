@@ -127,9 +127,7 @@ export function useChatComposer(chatMode: ChatMode) {
         // the AI data-processing modal. Surface a clear, calm message that
         // does not look like a generic technical error.
         if (resp.status === 403 && errorData?.error === "AI_CONSENT_REQUIRED") {
-          onError(language === "de"
-            ? "Bitte stimme der KI-Datenverarbeitung zu, um den Chat zu nutzen."
-            : "Please accept the AI data-processing notice to use chat.");
+          onError(t("chat.aiConsentRequired"));
           return;
         }
         if (resp.status === 429) {
@@ -176,9 +174,7 @@ export function useChatComposer(chatMode: ChatMode) {
     } catch (error: any) {
       if (error.name === "AbortError") {
         // Timeout-triggered abort → show friendly message
-        onError(language === "de"
-          ? "Die Antwort hat etwas länger gedauert als erwartet. Versuche es bitte nochmal."
-          : "The response took a bit longer than expected. Please try again.");
+        onError(t("chat.timeoutMessage"));
         return;
       }
       if (import.meta.env.DEV) console.error("Stream error:", error);
@@ -199,10 +195,8 @@ export function useChatComposer(chatMode: ChatMode) {
     // Reviewer reaches /chat without a Supabase session → would 401 otherwise.
     if (isDemoMode) {
       toast({
-        title: language === "de" ? "Demo-Modus" : "Demo mode",
-        description: language === "de"
-          ? "Der Chat ist in der Review-Demo deaktiviert. Bitte nutze den Paywall-Bildschirm, um den Abo-Flow zu prüfen."
-          : "Chat is disabled in the review demo. Please use the paywall screen to verify the subscription flow.",
+        title: t("chat.demoMode.title"),
+        description: t("chat.demoMode.desc"),
       });
       return;
     }
@@ -287,9 +281,7 @@ export function useChatComposer(chatMode: ChatMode) {
           recordMetric("chat", "empty_response", { durationMs, success: false });
           setMessages(prev => [...prev.filter(m => m.role !== "assistant" || m.content.trim()), {
             id: `empty-${Date.now()}`,
-            content: language === "de"
-              ? "Ich konnte gerade keine Antwort finden. Versuche es bitte nochmal."
-              : "I couldn't find the right words just now. Please try again.",
+            content: t("chat.emptyResponse"),
             role: "assistant" as const,
             timestamp: new Date(),
             isError: true,

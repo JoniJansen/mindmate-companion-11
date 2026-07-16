@@ -28,7 +28,7 @@ export function SaveToJournalDialog({
   variant = "message",
 }: SaveToJournalDialogProps) {
   const [title, setTitle] = useState(defaultTitle);
-  const { language } = useTranslation();
+  const { t } = useTranslation();
 
   const handleSave = () => {
     onSave(title.trim() || defaultTitle);
@@ -36,19 +36,10 @@ export function SaveToJournalDialog({
     setTitle(defaultTitle);
   };
 
-  const descriptions: Record<string, Record<string, string>> = {
-    message: {
-      de: "Diese Nachricht wird in deinem Tagebuch gespeichert.",
-      en: "This message will be saved to your journal.",
-    },
-    conversation: {
-      de: "Das gesamte Gespräch wird in deinem Tagebuch gespeichert.",
-      en: "The entire conversation will be saved to your journal.",
-    },
-    summary: {
-      de: "Eine KI-Zusammenfassung wird erstellt und gespeichert.",
-      en: "An AI summary will be generated and saved.",
-    },
+  const descriptionKeys: Record<string, string> = {
+    message: "chat.saveDialog.messageDesc",
+    conversation: "chat.saveDialog.conversationDesc",
+    summary: "chat.saveDialog.summaryDesc",
   };
 
   return (
@@ -57,15 +48,15 @@ export function SaveToJournalDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-primary" />
-            {language === "de" ? "Im Tagebuch speichern" : "Save to Journal"}
+            {t("chat.saveDialog.title")}
           </DialogTitle>
           <DialogDescription>
-            {descriptions[variant]?.[language] || descriptions.message[language]}
+            {t(descriptionKeys[variant] || descriptionKeys.message)}
           </DialogDescription>
         </DialogHeader>
         <div className="py-2">
           <label className="text-sm font-medium text-foreground mb-1.5 block">
-            {language === "de" ? "Titel (optional)" : "Title (optional)"}
+            {t("chat.saveDialog.titleLabel")}
           </label>
           <Input
             value={title}
@@ -79,10 +70,10 @@ export function SaveToJournalDialog({
         </div>
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            {language === "de" ? "Abbrechen" : "Cancel"}
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleSave}>
-            {language === "de" ? "Speichern" : "Save"}
+            {t("common.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

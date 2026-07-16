@@ -50,7 +50,7 @@ function detectLanguage(): "en" | "de" {
     const prefsRaw = localStorage.getItem("soulvay-preferences");
     if (prefsRaw) {
       const prefs = JSON.parse(prefsRaw);
-      if (prefs.language === "de" || prefs.language === "en") {
+      if (["de", "en"].includes(prefs.language)) {
         return prefs.language;
       }
     }
@@ -154,6 +154,7 @@ export function CookieConsent() {
       customize: "Customize",
       saveSettings: "Save Settings",
       privacyLink: "Privacy Policy",
+      cancel: "Cancel",
     },
     de: {
       title: "Cookie-Einstellungen",
@@ -171,6 +172,7 @@ export function CookieConsent() {
       customize: "Anpassen",
       saveSettings: "Einstellungen speichern",
       privacyLink: "Datenschutzrichtlinie",
+      cancel: "Abbrechen",
     },
   };
 
@@ -300,7 +302,7 @@ export function CookieConsent() {
           </div>
           <div className="flex gap-3 justify-end">
             <Button variant="outline" onClick={() => setShowSettings(false)}>
-              {language === "de" ? "Abbrechen" : "Cancel"}
+              {t.cancel}
             </Button>
             <Button onClick={handleSaveSettings}>{t.saveSettings}</Button>
           </div>

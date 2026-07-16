@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { Mic, Sparkles, ArrowRight, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface VoiceTrialCardProps {
-  language: "en" | "de";
+  language?: "en" | "de";
   hasUsedTrial: boolean;
   isPremium: boolean;
   companionName?: string;
@@ -29,23 +30,18 @@ export function canUseVoiceTrial(): boolean {
   return !hasUsedVoiceTrial();
 }
 
-export function VoiceTrialCard({ language, hasUsedTrial, isPremium, companionName = "Soulvay" }: VoiceTrialCardProps) {
+export function VoiceTrialCard({ hasUsedTrial, isPremium, companionName = "Soulvay" }: VoiceTrialCardProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Don't show if premium or already used
   if (isPremium || hasUsedTrial) return null;
 
-  const copy = language === "de"
-    ? {
-        title: `Möchtest du mit ${companionName} sprechen?`,
-        subtitle: "Erlebe, wie sich ein persönliches Gespräch anfühlt.",
-        cta: "Ausprobieren",
-      }
-    : {
-        title: `Want to talk with ${companionName}?`,
-        subtitle: "Experience what a personal conversation feels like.",
-        cta: "Try it",
-      };
+  const copy = {
+    title: `${t("voiceTrialCard.titlePrefix")}${companionName}${t("voiceTrialCard.titleSuffix")}`,
+    subtitle: t("voiceTrialCard.subtitle"),
+    cta: t("voiceTrialCard.cta"),
+  };
 
   return (
     <motion.div

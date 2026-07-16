@@ -52,7 +52,8 @@ export const VoiceConversationPanel = memo(function VoiceConversationPanel({
 }: VoiceConversationPanelProps) {
   const { language } = useTranslation();
   const voiceProfile = getCompanionVoiceProfile(companion.archetype);
-  const lang = (language === "de" ? "de" : "en") as "en" | "de";
+  // Type-narrowed locale token used by voice-profile helpers (config, not user copy)
+  const lang: "en" | "de" = language === "en" ? "en" : "de";
 
   // Derive phase from state machine, with cooldown override
   const phase = useMemo(() => {

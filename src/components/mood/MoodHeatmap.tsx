@@ -15,7 +15,7 @@ const moodColor = (value: number): string => {
 };
 
 export function MoodHeatmap({ checkins, weeks = 12 }: MoodHeatmapProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
 
   const grid = useMemo(() => {
     const today = new Date();
@@ -56,9 +56,15 @@ export function MoodHeatmap({ checkins, weeks = 12 }: MoodHeatmapProps) {
     return columns;
   }, [checkins, weeks]);
 
-  const dayLabels = language === "de"
-    ? ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
-    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayLabels = [
+    t("mood.heatmap.dayShort.mon"),
+    t("mood.heatmap.dayShort.tue"),
+    t("mood.heatmap.dayShort.wed"),
+    t("mood.heatmap.dayShort.thu"),
+    t("mood.heatmap.dayShort.fri"),
+    t("mood.heatmap.dayShort.sat"),
+    t("mood.heatmap.dayShort.sun"),
+  ];
 
   return (
     <div className="space-y-2">
@@ -95,13 +101,13 @@ export function MoodHeatmap({ checkins, weeks = 12 }: MoodHeatmapProps) {
       </div>
       {/* Legend */}
       <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-        <span>{language === "de" ? "Niedrig" : "Low"}</span>
+        <span>{t("mood.heatmap.low")}</span>
         <div className="w-3 h-3 rounded-[2px] bg-red-300/60 dark:bg-red-500/50" />
         <div className="w-3 h-3 rounded-[2px] bg-orange-300/60 dark:bg-orange-500/50" />
         <div className="w-3 h-3 rounded-[2px] bg-amber-300/60 dark:bg-amber-500/50" />
         <div className="w-3 h-3 rounded-[2px] bg-emerald-300/70 dark:bg-emerald-600/70" />
         <div className="w-3 h-3 rounded-[2px] bg-emerald-400 dark:bg-emerald-500" />
-        <span>{language === "de" ? "Hoch" : "High"}</span>
+        <span>{t("mood.heatmap.high")}</span>
       </div>
     </div>
   );

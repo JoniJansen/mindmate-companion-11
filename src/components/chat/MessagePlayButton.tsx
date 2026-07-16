@@ -18,8 +18,8 @@ export function MessagePlayButton({
   onStop,
   isPremium = true,
 }: MessagePlayButtonProps) {
-  const { t, language } = useTranslation();
-  
+  const { t } = useTranslation();
+
   const handleClick = () => {
     if (isLoading) return;
     if (isPlaying) {
@@ -31,8 +31,8 @@ export function MessagePlayButton({
 
   return (
     <div className="absolute -bottom-1 -right-1">
-      {/* 
-        Note: This button is intentionally 40x40 (slightly under 44px) as it's a 
+      {/*
+        Note: This button is intentionally 40x40 (slightly under 44px) as it's a
         secondary contextual action on message bubbles, not a primary navigation target.
         The positioning (-bottom-1 -right-1) provides adequate spacing from other elements.
       */}
@@ -45,8 +45,8 @@ export function MessagePlayButton({
           handleClick();
         }}
         disabled={isLoading}
-        aria-label={!isPremium 
-          ? (language === "de" ? "Sprachausgabe – Plus" : "Voice playback – Plus")
+        aria-label={!isPremium
+          ? t("chat.voicePlaybackPlus")
           : isPlaying ? t("voice.stop") : t("voice.play")}
       >
         {isLoading ? (

@@ -7,7 +7,7 @@ const SWIPE_HINT_KEY = "soulvay-swipe-hint-shown";
 
 export function SwipeHint() {
   const [show, setShow] = useState(false);
-  const { language } = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Check if hint was already shown
@@ -77,7 +77,7 @@ export function SwipeHint() {
                 <ChevronLeft className="w-5 h-5 text-primary -ml-3" />
               </div>
               <span className="text-sm font-medium text-foreground whitespace-nowrap">
-                {language === "de" ? "Wischen zum Zurückgehen" : "Swipe to go back"}
+                {t("swipe.swipeBack")}
               </span>
             </motion.div>
           </motion.div>
@@ -89,7 +89,7 @@ export function SwipeHint() {
             transition={{ delay: 1 }}
             className="absolute bottom-24 left-1/2 -translate-x-1/2 text-sm text-muted-foreground pointer-events-auto"
           >
-            {language === "de" ? "Tippen zum Schließen" : "Tap to dismiss"}
+            {t("swipe.tapDismiss")}
           </motion.p>
         </motion.div>
       )}

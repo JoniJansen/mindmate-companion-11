@@ -62,4 +62,29 @@ export const moodTranslations: Translations = {
   "mood.bridge.highMood": { en: "Nice to hear. Want to tell me what made your day good?", de: "Schön zu hören. Magst du mir erzählen, was deinen Tag gut gemacht hat?" },
   "mood.bridge.contextPrefix": { en: "I just checked in with my mood: ", de: "Ich habe gerade meine Stimmung eingecheckt: " },
   "mood.bridge.notePrefix": { en: ". Note: \"", de: ". Notiz: \"" },
+
+  // Heatmap (12-week grid)
+  "mood.heatmap.dayShort.mon": { en: "Mon", de: "Mo" },
+  "mood.heatmap.dayShort.tue": { en: "Tue", de: "Di" },
+  "mood.heatmap.dayShort.wed": { en: "Wed", de: "Mi" },
+  "mood.heatmap.dayShort.thu": { en: "Thu", de: "Do" },
+  "mood.heatmap.dayShort.fri": { en: "Fri", de: "Fr" },
+  "mood.heatmap.dayShort.sat": { en: "Sat", de: "Sa" },
+  "mood.heatmap.dayShort.sun": { en: "Sun", de: "So" },
+  "mood.heatmap.low": { en: "Low", de: "Niedrig" },
+  "mood.heatmap.high": { en: "High", de: "Hoch" },
+
+  // Community insights (singular day names + interpolated messages)
+  "mood.community.dayName.sun": { en: "Sunday", de: "Sonntag" },
+  "mood.community.dayName.mon": { en: "Monday", de: "Montag" },
+  "mood.community.dayName.tue": { en: "Tuesday", de: "Dienstag" },
+  "mood.community.dayName.wed": { en: "Wednesday", de: "Mittwoch" },
+  "mood.community.dayName.thu": { en: "Thursday", de: "Donnerstag" },
+  "mood.community.dayName.fri": { en: "Friday", de: "Freitag" },
+  "mood.community.dayName.sat": { en: "Saturday", de: "Samstag" },
+  "mood.community.notAlonePrefix": { en: "You're not alone — many people report similar feelings on ", de: "Du bist nicht allein — viele Menschen berichten ähnliche Gefühle am " },
+  "mood.community.notAloneSuffix": { en: "s.", de: "." },
+  "mood.community.shareFeelingPrefix": { en: "Many people share the feeling \"", de: "Viele Menschen teilen das Gefühl „" },
+  "mood.community.shareFeelingSuffix": { en: "\" — you're not alone in this.", de: "\" — du bist damit nicht allein." },
+  "mood.community.trackConsistent": { en: "You track consistently — that takes real dedication. Keep it up!", de: "Du trackst regelmäßig — das ist eine starke Leistung. Weiter so!" },
 };

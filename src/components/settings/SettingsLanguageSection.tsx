@@ -107,7 +107,7 @@ export function SettingsLanguageSection({ preferences, expandedSection, toggleSe
         </CalmCard>
 
         {/* Address Form - Only for German */}
-        {preferences.language === "de" && (
+        {preferences.language !== "en" && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-3">
             <CalmCard variant="elevated">
               <button onClick={() => toggleSection("address")} className="w-full flex items-center justify-between">

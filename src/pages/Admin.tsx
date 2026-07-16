@@ -18,7 +18,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { language } = useTranslation();
+  const { language, t: tr } = useTranslation();
   const {
     isAdmin,
     isChecking,
@@ -111,7 +111,7 @@ export default function Admin() {
             <BarChart3 className="w-4 h-4 mr-1" /> Analytics
           </Button>
           <Button variant={activeTab === "users" ? "default" : "outline"} size="sm" onClick={() => setActiveTab("users")}>
-            <Users className="w-4 h-4 mr-1" /> {language === "de" ? "Nutzer" : "Users"}
+            <Users className="w-4 h-4 mr-1" /> {tr("admin.usersTab")}
           </Button>
         </div>
 

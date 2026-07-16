@@ -27,7 +27,8 @@ export function useChatVoice(companionArchetypeId?: string, isComposerBusy = fal
   const [pendingTranscript, setPendingTranscript] = useState("");
   const [inputValue, setInputValue] = useState("");
 
-  const speechLang = language === "de" ? "de-DE" : "en-US";
+  // Config value (Web Speech API BCP-47 locale) — not user-facing text
+  const speechLang = language === "en" ? "en-US" : "de-DE";
 
   // Guard: prevent auto-restart for a brief window after sending
   const justSentRef = useRef(false);

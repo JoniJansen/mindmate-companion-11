@@ -19,7 +19,7 @@ const milestoneMessages: Record<number, { en: string; de: string }> = {
 };
 
 export function StreakMilestone({ milestone, onDismiss }: StreakMilestoneProps) {
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const [show, setShow] = useState(true);
 
   const message = milestoneMessages[milestone]?.[language] || milestoneMessages[milestone]?.en || "";
@@ -71,7 +71,7 @@ export function StreakMilestone({ milestone, onDismiss }: StreakMilestoneProps) 
             </motion.div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">
-                🔥 {milestone} {language === "de" ? "Tage Reflexion" : "Days of Reflection"}
+                🔥 {milestone} {t("streakMilestone.daysOfReflection")}
               </p>
               <p className="text-sm text-muted-foreground mt-1">{message}</p>
             </div>

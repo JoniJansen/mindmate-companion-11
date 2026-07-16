@@ -41,7 +41,7 @@ export function useDailyPrompt() {
 
         setPrompt({
           id: chosen.id,
-          text: language === "de" ? chosen.prompt_text_de : chosen.prompt_text,
+          text: language === "en" ? chosen.prompt_text : chosen.prompt_text_de,
           category: chosen.category,
         });
       } catch (error) {

@@ -37,12 +37,12 @@ export function SettingsAppearanceSection({ preferences, expandedSection, toggle
 
   const getModeLabel = () => {
     const option = themeModeOptions.find(o => o.value === mode);
-    return language === "de" ? option?.labelDe : option?.label;
+    return language === "en" ? option?.label : option?.labelDe;
   };
 
   const getAccentLabel = () => {
     const option = accentColorOptions.find(o => o.value === accentColor);
-    return language === "de" ? option?.labelDe : option?.label;
+    return language === "en" ? option?.label : option?.labelDe;
   };
 
   const handleThemeModeChange = (newMode: ThemeMode) => {
@@ -81,7 +81,7 @@ export function SettingsAppearanceSection({ preferences, expandedSection, toggle
                       {option.value === "light" && <Sun className="w-5 h-5 text-foreground" />}
                       {option.value === "dark" && <Moon className="w-5 h-5 text-foreground" />}
                       {option.value === "system" && <Monitor className="w-5 h-5 text-foreground" />}
-                      <span className="font-medium text-foreground">{language === "de" ? option.labelDe : option.label}</span>
+                      <span className="font-medium text-foreground">{language === "en" ? option.label : option.labelDe}</span>
                     </div>
                     {mode === option.value && <Check className="w-5 h-5 text-primary" />}
                   </button>
@@ -110,7 +110,7 @@ export function SettingsAppearanceSection({ preferences, expandedSection, toggle
                   {accentColorOptions.map((option) => (
                     <button key={option.value} onClick={() => handleAccentColorChange(option.value)} className={`flex flex-col items-center p-3 rounded-xl transition-colors ${accentColor === option.value ? "bg-primary-soft ring-2 ring-primary" : "hover:bg-muted/50"}`}>
                       <div className={`w-8 h-8 rounded-full ${option.color} mb-2`} />
-                      <span className="text-xs font-medium text-foreground text-center">{language === "de" ? option.labelDe : option.label}</span>
+                      <span className="text-xs font-medium text-foreground text-center">{language === "en" ? option.label : option.labelDe}</span>
                     </button>
                   ))}
                 </div>

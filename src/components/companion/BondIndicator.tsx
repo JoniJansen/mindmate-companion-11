@@ -16,13 +16,13 @@ const MILESTONES = [
   { level: 50, de: "Tiefes Verständnis", en: "Deep understanding" },
 ];
 
-function getMilestone(level: number, language: string) {
+function getMilestone(level: number, language: "en" | "de") {
   let current = MILESTONES[0];
   for (const m of MILESTONES) {
     if (level >= m.level) current = m;
     else break;
   }
-  return language === "de" ? current.de : current.en;
+  return current[language];
 }
 
 // Returns a value 0-1 representing progress to next milestone
@@ -39,7 +39,7 @@ function getProgress(level: number): number {
 }
 
 export function BondIndicator({ bondLevel, companionName, compact = false }: BondIndicatorProps) {
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const milestone = getMilestone(bondLevel, language);
   const progress = getProgress(bondLevel);
 
@@ -63,7 +63,7 @@ export function BondIndicator({ bondLevel, companionName, compact = false }: Bon
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">
-          {language === "de" ? "Eure Verbindung" : "Your connection"}
+          {t("bondIndicator.yourConnection")}
         </span>
       </div>
       <div className="w-full h-1.5 rounded-full bg-muted/40 overflow-hidden">

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const DISCLAIMER_SHOWN_KEY = "soulvay_chat_disclaimer_shown";
 
 export function ChatDisclaimer() {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -35,14 +35,12 @@ export function ChatDisclaimer() {
             <div className="max-w-lg mx-auto flex items-start gap-2.5">
               <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
               <p className="text-[11px] text-muted-foreground leading-relaxed flex-1">
-                {language === "de" 
-                  ? "Soulvay ist ein Begleiter für Selbstreflexion und ersetzt keine professionelle Therapie oder Beratung."
-                  : "Soulvay is a companion for self-reflection and does not replace professional therapy or counseling."}
+                {t("chat.disclaimer")}
               </p>
               <button
                 onClick={handleDismiss}
                 className="p-1 -mr-1 text-muted-foreground hover:text-foreground transition-colors rounded-md"
-                aria-label={language === "de" ? "Schließen" : "Dismiss"}
+                aria-label={t("chat.disclaimer.dismiss")}
               >
                 <X className="w-3.5 h-3.5" />
               </button>

@@ -19,7 +19,7 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
   variant = "inline" 
 }, ref) {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
 
   const handleUpgrade = () => {
     if (onUpgrade) {
@@ -88,12 +88,12 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
     },
   };
 
-  const t = content[reason][language as "en" | "de"] || content[reason].en;
+  const copy = content[reason][language as "en" | "de"] || content[reason].en;
 
   const features = [
-    { icon: Volume2, label: language === "de" ? "Sprachgespräche" : "Voice conversations" },
-    { icon: Brain, label: language === "de" ? "Musteranalysen" : "Pattern insights" },
-    { icon: Heart, label: language === "de" ? "Unbegrenzte Chats" : "Unlimited chats" },
+    { icon: Volume2, label: t("subscription.feat.voice") },
+    { icon: Brain, label: t("upgrade.feat.patternsTitle") },
+    { icon: Heart, label: t("upgradePrompt.feat.unlimitedChats") },
   ];
 
   if (variant === "banner") {
@@ -110,24 +110,24 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
               <Sparkles className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="font-medium text-foreground text-sm">{t.subtitle}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{t.description}</p>
+              <p className="font-medium text-foreground text-sm">{copy.subtitle}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{copy.description}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Button size="sm" variant="ghost" className="text-primary text-xs min-h-[44px]" onClick={handleUpgrade}>
-              {t.cta}
+              {copy.cta}
             </Button>
             {onDismiss && (
-              <Button 
-                size="icon" 
-                variant="ghost" 
+              <Button
+                size="icon"
+                variant="ghost"
                 className="shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDismiss();
                 }}
-                aria-label={language === "de" ? "Schließen" : "Dismiss"}
+                aria-label={t("upgradePrompt.dismiss")}
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -150,10 +150,10 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-6 h-6 text-primary" />
           </div>
-          <h3 className="font-semibold text-foreground text-lg">{t.title}</h3>
-          <p className="text-sm text-muted-foreground mt-1">{t.subtitle}</p>
-          <p className="text-sm text-foreground/80 mt-3">{t.description}</p>
-          
+          <h3 className="font-semibold text-foreground text-lg">{copy.title}</h3>
+          <p className="text-sm text-muted-foreground mt-1">{copy.subtitle}</p>
+          <p className="text-sm text-foreground/80 mt-3">{copy.description}</p>
+
           <div className="flex flex-wrap justify-center gap-2 mt-4">
             {features.map((feature, i) => (
               <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2.5 py-1.5 rounded-full">
@@ -165,19 +165,17 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
 
           <div className="mt-6 space-y-2">
             <Button onClick={handleUpgrade} className="w-full">
-              {t.cta}
+              {copy.cta}
             </Button>
             {onDismiss && (
               <Button variant="ghost" onClick={onDismiss} className="w-full text-muted-foreground">
-                {language === "de" ? "Vielleicht später" : "Maybe later"}
+                {t("premium.maybeLater")}
               </Button>
             )}
           </div>
 
           <p className="text-xs text-muted-foreground mt-4">
-            {language === "de" 
-              ? "Du kannst jederzeit upgraden. Kein Druck." 
-              : "You can upgrade anytime. No pressure."}
+            {t("upgradePrompt.noPressure")}
           </p>
         </div>
       </motion.div>
@@ -197,11 +195,11 @@ export const UpgradePrompt = forwardRef<HTMLDivElement, UpgradePromptProps>(func
           <Sparkles className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground text-sm">{t.title}</p>
-          <p className="text-xs text-muted-foreground">{t.description}</p>
+          <p className="font-medium text-foreground text-sm">{copy.title}</p>
+          <p className="text-xs text-muted-foreground">{copy.description}</p>
         </div>
         <Button size="sm" variant="outline" className="shrink-0" onClick={handleUpgrade}>
-          {t.cta}
+          {copy.cta}
         </Button>
       </div>
     </motion.div>

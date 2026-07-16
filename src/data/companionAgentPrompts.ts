@@ -32,7 +32,7 @@ export function buildCompanionAgentPrompt(
   userName?: string,
   memoriesContext?: string
 ): string {
-  const isGerman = language === "de";
+  const isGerman = language !== "en";
   
   const bondContext = bondLevel >= 20
     ? (isGerman 

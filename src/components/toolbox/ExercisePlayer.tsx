@@ -68,7 +68,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
   const getPrompt = (index: number) => display.prompts[index % display.prompts.length] || "";
 
   // Get effective language for TTS
-  const effectiveLang = (language === "de" ? "de" : "en") as "en" | "de";
+  const effectiveLang: "en" | "de" = language === "en" ? "en" : "de";
 
   // Professional voice scripts – natural, flowing, therapist-quality guidance for eyes-closed use
   const speechOverrides: Record<string, { en: string[]; de: string[] }> = {
@@ -507,7 +507,7 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
                 className="flex items-center justify-center gap-2 mb-4 text-primary"
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Volume2 className="w-4 h-4 animate-pulse" />}
-                <span className="text-sm">{isLoading ? (language === "de" ? "Einen Moment..." : "One moment...") : t("voice.speaking")}</span>
+                <span className="text-sm">{isLoading ? t("common.loading") : t("voice.speaking")}</span>
               </motion.div>
             )}
           </AnimatePresence>

@@ -89,4 +89,42 @@ export const chatTranslations: Translations = {
   "chatHistory.deleteConversation": { en: "Delete conversation", de: "Gespräch löschen" },
   "chatHistory.deleteTitle": { en: "Delete conversation?", de: "Gespräch löschen?" },
   "chatHistory.deleteDesc": { en: "This conversation and all its messages will be permanently deleted.", de: "Dieses Gespräch und alle Nachrichten werden unwiderruflich gelöscht." },
+
+  // Chat mode labels (reused by ChatModeSelector and ChatHistory)
+  "chat.mode.talk": { en: "Talk", de: "Freireden" },
+  "chat.mode.clarify": { en: "Clarify", de: "Klären" },
+  "chat.mode.calm": { en: "Calm", de: "Beruhigen" },
+  "chat.mode.patterns": { en: "Patterns", de: "Muster" },
+
+  // Chat header face-to-face tooltip
+  "chat.faceToFace": { en: "Face to face", de: "Face-to-Face" },
+
+  // Chat disclaimer dismiss button
+  "chat.disclaimer.dismiss": { en: "Dismiss", de: "Schließen" },
+
+  // Chat voice playback (message play button)
+  "chat.voicePlaybackPlus": { en: "Voice playback – Plus", de: "Sprachausgabe – Plus" },
+
+  // Chat composer runtime messages
+  "chat.aiConsentRequired": { en: "Please accept the AI data-processing notice to use chat.", de: "Bitte stimme der KI-Datenverarbeitung zu, um den Chat zu nutzen." },
+  "chat.timeoutMessage": { en: "The response took a bit longer than expected. Please try again.", de: "Die Antwort hat etwas länger gedauert als erwartet. Versuche es bitte nochmal." },
+  "chat.demoMode.title": { en: "Demo mode", de: "Demo-Modus" },
+  "chat.demoMode.desc": { en: "Chat is disabled in the review demo. Please use the paywall screen to verify the subscription flow.", de: "Der Chat ist in der Review-Demo deaktiviert. Bitte nutze den Paywall-Bildschirm, um den Abo-Flow zu prüfen." },
+  "chat.emptyResponse": { en: "I couldn't find the right words just now. Please try again.", de: "Ich konnte gerade keine Antwort finden. Versuche es bitte nochmal." },
+
+  // Bond level (relationship milestone)
+  "chat.bond.level": { en: "Bond level", de: "Verbindungslevel" },
+  "chat.bond.milestone": { en: "You and {name} are understanding each other better.", de: "Du und {name} versteht euch immer besser." },
+
+  // Save to journal dialog
+  "chat.saveDialog.title": { en: "Save to Journal", de: "Im Tagebuch speichern" },
+  "chat.saveDialog.titleLabel": { en: "Title (optional)", de: "Titel (optional)" },
+  "chat.saveDialog.messageDesc": { en: "This message will be saved to your journal.", de: "Diese Nachricht wird in deinem Tagebuch gespeichert." },
+  "chat.saveDialog.conversationDesc": { en: "The entire conversation will be saved to your journal.", de: "Das gesamte Gespräch wird in deinem Tagebuch gespeichert." },
+  "chat.saveDialog.summaryDesc": { en: "An AI summary will be generated and saved.", de: "Eine KI-Zusammenfassung wird erstellt und gespeichert." },
+
+  // Microphone selector (settings/chat-adjacent)
+  "settings.mic.deviceFallbackLabel": { en: "Microphone", de: "Mikrofon" },
+  "settings.mic.permissionDeniedFull": { en: "Microphone access denied. Please enable it in Settings → Soulvay → Microphone.", de: "Mikrofonzugriff verweigert. Bitte aktiviere den Zugriff unter Einstellungen → Soulvay → Mikrofon." },
+  "settings.mic.loadMicrophones": { en: "Load microphones", de: "Mikrofone laden" },
 };

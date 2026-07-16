@@ -126,7 +126,7 @@ export default function Chat() {
           de: "Tageslimit erreicht. Bitte versuche es morgen erneut.",
         },
       };
-      const lang = language === "de" ? "de" : "en";
+      const lang: "en" | "de" = language === "en" ? "en" : "de";
       const entry = errorMessages[errorKey];
       const description = entry ? entry[lang] : errorKey;
       const title = lang === "de" ? "Sprachfehler" : "Voice error";
@@ -491,7 +491,7 @@ export default function Chat() {
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs">
                   {canUseVoice
-                    ? (voice.voiceModeEnabled ? t("chat.voiceModeActive") : (language === "de" ? "Face-to-Face" : "Face to face"))
+                    ? (voice.voiceModeEnabled ? t("chat.voiceModeActive") : t("chat.faceToFace"))
                     : t("chat.voiceConversationsPlus")}
                 </TooltipContent>
               </Tooltip>

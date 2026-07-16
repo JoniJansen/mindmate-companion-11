@@ -11,14 +11,14 @@ interface PremiumGateProps {
   showLock?: boolean;
 }
 
-export function PremiumGate({ 
-  isPremium, 
-  children, 
+export function PremiumGate({
+  isPremium,
+  children,
   fallback,
   featureName,
-  showLock = true 
+  showLock = true
 }: PremiumGateProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
 
   if (isPremium) {
     return <>{children}</>;
@@ -40,9 +40,7 @@ export function PremiumGate({
     >
       <Lock className="w-3 h-3" />
       <span>
-        {featureName 
-          ? (language === "de" ? `${featureName} – Plus` : `${featureName} – Plus`)
-          : (language === "de" ? "Plus-Funktion" : "Plus feature")}
+        {featureName ? `${featureName} – Plus` : t("premium.plusFeature")}
       </span>
     </motion.div>
   );

@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ChatLimitPromptProps {
   companionName: string;
-  language: "en" | "de";
+  language?: "en" | "de";
   messagesRemaining: number;
   isPremium: boolean;
 }
@@ -15,29 +16,22 @@ interface ChatLimitPromptProps {
  */
 export function ChatLimitPrompt({
   companionName,
-  language,
   messagesRemaining,
   isPremium,
 }: ChatLimitPromptProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   if (isPremium) return null;
 
   // At limit
   if (messagesRemaining <= 0) {
-    const copy = language === "de"
-      ? {
-          line1: "Du hast heute genug geteilt.",
-          line2: `${companionName} ist morgen wieder da —`,
-          line3: "oder jederzeit mit Plus.",
-          cta: "Plus entdecken",
-        }
-      : {
-          line1: "You've shared enough for today.",
-          line2: `${companionName} will be back tomorrow —`,
-          line3: "or anytime with Plus.",
-          cta: "Explore Plus",
-        };
+    const copy = {
+      line1: t("chatLimit.atLimit.line1"),
+      line2: t("chatLimit.atLimit.line2Template").replace("{name}", companionName),
+      line3: t("chatLimit.atLimit.line3"),
+      cta: t("chatLimit.atLimit.cta"),
+    };
 
     return (
       <motion.div
@@ -67,9 +61,10 @@ export function ChatLimitPrompt({
 
   // Approaching limit (3 or fewer)
   if (messagesRemaining <= 3) {
-    const text = language === "de"
-      ? `Noch ${messagesRemaining} Nachricht${messagesRemaining > 1 ? "en" : ""} heute. Mit Plus unbegrenzt.`
-      : `${messagesRemaining} message${messagesRemaining > 1 ? "s" : ""} left today. Unlimited with Plus.`;
+    const template = messagesRemaining === 1
+      ? t("chatLimit.approaching.singular")
+      : t("chatLimit.approaching.plural");
+    const text = template.replace("{n}", String(messagesRemaining));
 
     return (
       <motion.div

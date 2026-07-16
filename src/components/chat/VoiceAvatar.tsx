@@ -19,8 +19,8 @@ export function VoiceAvatar({
   size = "md",
   onTap
 }: VoiceAvatarProps) {
-  const { language } = useTranslation();
-  
+  const { t } = useTranslation();
+
   const sizeConfig = {
     sm: { container: "w-20 h-20", ring: "w-24 h-24", icon: "w-8 h-8", bars: 3 },
     md: { container: "w-28 h-28", ring: "w-36 h-36", icon: "w-10 h-10", bars: 5 },
@@ -32,9 +32,9 @@ export function VoiceAvatar({
 
   // Status text
   const getStatusText = () => {
-    if (isSpeaking) return language === "de" ? "Soulvay spricht..." : "Soulvay speaking...";
-    if (isListening) return language === "de" ? "Ich höre zu..." : "Listening...";
-    return language === "de" ? "Tippe zum Sprechen" : "Tap to speak";
+    if (isSpeaking) return t("voice.speaking");
+    if (isListening) return t("voice.listeningStatus");
+    return t("voice.tapToSpeak");
   };
 
   // Orb style - Modern glowing orb like Siri

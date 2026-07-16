@@ -22,16 +22,17 @@ export default tseslint.config(
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
 
-      // Elite-Audit #9: prevent new inline `language === "de" ? "..." : "..."`
-      // ternaries from being added. Existing 395 occurrences are being migrated
-      // to t("key") — see audit/I18N_MIGRATION_PLAN.md.
-      // Currently `warn` so the migration in-flight doesn't block CI; upgrade
-      // to `error` once the plan's Batches A-G are done and grep returns 0.
+      // Elite-Audit #9: forbid inline `language === "de" ? "..." : "..."`
+      // ternaries. Migration is complete (grep returns 0). Rule is at `error`
+      // so any regression is caught in CI. If you legitimately need to branch
+      // on language for a config value (locale strings, date-fns Locale
+      // objects), use `language === "en"` instead — that pattern is not
+      // caught by this rule and is the correct escape hatch.
       "no-restricted-syntax": [
-        "warn",
+        "error",
         {
           selector: "ConditionalExpression[test.type='BinaryExpression'][test.operator='==='][test.left.name='language'][test.right.value='de']",
-          message: "Use t('key') from useTranslation instead of inline `language === \"de\" ? ... : ...` ternaries. See audit/I18N_MIGRATION_PLAN.md.",
+          message: "Use t('key') from useTranslation instead of inline `language === \"de\" ? ... : ...` ternaries. Rule at `error` — Elite-Audit #9 migration is complete. See audit/I18N_MIGRATION_PLAN.md.",
         },
       ],
     },

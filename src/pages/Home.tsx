@@ -48,7 +48,7 @@ export default function Home() {
   const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
   const returnState = useReturnState(language, companion?.name || "Soulvay");
 
-  const speechLang = language === "de" ? "de-DE" : "en-US";
+  const speechLang = t("common.locale");
 
   const {
     isListening,

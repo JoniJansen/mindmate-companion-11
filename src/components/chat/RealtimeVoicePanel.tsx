@@ -169,7 +169,8 @@ export const RealtimeVoicePanel = memo(function RealtimeVoicePanel({
 }: RealtimeVoicePanelProps) {
   const { language } = useTranslation();
   const voiceProfile = getCompanionVoiceProfile(companion.archetype);
-  const lang = (language === "de" ? "de" : "en") as "en" | "de";
+  // Type-narrowed locale token used by voice-profile helpers (config, not user copy)
+  const lang: "en" | "de" = language === "en" ? "en" : "de";
 
   const isConnected = status === "connected";
   const isConnecting = status === "connecting";

@@ -15,7 +15,7 @@ interface AudioDevice {
 }
 
 export function MicrophoneSelector({ selectedDeviceId, onSelect }: MicrophoneSelectorProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const [devices, setDevices] = useState<AudioDevice[]>([]);
   const [permissionState, setPermissionState] = useState<"prompt" | "granted" | "denied" | "unknown">("unknown");
   const [loading, setLoading] = useState(false);
@@ -25,15 +25,16 @@ export function MicrophoneSelector({ selectedDeviceId, onSelect }: MicrophoneSel
     try {
       // Need permission to get device labels
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(t => t.stop());
+      stream.getTracks().forEach(tr => tr.stop());
       setPermissionState("granted");
 
       const allDevices = await navigator.mediaDevices.enumerateDevices();
+      const fallbackPrefix = t("settings.mic.deviceFallbackLabel");
       const audioInputs = allDevices
         .filter(d => d.kind === "audioinput")
         .map(d => ({
           deviceId: d.deviceId,
-          label: d.label || (language === "de" ? `Mikrofon ${d.deviceId.slice(0, 4)}` : `Microphone ${d.deviceId.slice(0, 4)}`),
+          label: d.label || `${fallbackPrefix} ${d.deviceId.slice(0, 4)}`,
         }));
 
       logInfo("settings", "mic_devices_loaded", { count: audioInputs.length });
@@ -48,7 +49,7 @@ export function MicrophoneSelector({ selectedDeviceId, onSelect }: MicrophoneSel
     } finally {
       setLoading(false);
     }
-  }, [language]);
+  }, [t]);
 
   useEffect(() => {
     // Check permission state without triggering prompt
@@ -70,15 +71,13 @@ export function MicrophoneSelector({ selectedDeviceId, onSelect }: MicrophoneSel
     return () => navigator.mediaDevices?.removeEventListener("devicechange", handler);
   }, [permissionState, loadDevices]);
 
-  const defaultLabel = language === "de" ? "Systemstandard" : "System default";
+  const defaultLabel = t("voice.micDefault");
 
   if (permissionState === "denied") {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground p-2">
         <AlertCircle className="w-4 h-4 text-destructive shrink-0" />
-        <span>{language === "de"
-          ? "Mikrofonzugriff verweigert. Bitte aktiviere den Zugriff unter Einstellungen → Soulvay → Mikrofon."
-          : "Microphone access denied. Please enable it in Settings → Soulvay → Microphone."}</span>
+        <span>{t("settings.mic.permissionDeniedFull")}</span>
       </div>
     );
   }
@@ -91,7 +90,7 @@ export function MicrophoneSelector({ selectedDeviceId, onSelect }: MicrophoneSel
         className="w-full flex items-center justify-center gap-2 p-3 rounded-xl text-sm font-medium text-primary hover:bg-primary-soft transition-colors"
       >
         {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Mic className="w-4 h-4" />}
-        {language === "de" ? "Mikrofone laden" : "Load microphones"}
+        {t("settings.mic.loadMicrophones")}
       </button>
     );
   }

@@ -15,7 +15,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 export default function Install() {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { language, t: tr } = useTranslation();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -180,9 +180,7 @@ export default function Install() {
             <CalmCard className="text-center">
               <Monitor className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
               <p className="text-muted-foreground">
-                {language === "de"
-                  ? "Öffne diese Seite in deinem mobilen Browser, um die App zu installieren."
-                  : "Open this page in your mobile browser to install the app."}
+                {tr("install.openInMobileBrowser")}
               </p>
             </CalmCard>
           )}

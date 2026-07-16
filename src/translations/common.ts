@@ -39,6 +39,8 @@ export const commonTranslations: Translations = {
   "common.offlineBody": { en: "Check your connection and try again.", de: "Prüfe deine Verbindung und versuche es nochmal." },
   "common.continue": { en: "Continue", de: "Weiter" },
   "common.clear": { en: "Clear", de: "Entfernen" },
+  "common.reload": { en: "Reload", de: "Neu laden" },
+  "common.goHome": { en: "Go Home", de: "Zur Startseite" },
 
   // Error messages
   "error.unauthorized": { en: "Session expired", de: "Sitzung abgelaufen" },
@@ -52,6 +54,11 @@ export const commonTranslations: Translations = {
   "error.unexpectedBody": { en: "That wasn't supposed to happen. Please try again.", de: "Das sollte nicht passieren. Bitte versuche es nochmal." },
   "error.network": { en: "No connection", de: "Keine Verbindung" },
   "error.networkBody": { en: "Check your internet connection and try again.", de: "Prüfe deine Internetverbindung und versuche es nochmal." },
+  "error.reloadOrGoBack": { en: "That wasn't supposed to happen. Reload the page or go back to start.", de: "Das sollte nicht passieren. Lade die Seite neu oder kehre zur Startseite zurück." },
+  "error.sectionFailed": { en: "This section couldn't load.", de: "Dieser Bereich konnte nicht geladen werden." },
+
+  // Premium management
+  "premium.manageInIOSSettings": { en: "Please manage your subscription in iOS Settings → Subscriptions", de: "Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements" },
 
   // Not Found page
   "notFound.title": { en: "Page not found", de: "Seite nicht gefunden" },

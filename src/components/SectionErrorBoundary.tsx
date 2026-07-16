@@ -51,7 +51,11 @@ export class SectionErrorBoundary extends Component<Props, State> {
       const isGerman = (() => {
         try {
           const prefs = localStorage.getItem("soulvay-preferences");
-          if (prefs) return JSON.parse(prefs).language === "de";
+          if (prefs) {
+            const lang = JSON.parse(prefs).language;
+            if (lang === "en") return false;
+            if (lang) return true;
+          }
         } catch {}
         return navigator.language?.startsWith("de") || false;
       })();

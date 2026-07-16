@@ -6,12 +6,12 @@ interface MessageLimitIndicatorProps {
   isPremium: boolean;
 }
 
-export function MessageLimitIndicator({ 
-  messagesRemaining, 
-  dailyLimit, 
-  isPremium 
+export function MessageLimitIndicator({
+  messagesRemaining,
+  dailyLimit,
+  isPremium
 }: MessageLimitIndicatorProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
 
   // Don't show for premium users
   if (isPremium) return null;
@@ -22,19 +22,10 @@ export function MessageLimitIndicator({
 
   const getMessage = () => {
     if (isEmpty) {
-      return language === "de" 
-        ? "Tageslimit erreicht — morgen geht es weiter" 
-        : "Daily limit reached — continue tomorrow";
+      return t("messageLimit.dailyReached");
     }
-    if (isLow) {
-      return language === "de"
-        ? `${messagesUsed} von ${dailyLimit} Nachrichten heute`
-        : `${messagesUsed} of ${dailyLimit} messages today`;
-    }
-    // Always show usage counter for transparency
-    return language === "de"
-      ? `${messagesUsed} von ${dailyLimit} Nachrichten heute`
-      : `${messagesUsed} of ${dailyLimit} messages today`;
+    // Always show usage counter for transparency (same text for low + normal)
+    return `${messagesUsed}${t("messageLimit.ofSep")}${dailyLimit}${t("messageLimit.messagesTodaySuffix")}`;
   };
 
   return (

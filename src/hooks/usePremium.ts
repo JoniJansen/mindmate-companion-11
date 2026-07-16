@@ -52,7 +52,7 @@ const getDefaultState = (): StoredState => ({
 
 export function usePremium() {
   const { user, isDemoMode } = useAuth();
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const [state, setState] = useState<StoredState>(getDefaultState);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
@@ -288,9 +288,7 @@ export function usePremium() {
 
     // For RevenueCat, users manage subscriptions through App Store
     if (isRevenueCatAvailable) {
-      throw new Error(language === "de"
-        ? "Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements"
-        : "Please manage your subscription in iOS Settings → Subscriptions");
+      throw new Error(t("premium.manageInIOSSettings"));
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {
@@ -313,9 +311,7 @@ export function usePremium() {
 
     // For RevenueCat, users manage subscriptions through App Store
     if (isRevenueCatAvailable) {
-      throw new Error(language === "de"
-        ? "Bitte verwalte dein Abo in den iOS Einstellungen → Abonnements"
-        : "Please manage your subscription in iOS Settings → Subscriptions");
+      throw new Error(t("premium.manageInIOSSettings"));
     }
 
     const { data, error } = await supabase.functions.invoke("manage-subscription", {

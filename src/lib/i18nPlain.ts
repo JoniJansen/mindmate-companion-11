@@ -49,7 +49,7 @@ export function getAppLanguage(): Lang {
     const stored = localStorage.getItem("soulvay-preferences");
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (parsed.language === "de" || parsed.language === "en") return parsed.language;
+      if (["de", "en"].includes(parsed.language)) return parsed.language;
     }
   } catch {}
   return "de"; // default

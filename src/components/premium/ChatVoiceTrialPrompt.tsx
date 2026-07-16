@@ -4,10 +4,11 @@ import { Mic, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { canUseVoiceTrial } from "./VoiceTrialCard";
 import { analytics } from "@/hooks/useAnalytics";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ChatVoiceTrialPromptProps {
   companionName: string;
-  language: "en" | "de";
+  language?: "en" | "de";
   messageCount: number;
   isPremium: boolean;
 }
@@ -18,11 +19,11 @@ interface ChatVoiceTrialPromptProps {
  */
 export function ChatVoiceTrialPrompt({
   companionName,
-  language,
   messageCount,
   isPremium,
 }: ChatVoiceTrialPromptProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const trackedRef = useRef(false);
 
   const shouldShow = messageCount >= 6 && !isPremium && canUseVoiceTrial();
@@ -37,17 +38,11 @@ export function ChatVoiceTrialPrompt({
 
   if (!shouldShow) return null;
 
-  const copy = language === "de"
-    ? {
-        lead: "Willst du das mal persönlich ausprobieren?",
-        sub: `Du kannst einmal kostenlos mit ${companionName} sprechen.`,
-        cta: "Face-to-Face starten",
-      }
-    : {
-        lead: "Want to try this in person?",
-        sub: `You can speak with ${companionName} once for free.`,
-        cta: "Start Face-to-Face",
-      };
+  const copy = {
+    lead: t("chatVoiceTrialPrompt.lead"),
+    sub: `${t("chatVoiceTrialPrompt.subPrefix")}${companionName}${t("chatVoiceTrialPrompt.subSuffix")}`,
+    cta: t("chatVoiceTrialPrompt.cta"),
+  };
 
   return (
     <motion.div

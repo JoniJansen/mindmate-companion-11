@@ -149,14 +149,14 @@ export function CompanionCard({
           <div className="flex items-center gap-2 mb-0.5">
             <span className="font-semibold text-foreground">{companion.name}</span>
             <span className="text-xs text-muted-foreground">
-              {language === "de" ? companion.pronounsDe ?? "" : companion.pronouns ?? ""}
+              {language === "en" ? (companion.pronouns ?? "") : (companion.pronounsDe ?? "")}
             </span>
             {selected && (
               <span className="ml-auto text-xs font-medium text-primary">✓</span>
             )}
           </div>
           <p className="text-xs text-muted-foreground line-clamp-1 mb-1">
-            {companion.approach?.[language] ?? (language === "de" ? companion.descriptionDe : companion.description)}
+            {companion.approach?.[language] ?? (language === "en" ? companion.description : companion.descriptionDe)}
           </p>
           <p className="text-sm text-foreground/80 leading-snug line-clamp-2">
             {companion.specialty?.[language] ?? companion.personalityStyle}
@@ -166,7 +166,7 @@ export function CompanionCard({
 
       {/* Tagline */}
       <p className="mt-2.5 text-xs italic text-muted-foreground pl-15">
-        "{companion.tagline?.[language] ?? (language === "de" ? companion.introGreetingDe : companion.introGreeting)}"
+        "{companion.tagline?.[language] ?? (language === "en" ? companion.introGreeting : companion.introGreetingDe)}"
       </p>
     </motion.button>
   );

@@ -14,7 +14,7 @@ import type { Message } from "@/hooks/useChatComposer";
 export function useChatIntelligence() {
   const { user } = useAuth();
   const { companion, incrementBond } = useCompanion();
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { toast } = useToast();
 
   /**
@@ -76,11 +76,9 @@ export function useChatIntelligence() {
           const milestones = [3, 5, 10, 15, 20, 30, 50];
           if (milestones.includes(result.newLevel)) {
             const companionName = companion?.name || "Soulvay";
-            const msg = language === "de"
-              ? `Du und ${companionName} versteht euch immer besser.`
-              : `You and ${companionName} are understanding each other better.`;
+            const msg = t("chat.bond.milestone").replace("{name}", companionName);
             toast({
-              title: `✨ ${language === "de" ? "Verbindungslevel" : "Bond level"} ${result.newLevel}`,
+              title: `✨ ${t("chat.bond.level")} ${result.newLevel}`,
               description: msg,
             });
           }
@@ -89,7 +87,7 @@ export function useChatIntelligence() {
     } catch {
       // Intelligence extraction is non-critical — never block the user
     }
-  }, [user, companion, incrementBond, language, toast]);
+  }, [user, companion, incrementBond, language, t, toast]);
 
   return { extractIntelligence };
 }

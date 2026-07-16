@@ -41,11 +41,16 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      // Detect language from localStorage
+      // Detect language from localStorage. Kept inline (no hooks) so the
+      // root boundary works even if the translation provider itself crashes.
       const isGerman = (() => {
         try {
           const prefs = localStorage.getItem("soulvay-preferences");
-          if (prefs) return JSON.parse(prefs).language === "de";
+          if (prefs) {
+            const lang = JSON.parse(prefs).language;
+            if (lang === "en") return false;
+            if (lang) return true;
+          }
         } catch {}
         return navigator.language?.startsWith("de") || false;
       })();

@@ -55,7 +55,7 @@ export const TabHint = forwardRef<HTMLDivElement, TabHintProps>(function TabHint
     setIsVisible(false);
   };
 
-  const hintText = language === "de" ? hintTexts[tabId].de : hintTexts[tabId].en;
+  const hintText = hintTexts[tabId][language];
 
   return (
     <AnimatePresence>

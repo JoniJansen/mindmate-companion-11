@@ -15,31 +15,27 @@ const modes = [
   {
     id: "talk" as ChatMode,
     icon: MessageCircle,
-    labelEn: "Talk",
-    labelDe: "Freireden",
+    labelKey: "chat.mode.talk",
   },
   {
     id: "clarify" as ChatMode,
     icon: Lightbulb,
-    labelEn: "Clarify",
-    labelDe: "Klären",
+    labelKey: "chat.mode.clarify",
   },
   {
     id: "calm" as ChatMode,
     icon: Heart,
-    labelEn: "Calm",
-    labelDe: "Beruhigen",
+    labelKey: "chat.mode.calm",
   },
   {
     id: "patterns" as ChatMode,
     icon: TrendingUp,
-    labelEn: "Patterns",
-    labelDe: "Muster",
+    labelKey: "chat.mode.patterns",
   },
 ];
 
 export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }: ChatModeSelectorProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
@@ -146,13 +142,13 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
         <div 
           className="inline-flex flex-nowrap items-center gap-0.5 p-1 bg-muted/60 rounded-xl border border-border/50 w-full max-w-md"
           role="tablist"
-          aria-label={language === "de" ? "Chat-Modus wählen" : "Select chat mode"}
+          aria-label={t("chat.modeSelectLabel")}
         >
           {modes.map((mode) => {
             const isActive = activeMode === mode.id;
             const isLocked = lockedModes.includes(mode.id);
             const Icon = mode.icon;
-            const label = language === "de" ? mode.labelDe : mode.labelEn;
+            const label = t(mode.labelKey);
             
             return (
               <button
@@ -187,8 +183,8 @@ export function ChatModeSelector({ activeMode, onModeChange, lockedModes = [] }:
                   ]
                 )}
                 title={
-                  isLocked 
-                    ? (language === "de" ? "Soulvay Plus erforderlich" : "Requires Soulvay Plus")
+                  isLocked
+                    ? t("chat.requiresPlus")
                     : label
                 }
               >
