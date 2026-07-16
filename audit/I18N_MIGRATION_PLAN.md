@@ -1,5 +1,28 @@
 # i18n Migration Plan — Elite-Audit #9
 
+## STATUS: ✅ COMPLETE (2026-07-16)
+
+All 395 inline `language === "de"` ternaries migrated. ESLint
+`no-restricted-syntax` rule at `error` — any regression blocks CI.
+Grep verification:
+
+```
+$ grep -rc 'language === "de"' src/ | awk -F: '{s+=$2} END {print s}'
+0
+```
+
+Commits:
+- `ad6ce9f` POC (ProgressUnlock, 7 ternaries) + plan + ESLint guard as warn
+- `fbd8bc9` batch 1 — 3 parallel agents, 7 files, 112 ternaries
+- `326487f` batch 2 — 2 parallel agents, 4 diverged files, 65 ternaries
+- `f5d7119` batch 3 — 3 parallel agents, 19 files, 112 ternaries
+- `b8d2295` batch 4 — 3 parallel agents, 49 files, 105 ternaries + AudioLibrary inline + ESLint promoted to error
+
+Original plan below preserved for historical reference; all batches
+listed are now done.
+
+---
+
 ## Situation
 
 Soulvay has **395 inline `language === "de" ? "..." : "..."` ternaries** across 40+ files. Elite-Audit #9 flags this as "Hoch/Large" — high leverage but sprawling work.
