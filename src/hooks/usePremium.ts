@@ -5,6 +5,7 @@ import { useTranslation } from "./useTranslation";
 // reviewMode.ts no longer exports auth helpers — demo flow is in-memory only.
 import { useRevenueCat } from "./useRevenueCat";
 import { getSimulatedPremiumOverride } from "./useEntitlementSimulator";
+import { resolvePremium } from "@/lib/resolvePremium";
 
 export interface PremiumState {
   isPremium: boolean;
@@ -400,15 +401,21 @@ export function usePremium() {
 
   // DEV: entitlement simulator override
   const simOverride = getSimulatedPremiumOverride();
-  
-  // Compute final premium status:
-  // Priority: Simulator (DEV only) > RevenueCat entitlement > server-verified backend subscription.
-  // localStorage is cache/UX state only and never authorizes premium access.
-  // Demo mode hard-overrides everything: reviewer must always see paywall, never premium.
-  const verifiedPremium = isDemoMode ? false : (isRevenueCatPremium || serverVerifiedPremium === true);
-  const finalIsPremium = simOverride !== null ? simOverride.isPremium : verifiedPremium;
-  const finalPlanType = simOverride !== null ? simOverride.planType : state.planType;
-  const finalSubscriptionStatus = simOverride !== null ? simOverride.subscriptionStatus : state.subscriptionStatus;
+
+  // Delegate to pure resolvePremium() — see src/lib/resolvePremium.ts for the
+  // priority rules and doc. Extracted so the logic can be unit-tested
+  // (Elite-Audit #8) without mounting the whole hook.
+  const resolved = resolvePremium({
+    isDemoMode,
+    isRevenueCatPremium,
+    serverVerifiedPremium,
+    simOverride,
+    currentPlanType: state.planType,
+    currentSubscriptionStatus: state.subscriptionStatus,
+  });
+  const finalIsPremium = resolved.isPremium;
+  const finalPlanType = resolved.planType;
+  const finalSubscriptionStatus = resolved.subscriptionStatus;
 
   // Feature flags
   const canUseVoice = finalIsPremium;
