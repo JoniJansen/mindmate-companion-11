@@ -107,13 +107,12 @@ export async function requireAdmin(req: Request) {
 }
 
 /**
- * Requires the authenticated user to have an active premium subscription
- * on the server side. Complements the client-side usePremium gate — the
- * client one is UX; this one is authorization.
+ * Enforce a server-side premium subscription check for an ALREADY-AUTHED
+ * user. Composable — call this after `requireUser`, `requireAIConsent`,
+ * or any other auth helper that produced `{ user, supabase }`.
  *
- * Elite-Audit #6: without this, anyone with a valid JWT can call
- * text-to-speech / session-insight / generate-summary / journal-reflect
- * / weekly-recap directly via cURL and bypass the paywall.
+ * Elite-Audit #6: without this, anyone with a valid JWT can call the
+ * five premium edge functions directly via cURL and bypass the paywall.
  *
  * Deployed in a THREE-MODE feature-flag pattern because the DB layer
  * (subscriptions table) has a known write-failure bug that's tracked
@@ -132,16 +131,14 @@ export async function requireAdmin(req: Request) {
  *                 user is not premium. Use this once "log" mode has
  *                 stopped emitting false-positive warnings.
  *
- * Returns the same { user, supabase } shape as requireUser() when the
- * gate allows the request.
+ * Throws a 402 Response in enforce mode; returns void otherwise.
  */
-export async function requirePremium(req: Request) {
-  const { user, supabase } = await requireUser(req);
-
+export async function enforcePremium(
+  user: { id: string },
+  supabase: ReturnType<typeof createClient>,
+): Promise<void> {
   const mode = (Deno.env.get("PREMIUM_GATE_MODE") ?? "off").toLowerCase();
-  if (mode === "off") {
-    return { user, supabase };
-  }
+  if (mode === "off") return;
 
   // Query the subscriptions table with the SAME rule that
   // manage-subscription/index.ts uses for `action: 'status'`:
@@ -154,10 +151,7 @@ export async function requirePremium(req: Request) {
     .maybeSingle();
 
   const isPremium = sub?.status === "active";
-
-  if (isPremium) {
-    return { user, supabase };
-  }
+  if (isPremium) return;
 
   // Not premium — either log or block based on mode
   if (mode === "log") {
@@ -169,7 +163,7 @@ export async function requirePremium(req: Request) {
       userId: user.id,
       subStatus: sub?.status ?? null,
     }));
-    return { user, supabase };
+    return;
   }
 
   // mode === "enforce" (or any unknown value — fail closed)
@@ -180,4 +174,26 @@ export async function requirePremium(req: Request) {
     }),
     { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
+}
+
+/**
+ * Convenience combo: `requireUser` + `enforcePremium`.
+ * For functions that don't also need AI consent.
+ */
+export async function requirePremium(req: Request) {
+  const { user, supabase } = await requireUser(req);
+  await enforcePremium(user, supabase);
+  return { user, supabase };
+}
+
+/**
+ * Convenience combo: `requireAIConsent` + `enforcePremium`.
+ * For AI-generating functions that need both AI-processing consent AND
+ * an active premium subscription (session-insight, generate-summary,
+ * journal-reflect, weekly-recap).
+ */
+export async function requireAIConsentAndPremium(req: Request) {
+  const { user, supabase } = await requireAIConsent(req);
+  await enforcePremium(user, supabase);
+  return { user, supabase };
 }
