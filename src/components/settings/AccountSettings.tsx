@@ -5,6 +5,7 @@ import { isNativeApp } from "@/lib/nativeDetect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -49,6 +50,7 @@ const BACKUP_REMINDER_KEY = "soulvay-last-export";
 const BACKUP_REMINDER_INTERVAL_KEY = "soulvay-backup-interval";
 
 export function AccountSettings({ language }: AccountSettingsProps) {
+  const { t: tt } = useTranslation();
   const { user, profile, resetPassword, updatePassword, updateProfile, refreshProfile, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -328,7 +330,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     }
     
     toast({
-      title: language === "de" ? "Erinnerung aktualisiert" : "Reminder updated",
+      title: tt("accountSettings.reminderUpdated"),
     });
   };
 
@@ -340,8 +342,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
   const formatLastBackupText = (): string => {
     const days = getDaysSinceLastExport();
     if (days === null) return t.never;
-    if (days === 0) return language === "de" ? "Heute" : "Today";
-    if (days === 1) return language === "de" ? "Gestern" : "Yesterday";
+    if (days === 0) return tt("accountSettings.today");
+    if (days === 1) return tt("accountSettings.yesterday");
     return t.daysAgo.replace("{days}", days.toString());
   };
 
@@ -374,7 +376,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       refreshProfile();
     } catch (error: any) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: tt("accountSettings.error"),
         description: error.message,
         variant: "destructive",
       });
@@ -403,7 +405,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       setConfirmPassword("");
     } catch (error: any) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: tt("accountSettings.error"),
         description: error.message,
         variant: "destructive",
       });
@@ -421,7 +423,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       toast({ title: t.resetEmailSent, description: t.resetEmailDesc });
     } catch (error: any) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: tt("accountSettings.error"),
         description: error.message,
         variant: "destructive",
       });
@@ -441,8 +443,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
     if (!file.type.startsWith("image/")) {
       toast({
-        title: language === "de" ? "Ungültiger Dateityp" : "Invalid file type",
-        description: language === "de" ? "Bitte wähle ein Bild aus" : "Please select an image",
+        title: tt("accountSettings.invalidFileType"),
+        description: tt("accountSettings.invalidFileTypeDesc"),
         variant: "destructive",
       });
       return;
@@ -450,8 +452,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
 
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: language === "de" ? "Datei zu groß" : "File too large",
-        description: language === "de" ? "Maximale Größe: 5MB" : "Maximum size: 5MB",
+        title: tt("accountSettings.fileTooLarge"),
+        description: tt("accountSettings.fileTooLargeDesc"),
         variant: "destructive",
       });
       return;
@@ -476,8 +478,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
     } catch (error: any) {
       if (import.meta.env.DEV) console.error('Avatar upload error:', error);
       toast({
-        title: language === "de" ? "Fehler beim Hochladen" : "Upload failed",
-        description: error.message || (language === "de" ? "Bitte versuche es erneut" : "Please try again"),
+        title: tt("accountSettings.uploadFailed"),
+        description: error.message || tt("accountSettings.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -634,7 +636,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       toast({ title: t.exportSuccess });
     } catch (error: any) {
       toast({
-        title: language === "de" ? "Export fehlgeschlagen" : "Export failed",
+        title: tt("accountSettings.exportFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -659,7 +661,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       }
     } catch (error: any) {
       toast({
-        title: language === "de" ? "Fehler beim Einrichten" : "Setup failed",
+        title: tt("accountSettings.setupFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -694,7 +696,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       toast({ title: t.twoFactorSuccess });
     } catch (error: any) {
       toast({
-        title: language === "de" ? "Verifizierung fehlgeschlagen" : "Verification failed",
+        title: tt("accountSettings.verificationFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -715,7 +717,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       toast({ title: t.twoFactorDisabledSuccess });
     } catch (error: any) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: tt("accountSettings.error"),
         description: error.message,
         variant: "destructive",
       });
@@ -740,7 +742,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
       navigate("/auth", { replace: true });
     } catch (error: any) {
       toast({
-        title: language === "de" ? "Fehler beim Löschen" : "Delete failed",
+        title: tt("accountSettings.deleteFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -802,7 +804,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
               <>
                 <p className="text-xs text-muted-foreground">{t.displayName}</p>
                 <p className="font-medium text-foreground truncate">
-                  {profile?.display_name || (language === "de" ? "Soulvay Nutzer" : "Soulvay User")}
+                  {profile?.display_name || tt("accountSettings.defaultUserName")}
                 </p>
               </>
             )}
@@ -926,7 +928,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
                 disabled={isEnabling2FA}
                 className="w-full"
               >
-                {isEnabling2FA ? (language === "de" ? "Wird eingerichtet..." : "Setting up...") : t.setup2FA}
+                {isEnabling2FA ? tt("accountSettings.settingUp") : t.setup2FA}
               </Button>
             </div>
           )}
@@ -955,9 +957,7 @@ export function AccountSettings({ language }: AccountSettingsProps) {
           <DialogHeader>
             <DialogTitle>{t.changePassword}</DialogTitle>
             <DialogDescription>
-              {language === "de" 
-                ? "Gib dein neues Passwort ein und bestätige es."
-                : "Enter your new password and confirm it."}
+              {tt("accountSettings.newPasswordDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -997,8 +997,8 @@ export function AccountSettings({ language }: AccountSettingsProps) {
               onClick={handleChangePassword}
               disabled={isChangingPassword || !newPassword || !confirmPassword}
             >
-              {isChangingPassword 
-                ? (language === "de" ? "Wird geändert..." : "Changing...") 
+              {isChangingPassword
+                ? tt("accountSettings.changing")
                 : t.change}
             </Button>
           </DialogFooter>

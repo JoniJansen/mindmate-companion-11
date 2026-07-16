@@ -23,7 +23,7 @@ interface SubscriptionSectionProps {
 }
 
 export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const {
     isPremium,
@@ -43,7 +43,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
+    return date.toLocaleDateString(t("subscription.locale"), {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -55,14 +55,12 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
     try {
       await cancelSubscription();
       toast({
-        title: language === "de" ? "Abo gekündigt" : "Subscription canceled",
-        description: language === "de" 
-          ? `Dein Abo läuft noch bis zum ${formatDate(currentPeriodEnd)}. Bis dahin behältst du alle Plus-Funktionen.` 
-          : `Your subscription remains active until ${formatDate(currentPeriodEnd)}.`,
+        title: t("subscription.canceledToast.title"),
+        description: `${t("subscription.canceledToast.descPrefix")}${formatDate(currentPeriodEnd)}${t("subscription.canceledToast.descSuffix")}`,
       });
     } catch (error) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: t("common.error"),
         description: (error as Error).message,
         variant: "destructive",
       });
@@ -77,14 +75,12 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
     try {
       await reactivateSubscription();
       toast({
-        title: language === "de" ? "Abo reaktiviert" : "Subscription reactivated",
-        description: language === "de" 
-          ? "Dein Abo bleibt aktiv. Schön, dass du bleibst!" 
-          : "Your subscription will continue.",
+        title: t("subscription.reactivatedToast.title"),
+        description: t("subscription.reactivatedToast.desc"),
       });
     } catch (error) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: t("common.error"),
         description: (error as Error).message,
         variant: "destructive",
       });
@@ -99,7 +95,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
       await openBillingPortal();
     } catch (error) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
+        title: t("common.error"),
         description: (error as Error).message,
         variant: "destructive",
       });
@@ -115,7 +111,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
           animate={{ opacity: 1, y: 0 }}
         >
           <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
-            {language === "de" ? "Abonnement" : "Subscription"}
+            {t("subscription.heading")}
           </h2>
           <CalmCard variant="elevated">
             <div className="space-y-4">
@@ -127,19 +123,15 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-foreground">Soulvay Plus</p>
                     <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                      {planType === "yearly" 
-                        ? (language === "de" ? "Jährlich" : "Yearly") 
-                        : (language === "de" ? "Monatlich" : "Monthly")}
+                      {planType === "yearly"
+                        ? t("subscription.planYearly")
+                        : t("subscription.planMonthly")}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {cancelAtPeriodEnd 
-                      ? (language === "de" 
-                          ? `Endet am ${formatDate(currentPeriodEnd)}` 
-                          : `Ends on ${formatDate(currentPeriodEnd)}`)
-                      : (language === "de" 
-                          ? `Nächste Zahlung: ${formatDate(currentPeriodEnd)}` 
-                          : `Next payment: ${formatDate(currentPeriodEnd)}`)}
+                    {cancelAtPeriodEnd
+                      ? `${t("subscription.endsOnPrefix")}${formatDate(currentPeriodEnd)}`
+                      : `${t("subscription.nextPaymentPrefix")}${formatDate(currentPeriodEnd)}`}
                   </p>
                 </div>
               </div>
@@ -148,9 +140,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
               {cancelAtPeriodEnd && (
                 <div className="p-3 rounded-xl bg-destructive/5 border border-destructive/10">
                   <p className="text-sm text-foreground">
-                    {language === "de" 
-                      ? `Dein Abo wurde gekündigt. Du behältst alle Plus-Funktionen bis zum ${formatDate(currentPeriodEnd)}.`
-                      : `Your subscription has been canceled. You'll keep Plus features until ${formatDate(currentPeriodEnd)}.`}
+                    {`${t("subscription.canceledInfoPrefix")}${formatDate(currentPeriodEnd)}${t("subscription.canceledInfoSuffix")}`}
                   </p>
                 </div>
               )}
@@ -172,30 +162,30 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
                       ) : (
                         <CreditCard className="w-4 h-4 mr-2" />
                       )}
-                      {language === "de" ? "Zahlung verwalten" : "Manage billing"}
+                      {t("subscription.manageBilling")}
                     </Button>
                   )}
 
                   {cancelAtPeriodEnd ? (
-                    <Button 
-                      variant="default" 
-                      size="sm" 
+                    <Button
+                      variant="default"
+                      size="sm"
                       onClick={handleReactivate}
                       disabled={isLoading}
                       className="w-full"
                     >
                       {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                      {language === "de" ? "Abo reaktivieren" : "Reactivate subscription"}
+                      {t("subscription.reactivate")}
                     </Button>
                   ) : (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setShowCancelDialog(true)}
                       disabled={isLoading}
                       className="w-full text-muted-foreground hover:text-destructive"
                     >
-                      {language === "de" ? "Abo kündigen" : "Cancel subscription"}
+                      {t("subscription.cancel")}
                     </Button>
                   )}
                 </div>
@@ -209,24 +199,20 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                {language === "de" ? "Abo wirklich kündigen?" : "Cancel subscription?"}
+                {t("subscription.cancelDialog.title")}
               </AlertDialogTitle>
               <AlertDialogDescription className="space-y-2">
                 <p>
-                  {language === "de" 
-                    ? `Dein Abo wird zum Ende der aktuellen Laufzeit am ${formatDate(currentPeriodEnd)} beendet. Bis dahin behältst du alle Plus-Funktionen.`
-                    : `Your subscription will end on ${formatDate(currentPeriodEnd)}. You'll keep all Plus features until then.`}
+                  {`${t("subscription.cancelDialog.descPrefix")}${formatDate(currentPeriodEnd)}${t("subscription.cancelDialog.descSuffix")}`}
                 </p>
                 <p className="font-medium">
-                  {language === "de"
-                    ? "Du verlierst dann: Unbegrenzte Gespräche, Sprachfunktion, Wochenrückblicke und mehr."
-                    : "You'll lose: Unlimited conversations, voice features, weekly recaps and more."}
+                  {t("subscription.cancelDialog.willLose")}
                 </p>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>
-                {language === "de" ? "Abo behalten" : "Keep subscription"}
+                {t("subscription.cancelDialog.keep")}
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleCancel}
@@ -235,7 +221,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 ) : null}
-                {language === "de" ? "Jetzt kündigen" : "Cancel now"}
+                {t("subscription.cancelDialog.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -246,10 +232,10 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
 
   // Free tier - show upgrade prompt
   const features = [
-    { en: "Unlimited conversations", de: "Unbegrenzte Gespräche" },
-    { en: "Voice conversations", de: "Sprachgespräche" },
-    { en: "Weekly recaps & insights", de: "Wochenrückblicke & Einblicke" },
-    { en: "Guided journaling", de: "Geführtes Tagebuch" },
+    t("subscription.feat.unlimited"),
+    t("subscription.feat.voice"),
+    t("subscription.feat.recaps"),
+    t("subscription.feat.journal"),
   ];
 
   return (
@@ -258,7 +244,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
       animate={{ opacity: 1, y: 0 }}
     >
       <h2 className="text-sm font-medium text-muted-foreground mb-3 px-1">
-        {language === "de" ? "Abonnement" : "Subscription"}
+        {t("subscription.heading")}
       </h2>
       <CalmCard variant="elevated" className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
         <div className="space-y-4">
@@ -269,9 +255,7 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
             <div>
               <p className="font-medium text-foreground">Soulvay Plus</p>
               <p className="text-sm text-muted-foreground">
-                {language === "de" 
-                  ? "Entfalte dein volles Potenzial" 
-                  : "Unlock your full potential"}
+                {t("subscription.unlockPotential")}
               </p>
             </div>
           </div>
@@ -280,23 +264,21 @@ export function SubscriptionSection({ onUpgradeClick }: SubscriptionSectionProps
             {features.map((feature, i) => (
               <li key={i} className="flex items-center gap-2 text-sm text-foreground/80">
                 <Check className="w-4 h-4 text-primary shrink-0" />
-                {language === "de" ? feature.de : feature.en}
+                {feature}
               </li>
             ))}
           </ul>
 
-          <Button 
-            onClick={onUpgradeClick} 
+          <Button
+            onClick={onUpgradeClick}
             className="w-full"
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            {language === "de" ? "Plus entdecken" : "Explore Plus"}
+            {t("subscription.explorePlus")}
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            {language === "de" 
-              ? "Ab €9,99/Monat • Jederzeit kündbar" 
-              : "From €9.99/month • Cancel anytime"}
+            {t("subscription.footnote")}
           </p>
         </div>
       </CalmCard>

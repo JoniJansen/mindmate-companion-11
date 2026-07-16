@@ -26,7 +26,7 @@ interface CompanionSelectorProps {
 }
 
 export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, onNavigateUpgrade }: CompanionSelectorProps) {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const { isPremium } = usePremium();
   const [selectedId, setSelectedId] = useState(currentCompanion?.archetype || "mira");
   const [customName, setCustomName] = useState(currentCompanion?.name || "");
@@ -86,7 +86,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
       <div className="flex flex-col gap-3">
         {companionArchetypes.map((arch, index) => {
           const isSelected = selectedId === arch.id;
-          const desc = language === "de" ? arch.descriptionDe : arch.description;
+          const desc = language === "en" ? arch.description : arch.descriptionDe;
           return (
             <motion.div
               key={arch.id}
@@ -135,7 +135,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-foreground">
-            {language === "de" ? "Name anpassen" : "Customize name"}
+            {t("companionSelector.customizeName")}
           </label>
           {!isPremium && <Sparkles className="w-3.5 h-3.5 text-primary" />}
         </div>
@@ -146,7 +146,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               onChange={(e) => setCustomName(e.target.value)}
               maxLength={20}
               className="rounded-xl"
-              placeholder={language === "de" ? "Name deines Begleiters" : "Your companion's name"}
+              placeholder={t("companionSelector.namePlaceholder")}
             />
             <Button
               onClick={handleNameSave}
@@ -154,7 +154,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
               size="sm"
               className="rounded-xl shrink-0"
             >
-              {language === "de" ? "Speichern" : "Save"}
+              {t("companionSelector.save")}
             </Button>
           </div>
         ) : (
@@ -162,9 +162,7 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
             onClick={onNavigateUpgrade}
             className="w-full text-left p-3 rounded-xl border border-dashed border-primary/30 bg-primary/5 text-sm text-muted-foreground"
           >
-            {language === "de"
-              ? "Upgrade auf Plus, um deinen Begleiter umzubenennen und das Aussehen anzupassen."
-              : "Upgrade to Plus to rename your companion and customize appearance."}
+            {t("companionSelector.upgradeToRename")}
           </button>
         )}
       </div>
@@ -174,20 +172,18 @@ export function CompanionSelector({ currentCompanion, onSelect, onUpdateName, on
         <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {language === "de" ? "Begleiter wechseln?" : "Switch companion?"}
+              {t("companionSelector.switchTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {language === "de"
-                ? `Möchtest du von ${currentCompanion?.name || ""} zu ${confirmSwitch?.name || ""} wechseln? Dein Gesprächsverlauf bleibt erhalten, aber neue Gespräche werden mit ${confirmSwitch?.name || ""} geführt.`
-                : `Switch from ${currentCompanion?.name || ""} to ${confirmSwitch?.name || ""}? Your conversation history will be preserved, but new conversations will be with ${confirmSwitch?.name || ""}.`}
+              {`${t("companionSelector.switchDescPart1")}${currentCompanion?.name || ""}${t("companionSelector.switchDescPart2")}${confirmSwitch?.name || ""}${t("companionSelector.switchDescPart3")}${confirmSwitch?.name || ""}${t("companionSelector.switchDescPart4")}`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-xl">
-              {language === "de" ? "Abbrechen" : "Cancel"}
+              {t("companionSelector.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmSwitch} className="rounded-xl">
-              {language === "de" ? "Wechseln" : "Switch"}
+              {t("companionSelector.switch")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

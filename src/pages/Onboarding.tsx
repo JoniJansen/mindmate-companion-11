@@ -12,6 +12,7 @@ import { companionArchetypes, CompanionArchetype } from "@/data/companions";
 import logoImage from "@/assets/logo.png";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { analytics } from "@/hooks/useAnalytics";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type Language = "en" | "de";
 
@@ -93,8 +94,25 @@ const translations = {
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState<Step>("name");
   const [state, setState] = useState<OnboardingState>(() => {
-    const browserLang = navigator.language?.toLowerCase() || "";
-    const detectedLang: Language = browserLang.startsWith("de") ? "de" : "en";
+    // Align initial language with useTranslation so t() calls stay in sync.
+    let detectedLang: Language = "de";
+    try {
+      const stored = localStorage.getItem("soulvay-preferences");
+      if (stored) {
+        const prefs = JSON.parse(stored);
+        if (prefs.language && ["en", "de"].includes(prefs.language)) {
+          detectedLang = prefs.language;
+        } else {
+          const browserLang = navigator.language?.toLowerCase() || "";
+          detectedLang = browserLang.startsWith("en") ? "en" : "de";
+        }
+      } else {
+        const browserLang = navigator.language?.toLowerCase() || "";
+        detectedLang = browserLang.startsWith("en") ? "en" : "de";
+      }
+    } catch {
+      // ignore malformed prefs — fall back to default "de"
+    }
     return {
       language: detectedLang,
       name: "",
@@ -103,12 +121,13 @@ export default function Onboarding() {
       disclaimerAccepted: false,
     };
   });
-  
+
   const navigate = useNavigate();
   const { isDark, setMode: setThemeMode } = useTheme();
   const { completeOnboarding } = useOnboardingStatus();
   const { isAuthenticated } = useAuth();
   const { selectArchetype } = useCompanion();
+  const { t: tr } = useTranslation();
   const [isFinishing, setIsFinishing] = useState(false);
 
   // Track onboarding started once
@@ -221,10 +240,22 @@ export default function Onboarding() {
         </div>
         <div className="flex items-center gap-1.5">
           <button
-            onClick={() => setState(s => ({ ...s, language: s.language === "de" ? "en" : "de" }))}
+            onClick={() => {
+              const nextLang: Language = state.language === "en" ? "de" : "en";
+              setState(s => ({ ...s, language: nextLang }));
+              // Sync with useTranslation so t(...) calls reflect the new language immediately.
+              try {
+                const stored = localStorage.getItem("soulvay-preferences");
+                const prefs = stored ? JSON.parse(stored) : {};
+                localStorage.setItem("soulvay-preferences", JSON.stringify({ ...prefs, language: nextLang }));
+                window.dispatchEvent(new Event("soulvay-preferences-changed"));
+              } catch {
+                // storage may be unavailable — state.language still updates
+              }
+            }}
             className="px-2 py-1 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all"
           >
-            {state.language === "de" ? "EN" : "DE"}
+            {tr("onboarding.langToggleTarget")}
           </button>
           <button onClick={() => setThemeMode(isDark ? "light" : "dark")} className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
             <motion.div key={isDark ? "moon" : "sun"} initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.2 }}>
@@ -249,7 +280,7 @@ export default function Onboarding() {
                   </div>
                   <h1 className="text-2xl font-semibold text-foreground mb-2">{t.name.title}</h1>
                   <p className="text-muted-foreground text-sm mb-8">
-                    {state.language === "de" ? "Dein Begleiter wird dich so nennen." : "Your companion will address you by this name."}
+                    {tr("onboarding.nameSubtitle")}
                   </p>
                   <input
                     type="text"
@@ -269,7 +300,7 @@ export default function Onboarding() {
                 <div className="pt-8 sm:pt-16">
                   <h2 className="text-2xl font-semibold text-foreground mb-2 text-center">{t.need.title}</h2>
                   <p className="text-muted-foreground text-sm text-center mb-8">
-                    {state.name ? (state.language === "de" ? `Schön dich kennenzulernen, ${state.name}.` : `Nice to meet you, ${state.name}.`) : ""}
+                    {state.name ? `${tr("onboarding.needGreetingPrefix")}${state.name}.` : ""}
                   </p>
                   <div className="space-y-3">
                     {t.need.options.map((opt) => (
@@ -323,7 +354,7 @@ export default function Onboarding() {
               <motion.div key="start" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
                 {(() => {
                   const arch = companionArchetypes.find(a => a.id === state.companionId)!;
-                  const greeting = state.language === "de" ? arch.introGreetingDe : arch.introGreeting;
+                  const greeting = state.language === "en" ? arch.introGreeting : arch.introGreetingDe;
                   return (
                     <div className="flex flex-col items-center pt-8 sm:pt-12 text-center">
                       <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.6 }}>
@@ -332,7 +363,7 @@ export default function Onboarding() {
 
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-6 space-y-2">
                         <h2 className="text-2xl font-semibold text-foreground">{arch.name}</h2>
-                        <p className="text-primary/80 text-sm">{state.language === "de" ? arch.descriptionDe : arch.description}</p>
+                        <p className="text-primary/80 text-sm">{state.language === "en" ? arch.description : arch.descriptionDe}</p>
                       </motion.div>
 
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-6 bg-card rounded-2xl border border-border/50 p-5 max-w-xs shadow-sm">
@@ -384,7 +415,7 @@ function CompanionOption({ arch, selected, language, onSelect, isRecommended }: 
   onSelect: (id: string) => void;
   isRecommended?: boolean;
 }) {
-  const description = language === "de" ? arch.descriptionDe : arch.description;
+  const description = language === "en" ? arch.description : arch.descriptionDe;
 
   return (
     <motion.button

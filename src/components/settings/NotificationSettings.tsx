@@ -14,7 +14,7 @@ interface NotificationSettingsProps {
 }
 
 export function NotificationSettings({ onClose }: NotificationSettingsProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { isPremium, canUseReminders } = usePremium();
@@ -41,17 +41,13 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
 
     if (granted) {
       toast({
-        title: language === "de" ? "Benachrichtigungen aktiviert" : "Notifications enabled",
-        description: language === "de" 
-          ? "Du erhältst jetzt Erinnerungen." 
-          : "You'll now receive reminders.",
+        title: t("notificationSettings.enabledToast"),
+        description: t("notificationSettings.enabledToastDesc"),
       });
     } else {
       toast({
-        title: language === "de" ? "Berechtigung verweigert" : "Permission denied",
-        description: language === "de" 
-          ? "Aktiviere Benachrichtigungen in deinen Browser-Einstellungen." 
-          : "Enable notifications in your browser settings.",
+        title: t("notificationSettings.permissionDenied"),
+        description: t("notificationSettings.permissionDeniedDesc"),
         variant: "destructive",
       });
     }
@@ -68,27 +64,25 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
   const handleTestNotification = () => {
     sendTestNotification();
     toast({
-      title: language === "de" ? "Test gesendet" : "Test sent",
-      description: language === "de" 
-        ? "Schau nach deiner Benachrichtigung!" 
-        : "Check for your notification!",
+      title: t("notificationSettings.testSent"),
+      description: t("notificationSettings.testSentDesc"),
     });
   };
 
   const timeOptions = [
-    { value: "08:00", label: language === "de" ? "08:00 Morgens" : "8:00 AM" },
-    { value: "12:00", label: language === "de" ? "12:00 Mittags" : "12:00 PM" },
-    { value: "18:00", label: language === "de" ? "18:00 Abends" : "6:00 PM" },
-    { value: "19:00", label: language === "de" ? "19:00 Abends" : "7:00 PM" },
-    { value: "20:00", label: language === "de" ? "20:00 Abends" : "8:00 PM" },
-    { value: "21:00", label: language === "de" ? "21:00 Abends" : "9:00 PM" },
+    { value: "08:00", label: t("notificationSettings.time0800") },
+    { value: "12:00", label: t("notificationSettings.time1200") },
+    { value: "18:00", label: t("notificationSettings.time1800") },
+    { value: "19:00", label: t("notificationSettings.time1900") },
+    { value: "20:00", label: t("notificationSettings.time2000") },
+    { value: "21:00", label: t("notificationSettings.time2100") },
   ];
 
   const dayOptions = [
-    { value: 0, label: language === "de" ? "Sonntag" : "Sunday" },
-    { value: 1, label: language === "de" ? "Montag" : "Monday" },
-    { value: 5, label: language === "de" ? "Freitag" : "Friday" },
-    { value: 6, label: language === "de" ? "Samstag" : "Saturday" },
+    { value: 0, label: t("notificationSettings.daySunday") },
+    { value: 1, label: t("notificationSettings.dayMonday") },
+    { value: 5, label: t("notificationSettings.dayFriday") },
+    { value: 6, label: t("notificationSettings.daySaturday") },
   ];
 
   if (!isSupported) {
@@ -96,9 +90,7 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
       <div className="p-4 rounded-xl bg-muted/30 text-center">
         <BellOff className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">
-          {language === "de" 
-            ? "Benachrichtigungen werden in diesem Browser nicht unterstützt."
-            : "Notifications are not supported in this browser."}
+          {t("notificationSettings.notSupported")}
         </p>
       </div>
     );
@@ -114,14 +106,14 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
           </div>
           <div>
             <p className="font-medium text-foreground">
-              {language === "de" ? "Benachrichtigungen" : "Notifications"}
+              {t("notificationSettings.mainLabel")}
             </p>
             <p className="text-xs text-muted-foreground">
-              {permissionStatus === "granted" 
-                ? (language === "de" ? "Erlaubt" : "Allowed")
+              {permissionStatus === "granted"
+                ? t("notificationSettings.allowed")
                 : permissionStatus === "denied"
-                ? (language === "de" ? "Blockiert" : "Blocked")
-                : (language === "de" ? "Nicht eingerichtet" : "Not set up")}
+                ? t("notificationSettings.blocked")
+                : t("notificationSettings.notSetUp")}
             </p>
           </div>
         </div>
@@ -146,7 +138,7 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
                 <div className="flex items-center gap-2">
                   <Sparkles className={`w-4 h-4 ${canUseReminders ? 'text-primary' : 'text-muted-foreground'}`} />
                   <span className="font-medium text-foreground">
-                    {language === "de" ? "Stimmungs-Erinnerung" : "Mood Reminder"}
+                    {t("notificationSettings.moodReminder")}
                   </span>
                   {!canUseReminders && (
                     <span className="flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">
@@ -162,15 +154,13 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
               </div>
               
               <p className="text-xs text-muted-foreground mb-3">
-                {language === "de" 
-                  ? "Tägliche Erinnerung für deinen Stimmungs-Check-in"
-                  : "Daily reminder for your mood check-in"}
+                {t("notificationSettings.moodReminderDesc")}
               </p>
-              
+
               {settings.moodReminder && canUseReminders && (
                 <div className="mt-3">
                   <label className="text-xs text-muted-foreground mb-2 block">
-                    {language === "de" ? "Uhrzeit" : "Time"}
+                    {t("notificationSettings.time")}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {timeOptions.map((option) => (
@@ -197,7 +187,7 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-muted-foreground" />
                   <span className="font-medium text-foreground">
-                    {language === "de" ? "Tägliche Erinnerung" : "Daily Reminder"}
+                    {t("notificationSettings.dailyReminder")}
                   </span>
                 </div>
                 <Switch
@@ -209,7 +199,7 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
               {settings.dailyReminder && (
                 <div className="mt-3">
                   <label className="text-xs text-muted-foreground mb-2 block">
-                    {language === "de" ? "Uhrzeit" : "Time"}
+                    {t("notificationSettings.time")}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {timeOptions.map((option) => (
@@ -236,7 +226,7 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span className="font-medium text-foreground">
-                    {language === "de" ? "Wöchentlicher Rückblick" : "Weekly Recap"}
+                    {t("notificationSettings.weeklyRecap")}
                   </span>
                 </div>
                 <Switch
@@ -248,7 +238,7 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
               {settings.weeklyRecap && (
                 <div className="mt-3">
                   <label className="text-xs text-muted-foreground mb-2 block">
-                    {language === "de" ? "Tag" : "Day"}
+                    {t("notificationSettings.day")}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {dayOptions.map((option) => (
@@ -276,7 +266,7 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
               className="w-full gap-2"
             >
               <TestTube className="w-4 h-4" />
-              {language === "de" ? "Test-Benachrichtigung senden" : "Send Test Notification"}
+              {t("notificationSettings.sendTest")}
             </Button>
           </motion.div>
         )}
@@ -285,9 +275,7 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
       {permissionStatus === "denied" && (
         <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
           <p className="text-sm text-destructive">
-            {language === "de" 
-              ? "Benachrichtigungen wurden blockiert. Bitte aktiviere sie in deinen Browser-Einstellungen."
-              : "Notifications are blocked. Please enable them in your browser settings."}
+            {t("notificationSettings.blockedMessage")}
           </p>
         </div>
       )}

@@ -13,7 +13,7 @@ import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 
 export default function CompanionSettings() {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { isPremium } = usePremium();
   const { companion, isLoading, selectArchetype, updateName } = useCompanion();
@@ -23,7 +23,7 @@ export default function CompanionSettings() {
     return (
       <div className="flex flex-col h-full bg-background">
         <PageHeader
-          title={language === "de" ? "Dein Begleiter" : "Your Companion"}
+          title={t("companionSettings.title")}
           showBack
           backTo="/settings"
         />
@@ -38,8 +38,8 @@ export default function CompanionSettings() {
   return (
     <div className="flex flex-col h-full bg-background">
       <PageHeader
-        title={language === "de" ? "Dein Begleiter" : "Your Companion"}
-        subtitle={language === "de" ? "Wähle deinen Reflexionsbegleiter" : "Choose your reflection companion"}
+        title={t("companionSettings.title")}
+        subtitle={t("companionSettings.subtitle")}
         showBack
         backTo="/settings"
       />
@@ -66,14 +66,14 @@ export default function CompanionSettings() {
               />
               <p className="font-semibold text-foreground mt-4 text-lg">{companion.name}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                {language === "de" ? `Verbindungslevel ${companion.bond_level}` : `Bond level ${companion.bond_level}`}
+                {`${t("companionSettings.bondLevelPrefix")} ${companion.bond_level}`}
               </p>
             </motion.div>
           )}
 
           {/* Section header */}
           <h2 className="text-sm font-medium text-muted-foreground px-1">
-            {language === "de" ? "Begleiter wählen" : "Choose Companion"}
+            {t("companionSettings.chooseCompanion")}
           </h2>
 
           {/* Selector */}
@@ -82,14 +82,14 @@ export default function CompanionSettings() {
             onSelect={async (id) => {
               await selectArchetype(id);
               toast({
-                title: language === "de" ? "Begleiter aktualisiert" : "Companion updated",
-                description: language === "de" ? "Dein Begleiter wurde geändert." : "Your companion has been changed.",
+                title: t("companionSettings.updated"),
+                description: t("companionSettings.updatedDesc"),
               });
             }}
             onUpdateName={async (name) => {
               await updateName(name);
               toast({
-                title: language === "de" ? "Name gespeichert" : "Name saved",
+                title: t("companionSettings.nameSaved"),
               });
             }}
             onNavigateUpgrade={() => navigate("/upgrade")}

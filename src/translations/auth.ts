@@ -45,4 +45,24 @@ export const authTranslations: Translations = {
   "resetPassword.success": { en: "Password updated successfully.", de: "Passwort erfolgreich aktualisiert." },
   "resetPassword.linkExpired": { en: "This reset link has expired. Please request a new one.", de: "Dieser Link ist abgelaufen. Bitte fordere einen neuen an." },
   "resetPassword.backToLogin": { en: "Back to login", de: "Zurück zum Login" },
+
+  // Auth page — Elite-Audit #9 i18n migration
+  "auth.reviewLoginToast": { en: "Demo account signed in. Premium follows the normal subscription check.", de: "Demo-Konto angemeldet. Premium folgt der normalen Abo-Prüfung." },
+  "auth.termsPrefix": { en: "By signing up, you agree to our ", de: "Mit der Registrierung stimmst du unseren " },
+  "auth.termsLink": { en: "Terms of Use", de: "Nutzungsbedingungen" },
+  "auth.termsConnector": { en: " and ", de: " und der " },
+  "auth.privacyLink": { en: "Privacy Policy", de: "Datenschutzerklärung" },
+  "auth.termsSuffix": { en: ".", de: " zu." },
+  "auth.or": { en: "or", de: "oder" },
+  "auth.signInCancelled": { en: "Sign-in was cancelled.", de: "Anmeldung abgebrochen." },
+  "auth.noConnection": { en: "No connection. Check your internet.", de: "Keine Verbindung. Prüfe deine Internetverbindung." },
+  "auth.signInFailedGeneric": { en: "Sign-in failed. Please try again.", de: "Anmeldung fehlgeschlagen. Bitte versuche es erneut." },
+  "auth.continueWithGoogle": { en: "Continue with Google", de: "Mit Google fortfahren" },
+  "auth.appleSignInFailed": { en: "Apple sign-in failed. Please try again.", de: "Anmeldung mit Apple fehlgeschlagen. Bitte versuche es erneut." },
+  "auth.continueWithApple": { en: "Continue with Apple", de: "Mit Apple fortfahren" },
+
+  // Onboarding — Elite-Audit #9 i18n migration
+  "onboarding.langToggleTarget": { en: "DE", de: "EN" },
+  "onboarding.nameSubtitle": { en: "Your companion will address you by this name.", de: "Dein Begleiter wird dich so nennen." },
+  "onboarding.needGreetingPrefix": { en: "Nice to meet you, ", de: "Schön dich kennenzulernen, " },
 };

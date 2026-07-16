@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 import { DEMO_MESSAGE_LIMIT, saveDemoConversation } from "@/lib/demoConfig";
 import { shouldShowGoogleAuth, shouldShowAppleAuth } from "@/lib/platformSeparation";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface DemoChatProps {
   language: "en" | "de";
@@ -122,7 +123,8 @@ export function DemoChat({ language }: DemoChatProps) {
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [showLoginMode, setShowLoginMode] = useState(false);
 
-  const t = TEXTS[language];
+  const texts = TEXTS[language];
+  const { t } = useTranslation();
   const errorTexts = ERROR_MESSAGES[language];
 
   // Auto-show greeting with typing effect
@@ -233,9 +235,7 @@ export function DemoChat({ language }: DemoChatProps) {
 
       const isLastMessage = newCount >= DEMO_LIMIT;
       const extraInstruction = isLastMessage
-        ? (language === "de"
-          ? "\n\n[Wichtig: Dies ist die letzte Nachricht in diesem Demo-Gespräch. Beende deine Antwort mit einer warmherzigen, offenen Frage, die Lust macht weiterzureden. Mache das subtil – kein Hinweis auf die Demo.]"
-          : "\n\n[Important: This is the last message in this demo conversation. End your response with a warm, open question that creates desire to continue talking. Be subtle – no mention of the demo.]")
+        ? t("demoChat.lastMessageSystemInstruction")
         : "";
 
       const messagesForApi = [...history];
@@ -353,7 +353,7 @@ export function DemoChat({ language }: DemoChatProps) {
         setTimeout(() => setShowLimit(true), 1500);
       }
     }
-  }, [input, isStreaming, userMessageCount, messages, language, errorTexts]);
+  }, [input, isStreaming, userMessageCount, messages, language, errorTexts, showLimit, t]);
 
   // Persist demo conversation for post-signup continuity
   const persistDemoMessages = useCallback(() => {
@@ -391,23 +391,21 @@ export function DemoChat({ language }: DemoChatProps) {
           // Save demo messages even before confirmation — they'll be consumed on next login
           persistDemoMessages();
           toast({
-            title: language === "de" ? "Fast geschafft!" : "Almost there!",
-            description: language === "de"
-              ? "Bitte bestätige deine E-Mail-Adresse, um fortzufahren."
-              : "Please confirm your email address to continue.",
+            title: t("demoChat.almostThereTitle"),
+            description: t("demoChat.almostThereDesc"),
           });
         }
       }
     } catch (error: any) {
       toast({
-        title: t.error,
+        title: texts.error,
         description: error.message,
         variant: "destructive",
       });
     } finally {
       setIsSigningUp(false);
     }
-  }, [signupEmail, signupPassword, signupName, showLoginMode, signIn, signUp, navigate, userMessageCount, language, toast, t.error, persistDemoMessages]);
+  }, [signupEmail, signupPassword, signupName, showLoginMode, signIn, signUp, navigate, userMessageCount, language, toast, texts.error, persistDemoMessages, t]);
 
   return (
     <div className="w-full max-w-lg mx-auto">
@@ -425,7 +423,7 @@ export function DemoChat({ language }: DemoChatProps) {
           <div>
             <p className="text-sm font-semibold text-foreground">Mira</p>
             <p className="text-[11px] text-muted-foreground">
-              {language === "de" ? "Dein Begleiter" : "Your companion"}
+              {t("demoChat.yourCompanion")}
             </p>
           </div>
         </div>
@@ -497,7 +495,7 @@ export function DemoChat({ language }: DemoChatProps) {
               <div className="bg-muted/50 border border-border/30 px-4 py-3 rounded-2xl rounded-bl-lg">
                 <div className="flex items-center gap-2">
                   <span className="text-[13px] text-muted-foreground/70 italic">
-                    Mira {language === "de" ? "reflektiert" : "is reflecting"}...
+                    Mira {t("demoChat.reflectingWord")}...
                   </span>
                   <span className="inline-flex gap-0.5">
                     <span className="w-1 h-1 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: "0ms" }} />
@@ -534,7 +532,7 @@ export function DemoChat({ language }: DemoChatProps) {
                           redirect_uri: window.location.origin,
                         });
                         if (error) {
-                          toast({ title: t.error, description: String(error), variant: "destructive" });
+                          toast({ title: texts.error, description: String(error), variant: "destructive" });
                         }
                       }}
                       className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl border border-border/50 bg-card hover:bg-muted/40 transition-all text-[14px] font-medium text-foreground mb-2"
@@ -545,7 +543,7 @@ export function DemoChat({ language }: DemoChatProps) {
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                       </svg>
-                      {language === "de" ? "Mit Google fortfahren" : "Continue with Google"}
+                      {t("demoChat.continueWithGoogle")}
                     </button>
                   )}
 
@@ -559,7 +557,7 @@ export function DemoChat({ language }: DemoChatProps) {
                           redirect_uri: window.location.origin,
                         });
                         if (error) {
-                          toast({ title: t.error, description: String(error), variant: "destructive" });
+                          toast({ title: texts.error, description: String(error), variant: "destructive" });
                         }
                       }}
                       className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl border border-border/50 bg-card hover:bg-muted/40 transition-all text-[14px] font-medium text-foreground mb-2"
@@ -567,14 +565,14 @@ export function DemoChat({ language }: DemoChatProps) {
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                       </svg>
-                      {language === "de" ? "Mit Apple fortfahren" : "Continue with Apple"}
+                      {t("demoChat.continueWithApple")}
                     </button>
                   )}
 
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex-1 h-px bg-border/40" />
                     <span className="text-[10px] text-muted-foreground/50 uppercase tracking-wider">
-                      {language === "de" ? "oder" : "or"}
+                      {t("demoChat.or")}
                     </span>
                     <div className="flex-1 h-px bg-border/40" />
                   </div>
@@ -589,7 +587,7 @@ export function DemoChat({ language }: DemoChatProps) {
                       type="text"
                       value={signupName}
                       onChange={(e) => setSignupName(e.target.value)}
-                      placeholder={t.namePlaceholder}
+                      placeholder={texts.namePlaceholder}
                       autoComplete="given-name"
                       enterKeyHint="next"
                       className="w-full h-10 bg-muted/30 border border-border/40 rounded-xl pl-10 pr-4 text-[14px] text-foreground focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
@@ -603,7 +601,7 @@ export function DemoChat({ language }: DemoChatProps) {
                     type="email"
                     value={signupEmail}
                     onChange={(e) => setSignupEmail(e.target.value)}
-                    placeholder={t.emailPlaceholder}
+                    placeholder={texts.emailPlaceholder}
                     required
                     autoComplete="email"
                     enterKeyHint="next"
@@ -616,7 +614,7 @@ export function DemoChat({ language }: DemoChatProps) {
                     type="password"
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}
-                    placeholder={t.passwordPlaceholder}
+                    placeholder={texts.passwordPlaceholder}
                     required
                     minLength={6}
                     autoComplete="new-password"
@@ -630,7 +628,7 @@ export function DemoChat({ language }: DemoChatProps) {
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      {t.signup}
+                      {texts.signup}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -639,14 +637,14 @@ export function DemoChat({ language }: DemoChatProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-muted-foreground/50">
                     <Shield className="w-3 h-3" />
-                    <span className="text-[10px]">{t.secure}</span>
+                    <span className="text-[10px]">{texts.secure}</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowLoginMode(!showLoginMode)}
                     className="text-[11px] text-primary hover:underline"
                   >
-                    {showLoginMode ? (language === "de" ? "Neu hier? Registrieren" : "New here? Sign up") : `${t.orLogin} ${t.loginLink}`}
+                    {showLoginMode ? t("demoChat.newHereSignup") : `${texts.orLogin} ${texts.loginLink}`}
                   </button>
                 </div>
               </form>
@@ -684,9 +682,8 @@ export function DemoChat({ language }: DemoChatProps) {
             <p className="text-[10px] text-muted-foreground/50 text-center mt-2">
               {(() => {
                 const remaining = Math.max(0, DEMO_LIMIT - userMessageCount);
-                return language === "de"
-                  ? `${remaining} ${remaining === 1 ? "Nachricht" : "Nachrichten"} verbleibend · Ohne Anmeldung`
-                  : `${remaining} ${remaining === 1 ? "message" : "messages"} remaining · No signup needed`;
+                const word = remaining === 1 ? t("demoChat.messageSingular") : t("demoChat.messagePlural");
+                return `${remaining} ${word}${t("demoChat.remainingSuffix")}`;
               })()}
             </p>
           </div>
