@@ -61,4 +61,13 @@ export const paymentsTranslations: Translations = {
   "upgrade.feat.recapsDesc": { en: "Thoughtful summaries of your week", de: "Nachdenkliche Zusammenfassungen deiner Woche" },
   "upgrade.feat.journalingTitle": { en: "Guided journaling", de: "Geführtes Tagebuch" },
   "upgrade.feat.journalingDesc": { en: "AI-powered prompts for deeper reflection", de: "KI-gestützte Impulse für tiefere Reflexion" },
+
+  // ProgressUnlock (Elite-Audit #9 migration)
+  "progress.milestone.conversations": { en: "Conversations had", de: "Gespräche geführt" },
+  "progress.milestone.journalEntries": { en: "Journal entries", de: "Tagebucheinträge" },
+  "progress.milestone.moodCheckins": { en: "Mood check-ins", de: "Stimmungs-Check-ins" },
+  "progress.milestone.exercises": { en: "Exercises completed", de: "Übungen gemacht" },
+  "progress.journeyTitle": { en: "Your journey so far", de: "Deine Reise bisher" },
+  "progress.completeCTA": { en: "You're using Soulvay actively — unlock the full experience with Plus.", de: "Du nutzt Soulvay bereits intensiv — hol das Beste raus mit Plus." },
+  "progress.percentExplored": { en: "% of free features explored", de: "% deiner Free-Features erkundet" },
 };

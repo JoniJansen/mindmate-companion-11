@@ -14,34 +14,34 @@ interface ProgressUnlockProps {
 }
 
 export function ProgressUnlock({ stats }: ProgressUnlockProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
 
   const milestones = useMemo(() => [
     {
       icon: MessageCircle,
-      label: language === "de" ? "Gespräche geführt" : "Conversations had",
+      label: t("progress.milestone.conversations"),
       current: stats.chatSessions,
       target: 10,
     },
     {
       icon: BookOpen,
-      label: language === "de" ? "Tagebucheinträge" : "Journal entries",
+      label: t("progress.milestone.journalEntries"),
       current: stats.journalEntries,
       target: 5,
     },
     {
       icon: SmilePlus,
-      label: language === "de" ? "Stimmungs-Check-ins" : "Mood check-ins",
+      label: t("progress.milestone.moodCheckins"),
       current: stats.moodCheckins,
       target: 7,
     },
     {
       icon: Dumbbell,
-      label: language === "de" ? "Übungen gemacht" : "Exercises completed",
+      label: t("progress.milestone.exercises"),
       current: stats.exercisesCompleted,
       target: 3,
     },
-  ], [stats, language]);
+  ], [stats, t]);
 
   const totalProgress = useMemo(() => {
     const sum = milestones.reduce((acc, m) => acc + Math.min(m.current / m.target, 1), 0);
@@ -57,7 +57,7 @@ export function ProgressUnlock({ stats }: ProgressUnlockProps) {
       <div className="flex items-center gap-2">
         <Sparkles className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-medium text-foreground">
-          {language === "de" ? "Deine Reise bisher" : "Your journey so far"}
+          {t("progress.journeyTitle")}
         </h3>
       </div>
 
@@ -85,8 +85,8 @@ export function ProgressUnlock({ stats }: ProgressUnlockProps) {
       <div className="pt-1 text-center">
         <p className="text-xs text-muted-foreground">
           {totalProgress >= 100
-            ? (language === "de" ? "Du nutzt Soulvay bereits intensiv — hol das Beste raus mit Plus." : "You're using Soulvay actively — unlock the full experience with Plus.")
-            : (language === "de" ? `${totalProgress}% deiner Free-Features erkundet` : `${totalProgress}% of free features explored`)}
+            ? t("progress.completeCTA")
+            : `${totalProgress}${t("progress.percentExplored")}`}
         </p>
       </div>
     </motion.div>
