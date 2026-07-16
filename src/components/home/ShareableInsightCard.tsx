@@ -12,7 +12,7 @@ interface ShareableInsightCardProps {
 }
 
 export function ShareableInsightCard({ insightText, date, onDismiss }: ShareableInsightCardProps) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const cardRef = useRef<HTMLDivElement>(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -26,7 +26,7 @@ export function ShareableInsightCard({ insightText, date, onDismiss }: Shareable
   };
 
   const safeText = anonymize(insightText);
-  const formattedDate = new Date(date).toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
+  const formattedDate = new Date(date).toLocaleDateString(t("home.shareCard.locale"), {
     month: "short", day: "numeric",
   });
 
@@ -39,7 +39,7 @@ export function ShareableInsightCard({ insightText, date, onDismiss }: Shareable
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast({
-        description: language === "de" ? "In Zwischenablage kopiert" : "Copied to clipboard",
+        description: t("home.shareCard.copiedToClipboard"),
       });
     } catch {}
   };
@@ -61,9 +61,7 @@ export function ShareableInsightCard({ insightText, date, onDismiss }: Shareable
       // Fallback: copy text for manual paste
       await handleCopyText();
       toast({
-        description: language === "de"
-          ? "Text kopiert — füge ihn in deine Instagram Story ein"
-          : "Text copied — paste it into your Instagram Story",
+        description: t("home.shareCard.instagramCopied"),
       });
     }
     setShowShareMenu(false);
@@ -145,11 +143,11 @@ export function ShareableInsightCard({ insightText, date, onDismiss }: Shareable
       link.click();
 
       toast({
-        description: language === "de" ? "Bild gespeichert" : "Image saved",
+        description: t("home.shareCard.imageSaved"),
       });
     } catch {
       toast({
-        description: language === "de" ? "Bild konnte nicht erstellt werden" : "Could not create image",
+        description: t("home.shareCard.imageFailed"),
         variant: "destructive",
       });
     }
@@ -236,7 +234,7 @@ export function ShareableInsightCard({ insightText, date, onDismiss }: Shareable
                       {copied ? <Check className="w-5 h-5 text-primary" /> : <Copy className="w-5 h-5 text-foreground" />}
                     </div>
                     <span className="text-[10px] text-muted-foreground">
-                      {copied ? (language === "de" ? "Kopiert" : "Copied") : (language === "de" ? "Kopieren" : "Copy")}
+                      {copied ? t("home.shareCard.copied") : t("home.shareCard.copy")}
                     </span>
                   </button>
 
@@ -249,7 +247,7 @@ export function ShareableInsightCard({ insightText, date, onDismiss }: Shareable
                       <Download className="w-5 h-5 text-foreground" />
                     </div>
                     <span className="text-[10px] text-muted-foreground">
-                      {language === "de" ? "Bild" : "Image"}
+                      {t("home.shareCard.image")}
                     </span>
                   </button>
                 </div>

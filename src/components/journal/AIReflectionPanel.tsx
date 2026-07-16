@@ -13,8 +13,8 @@ interface AIReflectionPanelProps {
 
 export const AIReflectionPanel = forwardRef<HTMLDivElement, AIReflectionPanelProps>(
   function AIReflectionPanel({ reflection, isLoading, onClose }, ref) {
-    const { language } = useTranslation();
-    
+    const { t } = useTranslation();
+
     return (
       <motion.div
         ref={ref}
@@ -32,7 +32,7 @@ export const AIReflectionPanel = forwardRef<HTMLDivElement, AIReflectionPanelPro
               e.stopPropagation();
               onClose();
             }}
-            aria-label={language === "de" ? "Schließen" : "Close"}
+            aria-label={t("common.close")}
           >
             <X className="w-4 h-4" />
           </Button>
@@ -40,7 +40,7 @@ export const AIReflectionPanel = forwardRef<HTMLDivElement, AIReflectionPanelPro
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-primary" />
             <h4 className="font-medium text-foreground">
-              {language === "de" ? "KI-Reflexion" : "AI Reflection"}
+              {t("journal.aiReflection")}
             </h4>
           </div>
 
@@ -48,7 +48,7 @@ export const AIReflectionPanel = forwardRef<HTMLDivElement, AIReflectionPanelPro
             <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span className="text-sm">
-                {language === "de" ? "Analysiere deine Einträge..." : "Reflecting on your entries..."}
+                {t("reflection.analyzingEntries")}
               </span>
             </div>
           ) : (

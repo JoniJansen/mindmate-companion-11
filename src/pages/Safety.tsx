@@ -31,14 +31,12 @@ export default function Safety() {
   // Professional contact
   const professionalContact = {
     name: "Jutta Jansen",
-    role: language === "de" ? "Psychologin M.Sc., Heilpraktikerin für Psychotherapie" : "Psychologist M.Sc., Psychotherapist",
-    description: language === "de" 
-      ? "Über 24 Jahre Erfahrung in Psychiatrie und Psychosomatik. Spezialisiert auf Trauma, Angst, Burnout und Beziehungsberatung."
-      : "Over 24 years experience in psychiatry and psychosomatic medicine. Specialized in trauma, anxiety, burnout and relationship counseling.",
+    role: t("safety.professional.role"),
+    description: t("safety.professional.description"),
     number: "+49 177 6536493",
     tel: "tel:+491776536493",
     website: "https://www.juttajansen.com",
-    available: language === "de" ? "Mo–Fr 9:00–15:00 Uhr" : "Mon–Fri 9am–3pm",
+    available: t("safety.professional.available"),
   };
 
   // German crisis lines
@@ -115,10 +113,14 @@ export default function Safety() {
     },
   ];
 
-  const crisisLines = language === "de" ? germanCrisisLines : englishCrisisLines;
+  const crisisLinesByLang: Record<"de" | "en", CrisisLine[]> = {
+    de: germanCrisisLines,
+    en: englishCrisisLines,
+  };
+  const crisisLines = crisisLinesByLang[language];
 
 
-  const emergencyNumber = language === "de" ? "112" : "911";
+  const emergencyNumber = t("safety.emergencyNumberValue");
 
   return (
     <StandalonePage>
@@ -216,7 +218,7 @@ export default function Safety() {
           className="mb-6"
         >
           <h2 className="text-lg font-semibold text-foreground mb-4">
-            {language === "de" ? "Persönliche Beratung" : "Professional Support"}
+            {t("safety.professionalSupportHeading")}
           </h2>
           
           <CalmCard variant="gentle">

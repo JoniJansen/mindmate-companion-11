@@ -60,21 +60,21 @@ interface AISummaryDetailProps {
 }
 
 export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(function AISummaryDetail({ content, createdAt, onClose }, ref) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const parsed = parseSummaryContent(content);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
+    return date.toLocaleDateString(t("journal.dateLocale"), {
       weekday: "long", day: "numeric", month: "long", year: "numeric",
     });
   };
 
   const getPlainText = () => {
     const lines: string[] = [];
-    lines.push(language === "de" ? "📋 KI-Zusammenfassung" : "📋 AI Summary");
+    lines.push(t("aiSummary.plainTextHeader"));
     lines.push(formatDate(createdAt));
     lines.push("");
     if (parsed.summary) {
@@ -82,8 +82,8 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
       lines.push("");
     }
     if (parsed.themes.length > 0) {
-      lines.push(language === "de" ? "🏷️ Themen:" : "🏷️ Themes:");
-      parsed.themes.forEach(t => lines.push(`  • ${t}`));
+      lines.push(t("aiSummary.plainTextThemes"));
+      parsed.themes.forEach(theme => lines.push(`  • ${theme}`));
       lines.push("");
     }
     if (parsed.moodJourney) {
@@ -92,7 +92,7 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
       lines.push("");
     }
     if (parsed.nextStep) {
-      lines.push(language === "de" ? "➡️ Nächster Schritt:" : "➡️ Next Step:");
+      lines.push(t("aiSummary.plainTextNextStep"));
       lines.push(parsed.nextStep);
     }
     return lines.join("\n");
@@ -102,7 +102,7 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
     try {
       await navigator.clipboard.writeText(getPlainText());
       setCopied(true);
-      toast({ title: language === "de" ? "Kopiert!" : "Copied!" });
+      toast({ title: t("aiSummary.copiedToast") });
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast({ title: t("common.error"), variant: "destructive" });
@@ -114,7 +114,7 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
     if (navigator.share) {
       try {
         await navigator.share({
-          title: language === "de" ? "KI-Zusammenfassung" : "AI Summary",
+          title: t("aiSummary.title"),
           text,
         });
       } catch (e: any) {
@@ -146,7 +146,7 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-foreground">
-                  {language === "de" ? "KI-Zusammenfassung" : "AI Summary"}
+                  {t("aiSummary.title")}
                 </h1>
                 <p className="text-xs text-muted-foreground">{formatDate(createdAt)}</p>
               </div>
@@ -160,7 +160,7 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
           {parsed.summary && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-muted-foreground mb-2">
-                {language === "de" ? "Zusammenfassung" : "Summary"}
+                {t("aiSummary.summaryHeading")}
               </h2>
               <p className="text-[15px] leading-relaxed text-foreground bg-card border border-border/50 rounded-xl p-4">
                 {parsed.summary}
@@ -172,7 +172,7 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
           {parsed.themes.length > 0 && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-muted-foreground mb-3">
-                {language === "de" ? "Emotionale Themen" : "Emotional Themes"}
+                {t("aiSummary.emotionalThemes")}
               </h2>
               <div className="flex flex-wrap gap-2">
                 {parsed.themes.map((theme, i) => (
@@ -192,13 +192,13 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
           {parsed.moodJourney && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-muted-foreground mb-3">
-                {language === "de" ? "Stimmungsverlauf" : "Mood Journey"}
+                {t("aiSummary.moodJourneyHeading")}
               </h2>
               <div className="bg-card border border-border/50 rounded-xl p-4">
                 <div className="flex items-center justify-center gap-4 mb-3">
                   <div className="text-center">
                     <span className="text-3xl block mb-1">{parsed.moodStart}</span>
-                    <span className="text-[10px] text-muted-foreground">{language === "de" ? "Start" : "Start"}</span>
+                    <span className="text-[10px] text-muted-foreground">{t("aiSummary.moodStart")}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="w-8 h-0.5 bg-gradient-to-r from-muted-foreground/30 to-primary/50 rounded-full" />
@@ -206,7 +206,7 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
                   </div>
                   <div className="text-center">
                     <span className="text-3xl block mb-1">{parsed.moodEnd}</span>
-                    <span className="text-[10px] text-muted-foreground">{language === "de" ? "Ende" : "End"}</span>
+                    <span className="text-[10px] text-muted-foreground">{t("aiSummary.moodEnd")}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 bg-muted/30 rounded-lg p-2.5">
@@ -221,7 +221,7 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
           {parsed.nextStep && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-muted-foreground mb-3">
-                {language === "de" ? "Nächster Schritt" : "Next Step"}
+                {t("aiSummary.nextStepHeading")}
               </h2>
               <div className="bg-primary/5 border border-primary/15 rounded-xl p-4 flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
@@ -236,13 +236,11 @@ export const AISummaryDetail = forwardRef<HTMLDivElement, AISummaryDetailProps>(
           <div className="flex gap-3 pt-2">
             <Button variant="outline" className="flex-1 gap-2" onClick={handleCopy}>
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copied 
-                ? (language === "de" ? "Kopiert" : "Copied") 
-                : (language === "de" ? "Text kopieren" : "Copy text")}
+              {copied ? t("aiSummary.copied") : t("aiSummary.copyText")}
             </Button>
             <Button variant="outline" className="flex-1 gap-2" onClick={handleShare}>
               <Share2 className="w-4 h-4" />
-              {language === "de" ? "Teilen" : "Share"}
+              {t("aiSummary.share")}
             </Button>
           </div>
         </div>

@@ -75,6 +75,7 @@ export default function Timeline() {
   
   const navigate = useNavigate();
   const { t, language } = useTranslation();
+  const locale = t("common.locale");
   const { user } = useAuth();
   const { toast } = useToast();
   const { latestInsight, patterns } = useInsightsAndPatterns();
@@ -175,7 +176,7 @@ export default function Timeline() {
     setSelectedDay(null);
   };
 
-  const formatDate = (date: Date) => date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: 'short', day: 'numeric' });
+  const formatDate = (date: Date) => date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
   const formatWeekRange = () => {
     const end = new Date(currentWeekStart);
     end.setDate(end.getDate() + 6);
@@ -183,7 +184,7 @@ export default function Timeline() {
   };
   const getDayName = (date: Date) => {
     if (date.toDateString() === new Date().toDateString()) return t("timeline.today");
-    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { weekday: 'short' });
+    return date.toLocaleDateString(locale, { weekday: 'short' });
   };
   const isToday = (date: Date) => date.toDateString() === new Date().toDateString();
   const selectedDayData = weekData.find(d => d.date.toDateString() === selectedDay?.toDateString());
@@ -225,7 +226,7 @@ export default function Timeline() {
   };
 
   const formatTimeFromDate = (dateString: string) =>
-    new Date(dateString).toLocaleTimeString(language === "de" ? "de-DE" : "en-US", { hour: '2-digit', minute: '2-digit' });
+    new Date(dateString).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -397,7 +398,7 @@ export default function Timeline() {
                   <div>
                     <p className="text-sm text-foreground/80 leading-relaxed">{insight.insight_text}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {new Date(insight.created_at).toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: "short", day: "numeric" })}
+                      {new Date(insight.created_at).toLocaleDateString(locale, { month: "short", day: "numeric" })}
                     </p>
                   </div>
                 </div>

@@ -37,7 +37,7 @@ const prompts = {
 };
 
 export function JournalPrompts({ onSelectPrompt }: JournalPromptsProps) {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   // Ensure language is correctly typed - default to "de" if not "en"
   const currentLang: "en" | "de" = language === "en" ? "en" : "de";
   const promptList = prompts[currentLang];
@@ -69,7 +69,7 @@ export function JournalPrompts({ onSelectPrompt }: JournalPromptsProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Lightbulb className="w-4 h-4" />
-          <span>{language === "de" ? "Reflexionsfragen" : "Reflection prompts"}</span>
+          <span>{t("journal.reflectionPrompts")}</span>
         </div>
         <Button
           variant="ghost"
@@ -79,7 +79,7 @@ export function JournalPrompts({ onSelectPrompt }: JournalPromptsProps) {
             refreshPrompts();
           }}
           className="text-muted-foreground hover:text-foreground shrink-0"
-          aria-label={language === "de" ? "Neue Fragen laden" : "Refresh prompts"}
+          aria-label={t("journal.refreshPrompts")}
         >
           <RefreshCw className="w-4 h-4" />
         </Button>

@@ -51,7 +51,7 @@ function parseSummaryContent(content: string): ParsedSummary {
 }
 
 export function AISummaryCard({ content, createdAt, onClick, index }: AISummaryCardProps) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const parsed = parseSummaryContent(content);
 
   const formatDate = (dateString: string) => {
@@ -61,7 +61,7 @@ export function AISummaryCard({ content, createdAt, onClick, index }: AISummaryC
     yesterday.setDate(yesterday.getDate() - 1);
     if (date.toDateString() === today.toDateString()) return t("journal.today");
     if (date.toDateString() === yesterday.toDateString()) return t("journal.yesterday");
-    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString(t("journal.dateLocale"), { month: "short", day: "numeric" });
   };
 
   return (
@@ -82,7 +82,7 @@ export function AISummaryCard({ content, createdAt, onClick, index }: AISummaryC
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-foreground text-sm leading-tight">
-              {language === "de" ? "KI-Zusammenfassung" : "AI Summary"}
+              {t("aiSummary.title")}
             </h3>
             <p className="text-[11px] text-muted-foreground">{formatDate(createdAt)}</p>
           </div>

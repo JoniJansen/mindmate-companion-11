@@ -40,4 +40,26 @@ export const moodTranslations: Translations = {
   "feeling.tired": { en: "Tired", de: "Müde" },
   "feeling.motivated": { en: "Motivated", de: "Motiviert" },
   "feeling.content": { en: "Content", de: "Zufrieden" },
+
+  // Insights (day-of-week analysis)
+  "mood.insights.dayName.sundays": { en: "Sundays", de: "Sonntage" },
+  "mood.insights.dayName.mondays": { en: "Mondays", de: "Montage" },
+  "mood.insights.dayName.tuesdays": { en: "Tuesdays", de: "Dienstage" },
+  "mood.insights.dayName.wednesdays": { en: "Wednesdays", de: "Mittwoche" },
+  "mood.insights.dayName.thursdays": { en: "Thursdays", de: "Donnerstage" },
+  "mood.insights.dayName.fridays": { en: "Fridays", de: "Freitage" },
+  "mood.insights.dayName.saturdays": { en: "Saturdays", de: "Samstage" },
+  "mood.insights.hardestDaysMiddle": { en: " tend to be harder for you (avg ", de: " sind für dich herausfordernder (Ø " },
+  "mood.insights.bestDaysMiddle": { en: " are your best days (avg ", de: " sind deine besten Tage (Ø " },
+  "mood.insights.moodImprovedPrefix": { en: "Your mood has improved recently (+", de: "Deine Stimmung hat sich zuletzt verbessert (+" },
+  "mood.insights.moodDippedPrefix": { en: "Your mood dipped a bit recently (", de: "Deine Stimmung war zuletzt etwas niedriger (" },
+  "mood.insights.moodStable": { en: "Your mood has been stable.", de: "Deine Stimmung ist stabil geblieben." },
+  "mood.insights.topFeelingsPrefix": { en: "Your most frequent feelings: ", de: "Deine häufigsten Gefühle: " },
+
+  // Mood → Chat bridge
+  "mood.bridge.lowMood": { en: "That sounds like a tough moment. I'm here if you'd like to talk.", de: "Das klingt nach einem schweren Moment. Ich bin hier, wenn du reden möchtest." },
+  "mood.bridge.midMood": { en: "Thanks for sharing that. Would you like to talk about it a bit?", de: "Danke, dass du das geteilt hast. Magst du ein bisschen darüber sprechen?" },
+  "mood.bridge.highMood": { en: "Nice to hear. Want to tell me what made your day good?", de: "Schön zu hören. Magst du mir erzählen, was deinen Tag gut gemacht hat?" },
+  "mood.bridge.contextPrefix": { en: "I just checked in with my mood: ", de: "Ich habe gerade meine Stimmung eingecheckt: " },
+  "mood.bridge.notePrefix": { en: ". Note: \"", de: ". Notiz: \"" },
 };

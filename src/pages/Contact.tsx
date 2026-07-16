@@ -21,7 +21,7 @@ import { StandalonePage } from "@/components/layout/StandalonePage";
 
 export default function Contact() {
   const navigate = useNavigate();
-  const { language } = useTranslation();
+  const { language, t: tKey } = useTranslation();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -106,10 +106,8 @@ export default function Contact() {
     
     if (!formData.name || !formData.email || !formData.message) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
-        description: language === "de" 
-          ? "Bitte fülle alle Pflichtfelder aus." 
-          : "Please fill in all required fields.",
+        title: tKey("common.error"),
+        description: tKey("contact.form.fillAll"),
         variant: "destructive",
       });
       return;
@@ -121,7 +119,7 @@ export default function Contact() {
     // For now, we'll use mailto as a fallback
     try {
       const mailtoLink = `mailto:service@soulvay.com?subject=${encodeURIComponent(
-        formData.subject || (language === "de" ? "Kontaktanfrage" : "Contact Inquiry")
+        formData.subject || tKey("contact.form.defaultSubject")
       )}&body=${encodeURIComponent(
         `Name: ${formData.name}\nEmail: ${formData.email}\n\n${formData.message}`
       )}`;
@@ -136,10 +134,8 @@ export default function Contact() {
       }, 500);
     } catch (error) {
       toast({
-        title: language === "de" ? "Fehler" : "Error",
-        description: language === "de" 
-          ? "Nachricht konnte nicht gesendet werden." 
-          : "Failed to send message.",
+        title: tKey("common.error"),
+        description: tKey("contact.form.sendFailed"),
         variant: "destructive",
       });
       setIsSubmitting(false);
@@ -240,7 +236,7 @@ export default function Contact() {
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground text-sm"
                     >
-                      <option value="">{language === "de" ? "Bitte auswählen..." : "Please select..."}</option>
+                      <option value="">{tKey("contact.form.pleaseSelect")}</option>
                       {t.subjects.map((subject) => (
                         <option key={subject} value={subject}>{subject}</option>
                       ))}
@@ -336,9 +332,7 @@ export default function Contact() {
                 <div className="flex items-start gap-2">
                   <MessageSquare className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <p className="text-sm text-muted-foreground">
-                    {language === "de" 
-                      ? "Wir antworten in der Regel innerhalb von 24-48 Stunden auf Anfragen."
-                      : "We typically respond to inquiries within 24-48 hours."}
+                    {tKey("contact.responseTime")}
                   </p>
                 </div>
               </div>

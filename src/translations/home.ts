@@ -82,4 +82,41 @@ export const homeTranslations: Translations = {
   "growth.companionCheckin": { en: "Something caught my attention", de: "Etwas ist mir aufgefallen" },
   "growth.identityMessage": { en: "Your companion remembers what matters to you", de: "Dein Begleiter erinnert sich, was dir wichtig ist" },
   "growth.chats": { en: "Chats", de: "Gespräche" },
+
+  // Ritual Card
+  "home.ritual.morning.sub": { en: "Quick morning ritual", de: "Kurzes Morgen-Ritual" },
+  "home.ritual.morning.prompt": { en: "How would you like to start your day?", de: "Wie möchtest du heute in den Tag gehen?" },
+  "home.ritual.morning.checkinMood": { en: "Check in mood", de: "Stimmung einchecken" },
+  "home.ritual.morning.chatMessage": { en: "Good morning. How am I feeling today?", de: "Guten Morgen. Wie fühle ich mich heute?" },
+  "home.ritual.evening.sub": { en: "Evening reflection", de: "Abend-Reflexion" },
+  "home.ritual.evening.prompt": { en: "How was your day, really?", de: "Wie war dein Tag wirklich?" },
+  "home.ritual.evening.reflect": { en: "Reflect on the day", de: "Tag reflektieren" },
+  "home.ritual.evening.chatMessage": { en: "I'd like to briefly sort through my day.", de: "Ich möchte meinen Tag kurz sortieren." },
+  "home.ritual.evening.writeJournal": { en: "Write in journal", de: "Tagebuch schreiben" },
+  "home.ritual.talkToCompanion": { en: "Talk to {name}", de: "Mit {name} reden" },
+
+  // Growth story narrative
+  "growth.story.longStreakPrefix": { en: "You've been showing up for yourself for ", de: "Seit " },
+  "growth.story.longStreakSuffix": { en: " days.", de: " Tagen nimmst du dir bewusst Zeit für dich." },
+  "growth.story.shortStreakSuffix": { en: " days in a row — a beautiful routine is forming.", de: " Tage in Folge — eine schöne Routine entsteht." },
+  "growth.story.combining": { en: "You're combining conversations with writing — that deepens your reflection.", de: "Du kombinierst Gespräche und Schreiben — das vertieft deine Reflexion." },
+  "growth.story.selfAware": { en: "Your conversations this week show real self-awareness.", de: "Deine Gespräche diese Woche zeigen echte Selbstbeobachtung." },
+  "growth.story.patterns": { en: "Patterns are emerging — a sign you're looking deeper.", de: "Es zeichnen sich Muster ab — ein Zeichen dafür, dass du tiefer schaust." },
+  "growth.story.everyStep": { en: "Every step counts. You're building something valuable.", de: "Jeder Schritt zählt. Du baust etwas Wertvolles auf." },
+
+  // Reflection score labels
+  "growth.reflection.deeplyConnected": { en: "Deeply connected", de: "Stark verbunden" },
+  "growth.reflection.growingSteadily": { en: "Growing steadily", de: "Gut dabei" },
+  "growth.reflection.gettingStarted": { en: "Getting started", de: "Am Anfang" },
+  "growth.reflection.firstSteps": { en: "First steps", de: "Erste Schritte" },
+
+  // Shareable insight card
+  "home.shareCard.copied": { en: "Copied", de: "Kopiert" },
+  "home.shareCard.copy": { en: "Copy", de: "Kopieren" },
+  "home.shareCard.image": { en: "Image", de: "Bild" },
+  "home.shareCard.copiedToClipboard": { en: "Copied to clipboard", de: "In Zwischenablage kopiert" },
+  "home.shareCard.instagramCopied": { en: "Text copied — paste it into your Instagram Story", de: "Text kopiert — füge ihn in deine Instagram Story ein" },
+  "home.shareCard.imageSaved": { en: "Image saved", de: "Bild gespeichert" },
+  "home.shareCard.imageFailed": { en: "Could not create image", de: "Bild konnte nicht erstellt werden" },
+  "home.shareCard.locale": { en: "en-US", de: "de-DE" },
 };

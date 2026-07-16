@@ -1,12 +1,11 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { 
-  MessageCircle, 
-  BookOpen, 
-  Heart, 
-  Sparkles, 
-  Shield, 
+import {
+  MessageCircle,
+  BookOpen,
+  Heart,
+  Sparkles,
+  Shield,
   Mic,
   Moon,
   Sun,
@@ -15,6 +14,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme";
+import { useTranslation } from "@/hooks/useTranslation";
+import { setPreferences } from "@/lib/preferences";
 import logoImage from "@/assets/logo.png";
 
 import { DemoChat } from "@/components/landing/DemoChat";
@@ -22,21 +23,12 @@ import { DemoChat } from "@/components/landing/DemoChat";
 export default function Landing() {
   const navigate = useNavigate();
   const { isDark, setMode: setThemeMode } = useTheme();
-  const [language, setLanguage] = useState<"en" | "de">(() => {
-    try {
-      const stored = localStorage.getItem("soulvay-preferences");
-      if (stored) {
-        const prefs = JSON.parse(stored);
-        if (prefs.language === "en" || prefs.language === "de") return prefs.language;
-      }
-    } catch {}
-    // Default to German (primary market) — switch to English only for explicit EN browsers
-    const browserLang = navigator.language?.toLowerCase() || "";
-    if (browserLang.startsWith("en") && !browserLang.includes("de")) return "en";
-    return "de";
-  });
+  const { language, t: tKey } = useTranslation();
+  const setLanguage = (next: "en" | "de") => {
+    setPreferences({ language: next });
+  };
 
-  
+
 
   const content = {
     en: {
@@ -143,7 +135,7 @@ export default function Landing() {
               {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
             </button>
             <Button onClick={() => navigate("/auth")} size="sm" variant="ghost" className="text-xs">
-              {language === "de" ? "Anmelden" : "Sign In"}
+              {tKey("landing.header.signIn")}
             </Button>
           </div>
         </div>
@@ -165,7 +157,7 @@ export default function Landing() {
               {t.hero.tagline}
             </h1>
             <p className="text-xs md:text-sm text-muted-foreground">
-              {language === "de" ? "Probier es aus — ohne Anmeldung" : "Try it — no signup needed"}
+              {tKey("landing.hero.tryPrompt")}
             </p>
           </motion.div>
 
@@ -195,15 +187,15 @@ export default function Landing() {
         {/* Legal footer */}
         <div className="flex items-center justify-center gap-3 mt-4 text-xs text-muted-foreground/60">
           <button onClick={() => navigate("/terms")} className="hover:text-muted-foreground transition-colors">
-            {language === "de" ? "Nutzungsbedingungen" : "Terms"}
+            {tKey("landing.footer.terms")}
           </button>
           <span>•</span>
           <button onClick={() => navigate("/privacy")} className="hover:text-muted-foreground transition-colors">
-            {language === "de" ? "Datenschutz" : "Privacy"}
+            {tKey("landing.footer.privacy")}
           </button>
           <span>•</span>
           <button onClick={() => navigate("/impressum")} className="hover:text-muted-foreground transition-colors">
-            {language === "de" ? "Impressum" : "Legal Notice"}
+            {tKey("landing.footer.impressum")}
           </button>
         </div>
       </section>

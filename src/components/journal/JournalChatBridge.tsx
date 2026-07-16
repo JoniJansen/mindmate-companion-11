@@ -15,7 +15,7 @@ interface JournalChatBridgeProps {
 }
 
 export function JournalChatBridge({ entryContent, onDismiss }: JournalChatBridgeProps) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const { companion } = useCompanion();
   const navigate = useNavigate();
   const avatarUrl = useAvatarUrl(companion?.avatar_url);
@@ -28,9 +28,7 @@ export function JournalChatBridge({ entryContent, onDismiss }: JournalChatBridge
   const handleStartChat = () => {
     analytics.track("journal_to_chat_clicked");
     const preview = entryContent.slice(0, 200);
-    const contextMsg = language === "de"
-      ? `Ich habe gerade etwas in mein Tagebuch geschrieben: "${preview}". Kannst du mir helfen, das einzuordnen?`
-      : `I just wrote something in my journal: "${preview}". Can you help me make sense of it?`;
+    const contextMsg = `${t("journal.bridge.contextPrefix")}${preview}${t("journal.bridge.contextSuffix")}`;
 
     localStorage.setItem("soulvay-initial-message", contextMsg);
     navigate("/chat");
@@ -65,9 +63,7 @@ export function JournalChatBridge({ entryContent, onDismiss }: JournalChatBridge
 
         <div className="px-4 pt-2 pb-3">
           <p className="text-sm text-foreground/90 leading-relaxed mb-3">
-            {language === "de"
-              ? `Möchtest du mit ${companionName} darüber sprechen, was du geschrieben hast?`
-              : `Would you like to talk with ${companionName} about what you wrote?`}
+            {`${t("journal.bridge.promptPrefix")}${companionName}${t("journal.bridge.promptSuffix")}`}
           </p>
           <div className="flex gap-2">
             <Button
@@ -76,7 +72,7 @@ export function JournalChatBridge({ entryContent, onDismiss }: JournalChatBridge
               onClick={handleStartChat}
             >
               <MessageCircle className="w-3.5 h-3.5" />
-              {language === "de" ? "Darüber sprechen" : "Talk about it"}
+              {t("home.talkAboutIt")}
             </Button>
             <Button size="sm" variant="ghost" className="text-muted-foreground text-xs" onClick={onDismiss}>
               {t("home.notNow")}

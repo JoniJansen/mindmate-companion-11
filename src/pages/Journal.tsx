@@ -78,7 +78,7 @@ export default function Journal() {
   const { logActivity } = useActivityLog();
   const { setJournalDraft, clearPart } = useLastState();
 
-  const dateLocale = language === "de" ? de : enUS;
+  const dateLocale = language === "en" ? enUS : de;
 
   // Track draft state for continue module
   useEffect(() => {
@@ -133,7 +133,7 @@ export default function Journal() {
     }
   };
 
-  const speechLang = language === "de" ? "de-DE" : "en-US";
+  const speechLang = language === "en" ? "en-US" : "de-DE";
   const { isListening, fullTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeech(speechLang, { continuous: true });
 
   useEffect(() => {
@@ -682,7 +682,7 @@ export default function Journal() {
                   <CalendarIcon className="w-3.5 h-3.5" />
                   {selectedDate
                     ? format(selectedDate, "d. MMM", { locale: dateLocale })
-                    : (language === "de" ? "Datum" : "Date")}
+                    : t("journal.dateFilter")}
                   {selectedDate && (
                     <X
                       className="w-3 h-3 ml-1"
@@ -716,9 +716,7 @@ export default function Journal() {
               onClick={() => setSortOrder(prev => prev === "newest" ? "oldest" : "newest")}
             >
               <ArrowUpDown className="w-3.5 h-3.5" />
-              {sortOrder === "newest"
-                ? (language === "de" ? "Neueste" : "Newest")
-                : (language === "de" ? "Älteste" : "Oldest")}
+              {sortOrder === "newest" ? t("journal.sortNewest") : t("journal.sortOldest")}
             </Button>
 
             {(selectedDate || searchQuery || sourceFilter !== "all") && (
@@ -728,7 +726,7 @@ export default function Journal() {
                 className="text-xs text-muted-foreground ml-auto"
                 onClick={() => { setSelectedDate(undefined); setSearchQuery(""); setSourceFilter("all"); }}
               >
-                {language === "de" ? "Zurücksetzen" : "Reset"}
+                {t("journal.reset")}
               </Button>
             )}
           </div>
@@ -760,7 +758,7 @@ export default function Journal() {
               <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
               <p className="text-muted-foreground">
                 {selectedDate
-                  ? (language === "de" ? "Keine Einträge an diesem Tag" : "No entries on this day")
+                  ? t("journal.noEntriesOnDay")
                   : searchQuery ? t("journal.noEntriesFound") : t("journal.noEntries")}
               </p>
             </CalmCard>

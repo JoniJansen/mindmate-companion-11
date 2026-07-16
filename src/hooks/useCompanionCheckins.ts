@@ -21,7 +21,7 @@ export function useCompanionCheckins(companionName?: string) {
   const [checkin, setCheckin] = useState<CompanionCheckinData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
 
   const name = companionName || "Soulvay";
 
@@ -75,12 +75,8 @@ export function useCompanionCheckins(companionName?: string) {
           const m = memories[Math.floor(Math.random() * memories.length)];
           candidates.push({
             type: "memory",
-            text: language === "de"
-              ? `Etwas, das du vor einiger Zeit erwähnt hast, hat mich zum Nachdenken gebracht: "${m.content}"`
-              : `Something you mentioned a while ago stayed with me: "${m.content}"`,
-            chatPrompt: language === "de"
-              ? `Ich habe noch einmal über etwas nachgedacht, das ich dir erzählt habe: "${m.content}". Können wir darüber sprechen?`
-              : `I've been thinking again about something I shared: "${m.content}". Can we talk about it?`,
+            text: `${t("checkin.memory.text")}"${m.content}"`,
+            chatPrompt: `${t("checkin.memory.promptPrefix")}${m.content}${t("checkin.memory.promptSuffix")}`,
           });
         }
 
@@ -89,12 +85,8 @@ export function useCompanionCheckins(companionName?: string) {
           const p = patterns[Math.floor(Math.random() * patterns.length)];
           candidates.push({
             type: "identity",
-            text: language === "de"
-              ? `Mir ist aufgefallen: ${p.description}. Das sagt etwas über dich.`
-              : `I've noticed something: ${p.description}. That says something about you.`,
-            chatPrompt: language === "de"
-              ? `Du hast bemerkt, dass ${p.description}. Kannst du mir mehr darüber erzählen?`
-              : `You noticed that ${p.description}. Can you tell me more about that?`,
+            text: `${t("checkin.identity.textPrefix")}${p.description}${t("checkin.identity.textSuffix")}`,
+            chatPrompt: `${t("checkin.identity.promptPrefix")}${p.description}${t("checkin.identity.promptSuffix")}`,
           });
         }
 
@@ -103,12 +95,8 @@ export function useCompanionCheckins(companionName?: string) {
           const i = insights[Math.floor(Math.random() * insights.length)];
           candidates.push({
             type: "insight",
-            text: language === "de"
-              ? `In einem unserer letzten Gespräche kam etwas Interessantes auf: "${i.insight_text}"`
-              : `Something interesting came up in one of our recent conversations: "${i.insight_text}"`,
-            chatPrompt: language === "de"
-              ? `Du hast diese Erkenntnis erwähnt: "${i.insight_text}". Ich möchte darüber reflektieren.`
-              : `You mentioned this insight: "${i.insight_text}". I'd like to reflect on it.`,
+            text: `${t("checkin.insight.text")}"${i.insight_text}"`,
+            chatPrompt: `${t("checkin.insight.promptPrefix")}${i.insight_text}${t("checkin.insight.promptSuffix")}`,
           });
         }
 
@@ -116,12 +104,8 @@ export function useCompanionCheckins(companionName?: string) {
         if (patterns.length >= 2) {
           candidates.push({
             type: "initiative",
-            text: language === "de"
-              ? `Ich habe über unsere Gespräche nachgedacht. Etwas fällt mir immer wieder auf.`
-              : `I've been thinking about our conversations. Something keeps standing out.`,
-            chatPrompt: language === "de"
-              ? `Du hast gesagt, dir fällt etwas an unseren Gesprächen auf. Was meinst du?`
-              : `You said something keeps standing out in our conversations. What do you mean?`,
+            text: t("checkin.initiative.text"),
+            chatPrompt: t("checkin.initiative.prompt"),
           });
         }
 

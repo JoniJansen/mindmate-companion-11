@@ -23,7 +23,7 @@ export function JournalEntryCard({
   onClick, 
   index 
 }: JournalEntryCardProps) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const isFromChat = source === 'chat';
   const preview = content.length > 100 ? content.substring(0, 100) + "..." : content;
 
@@ -35,7 +35,7 @@ export function JournalEntryCard({
 
     if (date.toDateString() === today.toDateString()) return t("journal.today");
     if (date.toDateString() === yesterday.toDateString()) return t("journal.yesterday");
-    return date.toLocaleDateString(language === "de" ? "de-DE" : "en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString(t("journal.dateLocale"), { month: "short", day: "numeric" });
   };
 
   return (

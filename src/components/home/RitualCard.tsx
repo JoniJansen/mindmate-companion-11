@@ -16,7 +16,7 @@ function getRitualType(): RitualType {
 
 export function RitualCard() {
   const ritualType = useMemo(getRitualType, []);
-  const { language } = useTranslation();
+  const { t } = useTranslation();
   const { companion } = useCompanion();
   const navigate = useNavigate();
   const companionName = companion?.name || "Soulvay";
@@ -32,23 +32,17 @@ export function RitualCard() {
   const config = ritualType === "morning"
     ? {
         icon: Sun,
-        prompt: language === "de"
-          ? "Wie möchtest du heute in den Tag gehen?"
-          : "How would you like to start your day?",
-        sub: language === "de"
-          ? "Kurzes Morgen-Ritual"
-          : "Quick morning ritual",
+        prompt: t("home.ritual.morning.prompt"),
+        sub: t("home.ritual.morning.sub"),
         actions: [
           {
-            label: language === "de" ? "Stimmung einchecken" : "Check in mood",
+            label: t("home.ritual.morning.checkinMood"),
             onClick: () => navigate("/mood"),
           },
           {
-            label: language === "de" ? `Mit ${companionName} reden` : `Talk to ${companionName}`,
+            label: t("home.ritual.talkToCompanion").replace("{name}", companionName),
             onClick: () => {
-              const msg = language === "de"
-                ? "Guten Morgen. Wie fühle ich mich heute?"
-                : "Good morning. How am I feeling today?";
+              const msg = t("home.ritual.morning.chatMessage");
               localStorage.setItem("soulvay-initial-message", msg);
               navigate("/chat");
             },
@@ -60,25 +54,19 @@ export function RitualCard() {
       }
     : {
         icon: Moon,
-        prompt: language === "de"
-          ? "Wie war dein Tag wirklich?"
-          : "How was your day, really?",
-        sub: language === "de"
-          ? "Abend-Reflexion"
-          : "Evening reflection",
+        prompt: t("home.ritual.evening.prompt"),
+        sub: t("home.ritual.evening.sub"),
         actions: [
           {
-            label: language === "de" ? "Tag reflektieren" : "Reflect on the day",
+            label: t("home.ritual.evening.reflect"),
             onClick: () => {
-              const msg = language === "de"
-                ? "Ich möchte meinen Tag kurz sortieren."
-                : "I'd like to briefly sort through my day.";
+              const msg = t("home.ritual.evening.chatMessage");
               localStorage.setItem("soulvay-initial-message", msg);
               navigate("/chat");
             },
           },
           {
-            label: language === "de" ? "Tagebuch schreiben" : "Write in journal",
+            label: t("home.ritual.evening.writeJournal"),
             onClick: () => navigate("/journal"),
           },
         ],

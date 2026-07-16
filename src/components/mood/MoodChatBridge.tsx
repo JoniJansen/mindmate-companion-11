@@ -18,7 +18,7 @@ interface MoodChatBridgeProps {
 }
 
 export function MoodChatBridge({ moodValue, feelings, note, onDismiss }: MoodChatBridgeProps) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const { companion } = useCompanion();
   const navigate = useNavigate();
   const avatarUrl = useAvatarUrl(companion?.avatar_url);
@@ -31,18 +31,12 @@ export function MoodChatBridge({ moodValue, feelings, note, onDismiss }: MoodCha
 
   const getMessage = () => {
     if (moodValue <= 2) {
-      return language === "de"
-        ? `Das klingt nach einem schweren Moment. Ich bin hier, wenn du reden möchtest.`
-        : `That sounds like a tough moment. I'm here if you'd like to talk.`;
+      return t("mood.bridge.lowMood");
     }
     if (moodValue === 3) {
-      return language === "de"
-        ? `Danke, dass du das geteilt hast. Magst du ein bisschen darüber sprechen?`
-        : `Thanks for sharing that. Would you like to talk about it a bit?`;
+      return t("mood.bridge.midMood");
     }
-    return language === "de"
-      ? `Schön zu hören. Magst du mir erzählen, was deinen Tag gut gemacht hat?`
-      : `Nice to hear. Want to tell me what made your day good?`;
+    return t("mood.bridge.highMood");
   };
 
   const handleStartChat = () => {
@@ -50,18 +44,16 @@ export function MoodChatBridge({ moodValue, feelings, note, onDismiss }: MoodCha
     // Build context message for chat
     const emoji = getMoodEmoji(moodValue);
     const feelingList = feelings.length > 0 ? feelings.join(", ") : "";
-    
-    let contextMsg = language === "de"
-      ? `Ich habe gerade meine Stimmung eingecheckt: ${emoji}`
-      : `I just checked in with my mood: ${emoji}`;
-    
+
+    let contextMsg = `${t("mood.bridge.contextPrefix")}${emoji}`;
+
     if (feelingList) {
-      contextMsg += language === "de" ? ` (${feelingList})` : ` (${feelingList})`;
+      contextMsg += ` (${feelingList})`;
     }
     if (note) {
-      contextMsg += language === "de" ? `. Notiz: "${note}"` : `. Note: "${note}"`;
+      contextMsg += `${t("mood.bridge.notePrefix")}${note}"`;
     }
-    
+
     localStorage.setItem("soulvay-initial-message", contextMsg);
     navigate("/chat");
   };

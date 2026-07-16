@@ -175,7 +175,7 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
         steps: selectedTopic.steps.map(s => ({ title: s.title, description: s.description })),
       });
 
-      const topicContext = `You are helping the user learn about and apply the topic "${display.title}" to their personal situation. Topic description: ${display.longDescription}. Available learning content covers: ${selectedTopic.learn.map(l => l.title).join(", ")}. Be educational, empathetic, and personalized. Answer in ${language === "de" ? "German" : "English"}.`;
+      const topicContext = `You are helping the user learn about and apply the topic "${display.title}" to their personal situation. Topic description: ${display.longDescription}. Available learning content covers: ${selectedTopic.learn.map(l => l.title).join(", ")}. Be educational, empathetic, and personalized. Answer in ${t("topics.chatLangName")}.`;
       
       const resp = await fetch(CHAT_URL, {
         method: "POST",
@@ -225,10 +225,10 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
       }
       flushTopicBuffer();
     } catch {
-      setTopicChatMessages(prev => [...prev, { role: "assistant", content: language === "de" ? "Entschuldigung, es gab einen Fehler. Bitte versuche es erneut." : "Sorry, something went wrong. Please try again." }]);
+      setTopicChatMessages(prev => [...prev, { role: "assistant", content: t("topics.chatError") }]);
     }
     setTopicChatLoading(false);
-  }, [topicChatInput, topicChatLoading, selectedTopic, topicChatMessages, language, getTopicDisplay, enqueueTopicChunk, flushTopicBuffer]);
+  }, [topicChatInput, topicChatLoading, selectedTopic, topicChatMessages, language, t, getTopicDisplay, enqueueTopicChunk, flushTopicBuffer]);
 
   const saveProgress = (topicId: string, stepId: number) => {
     const newProgress = {
@@ -457,8 +457,8 @@ const Topics = forwardRef<HTMLDivElement>(function Topics(_props, _ref) {
                     <h3 className="font-medium text-foreground mt-4 mb-2">{t("topics.exercises")}</h3>
                     {selectedTopic.exercises.map(ex => {
                       const exTranslation = topicExerciseTranslations[ex.id];
-                      const exTitle = exTranslation ? (language === "de" ? exTranslation.de.title : exTranslation.en.title) : ex.title;
-                      const exDesc = exTranslation ? (language === "de" ? exTranslation.de.description : exTranslation.en.description) : ex.description;
+                      const exTitle = exTranslation ? exTranslation[language].title : ex.title;
+                      const exDesc = exTranslation ? exTranslation[language].description : ex.description;
                       return (
                         <CalmCard key={ex.id} variant="elevated" className="cursor-pointer hover:bg-muted/50" onClick={() => navigate("/toolbox")}>
                           <div className="flex items-center gap-3">

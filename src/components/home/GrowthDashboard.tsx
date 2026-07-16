@@ -18,7 +18,7 @@ interface GrowthDashboardProps {
 }
 
 export function GrowthDashboard({ patterns, weeklyStats, currentStreak, insightCount }: GrowthDashboardProps) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const hasData = weeklyStats.activeDays > 0 || patterns.length > 0 || insightCount > 0;
@@ -36,45 +36,33 @@ export function GrowthDashboard({ patterns, weeklyStats, currentStreak, insightC
     const parts: string[] = [];
 
     if (currentStreak >= 7) {
-      parts.push(language === "de"
-        ? `Seit ${currentStreak} Tagen nimmst du dir bewusst Zeit für dich.`
-        : `You've been showing up for yourself for ${currentStreak} days.`);
+      parts.push(`${t("growth.story.longStreakPrefix")}${currentStreak}${t("growth.story.longStreakSuffix")}`);
     } else if (currentStreak >= 3) {
-      parts.push(language === "de"
-        ? `${currentStreak} Tage in Folge — eine schöne Routine entsteht.`
-        : `${currentStreak} days in a row — a beautiful routine is forming.`);
+      parts.push(`${currentStreak}${t("growth.story.shortStreakSuffix")}`);
     }
 
     if (weeklyStats.chatSessions >= 3 && weeklyStats.journalEntries >= 2) {
-      parts.push(language === "de"
-        ? "Du kombinierst Gespräche und Schreiben — das vertieft deine Reflexion."
-        : "You're combining conversations with writing — that deepens your reflection.");
+      parts.push(t("growth.story.combining"));
     } else if (weeklyStats.chatSessions >= 3) {
-      parts.push(language === "de"
-        ? "Deine Gespräche diese Woche zeigen echte Selbstbeobachtung."
-        : "Your conversations this week show real self-awareness.");
+      parts.push(t("growth.story.selfAware"));
     }
 
     if (patterns.length >= 2) {
-      parts.push(language === "de"
-        ? "Es zeichnen sich Muster ab — ein Zeichen dafür, dass du tiefer schaust."
-        : "Patterns are emerging — a sign you're looking deeper.");
+      parts.push(t("growth.story.patterns"));
     }
 
     if (parts.length === 0) {
-      parts.push(language === "de"
-        ? "Jeder Schritt zählt. Du baust etwas Wertvolles auf."
-        : "Every step counts. You're building something valuable.");
+      parts.push(t("growth.story.everyStep"));
     }
 
     return parts[0];
   };
 
   const getReflectionLabel = () => {
-    if (reflectionScore >= 80) return language === "de" ? "Stark verbunden" : "Deeply connected";
-    if (reflectionScore >= 50) return language === "de" ? "Gut dabei" : "Growing steadily";
-    if (reflectionScore >= 20) return language === "de" ? "Am Anfang" : "Getting started";
-    return language === "de" ? "Erste Schritte" : "First steps";
+    if (reflectionScore >= 80) return t("growth.reflection.deeplyConnected");
+    if (reflectionScore >= 50) return t("growth.reflection.growingSteadily");
+    if (reflectionScore >= 20) return t("growth.reflection.gettingStarted");
+    return t("growth.reflection.firstSteps");
   };
 
   return (

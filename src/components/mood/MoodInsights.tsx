@@ -14,7 +14,7 @@ interface MoodInsightsProps {
 }
 
 export function MoodInsights({ checkins }: MoodInsightsProps) {
-  const { language } = useTranslation();
+  const { t } = useTranslation();
 
   const insights = useMemo(() => {
     if (checkins.length < 5) return [];
@@ -27,9 +27,15 @@ export function MoodInsights({ checkins }: MoodInsightsProps) {
       dayBuckets[day].push(c.mood_value);
     });
     const dayAvgs = dayBuckets.map((b) => (b.length > 0 ? b.reduce((a, c) => a + c, 0) / b.length : null));
-    const dayNames = language === "de"
-      ? ["Sonntage", "Montage", "Dienstage", "Mittwoche", "Donnerstage", "Freitage", "Samstage"]
-      : ["Sundays", "Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays"];
+    const dayNames = [
+      t("mood.insights.dayName.sundays"),
+      t("mood.insights.dayName.mondays"),
+      t("mood.insights.dayName.tuesdays"),
+      t("mood.insights.dayName.wednesdays"),
+      t("mood.insights.dayName.thursdays"),
+      t("mood.insights.dayName.fridays"),
+      t("mood.insights.dayName.saturdays"),
+    ];
 
     // Find hardest and best day
     let minDay = -1, maxDay = -1, minAvg = 6, maxAvg = 0;
@@ -41,17 +47,13 @@ export function MoodInsights({ checkins }: MoodInsightsProps) {
     if (minDay >= 0 && maxAvg - minAvg >= 0.5) {
       results.push({
         icon: TrendingDown,
-        text: language === "de"
-          ? `${dayNames[minDay]} sind für dich herausfordernder (Ø ${minAvg.toFixed(1)}).`
-          : `${dayNames[minDay]} tend to be harder for you (avg ${minAvg.toFixed(1)}).`,
+        text: `${dayNames[minDay]}${t("mood.insights.hardestDaysMiddle")}${minAvg.toFixed(1)}).`,
       });
     }
     if (maxDay >= 0 && maxAvg - minAvg >= 0.5) {
       results.push({
         icon: TrendingUp,
-        text: language === "de"
-          ? `${dayNames[maxDay]} sind deine besten Tage (Ø ${maxAvg.toFixed(1)}).`
-          : `${dayNames[maxDay]} are your best days (avg ${maxAvg.toFixed(1)}).`,
+        text: `${dayNames[maxDay]}${t("mood.insights.bestDaysMiddle")}${maxAvg.toFixed(1)}).`,
       });
     }
 
@@ -67,13 +69,13 @@ export function MoodInsights({ checkins }: MoodInsightsProps) {
         results.push({
           icon: diff > 0 ? TrendingUp : TrendingDown,
           text: diff > 0
-            ? (language === "de" ? `Deine Stimmung hat sich zuletzt verbessert (+${diff.toFixed(1)}).` : `Your mood has improved recently (+${diff.toFixed(1)}).`)
-            : (language === "de" ? `Deine Stimmung war zuletzt etwas niedriger (${diff.toFixed(1)}).` : `Your mood dipped a bit recently (${diff.toFixed(1)}).`),
+            ? `${t("mood.insights.moodImprovedPrefix")}${diff.toFixed(1)}).`
+            : `${t("mood.insights.moodDippedPrefix")}${diff.toFixed(1)}).`,
         });
       } else {
         results.push({
           icon: Minus,
-          text: language === "de" ? "Deine Stimmung ist stabil geblieben." : "Your mood has been stable.",
+          text: t("mood.insights.moodStable"),
         });
       }
     }
@@ -92,14 +94,12 @@ export function MoodInsights({ checkins }: MoodInsightsProps) {
     if (topFeelings.length > 0) {
       results.push({
         icon: Lightbulb,
-        text: language === "de"
-          ? `Deine häufigsten Gefühle: ${topFeelings.join(", ")}.`
-          : `Your most frequent feelings: ${topFeelings.join(", ")}.`,
+        text: `${t("mood.insights.topFeelingsPrefix")}${topFeelings.join(", ")}.`,
       });
     }
 
     return results.slice(0, 4);
-  }, [checkins, language]);
+  }, [checkins, t]);
 
   if (insights.length === 0) return null;
 

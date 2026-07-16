@@ -90,4 +90,53 @@ export const journalTranslations: Translations = {
   "journal.sentimentInsight": { en: "Insight", de: "Einblick" },
   "journal.sentimentTagPrompt": { en: "Would you like to tag this?", de: "Möchtest du das markieren?" },
   "journal.sentimentJustSuggestion": { en: "Just a suggestion — you decide.", de: "Das ist nur ein Vorschlag — du entscheidest." },
+
+  // Journal locale identifier (for toLocaleDateString)
+  "journal.dateLocale": { en: "en-US", de: "de-DE" },
+
+  // Journal filters/sort
+  "journal.dateFilter": { en: "Date", de: "Datum" },
+  "journal.sortNewest": { en: "Newest", de: "Neueste" },
+  "journal.sortOldest": { en: "Oldest", de: "Älteste" },
+  "journal.reset": { en: "Reset", de: "Zurücksetzen" },
+  "journal.noEntriesOnDay": { en: "No entries on this day", de: "Keine Einträge an diesem Tag" },
+
+  // Journal → Chat bridge (with interpolation via prefix/suffix)
+  "journal.bridge.contextPrefix": { en: 'I just wrote something in my journal: "', de: 'Ich habe gerade etwas in mein Tagebuch geschrieben: "' },
+  "journal.bridge.contextSuffix": { en: '". Can you help me make sense of it?', de: '". Kannst du mir helfen, das einzuordnen?' },
+  "journal.bridge.promptPrefix": { en: "Would you like to talk with ", de: "Möchtest du mit " },
+  "journal.bridge.promptSuffix": { en: " about what you wrote?", de: " darüber sprechen, was du geschrieben hast?" },
+
+  // AI Summary
+  "aiSummary.title": { en: "AI Summary", de: "KI-Zusammenfassung" },
+  "aiSummary.plainTextHeader": { en: "📋 AI Summary", de: "📋 KI-Zusammenfassung" },
+  "aiSummary.plainTextThemes": { en: "🏷️ Themes:", de: "🏷️ Themen:" },
+  "aiSummary.plainTextNextStep": { en: "➡️ Next Step:", de: "➡️ Nächster Schritt:" },
+  "aiSummary.copiedToast": { en: "Copied!", de: "Kopiert!" },
+  "aiSummary.summaryHeading": { en: "Summary", de: "Zusammenfassung" },
+  "aiSummary.emotionalThemes": { en: "Emotional Themes", de: "Emotionale Themen" },
+  "aiSummary.moodJourneyHeading": { en: "Mood Journey", de: "Stimmungsverlauf" },
+  "aiSummary.moodStart": { en: "Start", de: "Start" },
+  "aiSummary.moodEnd": { en: "End", de: "Ende" },
+  "aiSummary.nextStepHeading": { en: "Next Step", de: "Nächster Schritt" },
+  "aiSummary.copied": { en: "Copied", de: "Kopiert" },
+  "aiSummary.copyText": { en: "Copy text", de: "Text kopieren" },
+  "aiSummary.share": { en: "Share", de: "Teilen" },
+
+  // AI Reflection component (different DE wording from journal.analyzingEntries)
+  "reflection.analyzingEntries": { en: "Reflecting on your entries...", de: "Analysiere deine Einträge..." },
+
+  // Companion daily check-ins (rich text with interpolation via prefix/suffix)
+  "checkin.memory.text": { en: 'Something you mentioned a while ago stayed with me: ', de: 'Etwas, das du vor einiger Zeit erwähnt hast, hat mich zum Nachdenken gebracht: ' },
+  "checkin.memory.promptPrefix": { en: 'I\'ve been thinking again about something I shared: "', de: 'Ich habe noch einmal über etwas nachgedacht, das ich dir erzählt habe: "' },
+  "checkin.memory.promptSuffix": { en: '". Can we talk about it?', de: '". Können wir darüber sprechen?' },
+  "checkin.identity.textPrefix": { en: "I've noticed something: ", de: "Mir ist aufgefallen: " },
+  "checkin.identity.textSuffix": { en: ". That says something about you.", de: ". Das sagt etwas über dich." },
+  "checkin.identity.promptPrefix": { en: "You noticed that ", de: "Du hast bemerkt, dass " },
+  "checkin.identity.promptSuffix": { en: ". Can you tell me more about that?", de: ". Kannst du mir mehr darüber erzählen?" },
+  "checkin.insight.text": { en: 'Something interesting came up in one of our recent conversations: ', de: 'In einem unserer letzten Gespräche kam etwas Interessantes auf: ' },
+  "checkin.insight.promptPrefix": { en: 'You mentioned this insight: "', de: 'Du hast diese Erkenntnis erwähnt: "' },
+  "checkin.insight.promptSuffix": { en: '". I\'d like to reflect on it.', de: '". Ich möchte darüber reflektieren.' },
+  "checkin.initiative.text": { en: "I've been thinking about our conversations. Something keeps standing out.", de: "Ich habe über unsere Gespräche nachgedacht. Etwas fällt mir immer wieder auf." },
+  "checkin.initiative.prompt": { en: "You said something keeps standing out in our conversations. What do you mean?", de: "Du hast gesagt, dir fällt etwas an unseren Gesprächen auf. Was meinst du?" },
 };

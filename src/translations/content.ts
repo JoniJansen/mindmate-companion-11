@@ -149,4 +149,37 @@ export const contentTranslations: Translations = {
   "faq.stillQuestions": { en: "Still have questions?", de: "Noch Fragen?" },
   "faq.happyToHelp": { en: "We're happy to help!", de: "Wir helfen dir gerne weiter!" },
   "faq.contactUs": { en: "Contact Us", de: "Kontakt aufnehmen" },
+
+  // Contact page — inline messages
+  "contact.form.fillAll": { en: "Please fill in all required fields.", de: "Bitte fülle alle Pflichtfelder aus." },
+  "contact.form.defaultSubject": { en: "Contact Inquiry", de: "Kontaktanfrage" },
+  "contact.form.sendFailed": { en: "Failed to send message.", de: "Nachricht konnte nicht gesendet werden." },
+  "contact.form.pleaseSelect": { en: "Please select...", de: "Bitte auswählen..." },
+  "contact.responseTime": { en: "We typically respond to inquiries within 24-48 hours.", de: "Wir antworten in der Regel innerhalb von 24-48 Stunden auf Anfragen." },
+
+  // Safety page — professional support
+  "safety.professional.role": { en: "Psychologist M.Sc., Psychotherapist", de: "Psychologin M.Sc., Heilpraktikerin für Psychotherapie" },
+  "safety.professional.description": { en: "Over 24 years experience in psychiatry and psychosomatic medicine. Specialized in trauma, anxiety, burnout and relationship counseling.", de: "Über 24 Jahre Erfahrung in Psychiatrie und Psychosomatik. Spezialisiert auf Trauma, Angst, Burnout und Beziehungsberatung." },
+  "safety.professional.available": { en: "Mon–Fri 9am–3pm", de: "Mo–Fr 9:00–15:00 Uhr" },
+  "safety.emergencyNumberValue": { en: "911", de: "112" },
+  "safety.professionalSupportHeading": { en: "Professional Support", de: "Persönliche Beratung" },
+
+  // Landing page — inline strings
+  "landing.header.signIn": { en: "Sign In", de: "Anmelden" },
+  "landing.hero.tryPrompt": { en: "Try it — no signup needed", de: "Probier es aus — ohne Anmeldung" },
+  "landing.footer.terms": { en: "Terms", de: "Nutzungsbedingungen" },
+  "landing.footer.privacy": { en: "Privacy", de: "Datenschutz" },
+  "landing.footer.impressum": { en: "Legal Notice", de: "Impressum" },
+
+  // Topics page — inline messages
+  "topics.chatLangName": { en: "English", de: "German" },
+  "topics.chatError": { en: "Sorry, something went wrong. Please try again.", de: "Entschuldigung, es gab einen Fehler. Bitte versuche es erneut." },
+
+  // Locale code for Intl / toLocaleDateString / toLocaleTimeString
+  "common.locale": { en: "en-US", de: "de-DE" },
+
+  // Summary page — share text parts (interpolated)
+  "summary.share.prefix": { en: "My Soulvay session touched on: ", de: "Meine Soulvay-Sitzung behandelte: " },
+  "summary.share.separator": { en: " and ", de: " und " },
+  "summary.share.nextStep": { en: ". My next step: ", de: ". Mein nächster Schritt: " },
 };
