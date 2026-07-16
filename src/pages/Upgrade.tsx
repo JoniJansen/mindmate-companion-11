@@ -32,7 +32,7 @@ import { isIOSApp } from "@/lib/platformSeparation";
 export default function Upgrade() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { 
     isPremium, 
@@ -157,9 +157,7 @@ export default function Upgrade() {
         if (!isRevenueCatAvailable) {
           toast({
             title: t("common.error"),
-            description: language === "de"
-              ? "Der Kauf ist gerade nicht verfügbar. Bitte schließe die App und versuche es erneut."
-              : "Purchases are currently unavailable. Please close the app and try again.",
+            description: t("upgrade.errPurchasesUnavailable"),
             variant: "destructive",
           });
           return;
@@ -168,9 +166,7 @@ export default function Upgrade() {
         if (!offerings || !offerings.availablePackages?.length) {
           toast({
             title: t("common.error"),
-            description: language === "de"
-              ? "Produkte werden geladen. Bitte versuche es in einem Moment erneut."
-              : "Products are loading. Please try again in a moment.",
+            description: t("upgrade.errProductsLoading"),
             variant: "destructive",
           });
           return;
@@ -183,9 +179,7 @@ export default function Upgrade() {
           }
           toast({
             title: t("common.error"),
-            description: language === "de"
-              ? "Abo-Produkt nicht verfügbar. Bitte kontaktiere den Support."
-              : "Subscription product unavailable. Please contact support.",
+            description: t("upgrade.errProductUnavailable"),
             variant: "destructive",
           });
           return;
@@ -206,9 +200,7 @@ export default function Upgrade() {
       if (isDemoMode) {
         toast({
           title: t("common.error"),
-          description: language === "de"
-            ? "Demo-Modus: Web-Checkout nicht verfügbar. Bitte teste den Kauf in der iOS-App."
-            : "Demo mode: web checkout unavailable. Please test the purchase in the iOS app.",
+          description: t("upgrade.errDemoModeCheckout"),
           variant: "destructive",
         });
         return;
@@ -352,9 +344,7 @@ export default function Upgrade() {
               Soulvay Plus
             </h1>
             <p className="text-muted-foreground mt-3 leading-relaxed max-w-xs mx-auto">
-              {language === "de"
-                ? "Stell dir vor, dein Begleiter kennt dich wirklich. Erinnert sich. Hört dir zu — in deiner Stimme."
-                : "Imagine your companion truly knows you. Remembers. Listens — in your voice."}
+              {t("upgrade.heroTagline")}
             </p>
           </div>
         </motion.div>
@@ -367,10 +357,10 @@ export default function Upgrade() {
           className="space-y-3"
         >
           {[
-            { icon: User, text: language === "de" ? "Sprich persönlich mit deinem Begleiter — Face-to-Face" : "Speak personally with your companion — Face-to-Face" },
-            { icon: MessageSquare, text: language === "de" ? "Unbegrenzte Gespräche, so oft du möchtest" : "Unlimited conversations, whenever you need" },
-            { icon: Brain, text: language === "de" ? "Dein Begleiter erkennt Muster und wächst mit dir" : "Your companion recognizes patterns and grows with you" },
-            { icon: Calendar, text: language === "de" ? "Wöchentliche Einblicke in deine emotionale Reise" : "Weekly insights into your emotional journey" },
+            { icon: User, text: t("upgrade.feelsLike.faceToFace") },
+            { icon: MessageSquare, text: t("upgrade.feelsLike.unlimited") },
+            { icon: Brain, text: t("upgrade.feelsLike.patterns") },
+            { icon: Calendar, text: t("upgrade.feelsLike.weeklyInsights") },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30">
               <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -440,11 +430,11 @@ export default function Upgrade() {
             <span className="text-center text-primary">Plus</span>
           </div>
           {[
-            { label: language === "de" ? "Nachrichten" : "Messages", free: language === "de" ? "15/Tag" : "15/day", plus: "∞" },
+            { label: t("upgrade.compare.messages"), free: t("upgrade.compare.messagesFree"), plus: "∞" },
             { label: "Face-to-Face", free: "1×", plus: "∞" },
-            { label: language === "de" ? "Erinnerung" : "Memory", free: language === "de" ? "7 Tage" : "7 days", plus: "∞" },
-            { label: language === "de" ? "Wochenrückblick" : "Weekly recap", free: "—", plus: "✓" },
-            { label: language === "de" ? "Muster" : "Patterns", free: "—", plus: "✓" },
+            { label: t("upgrade.compare.memory"), free: t("upgrade.compare.memoryFree"), plus: "∞" },
+            { label: t("upgrade.compare.weeklyRecap"), free: "—", plus: "✓" },
+            { label: t("upgrade.compare.patterns"), free: "—", plus: "✓" },
           ].map((row, i) => (
             <div key={i} className="grid grid-cols-3 text-sm p-3 border-t border-border/30">
               <span className="text-foreground">{row.label}</span>
@@ -461,8 +451,8 @@ export default function Upgrade() {
           transition={{ delay: 0.25 }}
           className="flex justify-center gap-6 text-xs text-muted-foreground"
         >
-          <span>{language === "de" ? "🔒 Deine Daten bleiben privat" : "🔒 Your data stays private"}</span>
-          <span>{language === "de" ? "💚 Jederzeit kündbar" : "💚 Cancel anytime"}</span>
+          <span>{t("upgrade.trust.privacy")}</span>
+          <span>{t("upgrade.trust.cancelAnytime")}</span>
         </motion.div>
 
         {/* Legal Consent */}
@@ -523,9 +513,7 @@ export default function Upgrade() {
               role="alert"
               className="rounded-xl border border-amber-300/40 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm text-amber-900 dark:text-amber-200"
             >
-              {language === "de"
-                ? "Käufe sind aktuell nicht verfügbar. Bitte schließe die App vollständig und öffne sie erneut. Falls das Problem bestehen bleibt, prüfe deine Internetverbindung oder kontaktiere den Support."
-                : "Purchases are currently unavailable. Please fully close and reopen the app. If the issue persists, check your connection or contact support."}
+              {t("upgrade.errRcUnavailable")}
             </div>
           )}
 
@@ -536,9 +524,7 @@ export default function Upgrade() {
               className="rounded-xl border border-amber-300/40 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm text-amber-900 dark:text-amber-200 space-y-3"
             >
               <p>
-                {language === "de"
-                  ? "Die Abo-Produkte konnten nicht von Apple geladen werden. Das passiert manchmal bei langsamer Verbindung."
-                  : "Subscription products could not be loaded from Apple. This can happen on slow connections."}
+                {t("upgrade.errOfferingsFailed")}
               </p>
               <Button
                 onClick={() => refreshOfferings()}
@@ -547,7 +533,7 @@ export default function Upgrade() {
                 className="w-full"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
-                {language === "de" ? "Erneut versuchen" : "Try again"}
+                {t("upgrade.tryAgain")}
               </Button>
             </div>
           )}
@@ -572,7 +558,7 @@ export default function Upgrade() {
             ) : iosPurchasePreparing ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                {language === "de" ? "Abo wird vorbereitet…" : "Preparing subscription…"}
+                {t("upgrade.preparing")}
               </>
             ) : (
               <>

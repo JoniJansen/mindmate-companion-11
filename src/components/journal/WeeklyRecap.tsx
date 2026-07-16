@@ -23,7 +23,7 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasEnoughData, setHasEnoughData] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const { aiConsentGiven } = useAuth();
   const { toast } = useToast();
 
@@ -49,10 +49,8 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
     // but blocking here gives the user a cleaner message than a generic error.
     if (!aiConsentGiven) {
       toast({
-        title: language === "de" ? "KI-Einwilligung erforderlich" : "AI consent required",
-        description: language === "de"
-          ? "Bitte akzeptiere die KI-Datenschutzhinweise in den Einstellungen, um den Wochenrückblick zu nutzen."
-          : "Please accept the AI data-processing notice in Settings to use the weekly recap.",
+        title: t("weeklyRecap.aiConsentRequired"),
+        description: t("weeklyRecap.aiConsentInSettings"),
       });
       return;
     }
@@ -86,10 +84,8 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
           || /AI_CONSENT_REQUIRED/i.test(error.message || "");
         if (isConsentErr) {
           toast({
-            title: language === "de" ? "KI-Einwilligung erforderlich" : "AI consent required",
-            description: language === "de"
-              ? "Bitte akzeptiere die KI-Datenschutzhinweise, um den Wochenrückblick zu nutzen."
-              : "Please accept the AI data-processing notice to use the weekly recap.",
+            title: t("weeklyRecap.aiConsentRequired"),
+            description: t("weeklyRecap.aiConsentDesc"),
           });
           return;
         }
@@ -111,7 +107,7 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
 
   const handleShare = async () => {
     if (!recap) return;
-    const title = language === "de" ? "Diese Woche mit Soulvay" : "This week with Soulvay";
+    const title = t("weeklyRecap.title");
     const themesText = recap.themes.length > 0
       ? `\n${recap.themes.map(t => `• ${t}`).join("\n")}`
       : "";
@@ -143,7 +139,7 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
                 {/* Narrative title */}
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-foreground">
-                    {language === "de" ? "Diese Woche mit Soulvay" : "This week with Soulvay"}
+                    {t("weeklyRecap.title")}
                   </h3>
                   <Button
                     variant="ghost"
@@ -159,7 +155,7 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
                 {recap.themes.length > 0 && (
                   <div>
                     <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1.5">
-                      {language === "de" ? "Themen, die aufgetaucht sind" : "Themes that appeared"}
+                      {t("weeklyRecap.themesLabel")}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {recap.themes.slice(0, 4).map((theme) => (
@@ -185,7 +181,7 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
                     {recap.emotionalTone && (
                       <div>
                         <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">
-                          {language === "de" ? "Emotionaler Grundton" : "Emotional undertone"}
+                          {t("weeklyRecap.emotionalTone")}
                         </p>
                         <p className="text-sm text-foreground/75">{recap.emotionalTone}</p>
                       </div>
@@ -196,7 +192,7 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
                       <div className="flex items-center gap-1.5 mb-2">
                         <Sparkles className="w-3 h-3 text-primary" />
                         <span className="text-[10px] font-medium text-primary uppercase tracking-wider">
-                          {language === "de" ? "Eine Reflexion" : "A reflection"}
+                          {t("weeklyRecap.reflectionLabel")}
                         </span>
                       </div>
                       <p className="text-sm text-foreground/85 leading-relaxed italic">
@@ -213,7 +209,7 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
                         onClick={handleShare}
                       >
                         <Share2 className="w-3 h-3" />
-                        {language === "de" ? "Teilen" : "Share"}
+                        {t("weeklyRecap.share")}
                       </Button>
                     </div>
                   </motion.div>
@@ -222,12 +218,10 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
             ) : (
               <div>
                 <h3 className="font-medium text-foreground mb-1">
-                  {language === "de" ? "Diese Woche mit Soulvay" : "This week with Soulvay"}
+                  {t("weeklyRecap.title")}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  {language === "de"
-                    ? "Entdecke die Themen und Muster aus deinen Reflexionen dieser Woche."
-                    : "Discover themes and patterns from your reflections this week."}
+                  {t("weeklyRecap.description")}
                 </p>
                 <Button
                   size="sm"
@@ -238,12 +232,12 @@ export function WeeklyRecap({ userId }: WeeklyRecapProps) {
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      {language === "de" ? "Einen Moment..." : "One moment..."}
+                      {t("weeklyRecap.loading")}
                     </>
                   ) : (
                     <>
                       <TrendingUp className="w-4 h-4" />
-                      {language === "de" ? "Wochenreflexion erstellen" : "Create weekly reflection"}
+                      {t("weeklyRecap.createCTA")}
                     </>
                   )}
                 </Button>

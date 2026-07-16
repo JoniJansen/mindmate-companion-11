@@ -129,4 +129,14 @@ export const paymentsTranslations: Translations = {
   "weeklyRecap.description": { en: "Discover themes and patterns from your reflections this week.", de: "Entdecke die Themen und Muster aus deinen Reflexionen dieser Woche." },
   "weeklyRecap.loading": { en: "One moment...", de: "Einen Moment..." },
   "weeklyRecap.createCTA": { en: "Create weekly reflection", de: "Wochenreflexion erstellen" },
+
+  // Upgrade + WeeklyRecap (Elite-Audit #9 migration — round 2)
+  "upgrade.errDemoModeCheckout": { en: "Demo mode: web checkout unavailable. Please test the purchase in the iOS app.", de: "Demo-Modus: Web-Checkout nicht verfügbar. Bitte teste den Kauf in der iOS-App." },
+  "upgrade.errRcUnavailable": { en: "Purchases are currently unavailable. Please fully close and reopen the app. If the issue persists, check your connection or contact support.", de: "Käufe sind aktuell nicht verfügbar. Bitte schließe die App vollständig und öffne sie erneut. Falls das Problem bestehen bleibt, prüfe deine Internetverbindung oder kontaktiere den Support." },
+  "upgrade.errOfferingsFailed": { en: "Subscription products could not be loaded from Apple. This can happen on slow connections.", de: "Die Abo-Produkte konnten nicht von Apple geladen werden. Das passiert manchmal bei langsamer Verbindung." },
+  "upgrade.tryAgain": { en: "Try again", de: "Erneut versuchen" },
+  "upgrade.preparing": { en: "Preparing subscription…", de: "Abo wird vorbereitet…" },
+  "weeklyRecap.aiConsentRequired": { en: "AI consent required", de: "KI-Einwilligung erforderlich" },
+  "weeklyRecap.aiConsentInSettings": { en: "Please accept the AI data-processing notice in Settings to use the weekly recap.", de: "Bitte akzeptiere die KI-Datenschutzhinweise in den Einstellungen, um den Wochenrückblick zu nutzen." },
+  "weeklyRecap.aiConsentDesc": { en: "Please accept the AI data-processing notice to use the weekly recap.", de: "Bitte akzeptiere die KI-Datenschutzhinweise, um den Wochenrückblick zu nutzen." },
 };

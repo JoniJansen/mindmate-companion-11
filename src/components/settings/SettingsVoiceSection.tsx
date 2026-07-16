@@ -19,7 +19,7 @@ interface Props {
 }
 
 export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const { settings: voiceSettings, updateSetting: updateVoiceSetting } = useVoiceSettings();
   const { toast } = useToast();
   const { isPremium } = usePremium();
@@ -28,13 +28,13 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
   const canUseVoice = isPremium;
 
   const voiceTypeOptions: { value: VoiceType; label: string; description: string }[] = [
-    { value: "female", label: language === "de" ? "Warm" : "Warm", description: language === "de" ? "Ruhig & vertraut" : "Calm & familiar" },
-    { value: "femaleSoft", label: language === "de" ? "Sanft" : "Soft", description: language === "de" ? "Besonders weich & beruhigend" : "Extra soft & soothing" },
-    { value: "femaleBright", label: language === "de" ? "Klar" : "Bright", description: language === "de" ? "Leicht & freundlich" : "Light & friendly" },
-    { value: "male", label: language === "de" ? "Klar" : "Clear", description: language === "de" ? "Vertrauensvoll & deutlich" : "Trustworthy & clear" },
-    { value: "maleDeep", label: language === "de" ? "Tief" : "Deep", description: language === "de" ? "Ruhig & tiefer" : "Lower & grounded" },
-    { value: "neutral", label: language === "de" ? "Neutral" : "Neutral", description: language === "de" ? "Sanft & ausgeglichen" : "Soft & balanced" },
-    { value: "neutralWarm", label: language === "de" ? "Warm neutral" : "Warm neutral", description: language === "de" ? "Ausgeglichen mit Wärme" : "Balanced with warmth" },
+    { value: "female", label: t("voiceSettings.warm.label"), description: t("voiceSettings.warm.desc") },
+    { value: "femaleSoft", label: t("voiceSettings.soft.label"), description: t("voiceSettings.soft.desc") },
+    { value: "femaleBright", label: t("voiceSettings.bright.label"), description: t("voiceSettings.bright.desc") },
+    { value: "male", label: t("voiceSettings.clear.label"), description: t("voiceSettings.clear.desc") },
+    { value: "maleDeep", label: t("voiceSettings.deep.label"), description: t("voiceSettings.deep.desc") },
+    { value: "neutral", label: t("voiceSettings.neutral.label"), description: t("voiceSettings.neutral.desc") },
+    { value: "neutralWarm", label: t("voiceSettings.warmNeutral.label"), description: t("voiceSettings.warmNeutral.desc") },
   ];
 
   const voiceSpeedOptions: { value: VoiceSpeed; label: string }[] = [
@@ -49,10 +49,10 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
     { value: "de", label: "Deutsch" },
   ];
 
-  const avatarStyleOptions: { value: AvatarStyle; label: string; labelDe: string; icon: React.ReactNode }[] = [
-    { value: "orb", label: "Orb", labelDe: "Orb", icon: <Circle className="w-5 h-5" /> },
-    { value: "wave", label: "Waveform", labelDe: "Wellenform", icon: <AudioLines className="w-5 h-5" /> },
-    { value: "face", label: "Character", labelDe: "Charakter", icon: <Smile className="w-5 h-5" /> },
+  const avatarStyleOptions: { value: AvatarStyle; label: string; icon: React.ReactNode }[] = [
+    { value: "orb", label: t("voiceSettings.avatar.orb"), icon: <Circle className="w-5 h-5" /> },
+    { value: "wave", label: t("voiceSettings.avatar.wave"), icon: <AudioLines className="w-5 h-5" /> },
+    { value: "face", label: t("voiceSettings.avatar.face"), icon: <Smile className="w-5 h-5" /> },
   ];
 
   const saved = () => toast({ title: t("settings.saved"), description: t("settings.preferencesUpdated") });
@@ -188,7 +188,7 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
               </div>
               <div className="text-left">
                 <p className="font-medium text-foreground">{t("settings.avatarStyle")}</p>
-                <p className="text-sm text-muted-foreground">{avatarStyleOptions.find(o => o.value === voiceSettings.avatarStyle)?.[language === "de" ? "labelDe" : "label"]}</p>
+                <p className="text-sm text-muted-foreground">{avatarStyleOptions.find(o => o.value === voiceSettings.avatarStyle)?.label}</p>
               </div>
             </div>
             <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSection === "avatarStyle" ? "rotate-90" : ""}`} />
@@ -199,7 +199,7 @@ export function SettingsVoiceSection({ expandedSection, toggleSection }: Props) 
                 <button key={option.value} onClick={() => { updateVoiceSetting("avatarStyle", option.value); saved(); }} className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${voiceSettings.avatarStyle === option.value ? "bg-primary-soft" : "hover:bg-muted/50"}`}>
                   <div className="flex items-center gap-3">
                     <div className="text-primary">{option.icon}</div>
-                    <span className="font-medium text-foreground">{language === "de" ? option.labelDe : option.label}</span>
+                    <span className="font-medium text-foreground">{option.label}</span>
                   </div>
                   {voiceSettings.avatarStyle === option.value && <Check className="w-5 h-5 text-primary" />}
                 </button>
