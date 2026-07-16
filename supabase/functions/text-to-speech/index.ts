@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { requireUser } from "../_shared/auth.ts";
+import { requirePremium } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,9 +12,10 @@ serve(async (req) => {
   }
 
   try {
-    // JWT auth
+    // JWT auth + premium gate (Elite-Audit #6). Gate mode ("off"/"log"/"enforce")
+    // controlled by PREMIUM_GATE_MODE env var; default "off" until Sub-DB-Fix ships.
     try {
-      await requireUser(req);
+      await requirePremium(req);
     } catch (authError) {
       if (authError instanceof Response) return authError;
       throw authError;

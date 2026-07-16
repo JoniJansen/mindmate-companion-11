@@ -105,3 +105,79 @@ export async function requireAdmin(req: Request) {
 
   return { user, supabase, adminClient };
 }
+
+/**
+ * Requires the authenticated user to have an active premium subscription
+ * on the server side. Complements the client-side usePremium gate — the
+ * client one is UX; this one is authorization.
+ *
+ * Elite-Audit #6: without this, anyone with a valid JWT can call
+ * text-to-speech / session-insight / generate-summary / journal-reflect
+ * / weekly-recap directly via cURL and bypass the paywall.
+ *
+ * Deployed in a THREE-MODE feature-flag pattern because the DB layer
+ * (subscriptions table) has a known write-failure bug that's tracked
+ * in audit/SUBSCRIPTION_DB_FIX_PLAN_20260624.md — enforcing the gate
+ * before that DB fix ships would lock out iOS/Android paying users
+ * whose subs live only in the RevenueCat SDK, not the DB.
+ *
+ * Modes (set via `PREMIUM_GATE_MODE` Supabase env var):
+ *   - "off"     (DEFAULT): skip the check entirely; preserves current
+ *                 behavior. Safe to deploy before Sub-DB-Fix.
+ *   - "log":    check the DB, log a warning if user is not premium,
+ *                 but still allow the request. Use this AFTER Sub-DB-Fix
+ *                 for a week or two to observe false-positives without
+ *                 blocking anyone.
+ *   - "enforce": check the DB and return 402 Payment Required if the
+ *                 user is not premium. Use this once "log" mode has
+ *                 stopped emitting false-positive warnings.
+ *
+ * Returns the same { user, supabase } shape as requireUser() when the
+ * gate allows the request.
+ */
+export async function requirePremium(req: Request) {
+  const { user, supabase } = await requireUser(req);
+
+  const mode = (Deno.env.get("PREMIUM_GATE_MODE") ?? "off").toLowerCase();
+  if (mode === "off") {
+    return { user, supabase };
+  }
+
+  // Query the subscriptions table with the SAME rule that
+  // manage-subscription/index.ts uses for `action: 'status'`:
+  //   isPremium = subData.status === 'active'
+  // Keep it aligned so client and server stay in sync.
+  const { data: sub } = await supabase
+    .from("subscriptions")
+    .select("status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const isPremium = sub?.status === "active";
+
+  if (isPremium) {
+    return { user, supabase };
+  }
+
+  // Not premium — either log or block based on mode
+  if (mode === "log") {
+    console.warn(JSON.stringify({
+      level: "warn",
+      feature: "premium-gate",
+      action: "would_block",
+      mode,
+      userId: user.id,
+      subStatus: sub?.status ?? null,
+    }));
+    return { user, supabase };
+  }
+
+  // mode === "enforce" (or any unknown value — fail closed)
+  throw new Response(
+    JSON.stringify({
+      error: "PREMIUM_REQUIRED",
+      message: "This feature requires an active Soulvay Plus subscription.",
+    }),
+    { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+}
