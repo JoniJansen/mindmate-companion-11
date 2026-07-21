@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { syncStatusBarWithTheme } from "@/lib/nativeStatusBar";
 
 export type ThemeMode = "light" | "dark" | "system";
 export type AccentColor = "sage" | "ocean" | "lavender" | "rose" | "amber" | "mint";
@@ -119,6 +120,7 @@ export function useTheme() {
     } else {
       root.classList.remove("dark");
     }
+    syncStatusBarWithTheme(actualMode === "dark");
 
     // Apply accent color CSS variables
     const colorVars = accentColors[theme.accentColor][actualMode];

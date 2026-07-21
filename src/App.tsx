@@ -59,6 +59,7 @@ const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
 const ReviewStatus = lazy(() => import("@/pages/ReviewStatus"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 import { isDiagnosticsAllowed } from "@/lib/diagnosticsAccess";
+import { syncStatusBarWithTheme } from "@/lib/nativeStatusBar";
 // DevQA is loadable in all builds but only reachable via direct URL `/dev-qa`
 // (not linked anywhere) — required for TestFlight crash-verification (Sentry test crash).
 const DevQA = lazy(() => import("@/pages/DevQA"));
@@ -95,13 +96,16 @@ function ThemeInitializer() {
         } else {
           root.classList.remove("dark");
         }
+        syncStatusBarWithTheme(actualMode === "dark");
       } else {
         // No stored theme - ensure light mode
         root.classList.remove("dark");
+        syncStatusBarWithTheme(false);
       }
     } catch {
       // Default to light mode
       root.classList.remove("dark");
+      syncStatusBarWithTheme(false);
     }
   }, []);
 

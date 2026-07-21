@@ -28,8 +28,10 @@ const config: CapacitorConfig = {
       showSpinner: false,
     },
     StatusBar: {
+      // Launch state: matches the dark splash (#1a1a1a); once the app is
+      // hydrated, syncStatusBarWithTheme() takes over per light/dark theme.
       style: "dark",
-      backgroundColor: "#000000",
+      backgroundColor: "#1a1a1a",
     },
     Keyboard: {
       resize: "body",
