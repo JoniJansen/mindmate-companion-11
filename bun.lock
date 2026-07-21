@@ -5,6 +5,7 @@
     "": {
       "name": "vite_react_shadcn_ts",
       "dependencies": {
+        "@capacitor-community/speech-recognition": "github:JoniJansen/capacitor-speech-recognition-spm#v7.0.1-spm.5",
         "@capacitor/android": "^8.0.1",
         "@capacitor/cli": "^8.0.1",
         "@capacitor/core": "^8.0.1",
@@ -43,7 +44,7 @@
         "@radix-ui/react-tooltip": "^1.2.7",
         "@revenuecat/purchases-capacitor": "^13.0.1",
         "@sentry/capacitor": "^4.0.0",
-        "@sentry/react": "10.43.0",
+        "@sentry/react": "10.60.0",
         "@supabase/supabase-js": "^2.89.0",
         "@tanstack/react-query": "^5.83.0",
         "@testing-library/dom": "^10.4.1",
@@ -55,7 +56,6 @@
         "date-fns": "^3.6.0",
         "embla-carousel-react": "^8.6.0",
         "framer-motion": "^12.23.26",
-        "@capacitor-community/speech-recognition": "github:JoniJansen/capacitor-speech-recognition-spm#v7.0.1-spm.5",
         "input-otp": "^1.4.2",
         "jsdom": "^20.0.3",
         "lucide-react": "^0.462.0",
@@ -285,7 +285,7 @@
 
     "@bufbuild/protobuf": ["@bufbuild/protobuf@1.10.1", "", {}, "sha512-wJ8ReQbHxsAfXhrf9ixl0aYbZorRuOWpBNzm8pL8ftmSxQx/wnJD5Eg861NwJU/czy2VXFIebCeZnZrI9rktIQ=="],
 
-    "@capacitor-community/speech-recognition": ["@capacitor-community/speech-recognition@github:JoniJansen/capacitor-speech-recognition-spm#a19cff6", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "JoniJansen-capacitor-speech-recognition-spm-a19cff6", "sha512-l1MrDUtl7t2UYw4D9DFr0hjVXXTp9HPMnLaaFx31J5119KOwUVtRI+/Tpx24B0h5rozhTjH/Su3r0OLoDSSxWA=="],
+    "@capacitor-community/speech-recognition": ["@capacitor-community/speech-recognition@github:JoniJansen/capacitor-speech-recognition-spm#a19cff6", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "JoniJansen-capacitor-speech-recognition-spm-a19cff6"],
 
     "@capacitor/android": ["@capacitor/android@8.0.1", "", { "peerDependencies": { "@capacitor/core": "^8.0.0" } }, "sha512-Mrk2MFKSg9YA4BPLKm03wwFnGKcvzNBERUTcxjW1NkLrF6YhJwygAT69f/YGopFvOhhqdnDPsuZuASUfmpkSpw=="],
 
@@ -627,11 +627,19 @@
 
     "@sentry/browser": ["@sentry/browser@10.43.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/browser/-/browser-10.43.0.tgz", { "dependencies": { "@sentry-internal/browser-utils": "10.43.0", "@sentry-internal/feedback": "10.43.0", "@sentry-internal/replay": "10.43.0", "@sentry-internal/replay-canvas": "10.43.0", "@sentry/core": "10.43.0" } }, "sha512-2V3I3sXi3SMeiZpKixd9ztokSgK27cmvsD9J5oyOyjhGLTW/6QKCwHbKnluMgQMXq20nixQk5zN4wRjRUma3sg=="],
 
+    "@sentry/browser-utils": ["@sentry/browser-utils@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/browser-utils/-/browser-utils-10.60.0.tgz", { "dependencies": { "@sentry/core": "10.60.0" } }, "sha512-YhdPeMJnMaKVi5NQ2tD9RJ2AxU7cav5khmiMHFppmbP3I3Os2EHVaQjAVb6/ePAINr/d5mj5SxpnWmFX17iXsg=="],
+
     "@sentry/capacitor": ["@sentry/capacitor@4.0.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/capacitor/-/capacitor-4.0.0.tgz", { "dependencies": { "@sentry/browser": "10.43.0", "@sentry/core": "10.43.0", "@sentry/types": "10.43.0" }, "peerDependencies": { "@capacitor/core": ">=3.0.0", "@sentry/angular": "10.43.0", "@sentry/react": "10.43.0", "@sentry/vue": "10.43.0" }, "optionalPeers": ["@sentry/angular", "@sentry/react", "@sentry/vue"] }, "sha512-p8fVa2mrRjzD41SOnYqfntHuE0OV8FjkWzoMyiPf3N3ayX4IF+IbcnNx0lO6JmkengTMdsSYLZZRDoM0hI1hsA=="],
 
     "@sentry/core": ["@sentry/core@10.43.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/core/-/core-10.43.0.tgz", {}, "sha512-l0SszQAPiQGWl/ferw8GP3ALyHXiGiRKJaOvNmhGO+PrTQyZTZ6OYyPnGijAFRg58dE1V3RCH/zw5d2xSUIiNg=="],
 
-    "@sentry/react": ["@sentry/react@10.43.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/react/-/react-10.43.0.tgz", { "dependencies": { "@sentry/browser": "10.43.0", "@sentry/core": "10.43.0" }, "peerDependencies": { "react": "^16.14.0 || 17.x || 18.x || 19.x" } }, "sha512-shvErEpJ41i0Q3lIZl0CDWYQ7m8yHLi7ECG0gFvN8zf8pEdl5grQIOoe3t/GIUzcpCcor16F148ATmKJJypc/Q=="],
+    "@sentry/feedback": ["@sentry/feedback@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/feedback/-/feedback-10.60.0.tgz", { "dependencies": { "@sentry/core": "10.60.0" } }, "sha512-RcGUgaI8yrIXunhNLpdNLsBUJIDvnEGDRmFhC5v0oMltoGtovrIqrEhPXEiSWQvNB0x4q33ejkLeJRJoSDOp2w=="],
+
+    "@sentry/react": ["@sentry/react@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/react/-/react-10.60.0.tgz", { "dependencies": { "@sentry/browser": "10.60.0", "@sentry/core": "10.60.0" }, "peerDependencies": { "react": "^16.14.0 || 17.x || 18.x || 19.x" } }, "sha512-ALRIDOj7T1Vk9t9IyI12Tq2t3MKoV2F/mKn140AiUBk3WzQhq2gXQUFpcsaDYA2FBsrYoYc6qdqrny6mMbA0Xg=="],
+
+    "@sentry/replay": ["@sentry/replay@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/replay/-/replay-10.60.0.tgz", { "dependencies": { "@sentry/browser-utils": "10.60.0", "@sentry/core": "10.60.0" } }, "sha512-j+w774BP1p+v/ga1hJAJSn0cXgTiB2VWwQCAxukF7AEXscny/OCXzTTsaPxdovw9kDHI641vKV+/yixLV2nKIQ=="],
+
+    "@sentry/replay-canvas": ["@sentry/replay-canvas@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/replay-canvas/-/replay-canvas-10.60.0.tgz", { "dependencies": { "@sentry/core": "10.60.0", "@sentry/replay": "10.60.0" } }, "sha512-mYyQRJbhRRaqUkRvkJZyqt9AWdomh4108LOAph1YJvV1jW7tKYPPFNAUveJd7YkYCyhUOtekN0DKNJveK802qA=="],
 
     "@sentry/types": ["@sentry/types@10.43.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/types/-/types-10.43.0.tgz", { "dependencies": { "@sentry/core": "10.43.0" } }, "sha512-AbKGWFGmDJkl0F7yvNTqZEovMJTAEdVbsZC/Zy6w2PFUk7pHUtIJQ5DXkBxJ9QVZhOjGmHQRLKvXYaeXmI/6PA=="],
 
@@ -1872,6 +1880,18 @@
     "@rollup/pluginutils/picomatch": ["picomatch@2.3.1", "", {}, "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="],
 
     "@rollup/pluginutils/rollup": ["rollup@2.80.0", "", { "optionalDependencies": { "fsevents": "~2.3.2" }, "bin": "dist/bin/rollup" }, "sha512-cIFJOD1DESzpjOBl763Kp1AH7UE/0fcdHe6rZXUdQ9c50uvgigvW97u3IcSeBwOkgqL/PXPBktBCh0KEu5L8XQ=="],
+
+    "@sentry/browser-utils/@sentry/core": ["@sentry/core@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/core/-/core-10.60.0.tgz", {}, "sha512-szN7ccOJAEaLb1BBQzCQhABGMTJmKNUk0G2sc7rWhajeXoZoMKIbNkI9RvJrFuV69cbad/d/BKGBjbpJhySAzw=="],
+
+    "@sentry/feedback/@sentry/core": ["@sentry/core@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/core/-/core-10.60.0.tgz", {}, "sha512-szN7ccOJAEaLb1BBQzCQhABGMTJmKNUk0G2sc7rWhajeXoZoMKIbNkI9RvJrFuV69cbad/d/BKGBjbpJhySAzw=="],
+
+    "@sentry/react/@sentry/browser": ["@sentry/browser@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/browser/-/browser-10.60.0.tgz", { "dependencies": { "@sentry/browser-utils": "10.60.0", "@sentry/core": "10.60.0", "@sentry/feedback": "10.60.0", "@sentry/replay": "10.60.0", "@sentry/replay-canvas": "10.60.0" } }, "sha512-20vzPKGrmupJPCaWd+soCOLkZRwKZxt0AVF4XGPNoGp7D7wVPRlHf+FWwVMx+rRRkahKupFefM2D9YoiUiBeag=="],
+
+    "@sentry/react/@sentry/core": ["@sentry/core@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/core/-/core-10.60.0.tgz", {}, "sha512-szN7ccOJAEaLb1BBQzCQhABGMTJmKNUk0G2sc7rWhajeXoZoMKIbNkI9RvJrFuV69cbad/d/BKGBjbpJhySAzw=="],
+
+    "@sentry/replay/@sentry/core": ["@sentry/core@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/core/-/core-10.60.0.tgz", {}, "sha512-szN7ccOJAEaLb1BBQzCQhABGMTJmKNUk0G2sc7rWhajeXoZoMKIbNkI9RvJrFuV69cbad/d/BKGBjbpJhySAzw=="],
+
+    "@sentry/replay-canvas/@sentry/core": ["@sentry/core@10.60.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@sentry/core/-/core-10.60.0.tgz", {}, "sha512-szN7ccOJAEaLb1BBQzCQhABGMTJmKNUk0G2sc7rWhajeXoZoMKIbNkI9RvJrFuV69cbad/d/BKGBjbpJhySAzw=="],
 
     "@surma/rollup-plugin-off-main-thread/magic-string": ["magic-string@0.25.9", "", { "dependencies": { "sourcemap-codec": "^1.4.8" } }, "sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ=="],
 
