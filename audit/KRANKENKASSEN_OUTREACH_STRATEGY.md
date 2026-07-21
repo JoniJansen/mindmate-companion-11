@@ -43,7 +43,7 @@ Kurz-Diagnose, damit die Entscheidung dokumentiert ist:
 
 ### Track 3 — Krankenkassen-Handout als professionelles Asset
 
-**Was**: Ein-PDF-Handout, adaptierbar für alle drei Tracks. Landing-Page-URL auf soulvay.de/krankenkassen.
+**Was**: Ein-PDF-Handout, adaptierbar für alle drei Tracks. Landing-Page-URL auf soulvay.com/krankenkassen.
 
 **Impact**: Reduziert Rückfrage-Loops. Wirkt professionell. Kann in E-Mails verlinkt, auf Messen ausgeteilt, an ZPP-Antrag angehängt werden.
 
@@ -57,7 +57,7 @@ Kurz-Diagnose, damit die Entscheidung dokumentiert ist:
 
 **Woche 1-2 (jetzt)**:
 - ✅ Handout finalisieren (Content-Draft steht, siehe Detail-Doc)
-- ✅ IONOS-Setup: `partner@soulvay.de` einrichten mit Impressum-Signatur
+- ✅ IONOS-Setup: `service@soulvay.com` einrichten mit Impressum-Signatur
 - ✅ E-Mail-Templates in IONOS-Drafts speichern
 - ✅ Tracking-Sheet in Google Sheets erstellen
 - ✅ ZPP-Anforderungen studieren, Entscheidung ob Track 1 weitergeht
@@ -88,8 +88,8 @@ Kurz-Diagnose, damit die Entscheidung dokumentiert ist:
 **Empfehlung**: IONOS + manueller Send (kein Marketing-Tool für 15 Adressen).
 
 **Setup**:
-1. In IONOS Kontrollzentrum: Postfach `partner@soulvay.de` einrichten (nicht `info@`, das ist zu generisch)
-2. Alternativ oder zusätzlich: `kontakt@soulvay.de` für allgemeinen Support
+1. Postfach: entfällt — `service@soulvay.com` existiert bereits (Entscheidung 2026-07-21: vorhandenes Postfach statt neuem `partner@`)
+2. Alternativ oder zusätzlich: `kontakt@soulvay.com` für allgemeinen Support
 3. E-Mail-Client-Setup:
    - **Mac Mail** oder **Apple Mail** mit IMAP/SMTP
    - **Alternative**: Missive (missiveapp.com) — 15€/Monat, unified inbox, Templates, Follow-up-Reminder, aber overkill für Start
@@ -98,10 +98,10 @@ Kurz-Diagnose, damit die Entscheidung dokumentiert ist:
 ```
 Soulvay
 Jonathan Jansen
-partner@soulvay.de · www.soulvay.de
+service@soulvay.com · www.soulvay.com
 
-Impressum: www.soulvay.de/impressum
-Datenschutz: www.soulvay.de/datenschutz
+Impressum: www.soulvay.com/impressum
+Datenschutz: www.soulvay.com/datenschutz
 ```
 
 Vollständige Adresse muss im Impressum stehen — die Signatur muss dorthin **verlinken**, nicht die Adresse enthalten (Solo-Founder-Home-Adresse geht meist über Postfach-Adresse oder Impressumsservice).
@@ -185,7 +185,7 @@ Spalten:
 ## Nächste Schritte konkret
 
 1. **Handout durchlesen** (`KRANKENKASSEN_HANDOUT.md`) — 10 Min. Anpassungen an Soulvay-Feature-Set falls nötig
-2. **IONOS-Postfach** `partner@soulvay.de` einrichten — 15 Min in IONOS-Kontrollzentrum
+2. **IONOS-Postfach** `service@soulvay.com` — existiert bereits, kein Setup nötig
 3. **ZPP-Roadmap durchlesen** (`KRANKENKASSEN_ZPP_ROADMAP.md`) — 15 Min. Entscheidung ob Track 1 losgeht
 4. **Target-Liste durchgehen** (`KRANKENKASSEN_TARGET_LIST.md`) — Top 5 auf LinkedIn identifizieren (Innovation-Manager), Namen in Tracking-Sheet
 5. **E-Mail-Templates** (`KRANKENKASSEN_EMAIL_TEMPLATES.md`) an Soulvay-Ton anpassen, in IONOS-Drafts speichern

@@ -62,17 +62,17 @@ Jonathan Jansen
 Soulvay
 Jonathan Jansen
 [Straße], [PLZ Ort]
-partner@soulvay.de · +49 [Telefon-optional]
-www.soulvay.de · www.soulvay.de/krankenkassen
+service@soulvay.com · +49 [Telefon-optional]
+www.soulvay.com · www.soulvay.com/krankenkassen
 
-Impressum: www.soulvay.de/impressum
-Datenschutz: www.soulvay.de/datenschutz
+Impressum: www.soulvay.com/impressum
+Datenschutz: www.soulvay.com/datenschutz
 
 ---
 
 **Anmerkungen zur Vorlage**:
 
-- **Kein Anhang beim Erstkontakt**. Verlinke stattdessen www.soulvay.de/krankenkassen auf das Handout-PDF. Anhänge werden bei Kassen oft als Spam-Signal gewertet.
+- **Kein Anhang beim Erstkontakt**. Verlinke stattdessen www.soulvay.com/krankenkassen auf das Handout-PDF. Anhänge werden bei Kassen oft als Spam-Signal gewertet.
 - **Kein "Ich weiß, dass Sie viel zu tun haben"** oder ähnliche Selbst-Klein-Machung.
 - **Kein Hard-Sell**. Der Ton ist: "Wir prüfen ob wir zueinander passen, nicht: Kaufen Sie was."
 - **CTA klar**: entweder 30-Min-Gespräch oder Handout. Zwei konkrete, kleine Optionen.
@@ -98,7 +98,7 @@ kurz nachgefasst zu meiner Nachricht von letzter Woche zum Thema digitale Präve
 
 Falls das aktuell nicht ins Zeitfenster passt: kein Problem. Zwei Dinge, die vielleicht trotzdem interessant sind:
 
-1. Das 2-seitige Handout ist unter www.soulvay.de/krankenkassen abrufbar — kein Login, kein Formular. Kann jederzeit gelesen werden wenn es zeitlich passt.
+1. Das 2-seitige Handout ist unter www.soulvay.com/krankenkassen abrufbar — kein Login, kein Formular. Kann jederzeit gelesen werden wenn es zeitlich passt.
 2. Falls das Thema aktuell nicht relevant ist, aber vielleicht in 2-3 Monaten wieder auf den Tisch kommt: melden Sie sich gerne dann direkt.
 
 Ansonsten wünsche ich eine gute Woche.
@@ -145,12 +145,12 @@ Als Anbieter Soulvay stellen wir den Kurs Mitgliedern aller gesetzlichen Kranken
 
 **Für [Kasse] konkret**:
 
-- Ihre Mitglieder buchen den Kurs auf www.soulvay.de/kasse
+- Ihre Mitglieder buchen den Kurs auf www.soulvay.com/kasse
 - Sie identifizieren sich mit dem üblichen Nachweis-Verfahren [Versichertennummer o.ä.]
 - Nach Abschluss erhalten sie die ZPP-konforme Teilnahmebescheinigung
 - Erstattung erfolgt gemäß Ihrem Präventions-Rahmen
 
-Für die formale Aufnahme in Ihren Präventionskurs-Katalog unterstützen wir Sie gerne. Sie finden alle notwendigen Nachweise (ZPP-Zertifikat, Kursmanual, Anbieterprofil) auf www.soulvay.de/krankenkassen zum Download. Für Rückfragen oder ein kurzes Abstimmungs-Gespräch stehe ich zur Verfügung.
+Für die formale Aufnahme in Ihren Präventionskurs-Katalog unterstützen wir Sie gerne. Sie finden alle notwendigen Nachweise (ZPP-Zertifikat, Kursmanual, Anbieterprofil) auf www.soulvay.com/krankenkassen zum Download. Für Rückfragen oder ein kurzes Abstimmungs-Gespräch stehe ich zur Verfügung.
 
 Herzliche Grüße
 Jonathan Jansen
@@ -205,10 +205,10 @@ Jonathan Jansen
 
 Bevor die erste E-Mail rausgeht, folgende Schritte in IONOS:
 
-1. Postfach `partner@soulvay.de` einrichten (Kontrollzentrum → E-Mail → Postfach anlegen)
-2. **SPF-Record** für soulvay.de setzen (verhindert Spoofing, verbessert Deliverability): `v=spf1 include:_spf.perfora.net include:_spf.kundenserver.de ~all`
+1. Postfach `service@soulvay.com` — existiert bereits
+2. **SPF-Record** für soulvay.com setzen (verhindert Spoofing, verbessert Deliverability): `v=spf1 include:_spf.perfora.net include:_spf.kundenserver.de ~all`
 3. **DKIM aktivieren** im IONOS-Kontrollzentrum (E-Mail-Sicherheit)
-4. **DMARC-Record** setzen (Basis-Version): `v=DMARC1; p=none; rua=mailto:postmaster@soulvay.de`
+4. **DMARC-Record** setzen (Basis-Version): `v=DMARC1; p=none; rua=mailto:postmaster@soulvay.com`
 5. Signatur in Mail-Client hinterlegen
 6. Templates 1, 2, 3 als Drafts oder Snippets speichern (in Mac Mail: "Mustertexte" bzw. TextExpander / Espanso wenn viel Volumen)
 7. **Warm-up**: nicht sofort 15 E-Mails am ersten Tag rausballern. Erste Woche: 3-5 E-Mails pro Tag, an unterschiedliche Kassen. Der IONOS-Reputations-Score baut sich schneller auf.

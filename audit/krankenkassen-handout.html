@@ -1,0 +1,305 @@
+<!--
+  ALS PDF DRUCKEN: Datei per Doppelklick im Browser öffnen → Cmd+P → Ziel "Als PDF sichern" → Papierformat A4, Ränder "Standard", Option "Hintergrundgrafiken" aktivieren → Sichern.
+  HOSTING VIA LOVABLE: Diese Datei in den Lovable-Chat hochladen mit dem Prompt: "Erstelle die öffentliche Route /krankenkassen und rendere exakt diese statische HTML-Seite unverändert (kein App-Layout, keine Navigation drumherum)."
+  Danach ist das Handout unter www.soulvay.com/krankenkassen erreichbar und kann in E-Mails an Kassen verlinkt werden.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soulvay — Handout für Krankenkassen</title>
+<style>
+  :root {
+    --ink: #1f2a2e;
+    --ink-soft: #4a5a60;
+    --accent: #2f6f6a;
+    --accent-soft: #eaf2f1;
+    --rule: #d6dedd;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    font-size: 10.5pt;
+    line-height: 1.55;
+    background: #f4f5f4;
+  }
+  .sheet {
+    max-width: 210mm;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 18mm 20mm 24mm;
+  }
+  h1, h2, h3 { font-weight: 600; line-height: 1.25; }
+  h1 { font-size: 22pt; margin: 0 0 2mm; letter-spacing: -0.02em; }
+  h2 {
+    font-size: 13pt; color: var(--accent);
+    margin: 9mm 0 3mm; padding-bottom: 1.5mm;
+    border-bottom: 1px solid var(--rule);
+  }
+  h3 { font-size: 10.5pt; margin: 5mm 0 1.5mm; }
+  p { margin: 0 0 3mm; }
+  ul { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1.2mm; }
+  strong { font-weight: 600; }
+
+  .brand-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 4mm; margin-bottom: 6mm;
+  }
+  .brand-head .word { font-size: 14pt; font-weight: 700; letter-spacing: 0.02em; color: var(--accent); }
+  .brand-head .site { font-size: 9pt; color: var(--ink-soft); }
+  .subtitle { font-size: 12pt; color: var(--ink-soft); margin: 0 0 1mm; }
+  .doc-type { font-size: 9.5pt; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.12em; margin: 6mm 0 0; }
+
+  .lead-box {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 4mm 5mm; margin: 5mm 0;
+    break-inside: avoid;
+  }
+  .lead-box p:last-child, .lead-box ul:last-child { margin-bottom: 0; }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    margin: 2mm 0 4mm; font-size: 9.5pt;
+  }
+  th, td {
+    text-align: left; vertical-align: top;
+    padding: 2mm 3mm;
+    border-bottom: 1px solid var(--rule);
+  }
+  th {
+    font-weight: 600; color: var(--accent);
+    border-bottom: 1.5px solid var(--accent);
+    white-space: nowrap;
+  }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+
+  .model { break-inside: avoid; margin-bottom: 4mm; }
+  .model h3 { color: var(--ink); }
+  .model .meta { font-size: 9pt; color: var(--ink-soft); margin: 0.5mm 0 0; }
+
+  .faq { break-inside: avoid; margin-bottom: 3.5mm; }
+  .faq p.q { font-weight: 600; margin-bottom: 0.5mm; }
+  .faq p.a { margin-bottom: 0; color: var(--ink-soft); }
+
+  .contact-block {
+    break-inside: avoid;
+    margin-top: 8mm; padding: 5mm 6mm;
+    background: var(--accent-soft); border-radius: 2mm;
+  }
+  .contact-block p { margin-bottom: 1mm; }
+  .version-note { font-size: 8.5pt; color: var(--ink-soft); margin-top: 5mm; }
+
+  footer.screen-footer {
+    max-width: 210mm; margin: 0 auto;
+    padding: 4mm 20mm 8mm; background: #ffffff;
+    border-top: 1px solid var(--rule);
+    font-size: 8.5pt; color: var(--ink-soft);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2mm;
+  }
+  footer.print-footer { display: none; }
+
+  section { break-inside: auto; }
+  .keep { break-inside: avoid; }
+  .page-break { break-before: page; }
+
+  @media print {
+    body { background: #ffffff; font-size: 10pt; }
+    .sheet { max-width: none; margin: 0; padding: 0 0 12mm; }
+    footer.screen-footer { display: none; }
+    footer.print-footer {
+      display: block; position: fixed;
+      bottom: 0; left: 0; right: 0;
+      font-size: 8pt; color: var(--ink-soft);
+      border-top: 0.5pt solid var(--rule);
+      padding-top: 2mm; text-align: center;
+      background: #ffffff;
+    }
+    a { color: inherit; text-decoration: none; }
+    h2 { break-after: avoid; }
+    h3 { break-after: avoid; }
+  }
+  @page {
+    size: A4;
+    margin: 16mm 18mm 20mm;
+  }
+  a { color: var(--accent); }
+</style>
+
+<div class="sheet">
+
+  <header>
+    <div class="brand-head">
+      <span class="word">Soulvay</span>
+      <span class="site">www.soulvay.com</span>
+    </div>
+    <p class="doc-type">Informations-Handout für Krankenkassen</p>
+    <h1>Der ruhige Begleiter für mentale Gesundheit</h1>
+    <p class="subtitle">Präventionslösung für Krankenkassen und ihre Mitglieder</p>
+  </header>
+
+  <section>
+    <h2>Zusammenfassung</h2>
+    <p>Soulvay ist eine deutschsprachige App für mentale Gesundheit, verfügbar für iOS, Android und im Browser. Sie kombiniert einen KI-Begleiter mit strukturiertem Journaling, Stimmungs-Tracking und evidenzbasierten Übungen aus der Kognitiven Verhaltenstherapie.</p>
+    <div class="lead-box">
+      <p><strong>Für Krankenkassen relevant:</strong></p>
+      <ul>
+        <li><strong>Präventionsfokus</strong> — Handlungsfeld Stressmanagement nach GKV-Leitfaden Prävention (§ 20 SGB V)</li>
+        <li><strong>Datenschutz-native</strong> — DSGVO-konform, keine Weitergabe von Nutzerdaten, expliziter Consent-Flow für KI-Verarbeitung</li>
+        <li><strong>Niedrigschwelliger Zugang</strong> — verfügbar auf dem Endgerät der Mitglieder, keine Wartezeiten, sofortige Verfügbarkeit</li>
+        <li><strong>ZPP-Zertifizierung in Vorbereitung</strong> — 8-Wochen-Kurs „Stress-Kompass", Antrag Q3/Q4 2026</li>
+      </ul>
+    </div>
+    <p>Kooperations-Modelle: Präventionskurs (nach ZPP-Zertifizierung), Mitglieder-Empfehlung, Pilot-Vereinbarung.</p>
+  </section>
+
+  <section>
+    <h2>Warum jetzt? — Das gesundheitliche Umfeld</h2>
+    <p>Die Nachfrage nach niedrigschwelligen mentalen Gesundheitsangeboten steigt seit Jahren. Einige Referenzen aus der Kassenwelt:</p>
+    <ul>
+      <li><strong>DAK-Psychreport 2024:</strong> Fehltage aufgrund psychischer Erkrankungen weiterhin auf Rekordhoch. Depressionen und Anpassungsstörungen führend.</li>
+      <li><strong>BARMER-Arztreport / BKK Dachverband:</strong> Wartezeiten für ambulante Psychotherapie in Deutschland durchschnittlich über 5 Monate.</li>
+      <li><strong>TK-Gesundheitsreport:</strong> Junge Erwachsene (18–30) mit deutlich erhöhtem Beratungsbedarf zu Stress und Erschöpfung.</li>
+    </ul>
+    <p>Die Versorgungslücke wird nicht kurzfristig durch mehr Therapeuten geschlossen. Digitale Präventions- und Selbsthilfe-Angebote sind eine dokumentierte Antwort — und Kassen haben einen klaren Auftrag nach § 20 SGB V, hier aktiv zu werden.</p>
+  </section>
+
+  <section class="keep">
+    <h2>Was Soulvay konkret ist</h2>
+    <table>
+      <tr><th>Feature</th><th>Beschreibung</th></tr>
+      <tr><td>KI-Begleiter</td><td>Empathische Gespräche für Reflexion und Struktur — kein Ersatz für Therapie, expliziter Hinweis in der App</td></tr>
+      <tr><td>Journaling</td><td>Geführtes Schreiben mit KI-basierten Impulsen zur Selbstreflexion</td></tr>
+      <tr><td>Stimmungs-Tracking</td><td>Tägliche Check-ins, Trends und Muster im Zeitverlauf</td></tr>
+      <tr><td>Übungen</td><td>Kognitive Umstrukturierung, 5-4-3-2-1-Grounding, Atemübungen, Werte-Klärung, Grenzen setzen</td></tr>
+      <tr><td>Themen-Pfade</td><td>Strukturierte Lernpfade zu Stress, Beziehungen, Selbstwert, Angst</td></tr>
+      <tr><td>Sprachgespräche</td><td>Voice-to-Text- und Voice-to-Voice-Modus (Premium)</td></tr>
+    </table>
+    <p><strong>Plattformen:</strong> iOS (App Store), Android (in Vorbereitung), Web / PWA. &nbsp;·&nbsp; <strong>Sprachen:</strong> Deutsch, Englisch.<br>
+    <strong>Preismodell:</strong> Freemium mit Free-Version (15 Nachrichten/Tag) und Soulvay Plus (monatlich, jährlich).</p>
+  </section>
+
+  <section>
+    <h2>Warum das für Ihre Kasse relevant ist</h2>
+
+    <h3>Handlungsfeld Prävention</h3>
+    <p>Der GKV-Leitfaden Prävention benennt Stressmanagement als eines der vier Handlungsfelder. Soulvay adressiert dieses Feld multimodal — kognitiv, verhaltensbezogen, entspannungsorientiert. Nach erfolgreicher ZPP-Zertifizierung wird der Kurs „Stress-Kompass" (8 Wochen, in-App) für alle Mitglieder als anerkannter Präventionskurs verfügbar sein — die Erstattung erfolgt gemäß Rahmen der Kasse (üblich: 80–100&nbsp;%).</p>
+
+    <h3>Digitale Prävention als strategischer Fokus</h3>
+    <p>Mehrere Kassen haben „Digitale Prävention" als expliziten strategischen Fokus benannt (u.&nbsp;a. TK, BARMER, DAK, hkk, IKK classic). Soulvay ergänzt das Portfolio:</p>
+    <ul>
+      <li>Verfügbar auf dem Endgerät der Mitglieder, ohne zusätzliche Hardware</li>
+      <li>Alle Altersgruppen — besonders 18–45, wo klassische Präventionskurse schwer erreichen</li>
+      <li>Skaliert ohne Kapazitätsgrenzen (kein „Kurs voll")</li>
+    </ul>
+
+    <h3>Absentismus &amp; Präsentismus</h3>
+    <p>Studien belegen den Zusammenhang zwischen mentaler Belastung und Krankheitsausfällen. Präventive Angebote reduzieren Absentismus und den weniger sichtbaren Präsentismus (Anwesenheit bei reduzierter Leistungsfähigkeit). Für die Kasse: geringere Fallkosten; für Arbeitgeber-Kunden: messbare Vorteile.</p>
+
+    <h3>Mitglieder-Zufriedenheit</h3>
+    <p>Digital-affine Zielgruppen erwarten von ihrer Kasse zunehmend auch digitale Gesundheits-Angebote. Ein Kooperations-Partner wie Soulvay stärkt die Wahrnehmung der Kasse als moderne, mitgliedernahe Institution.</p>
+  </section>
+
+  <section class="keep">
+    <h2>Datenschutz und Compliance</h2>
+    <p>Für Mental-Health-Apps gelten besonders hohe Datenschutz-Anforderungen (Art. 9 DSGVO — Gesundheitsdaten). Soulvay:</p>
+    <ul>
+      <li>Deutscher Anbieter, Firmensitz in Deutschland</li>
+      <li>DSGVO-konforme Verarbeitung, expliziter Consent-Flow für alle KI-verarbeiteten Nachrichten (dokumentierter Prozess, geprüft im Rahmen der Apple-App-Review)</li>
+      <li>Backend-Infrastruktur mit dokumentierten Verarbeitungs-Verzeichnissen</li>
+      <li>Keine Weitergabe von Nutzerdaten an Werbenetzwerke oder Dritte</li>
+      <li>Nutzerdaten sind jederzeit exportier- und löschbar (DSGVO Art. 15, 17, 20)</li>
+      <li>Krisen-Detection läuft server-seitig; im Krisenfall wird der Nutzer aktiv auf Notfall-Rufnummern (u.&nbsp;a. Telefonseelsorge 0800&nbsp;111&nbsp;0&nbsp;111) hingewiesen — vor jeder KI-Antwort</li>
+    </ul>
+    <p>Auf Wunsch Detailunterlagen: TOM-Beschreibung, Datenverarbeitungs-Verzeichnisse, Data-Processing-Agreement-Vorlage. <strong>BSI-Grundschutz</strong> ist als nächster Compliance-Schritt in Vorbereitung.</p>
+  </section>
+
+  <section>
+    <h2>Kooperations-Modelle</h2>
+    <p>Vier Wege sind denkbar — abhängig davon, wie schnell und wie tief die Integration sein soll. Die Modelle schließen sich nicht aus: üblich ist ein Start mit A oder C, dann Übergang zu B nach ZPP-Zertifizierung.</p>
+
+    <div class="model">
+      <h3>Modell A — Empfehlungspartner (schnell, unverbindlich)</h3>
+      <p>Die Kasse empfiehlt Soulvay den Mitgliedern über die üblichen Kanäle (Kunden-Portal, App, Newsletter). Soulvay stellt kassenspezifische Landing-Pages und Tracking-Codes bereit.</p>
+      <p class="meta">Aufwand Kasse: minimal · Erstattung: keine (Mitglieder buchen direkt) · Zeit bis Live: 2–4 Wochen</p>
+    </div>
+
+    <div class="model">
+      <h3>Modell B — Präventionskurs (nach ZPP-Zertifizierung)</h3>
+      <p>Nach erfolgreicher ZPP-Zertifizierung ist der 8-Wochen-Kurs „Stress-Kompass" für Mitglieder erstattungsfähig. Die Kasse übernimmt 80–100&nbsp;% der Kursgebühr nach eigenem Erstattungs-Rahmen.</p>
+      <p class="meta">Aufwand Kasse: Aufnahme in den Präventionskurs-Katalog (Standardprozess) · Zeit bis Live: 3–6 Monate (parallel zur ZPP-Prüfung)</p>
+    </div>
+
+    <div class="model">
+      <h3>Modell C — Pilot-Vereinbarung (mittlere Verbindlichkeit)</h3>
+      <p>Zeitlich befristetes Pilot-Programm für eine definierte Mitglieder-Gruppe (z.&nbsp;B. junge Erwachsene 18–30) mit definierten Erfolgs-Kriterien (Aktivierungs-Rate, Retention, Selbst-Berichts-Metriken).</p>
+      <p class="meta">Aufwand Kasse: Zielgruppen-Definition, Kommunikation · Erstattung: Pauschal-Betrag pro Teilnehmer · Zeit bis Live: 4–8 Wochen</p>
+    </div>
+
+    <div class="model">
+      <h3>Modell D — Selektivvertrag / Rahmenvereinbarung</h3>
+      <p>Umfassenderer Vertragsrahmen für ein längerfristiges Engagement über mehrere Präventions-Themen hinweg — wenn die Kasse Soulvay als langfristigen Partner sieht.</p>
+      <p class="meta">Aufwand: höher (Vertragswerk, Governance) · Zeit bis Live: 3–6 Monate</p>
+    </div>
+  </section>
+
+  <section class="keep">
+    <h2>Roadmap 2026–2027</h2>
+    <table>
+      <tr><th>Zeitraum</th><th>Meilensteine</th></tr>
+      <tr><td>Q3 2026</td><td>Android-Launch (Play Store), ZPP-Antrag-Vorbereitung, wissenschaftliche Partnerschaft</td></tr>
+      <tr><td>Q4 2026</td><td>ZPP-Antrag-Einreichung, Kurs „Stress-Kompass" in-App</td></tr>
+      <tr><td>Q1 2027</td><td>ZPP-Zertifikat erwartet, Erweiterung Personalisierung</td></tr>
+      <tr><td>Q2 2027</td><td>Start BSI-Grundschutz-Prüfung</td></tr>
+      <tr><td>H2 2027</td><td>Start DiGA-Prüfung (BfArM)</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>Häufige Fragen</h2>
+
+    <div class="faq">
+      <p class="q">Ist Soulvay ein Medizinprodukt?</p>
+      <p class="a">Nein. Soulvay ist ein Präventions- und Wellness-Angebot, kein Medizinprodukt. Der geplante DiGA-Weg (ab 2027) würde eine Zulassung als Medizinprodukt Klasse IIa umfassen — das ist ein separater Track.</p>
+    </div>
+
+    <div class="faq">
+      <p class="q">Wie unterscheidet sich Soulvay von 7Mind, Balloon, Headspace?</p>
+      <p class="a">Die genannten sind Meditations- und Entspannungs-Apps mit Fokus auf angeleitete Audio-Sessions. Soulvay setzt einen anderen Schwerpunkt: interaktive Reflexion mit KI-Begleiter, strukturiertes Journaling und CBT-basierte Übungs-Formate. Ergänzt sich, ersetzt nicht.</p>
+    </div>
+
+    <div class="faq">
+      <p class="q">Was passiert, wenn ein Nutzer in einer Krise auf Soulvay stößt?</p>
+      <p class="a">Die App enthält eine server-seitig implementierte Krisen-Detection. Bei Erkennung wird die KI-Antwort durch eine gescriptete Krisen-Response ersetzt, die Notrufnummern und Sofort-Hilfe-Angebote nennt (Telefonseelsorge, SOS-Chat, Nummer gegen Kummer, in Akutsituationen 112 / 110). Dieser Filter läuft vor dem KI-Aufruf und ist nicht umgehbar.</p>
+    </div>
+
+    <div class="faq">
+      <p class="q">Sind Nutzerdaten der Kasse zugänglich?</p>
+      <p class="a">Nein. Nur aggregierte, anonymisierte Statistiken sind möglich (z.&nbsp;B. Aktivierungs- und Abschluss-Raten). Individuelle Inhalte, Journal-Einträge oder Chat-Verläufe sind niemals Teil eines Kassen-Reports.</p>
+    </div>
+
+    <div class="faq">
+      <p class="q">Was ist der Preis für den Kurs?</p>
+      <p class="a">Nach ZPP-Zertifizierung: übliche Preisrahmen für Online-Präventionskurse liegen bei 120–180&nbsp;€ für einen 8-Wochen-Kurs. Die konkrete Preis-Fixierung erfolgt im Rahmen der ZPP-Anmeldung.</p>
+    </div>
+  </section>
+
+  <section class="contact-block">
+    <h3 style="margin-top:0">Über den Anbieter &amp; Kontakt</h3>
+    <p>Soulvay ist Produkt eines deutschen Solo-Founders mit Fokus auf den DACH-Markt. Entwicklung und Support in Deutschland. Die fachliche Beratung erfolgt in Kooperation mit einer erfahrenen Psychologin M.Sc. mit langjähriger Praxis-Tätigkeit in den Bereichen Trauma, Angst und Beziehungsberatung.</p>
+    <p><strong>Jonathan Jansen</strong> &nbsp;·&nbsp; service@soulvay.com &nbsp;·&nbsp; www.soulvay.com &nbsp;·&nbsp; www.soulvay.com/krankenkassen</p>
+    <p>Für ein 30-minütiges Erstgespräch stehe ich flexibel zur Verfügung — Kalender-Link auf Anfrage.</p>
+  </section>
+
+  <p class="version-note">Version 1.0 · Juli 2026 · Soulvay — Handout für Krankenkassen</p>
+
+</div>
+
+<footer class="print-footer">Soulvay &nbsp;·&nbsp; service@soulvay.com &nbsp;·&nbsp; www.soulvay.com/krankenkassen</footer>
+
+<footer class="screen-footer">
+  <span>Soulvay · Handout für Krankenkassen · Version 1.0 (Juli 2026)</span>
+  <span>service@soulvay.com · www.soulvay.com</span>
+</footer>

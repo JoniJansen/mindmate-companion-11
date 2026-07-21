@@ -2,7 +2,7 @@
 
 **Zweck**: Ein-Dokument-Übersicht für Innovation-Manager, Präventions-Referate und Digital-Health-Teams gesetzlicher und privater Krankenkassen.
 
-**Format**: Diese Markdown-Datei ist Content-Draft. Für den Versand wird sie als PDF gesetzt (Empfehlung: 2 Seiten, DIN A4, Soulvay-Farbwelt) und auf soulvay.de/krankenkassen hinterlegt.
+**Format**: Diese Markdown-Datei ist Content-Draft. Für den Versand wird sie als PDF gesetzt (Empfehlung: 2 Seiten, DIN A4, Soulvay-Farbwelt) und auf soulvay.com/krankenkassen hinterlegt.
 
 **Ton**: Faktenbasiert, keine Marketing-Floskeln, keine übertriebenen Zahlen. Solo-Founder-glaubwürdig.
 
@@ -18,7 +18,7 @@ Präventionslösung für Krankenkassen und ihre Mitglieder
 
 ---
 
-Kontakt: partner@soulvay.de · www.soulvay.de
+Kontakt: service@soulvay.com · www.soulvay.com
 
 ---
 
@@ -172,9 +172,9 @@ Was in nächsten 12-18 Monaten ansteht:
 Soulvay ist Produkt eines deutschen Solo-Founders mit Fokus auf DACH-Markt. Entwicklung und Support in Deutschland. Für Ansprechpartnerinnen aus dem Bereich Psychologie / Psychotherapie: Beratung erfolgt in Kooperation mit einer erfahrenen Psychologin M.Sc. mit langjähriger Praxis-Tätigkeit im Bereich Trauma, Angst und Beziehungsberatung.
 
 **Kontakt**:
-- E-Mail: partner@soulvay.de
-- Web: www.soulvay.de
-- Kassen-spezifische Seite: www.soulvay.de/krankenkassen
+- E-Mail: service@soulvay.com
+- Web: www.soulvay.com
+- Kassen-spezifische Seite: www.soulvay.com/krankenkassen
 
 Für ein 30-minütiges Erstgespräch stehe ich flexibel zur Verfügung. Ein Kalender-Link ist auf Anfrage verfügbar.
 

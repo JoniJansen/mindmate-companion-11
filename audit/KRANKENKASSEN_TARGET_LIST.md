@@ -202,7 +202,7 @@ Beispiele:
 **Woche 1**:
 - Prio-1-Kassen (5 Stück) auf LinkedIn recherchieren, Namen + E-Mails in Tracking-Sheet
 - IONOS-Postfach einrichten
-- Handout als PDF fertigstellen + auf soulvay.de/krankenkassen hosten
+- Handout als PDF fertigstellen + auf soulvay.com/krankenkassen hosten
 
 **Woche 2**:
 - Prio-1: 5 personalisierte E-Mails schreiben und senden (Vorlage: `KRANKENKASSEN_EMAIL_TEMPLATES.md`)
