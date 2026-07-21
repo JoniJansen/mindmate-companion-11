@@ -57,3 +57,7 @@ The three-mode flag lets us **ship the code** (so it's reviewed, deployed, and t
 - Sub-DB-Fix must be executed for the gate to be usable in `log`/`enforce` mode. Runbook: `audit/SUBSCRIPTION_DB_FIX_RUNBOOK.md`.
 - Once `enforce` is live and stable, consider adding a `requirePremiumAndAIConsent` combined helper so functions that need both don't do two round trips to the DB.
 - Metrics: if the `would_block` warn logs become annoying to grep, wire them into Sentry or a dedicated counter. For now, structured JSON in edge-function logs is enough for a week of observation.
+
+## Status-Log
+
+- **2026-07-21**: Sub-DB-Fix ausgeführt (UNIQUE-Index `subscriptions_user_id_key`, Migration `20260721122250_…` via Lovable). Direkt danach `PREMIUM_GATE_MODE=log` als Runtime-Secret gesetzt (Lovable-Bestätigung; greift beim nächsten Cold-Boot der Functions). Beobachtungsfenster läuft — Enforce-Entscheidung frühestens **2026-08-04**, vorher Function-Logs auf `would_block`-Warnungen prüfen (via Lovable Chat anfragen, kein direkter Dashboard-Zugriff — siehe `SUPABASE_ACCESS_MODEL.md`).
