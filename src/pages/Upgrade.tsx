@@ -28,6 +28,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { StandalonePage } from "@/components/layout/StandalonePage";
 import { analytics } from "@/hooks/useAnalytics";
 import { isIOSApp } from "@/lib/platformSeparation";
+import { hapticSuccess } from "@/lib/haptics";
 
 export default function Upgrade() {
   const navigate = useNavigate();
@@ -187,6 +188,8 @@ export default function Upgrade() {
 
         const success = await purchasePackage(packageToPurchase);
         if (success) {
+          // Purchase milestone — gentle success haptic (no-op on web)
+          void hapticSuccess();
           await checkSubscriptionStatus();
           navigate("/settings", { replace: true });
         }

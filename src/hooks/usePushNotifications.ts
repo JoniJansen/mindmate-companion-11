@@ -1,4 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { isNativeApp } from "@/lib/nativeDetect";
+import { buildReminderSchedules, type ReminderKind } from "@/lib/notificationSchedule";
+import {
+  cancelAllNativeReminders,
+  checkNativeNotificationPermission,
+  requestNativeNotificationPermission,
+  showNativeNotification,
+  syncNativeReminders,
+  type NativeReminderItem,
+} from "@/lib/localReminders";
 
 export interface NotificationSettings {
   enabled: boolean;
@@ -29,12 +39,35 @@ export function usePushNotifications() {
   const [permissionStatus, setPermissionStatus] = useState<NotificationPermission>("default");
   const [isSupported, setIsSupported] = useState(false);
   const schedulerRef = useRef<NodeJS.Timeout | null>(null);
+  const isNative = isNativeApp();
 
   // Check if notifications are supported
   useEffect(() => {
+    if (isNative) {
+      // Native (iOS/Android): scheduled local notifications via Capacitor.
+      setIsSupported(true);
+      let cancelled = false;
+      checkNativeNotificationPermission().then((status) => {
+        if (!cancelled) setPermissionStatus(status);
+      });
+
+      // Load saved settings
+      const saved = localStorage.getItem(NOTIFICATION_SETTINGS_KEY);
+      if (saved) {
+        try {
+          setSettings({ ...defaultSettings, ...JSON.parse(saved) });
+        } catch {
+          // Use defaults
+        }
+      }
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const supported = "Notification" in window && "serviceWorker" in navigator;
     setIsSupported(supported);
-    
+
     if (supported) {
       setPermissionStatus(Notification.permission);
     }
@@ -48,15 +81,35 @@ export function usePushNotifications() {
         // Use defaults
       }
     }
-  }, []);
+  }, [isNative]);
 
   // Save settings whenever they change
   useEffect(() => {
     localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(settings));
   }, [settings]);
 
-  // Schedule checker - runs every minute to check if it's time for a notification
+  // Reminder scheduling
+  // - Native: repeating OS-level local notifications — they fire even when
+  //   the app is closed. Fixed IDs make re-scheduling idempotent.
+  // - Web fallback: minute-interval checker while the app is open (unchanged).
   useEffect(() => {
+    if (isNative) {
+      if (!settings.enabled || permissionStatus !== "granted") {
+        cancelAllNativeReminders();
+        return;
+      }
+
+      const lang = getStoredLanguage();
+      const items: NativeReminderItem[] = buildReminderSchedules(settings).map((spec) => ({
+        spec,
+        ...pickReminderContent(spec.kind, lang),
+      }));
+      // The streak "at risk" nudge stays web-only: it depends on same-day
+      // activity, which a pre-scheduled OS notification cannot know.
+      syncNativeReminders(items);
+      return;
+    }
+
     if (!settings.enabled || permissionStatus !== "granted") {
       if (schedulerRef.current) {
         clearInterval(schedulerRef.current);
@@ -127,10 +180,24 @@ export function usePushNotifications() {
         clearInterval(schedulerRef.current);
       }
     };
-  }, [settings, permissionStatus]);
+  }, [settings, permissionStatus, isNative]);
 
   // Request permission
   const requestPermission = useCallback(async (): Promise<boolean> => {
+    if (isNative) {
+      // Native permission prompt (iOS system dialog / Android 13+ runtime
+      // permission). A denial is persisted so the UI shows the blocked state.
+      const status = await requestNativeNotificationPermission();
+      setPermissionStatus(status);
+      localStorage.setItem(NOTIFICATION_PERMISSION_KEY, status);
+
+      if (status === "granted") {
+        setSettings((prev) => ({ ...prev, enabled: true }));
+        return true;
+      }
+      return false;
+    }
+
     if (!isSupported) return false;
 
     try {
@@ -147,10 +214,16 @@ export function usePushNotifications() {
       if (import.meta.env.DEV) console.error("Error requesting notification permission:", error);
       return false;
     }
-  }, [isSupported]);
+  }, [isSupported, isNative]);
 
   // Show a local notification
   const showNotification = useCallback((title: string, body: string, options?: NotificationOptions) => {
+    if (isNative) {
+      if (permissionStatus !== "granted") return;
+      showNativeNotification(title, body);
+      return;
+    }
+
     if (!isSupported || permissionStatus !== "granted") return;
 
     try {
@@ -166,18 +239,10 @@ export function usePushNotifications() {
     } catch (error) {
       if (import.meta.env.DEV) console.error("Error showing notification:", error);
     }
-  }, [isSupported, permissionStatus]);
+  }, [isSupported, permissionStatus, isNative]);
 
   // Get language
-  const getLang = useCallback(() => {
-    try {
-      const prefs = localStorage.getItem("soulvay-preferences");
-      if (prefs) {
-        return JSON.parse(prefs).language || "en";
-      }
-    } catch {}
-    return "en";
-  }, []);
+  const getLang = useCallback(() => getStoredLanguage(), []);
 
   // Send mood reminder
   const sendMoodReminder = useCallback(() => {
@@ -248,6 +313,32 @@ export function usePushNotifications() {
     sendMoodReminder,
     sendDailyReminder,
   };
+}
+
+// Reads the app language from persisted preferences (module-level so both the
+// hook and the native scheduling path share one implementation).
+function getStoredLanguage(): "en" | "de" {
+  try {
+    const prefs = localStorage.getItem("soulvay-preferences");
+    if (prefs) {
+      const lang = JSON.parse(prefs).language;
+      if (lang === "de" || lang === "en") return lang;
+    }
+  } catch {
+    // Fall through to default
+  }
+  return "en";
+}
+
+// Picks the title/body for a scheduled reminder at schedule time.
+// Random variant selection happens here; the OS repeats that variant until
+// the next re-schedule (i.e. the next visit to notification settings).
+function pickReminderContent(kind: ReminderKind, lang: "en" | "de"): { title: string; body: string } {
+  if (kind === "weekly") return notificationMessages.weeklyRecap[lang];
+  const pool = kind === "mood"
+    ? notificationMessages.moodReminder[lang]
+    : notificationMessages.dailyReminder[lang];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 // Contextual, reflective notification messages — never generic

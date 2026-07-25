@@ -42,6 +42,12 @@ const config: CapacitorConfig = {
       // iOS: SFSpeechRecognizer with on-device recognition where available
       // Android: SpeechRecognizer with default service (declared via <queries> in AndroidManifest)
     },
+    LocalNotifications: {
+      // iOS: also show reminders while the app is in the foreground
+      // (needed so the settings "test notification" is visible in-app).
+      // Android ignores this key; notifications always show there.
+      presentationOptions: ["banner", "sound"],
+    },
   },
 };
 

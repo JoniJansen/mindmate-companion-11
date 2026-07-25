@@ -6,6 +6,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useVoiceSettings } from "@/hooks/useVoiceSettings";
 import { fullScreenOverlay } from "@/lib/safeArea";
+import { hapticImpact } from "@/lib/haptics";
 
 interface ExercisePlayerProps {
   exercise: Exercise;
@@ -289,6 +290,8 @@ export function ExercisePlayer({ exercise, onClose, onComplete }: ExercisePlayer
     setIsTransitioning(false);
     setIsComplete(true);
     setIsPlaying(false);
+    // Subtle completion feedback on native (no-op on web)
+    void hapticImpact("medium");
   }, [clearAdvanceTimeout, stop]);
 
   const queueAdvance = useCallback((delay = 900) => {

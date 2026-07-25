@@ -32,6 +32,7 @@ import { MessageLimitIndicator } from "@/components/premium/MessageLimitIndicato
 import { ChatVoiceTrialPrompt } from "@/components/premium/ChatVoiceTrialPrompt";
 import { ChatLimitPrompt } from "@/components/premium/ChatLimitPrompt";
 import { fullScreenWithNav } from "@/lib/safeArea";
+import { hapticImpact } from "@/lib/haptics";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { useCompanionVisualState } from "@/hooks/useCompanionVisualState";
 import { RealtimeVoicePanel } from "@/components/chat/RealtimeVoicePanel";
@@ -312,6 +313,9 @@ export default function Chat() {
   // Send message with voice TTS callback
   const handleSend = useCallback(async (content: string) => {
     if (!content.trim()) return;
+
+    // Subtle send feedback on native (no-op on web)
+    void hapticImpact("light");
 
     // Track first chat message per session
     if (composer.messages.filter(m => m.role === "user").length === 0) {
