@@ -6,7 +6,6 @@ export const journalTranslations: Translations = {
   "journal.searchPlaceholder": { en: "Search...", de: "Suchen..." },
   "journal.newEntry": { en: "Free Entry", de: "Freier Eintrag" },
   "journal.patterns": { en: "Patterns", de: "Muster" },
-  "journal.noEntries": { en: "Start with your first entry", de: "Beginne mit deinem ersten Eintrag" },
   "journal.startWriting": { en: "This is your private space to write freely", de: "Dies ist dein privater Raum zum freien Schreiben" },
   "journal.discoverThemes": { en: "Notice themes in your entries", de: "Bemerke Themen in deinen Einträgen" },
   "journal.todaysPrompt": { en: "A thought for today", de: "Ein Gedanke für heute" },
@@ -45,7 +44,6 @@ export const journalTranslations: Translations = {
   "journal.generate": { en: "Generate", de: "Erstellen" },
   "journal.discoverPatternsInEntries": { en: "Discover patterns in your entries.", de: "Entdecke Muster in deinen Einträgen." },
   "journal.yourEntries": { en: "Your entries", de: "Deine Einträge" },
-  "journal.noEntriesFound": { en: "No entries found", de: "Keine Einträge gefunden" },
   "journal.untitled": { en: "Untitled Entry", de: "Ohne Titel" },
   "journal.fromChat": { en: "Chat", de: "Chat" },
   "journal.discoverPatterns": { en: "Discover Patterns", de: "Muster entdecken" },
@@ -99,7 +97,6 @@ export const journalTranslations: Translations = {
   "journal.sortNewest": { en: "Newest", de: "Neueste" },
   "journal.sortOldest": { en: "Oldest", de: "Älteste" },
   "journal.reset": { en: "Reset", de: "Zurücksetzen" },
-  "journal.noEntriesOnDay": { en: "No entries on this day", de: "Keine Einträge an diesem Tag" },
 
   // Journal → Chat bridge (with interpolation via prefix/suffix)
   "journal.bridge.contextPrefix": { en: 'I just wrote something in my journal: "', de: 'Ich habe gerade etwas in mein Tagebuch geschrieben: "' },

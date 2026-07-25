@@ -156,10 +156,6 @@ export const paymentsTranslations: Translations = {
   "voiceTrialCard.subtitle": { en: "Experience what a personal conversation feels like.", de: "Erlebe, wie sich ein persönliches Gespräch anfühlt." },
   "voiceTrialCard.cta": { en: "Try it", de: "Ausprobieren" },
 
-  // InsightPreviewCard (Elite-Audit #9 round 4 migration)
-  "insightPreview.label": { en: "Weekly insight", de: "Wöchentlicher Einblick" },
-  "insightPreview.cta": { en: "Read in full with Plus", de: "Vollständig lesen mit Plus" },
-
   // ChatVoiceTrialPrompt (Elite-Audit #9 round 4 migration)
   "chatVoiceTrialPrompt.lead": { en: "Want to try this in person?", de: "Willst du das mal persönlich ausprobieren?" },
   "chatVoiceTrialPrompt.subPrefix": { en: "You can speak with ", de: "Du kannst einmal kostenlos mit " },

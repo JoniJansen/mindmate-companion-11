@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, MessageCircle, Trash2, Loader2 } from "lucide-react";
+import { ChevronLeft, MessageCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { Skeleton } from "@/components/ui/loading-skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,19 +87,23 @@ export default function ChatHistory() {
 
       <div className="px-6">
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          /* Skeleton rows mirroring the conversation list layout — no layout shift */
+          <div className="space-y-2" aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-2xl p-4 border bg-card border-border/30">
+                <Skeleton className="h-4 w-40 mb-2" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            ))}
           </div>
         ) : conversations.length === 0 ? (
-          <div className="text-center py-16">
-            <MessageCircle className="w-10 h-10 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-muted-foreground text-sm">
-              {t("chatHistory.emptyState")}
-            </p>
-            <Button variant="outline" className="mt-4 rounded-xl" onClick={() => navigate("/chat")}>
-              {t("chatHistory.startConversation")}
-            </Button>
-          </div>
+          <EmptyState
+            icon={MessageCircle}
+            className="mt-6"
+            description={t("emptyState.chatHistory.description")}
+            actionLabel={t("emptyState.chatHistory.cta")}
+            onAction={() => navigate("/chat")}
+          />
         ) : (
           <div className="space-y-2">
             <AnimatePresence>

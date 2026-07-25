@@ -41,9 +41,6 @@ export const companionTranslations: Translations = {
   // BondIndicator (Elite-Audit #9 round 4 migration)
   "bondIndicator.yourConnection": { en: "Your connection", de: "Eure Verbindung" },
 
-  // ConversationMilestone (Elite-Audit #9 round 4 migration)
-  "conversationMilestone.label": { en: "Milestone", de: "Meilenstein" },
-
   // StreakMilestone (Elite-Audit #9 round 4 migration)
   "streakMilestone.daysOfReflection": { en: "Days of Reflection", de: "Tage Reflexion" },
 };

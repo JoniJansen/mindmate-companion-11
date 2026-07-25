@@ -8,6 +8,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { Skeleton, TextSkeleton } from "@/components/ui/loading-skeleton";
 import { TabHint } from "@/components/shared/TabHint";
 import { JournalEditor } from "@/components/journal/JournalEditor";
 import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
@@ -613,12 +615,20 @@ export default function Journal() {
                         )}
                       </AnimatePresence>
                     </div>
+                  ) : isLoadingRecap ? (
+                    /* Skeleton while the first recap is generated — same slot
+                       the recap content will fill, so no layout jump. */
+                    <div>
+                      <h3 className="font-medium mb-1">{t("journal.weeklyRecap")}</h3>
+                      <p className="text-sm text-muted-foreground mb-3">{t("journal.discoverPatternsInEntries")}</p>
+                      <TextSkeleton lines={3} />
+                    </div>
                   ) : (
                     <div>
                       <h3 className="font-medium mb-1">{t("journal.weeklyRecap")}</h3>
                       <p className="text-sm text-muted-foreground mb-3">{t("journal.discoverPatternsInEntries")}</p>
-                      <Button size="sm" onClick={handleGenerateWeeklyRecap} disabled={isLoadingRecap}>
-                        {isLoadingRecap ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                      <Button size="sm" onClick={handleGenerateWeeklyRecap}>
+                        <Sparkles className="w-4 h-4 mr-2" />
                         {t("journal.generate")}
                       </Button>
                     </div>
@@ -752,16 +762,37 @@ export default function Journal() {
         {/* Entries grouped by date */}
         <div className="space-y-4">
           {isLoading ? (
-            <CalmCard variant="gentle" className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></CalmCard>
+            /* Skeleton cards mirroring JournalEntryCard layout — no layout shift */
+            <div aria-hidden="true">
+              <Skeleton className="h-3 w-20 mb-2 mx-1" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="rounded-2xl p-4 bg-card border border-border/40 shadow-card">
+                    <div className="flex items-start gap-3">
+                      <Skeleton className="w-11 h-11 rounded-xl shrink-0" />
+                      <div className="flex-1 space-y-2 pt-0.5">
+                        <Skeleton className="h-4 w-2/5" />
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-3/5" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : filteredEntries.length === 0 ? (
-            <CalmCard variant="gentle" className="text-center py-8">
-              <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">
-                {selectedDate
-                  ? t("journal.noEntriesOnDay")
-                  : searchQuery ? t("journal.noEntriesFound") : t("journal.noEntries")}
-              </p>
-            </CalmCard>
+            <EmptyState
+              icon={Sparkles}
+              description={
+                selectedDate
+                  ? t("emptyState.journal.noEntriesOnDay")
+                  : entries.length > 0
+                    ? t("emptyState.journal.noResults")
+                    : t("emptyState.journal.noEntries")
+              }
+              actionLabel={entries.length === 0 ? t("emptyState.journal.cta") : undefined}
+              onAction={entries.length === 0 ? () => { setSelectedEntry(null); setViewMode("write"); } : undefined}
+            />
           ) : (
             groupedEntries.map((group) => (
               <div key={group.date}>

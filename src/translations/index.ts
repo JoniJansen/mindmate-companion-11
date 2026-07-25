@@ -13,6 +13,7 @@ import { settingsTranslations } from "./settings";
 import { paymentsTranslations } from "./payments";
 import { contentTranslations } from "./content";
 import { authTranslations } from "./auth";
+import { emptyStatesTranslations } from "./emptyStates";
 
 export const allTranslations: Translations = {
   ...commonTranslations,
@@ -25,6 +26,7 @@ export const allTranslations: Translations = {
   ...paymentsTranslations,
   ...contentTranslations,
   ...authTranslations,
+  ...emptyStatesTranslations,
 };
 
 export type { Translations } from "./types";

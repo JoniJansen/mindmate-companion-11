@@ -52,7 +52,6 @@ const About = lazy(() => import("@/pages/About"));
 const Admin = lazy(() => import("@/pages/Admin"));
 const DeleteAccount = lazy(() => import("@/pages/DeleteAccount"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
-const AudioLibrary = lazy(() => import("@/pages/AudioLibrary"));
 const Timeline = lazy(() => import("@/pages/Timeline"));
 const ChatHistory = lazy(() => import("@/pages/ChatHistory"));
 const ReviewInstructions = lazy(() => import("@/pages/ReviewInstructions"));
@@ -234,7 +233,6 @@ function AppContent() {
                   <Route path="/settings" element={<OnboardingGuard><Settings /></OnboardingGuard>} />
                   <Route path="/install" element={<Install />} />
                   <Route path="/upgrade" element={<OnboardingGuard><Upgrade /></OnboardingGuard>} />
-                  <Route path="/audio" element={<OnboardingGuard><AudioLibrary /></OnboardingGuard>} />
                   <Route path="/timeline" element={<OnboardingGuard><Timeline /></OnboardingGuard>} />
                   <Route path="/chat-history" element={<OnboardingGuard><ChatHistory /></OnboardingGuard>} />
                   <Route path="/privacy" element={<Privacy />} />

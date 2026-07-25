@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Plus, Sparkles, Loader2, BarChart3, TrendingUp, Brain } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Sparkles, Loader2, BarChart3, TrendingUp, Brain, CalendarDays } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CalmCard } from "@/components/shared/CalmCard";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { Skeleton } from "@/components/ui/loading-skeleton";
 import { useTranslation } from "@/hooks/useTranslation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -411,23 +413,35 @@ export default function Timeline() {
       {/* Selected Day Entries */}
       <div className="px-6">
         {isLoading ? (
-          <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
+          /* Skeleton rows mirroring the day-entry cards — no layout shift */
+          <div aria-hidden="true">
+            <Skeleton className="h-4 w-24 mb-3" />
+            <div className="space-y-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="bg-card rounded-xl p-4 border border-border/30">
+                  <div className="flex items-start gap-3">
+                    <Skeleton className="h-3 w-10 mt-0.5 shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : selectedDayData ? (
           <>
             <h2 className="text-sm font-medium text-muted-foreground mb-3">
               {isToday(selectedDayData.date) ? t("timeline.today") : formatDate(selectedDayData.date)}
             </h2>
             {selectedDayData.entries.length === 0 ? (
-              <div className="bg-muted/30 rounded-2xl p-6 text-center">
-                <p className="text-muted-foreground text-sm mb-3">
-                  {t("timeline.noThoughtsDay")}
-                </p>
-                {isToday(selectedDayData.date) && (
-                  <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate("/")}>
-                    {t("timeline.addThoughts")}
-                  </Button>
-                )}
-              </div>
+              <EmptyState
+                icon={Sparkles}
+                description={t("emptyState.timeline.noThoughtsDay")}
+                actionLabel={isToday(selectedDayData.date) ? t("emptyState.timeline.cta") : undefined}
+                onAction={isToday(selectedDayData.date) ? () => navigate("/") : undefined}
+              />
             ) : (
               <div className="space-y-3">
                 <AnimatePresence>
@@ -455,9 +469,10 @@ export default function Timeline() {
             )}
           </>
         ) : (
-          <div className="text-center py-12 text-muted-foreground">
-            {t("timeline.selectDay")}
-          </div>
+          <EmptyState
+            icon={CalendarDays}
+            description={t("emptyState.timeline.selectDay")}
+          />
         )}
 
         {/* Load More */}
