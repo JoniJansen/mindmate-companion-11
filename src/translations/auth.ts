@@ -45,6 +45,12 @@ export const authTranslations: Translations = {
   "resetPassword.success": { en: "Password updated successfully.", de: "Passwort erfolgreich aktualisiert." },
   "resetPassword.linkExpired": { en: "This reset link has expired. Please request a new one.", de: "Dieser Link ist abgelaufen. Bitte fordere einen neuen an." },
   "resetPassword.backToLogin": { en: "Back to login", de: "Zurück zum Login" },
+  "resetPassword.minChars": { en: "Please choose a password with at least 6 characters.", de: "Bitte wähle ein Passwort mit mindestens 6 Zeichen." },
+  "resetPassword.checkInput": { en: "Please make sure both entries match.", de: "Bitte prüfe, ob beide Eingaben übereinstimmen." },
+  "resetPassword.successDesc": { en: "You can now sign in with your new password.", de: "Du kannst dich jetzt mit deinem neuen Passwort anmelden." },
+  "resetPassword.successTitle": { en: "Password updated", de: "Passwort aktualisiert" },
+  "resetPassword.redirecting": { en: "All set. Taking you back to the app...", de: "Alles erledigt. Du wirst zurück zur App geleitet..." },
+  "resetPassword.linkExpiredDesc": { en: "No worries — for your security, reset links are only valid for a short time. You can request a new one on the sign-in page.", de: "Kein Grund zur Sorge — aus Sicherheitsgründen sind Reset-Links nur kurz gültig. Auf der Anmeldeseite kannst du dir einfach einen neuen anfordern." },
 
   // Auth page — Elite-Audit #9 i18n migration
   "auth.reviewLoginToast": { en: "Demo account signed in. Premium follows the normal subscription check.", de: "Demo-Konto angemeldet. Premium folgt der normalen Abo-Prüfung." },

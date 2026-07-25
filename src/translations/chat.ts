@@ -74,6 +74,8 @@ export const chatTranslations: Translations = {
   "chat.summarySection.moodJourney": { en: "Mood Journey", de: "Stimmungsverlauf" },
   "chat.summarySection.nextStep": { en: "Next Step", de: "Nächster Schritt" },
 
+  "chat.restoringConversation": { en: "Restoring your conversation...", de: "Dein Gespräch wird wiederhergestellt..." },
+
   // Chat header tooltips
   "chat.conversationHistory": { en: "Conversation history", de: "Gesprächsverlauf" },
   "chat.newConversation": { en: "New conversation", de: "Neues Gespräch" },
@@ -82,8 +84,6 @@ export const chatTranslations: Translations = {
 
   // Chat History
   "chatHistory.title": { en: "Conversation History", de: "Gesprächsverlauf" },
-  "chatHistory.emptyState": { en: "Your conversations will appear here once you start chatting with Soulvay.", de: "Deine Gespräche erscheinen hier, sobald du mit Soulvay chattest." },
-  "chatHistory.startConversation": { en: "Start a conversation", de: "Gespräch starten" },
   "chatHistory.today": { en: "Today", de: "Heute" },
   "chatHistory.yesterday": { en: "Yesterday", de: "Gestern" },
   "chatHistory.deleteConversation": { en: "Delete conversation", de: "Gespräch löschen" },
