@@ -91,11 +91,11 @@ Handlungsfeld **Stressmanagement** hat zwei Präventionsprinzipien:
 - Datenschutz-Nachweis (DSGVO-Konformität, TOM-Beschreibung)
 - Barrierefreiheits-Erklärung (WCAG-Level oder Gleichwertigkeit)
 
-**Antragsgebühr**: 800-1.500 € (Erst-Zertifizierung, gestaffelt nach Umfang).
+**Antragsgebühr**: **0 € — die ZPP-Prüfung ist für Anbieter kostenfrei** (verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/faqs/anbieter/ — wörtlich: „Nein. Die Prüfung ist für Sie kostenfrei."). Frühere Annahme 800-1.500 € war falsch.
 
-**Prüfdauer**: 8-16 Wochen ab vollständigem Antrag.
+**Prüfdauer**: 8-16 Wochen ab vollständigem Antrag *(Schätzung — die ZPP-Website nennt keine eindeutige Prüfdauer; im Erstgespräch klären, siehe ZPP_ERSTBERATUNG_LEITFADEN.md)*.
 
-**Gültigkeit**: 3 Jahre, danach Re-Zertifizierung.
+**Gültigkeit**: Online-/IKT-Angebote zunächst **1 Jahr**, nach erfolgreicher Evaluation Verlängerung auf 3 Jahre (verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/); Präsenzkurse 3 Jahre.
 
 ---
 
@@ -106,11 +106,11 @@ Handlungsfeld **Stressmanagement** hat zwei Präventionsprinzipien:
 | Kurs-Manual erstellen (extern, Psychologin) | 3.000 - 5.000 € |
 | Technische Umsetzung Kurs-Modus in App | 0 € (Solo-Founder mit Claude Code) |
 | Wissenschaftliche Partnerin einbinden (Formalisierung) | 0 - 1.500 € |
-| ZPP-Antragsgebühr | 800 - 1.500 € |
+| ZPP-Antragsgebühr | 0 € (Prüfung kostenfrei; verifiziert 2026-07-21, ZPP-FAQ) |
 | Beratung durch spezialisiertes Büro (optional) | 2.000 - 5.000 € |
 | Wiedervorlage / Nachbesserungen | 500 - 1.500 € |
-| **Total (unteres Ende)** | **~4.300 €** |
-| **Total (Empfehlung mit Beratung)** | **~10.000 €** |
+| **Total (unteres Ende)** | **~3.500 €** |
+| **Total (Empfehlung mit Beratung)** | **~8.500 €** |
 
 **Zeit-Investition**: 3-6 Monate parallel zum operativen Geschäft.
 

@@ -4,20 +4,20 @@
 
 **Kontext-Dokumente**: `KRANKENKASSEN_ZPP_ROADMAP.md` (Strategie), `KRANKENKASSEN_HANDOUT.md` (Produktbeschreibung), `KRANKENKASSEN_OUTREACH_STRATEGY.md` (3-Track-Plan).
 
-**Stand**: Juli 2026. Alle Kontaktdaten und Detail-Angaben in diesem Dokument stammen aus Trainingswissen und sind **vor dem Anruf auf der ZPP-Website zu verifizieren**.
+**Stand**: Juli 2026. Kontaktdaten und Kernangaben wurden am **2026-07-21 gegen die ZPP-Website verifiziert** (siehe Verifizierungs-Log am Ende). Verbleibende offene Punkte sind im Log markiert und im Anruf zu klären.
 
 ---
 
 ## (a) Kontaktwege der ZPP
 
-> ⚠️ **Alle Angaben in diesem Abschnitt vor dem Anruf verifizieren** unter https://www.zentrale-pruefstelle-praevention.de → "Kontakt". Telefonnummern und Adressen können sich geändert haben.
+> ✅ Am 2026-07-21 gegen die Website geprüft. Kurz vor dem Anruf nur noch Servicezeiten kurz gegenchecken.
 
-| Kanal | Angabe (Stand Trainingswissen — verifizieren!) | Anmerkung |
+| Kanal | Angabe | Anmerkung |
 |---|---|---|
-| **Website / Portal** | https://www.zentrale-pruefstelle-praevention.de | Anbieter-Registrierung und Kurseinreichung laufen vollständig über das Online-Portal ("Anbieter-Login") |
-| **Telefon (Service)** | 0201 / 565 82 90 *(verifizieren)* | Geschäftsstelle wird von der Team Gesundheit GmbH in Essen betrieben *(verifizieren)*; Servicezeiten üblicherweise Mo–Fr zu Bürozeiten *(verifizieren)* |
-| **E-Mail** | kontakt@zentrale-pruefstelle-praevention.de *(verifizieren)* | Alternativ Kontaktformular auf der Website |
-| **Downloadbereich** | Website → "Infothek" / Downloads | Enthält Handbücher zur Einreichung, Checklisten je Handlungsfeld (u.a. "Stressmanagement multimodal") und FAQ — **vor dem Anruf herunterladen und querlesen** |
+| **Website / Portal** | https://www.zentrale-pruefstelle-praevention.de | Anbieter-Registrierung und Einreichung über das Online-Portal: https://portal.zentrale-pruefstelle-praevention.de (Login + Registrierung; drei Account-Typen: nur Anbieter, nur Kursleitung, kombiniert) *(verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/ und /faqs/anbieter/)* |
+| **Telefon (Service)** | 0201 / 5 65 82 90 *(verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/)* | Geschäftsstelle: Team Gesundheit Gesellschaft für Gesundheitsmanagement mbH, Rellinghauser Str. 93, 45128 Essen *(verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/impressum/)*; Servicezeiten: **Mo–Do 8–16 Uhr, Fr 8–14 Uhr** *(verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/)* |
+| **E-Mail** | kontakt@zentrale-pruefstelle-praevention.de *(verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/faqs/anbieter/)* | Alternativ Kontaktformular: https://portal.zentrale-pruefstelle-praevention.de/public/kontakt |
+| **Downloadbereich** | Website → "Leistungen → Präventionsangebot zertifizieren lassen" + FAQ-Bereich | Relevante Fundstellen (2026-07-21): **IKT-Angebote (Kapitel 5)**: /leistungen/praeventionsangebot-zertifizieren-lassen/ikt-angebote/ — inkl. Vorlage „Information zur Erstellung einer Evaluation von IKT-Angeboten". **Digitale Angebote (Kapitel 7)**: /leistungen/praeventionsangebot-zertifizieren-lassen/digitale-angebote/ — verweist auf „Kriterien zur Zertifizierung digitaler Präventions- und Gesundheitsförderungsangebote gemäß Kapitel 7" (Stand 17.12.2025, GKV-Spitzenverband). Ergänzend beim GKV-Spitzenverband: „Kriterien zur Zertifizierung von Präventionskursangeboten gemäß Kapitel 5" (Stand 06.01.2026) und „FAQs Digitale Präventions- und Gesundheitsförderangebote" (Stand 12.12.2025) — **vor dem Anruf herunterladen und querlesen** |
 
 **Empfohlene Reihenfolge**:
 1. Website besuchen, aktuelle Kontaktdaten notieren, Downloadbereich sichten (30-45 Min).
@@ -39,14 +39,15 @@
 **1. Kurskategorie: Selbstlernkurs oder begleiteter Online-Kurs?**
 „Unser Kurs läuft in einer App, die Teilnehmer arbeiten die 8 Wochen eigenständig durch, mit fachlicher Betreuung im Hintergrund. Fällt das in die Kategorie ‚IKT-basiertes Selbstlernprogramm', oder kann es durch Betreuungselemente (z.B. wöchentliche Rückmeldung der Kursleitung, Sprechstunden) als begleiteter Online-Kurs eingestuft werden? Welche Kategorie empfehlen Sie uns, und wo genau verläuft die Grenze?"
 *Hintergrund: Die Kategorie entscheidet über die Nachweispflichten (siehe Frage 2). Das ist die wichtigste Weiche des ganzen Projekts.*
+*(verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/leistungen/praeventionsangebot-zertifizieren-lassen/ikt-angebote/ und .../digitale-angebote/): Die ZPP unterscheidet **Kapitel-5-IKT-Kurse mit Kursleitung** (Formate „Onlinekurs" — terminungebunden, Module wochenweise freigeschaltet — und „Live-Onlineseminar"; Pflicht: wechselseitiger Austausch mit der Kursleitung, Mindest-Kommunikationsquote 0,4 h = 24 Min pro Teilnehmer, Antwort auf Fachfragen binnen 48 h, Erfolgskontrolle per Quiz/Fragebogen) von **Kapitel-7-Digitalangeboten ohne Kursleitung** (Internet-Interventionen, Apps, hybride Konzepte). Der „Stress-Kompass" mit Jutta als aktiver Kursleitung zielt auf den Kapitel-5-„Onlinekurs" — im Gespräch bestätigen lassen, dass unser Setup diese Kategorie erfüllt.*
 
 **2. Wirksamkeitsnachweis: Was genau wird verlangt?**
 „Reicht für unsere Kategorie die wissenschaftliche Fundierung der Methoden (CBT, Achtsamkeit, Stressforschung — mit Literaturbelegen), oder braucht das konkrete Programm einen eigenen Wirksamkeitsnachweis, also eine Studie zum ‚Stress-Kompass' selbst? Falls Studie: Welches Mindest-Design (Prä-Post, Kontrollgruppe, Stichprobengröße)?"
-*Hintergrund: Nach Trainingswissen fordert der Leitfaden Prävention für digitale **Selbstlernprogramme** einen Wirksamkeitsnachweis des konkreten Programms — das wäre deutlich mehr als die in unserer Roadmap angenommene "wissenschaftliche Fundierung". Unbedingt präzise klären (verifizieren).*
+*Hintergrund (verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/leistungen/praeventionsangebot-zertifizieren-lassen/digitale-angebote/ und .../ikt-angebote/): Die Nachweispflicht hängt an der Kategorie aus Frage 1. **Kapitel 7 (Selbstlernangebot/App ohne Kursleitung)**: „Der gesundheitliche Nutzen digitaler Angebote muss belegt werden" — akzeptiert werden Vorher-Nachher-Vergleiche, beobachtende analytische Studien oder Interventionsstudien; mit Studienergebnissen 3 Jahre Anerkennung, ohne Ergebnisse nur 1 Jahr vorläufig gegen eingereichtes Studienprotokoll. **Kapitel 5 (IKT-Kurs mit Kursleitung)**: keine Studie vorab, aber Selbstverpflichtung zur **Evaluation spätestens 1 Jahr nach Anerkennung** (mind. 36 Teilnehmer-Fragebögen); Anerkennung zunächst 1 Jahr, nach erfolgreicher Evaluation Verlängerung auf 3 Jahre. Im Gespräch klären: genügt für unseren Kapitel-5-Onlinekurs die wissenschaftliche Fundierung der Methoden im Konzept + spätere Evaluation?*
 
 **3. Kursleiter-Qualifikation — konkret für Jutta Jansen**
 „Unsere vorgesehene Kursleitung ist Psychologin M.Sc. mit langjähriger Praxiserfahrung (Trauma, Angst, Beziehungsberatung). Erfüllt ein Master in Psychologie die Grundqualifikation für das Handlungsfeld Stressmanagement / Präventionsprinzip multimodales Stressmanagement? Welche **Zusatzqualifikation** wird verlangt (z.B. nachgewiesene Fortbildung in Stressbewältigungsverfahren, Erfahrung in Erwachsenenbildung, Einweisung ins Kursprogramm)? Welche Nachweise müssen wir einreichen (Zeugnisse, Fortbildungszertifikate, Tätigkeitsnachweis)?"
-*Hintergrund: Nach Trainingswissen verlangt der Leitfaden eine **Grundqualifikation** (einschlägiger staatlich anerkannter Studienabschluss, z.B. Psychologie) **plus Zusatzqualifikation** im jeweiligen Verfahren (verifizieren). M.Sc. Psychologie dürfte die Grundqualifikation decken — offen ist die Zusatzqualifikation.*
+*Hintergrund: Nach Trainingswissen verlangt der Leitfaden eine **Grundqualifikation** (einschlägiger staatlich anerkannter Studienabschluss, z.B. Psychologie) **plus Zusatzqualifikation** im jeweiligen Verfahren — die konkreten Anforderungen stehen in den „Kriterien zur Zertifizierung von Präventionskursangeboten gemäß Kapitel 5" (Stand 06.01.2026, GKV-Spitzenverband; Details online nicht abschließend verifiziert — PDF vor dem Anruf lesen, Rest im Gespräch klären). M.Sc. Psychologie dürfte die Grundqualifikation decken — offen ist die Zusatzqualifikation.*
 
 **4. Rolle der Kursleitung bei einem digitalen Kurs**
 „Wie muss die Kursleitung bei einem digitalen Kurs praktisch eingebunden sein? Muss sie für Teilnehmerfragen erreichbar sein (in welcher Frist), muss sie die Inhalte formal verantworten und namentlich benannt sein, und darf der **Anbieter** (Firma / Solo-Founder ohne eigene Fachqualifikation) ein anderer sein als die Kursleitung? Braucht es dafür eine bestimmte vertragliche Form der Zusammenarbeit?"
@@ -59,7 +60,7 @@
 
 **7. Prüfdauer und Kosten**
 „Wie lange dauert die Prüfung aktuell ab vollständiger Einreichung? Und fallen für Anbieter Gebühren an — für Erstprüfung, Nachbesserung oder Re-Zertifizierung?"
-*Hintergrund: Unsere Roadmap kalkuliert 800-1.500 € Antragsgebühr und 8-16 Wochen. Nach Trainingswissen war die ZPP-Prüfung für Anbieter bislang **kostenfrei** (von den Kassen finanziert) und oft schneller — beides im Gespräch klären und die Roadmap danach korrigieren.*
+*Hintergrund: **Kosten: Die Prüfung ist für Anbieter kostenfrei** — ZPP-FAQ wörtlich: „Nein. Die Prüfung ist für Sie kostenfrei." (verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/faqs/anbieter/; Roadmap wurde entsprechend korrigiert). **Prüfdauer: online nicht eindeutig geklärt** — die FAQ nennt nur eine „Bearbeitungsdauer von 10 Kalendertagen bei Kursen und 15 Kalendertagen bei Konzepten" im System (danach Status „abgelehnt: nicht prüffähig"); unklar, ob das die ZPP-Prüfzeit oder die Frist für den Anbieter zur Vervollständigung ist. Im Gespräch die reale Prüfdauer ab vollständiger Konzept-Einreichung erfragen.*
 
 **8. Häufigste Ablehnungsgründe bei digitalen Angeboten**
 „Aus Ihrer Prüfpraxis: Was sind die drei häufigsten Gründe, warum digitale bzw. App-basierte Kurse abgelehnt werden oder in die Nachbesserung gehen? Was sollten wir von Anfang an vermeiden?"
@@ -67,7 +68,7 @@
 
 **9. Geltungsbereich: Gilt das Zertifikat für alle Kassen?**
 „Deckt die ZPP-Zertifizierung alle Kassen der Kooperationsgemeinschaft ab? Welche Kassen prüfen eigenständig — wir haben z.B. gehört, dass einzelne IKKen eigene Anforderungen an Kurskonzepte stellen — und was bedeutet das für uns, wenn wir auch deren Mitglieder erreichen wollen?"
-*Hintergrund: Track 2 unserer Strategie enthält IKK classic als Top-5-Zielkasse. Falls dort ein separates Prüfverfahren mit eigenen Kurskonzept-Anforderungen existiert (verifizieren), muss das in die Outreach-Planung.*
+*Hintergrund: Track 2 unserer Strategie enthält IKK classic als Top-5-Zielkasse. Falls dort ein separates Prüfverfahren mit eigenen Kurskonzept-Anforderungen existiert (online am 2026-07-21 nicht klärbar — im Anruf fragen), muss das in die Outreach-Planung.*
 
 **10. Eigenes Kurskonzept vs. lizenziertes Standard-Konzept**
 „Ist es möglich und ggf. empfehlenswert, auf einem bereits zertifizierten Kurskonzept eines Konzeptanbieters aufzusetzen (Lizenzmodell), statt ein eigenes Konzept prüfen zu lassen? Was sind die Unterschiede im Verfahren, und gibt es zertifizierte digitale Stressmanagement-Konzepte, die für eine App-Umsetzung offen wären?"
@@ -77,6 +78,7 @@
 
 **12. Gültigkeit, Änderungen, Re-Zertifizierung**
 „Wie lange gilt die Zertifizierung, und wie werden inhaltliche oder technische Updates der App während der Laufzeit behandelt — ab wann gilt eine Änderung als re-zertifizierungspflichtig?"
+*Hintergrund (verifiziert 2026-07-21, Quelle: https://www.zentrale-pruefstelle-praevention.de/): Online-/IKT-Angebote werden wegen „Innovationsdynamiken in der Informations- und Kommunikationstechnologie" zunächst nur **1 Jahr** anerkannt (Präsenzkurse: 3 Jahre); nach erfolgreicher Evaluation Verlängerung auf 3 Jahre. Offen: Update-/Änderungsregeln während der Laufzeit.*
 
 **Bonus-Frage (falls das Gespräch gut läuft)**:
 „Bieten Sie eine Konzept-Vorprüfung oder ausführlichere Erstberatung an, bevor wir formal einreichen? Und: Gibt es aus Ihrer Sicht ein gutes Beispiel für einen bereits zertifizierten, rein App-basierten Stressmanagement-Kurs, an dem wir uns strukturell orientieren können?"
@@ -91,7 +93,7 @@
 - [ ] **Eckdaten Jutta Jansen**: genauer Abschluss (M.Sc. Psychologie — Universität und Jahr erfragen, falls nicht bekannt), Berufsjahre, Tätigkeitsfelder, vorhandene Fortbildungen/Zertifikate (vorher bei ihr abfragen!)
 - [ ] **Anbieterdaten**: Firmierung, Anschrift, E-Mail (service@soulvay.com) — falls direkt eine Portal-Registrierung empfohlen wird
 - [ ] **GKV-Leitfaden Prävention** (aktuelle Fassung) als PDF geöffnet, insbesondere Kapitel Stressmanagement + Abschnitt zu digitalen/IKT-basierten Angeboten
-- [ ] ZPP-Downloadbereich vorher gesichtet (Handbuch zur Einreichung, Checkliste Stressmanagement)
+- [ ] ZPP-/GKV-Dokumente vorher gesichtet: „Kriterien zur Zertifizierung von Präventionskursangeboten gemäß Kapitel 5" (Stand 06.01.2026), „FAQs Digitale Präventions- und Gesundheitsförderangebote" (Stand 12.12.2025, beide gkv-spitzenverband.de) und ZPP-Seite „IKT-Angebote" inkl. Vorlage „Information zur Erstellung einer Evaluation von IKT-Angeboten"
 - [ ] Kalender für einen möglichen Folgetermin
 
 **Haltung im Gespräch**:
@@ -234,4 +236,22 @@ MEINE TODOS DANACH:
 
 ---
 
-*Erstellt Juli 2026. Vor dem Anruf: Kontaktdaten und alle als "verifizieren" markierten Angaben auf zentrale-pruefstelle-praevention.de gegenprüfen.*
+## Verifizierungs-Log 2026-07-21
+
+**Online verifiziert** (Quellen: zentrale-pruefstelle-praevention.de — Startseite, /impressum/, /faqs/anbieter/, /leistungen/praeventionsangebot-zertifizieren-lassen/ikt-angebote/ und /digitale-angebote/):
+- Telefon 0201 / 5 65 82 90; E-Mail kontakt@zentrale-pruefstelle-praevention.de; Servicezeiten Mo–Do 8–16 Uhr, Fr 8–14 Uhr
+- Betreiber: Team Gesundheit Gesellschaft für Gesundheitsmanagement mbH, Rellinghauser Str. 93, 45128 Essen (Geschäftsführer Dr. Carsten Stephan, AG Essen HRB 12549)
+- Registrierung/Einreichung über portal.zentrale-pruefstelle-praevention.de; **Prüfung für Anbieter kostenfrei** („Nein. Die Prüfung ist für Sie kostenfrei.")
+- Kategorien: Kapitel-5-IKT-Kurse mit Kursleitung (Onlinekurs / Live-Onlineseminar; Kommunikationsquote 0,4 h/TN, 48-h-Antwortfrist, Evaluation binnen 1 Jahr mit mind. 36 Fragebögen) vs. Kapitel-7-Digitalangebote ohne Kursleitung (Studien-/Evidenznachweis nötig)
+- Gültigkeit: Online-Angebote zunächst 1 Jahr, nach Evaluation 3 Jahre
+
+**Nicht online klärbar — im Anruf fragen**:
+1. **Reale Prüfdauer** ab vollständiger Konzept-Einreichung (FAQ-Angabe „10/15 Kalendertage Bearbeitungsdauer" ist mehrdeutig — Prüfzeit der ZPP oder Vervollständigungsfrist des Anbieters?)
+2. **Zusatzqualifikation** für Jutta (M.Sc. Psychologie) im Präventionsprinzip multimodales Stressmanagement — Details stehen in den Kapitel-5-Kriterien (Stand 06.01.2026), Auslegung für unseren Fall telefonisch klären
+3. Ob unser App-Setup (Betreuung im Hintergrund) sicher als **Kapitel-5-Onlinekurs** durchgeht oder als Kapitel-7-Selbstlernprogramm eingestuft wird — inkl. Mindestanforderungen an die Kursleitungs-Einbindung in der App
+4. Kassen mit eigenem Prüfverfahren (IKK classic?) und Update-/Re-Zertifizierungsregeln bei App-Änderungen
+5. Servicezeiten-Abweichung in Sekundärquellen (vdek nennt Mo–Do 8–17, Fr 8–15) — beim Anruf einfach die verifizierten Zeiten Mo–Do 8–16 / Fr 8–14 zugrunde legen
+
+---
+
+*Erstellt Juli 2026. Kernangaben am 2026-07-21 gegen zentrale-pruefstelle-praevention.de verifiziert; offene Punkte siehe Verifizierungs-Log.*
