@@ -184,7 +184,7 @@ export default function Chat() {
 
     const initialMessage = localStorage.getItem('soulvay-initial-message') || location.state?.initialMessage;
     const resumeConvId = location.state?.conversationId;
-    const savedLang = composer.preferences.current.language || language;
+    const savedLang = language || composer.preferences.current.language;
 
     const getPersonalizedGreeting = (): string => {
       try {
@@ -289,7 +289,7 @@ export default function Chat() {
     const firstMsg = composer.messages[0];
     if (!firstMsg || firstMsg.role !== "assistant" || !firstMsg.id.startsWith("greeting")) return;
     if (firstMsg.content.includes("Soulvay") || firstMsg.content.includes("Ich bin Soulway")) {
-      const savedLang = composer.preferences.current.language || language;
+      const savedLang = language || composer.preferences.current.language;
       const updated = firstMsg.content
         .replace(/Ich bin Soulvay/g, `Ich bin ${companion.name}`)
         .replace(/Ich bin Soulway/g, `Ich bin ${companion.name}`)
@@ -412,7 +412,7 @@ export default function Chat() {
   const handleNewConversation = () => {
     extractIntelligence(composer.messages, composer.conversationId);
     composer.startNewConversation();
-    const savedLang = composer.preferences.current.language || language;
+    const savedLang = language || composer.preferences.current.language;
     const baseGreeting = savedLang === "de"
       ? `Hallo. Ich bin ${companionName} und\nhöre dir gerne zu.\n\nNimm dir Zeit – teile, was dich bewegt.`
       : `Hello. I'm ${companionName}, and\nI'm here to listen.\n\nTake your time – share what's on your mind.`;
