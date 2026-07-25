@@ -17,8 +17,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toStableTagIds } from "@/lib/tagUtils";
+import { hapticImpact } from "@/lib/haptics";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { MoodChatBridge } from "@/components/mood/MoodChatBridge";
+import { MoodExerciseBridge } from "@/components/mood/MoodExerciseBridge";
+import { shouldOfferExercise } from "@/lib/moodExerciseMap";
 import { analytics } from "@/hooks/useAnalytics";
 
 interface MoodCheckin {
@@ -42,6 +45,7 @@ export default function Mood() {
   const [isLoading, setIsLoading] = useState(true);
   const [checkinCollapsed, setCheckinCollapsed] = useState(false);
   const [showChatBridge, setShowChatBridge] = useState(false);
+  const [showExerciseBridge, setShowExerciseBridge] = useState(false);
   const [savedMoodContext, setSavedMoodContext] = useState<{ mood: number; feelings: string[]; note: string | null } | null>(null);
 
   const { t } = useTranslation();
@@ -158,6 +162,9 @@ export default function Mood() {
       });
       localStorage.setItem("soulvay-moods", JSON.stringify(localData.slice(0, 90)));
 
+      // Subtle save confirmation on native (no-op on web)
+      void hapticImpact("medium");
+
       toast({
         title: t("mood.saved"),
         description: t("mood.savedDesc"),
@@ -167,6 +174,7 @@ export default function Mood() {
       setCheckinCollapsed(true);
       setSavedMoodContext({ mood: selectedMood, feelings: selectedFeelings, note: note.trim() || null });
       setShowChatBridge(true);
+      setShowExerciseBridge(shouldOfferExercise(selectedMood));
       logActivity("mood_checkin");
       analytics.track("mood_logged", { mood_value: selectedMood, feelings_count: selectedFeelings.length });
       loadCheckins();
@@ -277,6 +285,15 @@ export default function Mood() {
               feelings={savedMoodContext.feelings}
               note={savedMoodContext.note}
               onDismiss={() => setShowChatBridge(false)}
+            />
+          )}
+
+          {/* Mood → Exercise Bridge (gentle offer after a strained check-in) */}
+          {showExerciseBridge && savedMoodContext && (
+            <MoodExerciseBridge
+              moodValue={savedMoodContext.mood}
+              feelings={savedMoodContext.feelings}
+              onDismiss={() => setShowExerciseBridge(false)}
             />
           )}
 

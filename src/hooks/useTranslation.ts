@@ -40,6 +40,57 @@ export const exerciseTranslations: Record<string, {
       ]
     }
   },
+  "breathing-478": {
+    en: { title: "4-7-8 Breathing", description: "A natural tranquilizer for your nervous system", longDescription: "Developed by Dr. Andrew Weil, this technique follows a 4-7-8 rhythm: inhale for 4 seconds, hold for 7, exhale for 8. The extended exhale activates your parasympathetic nervous system — helpful before sleep or in moments of stress." },
+    de: {
+      title: "4-7-8-Atmung",
+      description: "Ein natürliches Beruhigungsmittel für dein Nervensystem",
+      longDescription: "Diese von Dr. Andrew Weil entwickelte Technik folgt einem 4-7-8-Rhythmus: 4 Sekunden einatmen, 7 Sekunden halten, 8 Sekunden ausatmen. Das verlängerte Ausatmen aktiviert deinen Parasympathikus — hilfreich vor dem Einschlafen oder in stressigen Momenten.",
+      steps: [
+        "Setz dich bequem hin, mach den Rücken lang und lass deine Schultern weich werden",
+        "Lege die Zungenspitze sanft hinter deine oberen Schneidezähne",
+        "Atme einmal vollständig durch den Mund aus, mit einem leisen Rauschen",
+        "Atme leise durch die Nase ein... 1... 2... 3... 4",
+        "Halte den Atem sanft... 1... 2... 3... 4... 5... 6... 7",
+        "Atme vollständig durch den Mund aus... 1... 2... 3... 4... 5... 6... 7... 8",
+        "Atme wieder durch die Nase ein... 1... 2... 3... 4",
+        "Halte sanft... 1... 2... 3... 4... 5... 6... 7",
+        "Und atme langsam aus... 1... 2... 3... 4... 5... 6... 7... 8",
+        "Noch einmal: einatmen... 1... 2... 3... 4",
+        "Halten... 1... 2... 3... 4... 5... 6... 7",
+        "Vollständig ausatmen... 1... 2... 3... 4... 5... 6... 7... 8",
+        "Letzte Runde: einatmen... 1... 2... 3... 4",
+        "Sanft halten... 1... 2... 3... 4... 5... 6... 7",
+        "Und alles loslassen... 1... 2... 3... 4... 5... 6... 7... 8",
+        "Kehre zu deinem natürlichen Atem zurück und spüre die Ruhe in deinem Körper"
+      ]
+    }
+  },
+  "breathing-box": {
+    en: { title: "Box Breathing", description: "Four equal sides to steady your mind", longDescription: "A focus technique used by athletes and first responders to stay calm under pressure: inhale, hold, exhale, and hold again — each for 4 seconds. The even rhythm balances your nervous system and sharpens concentration." },
+    de: {
+      title: "Box-Breathing",
+      description: "Vier gleiche Seiten für einen ruhigen Kopf",
+      longDescription: "Eine Fokus-Technik, die auch Sportler und Einsatzkräfte nutzen, um unter Druck ruhig zu bleiben: einatmen, halten, ausatmen und wieder halten — jeweils 4 Sekunden. Der gleichmäßige Rhythmus bringt dein Nervensystem ins Gleichgewicht und schärft die Konzentration.",
+      steps: [
+        "Setz dich aufrecht hin, entspanne die Schultern und lass deinen Blick weich werden oder schließe die Augen",
+        "Atme sanft aus, bis sich deine Lungen leer anfühlen",
+        "Atme durch die Nase ein... 1... 2... 3... 4",
+        "Halte den Atem... 1... 2... 3... 4",
+        "Atme durch den Mund aus... 1... 2... 3... 4",
+        "Halte, mit leeren Lungen... 1... 2... 3... 4",
+        "Atme wieder ein... 1... 2... 3... 4",
+        "Halten... 1... 2... 3... 4",
+        "Ausatmen... 1... 2... 3... 4",
+        "Halten... 1... 2... 3... 4",
+        "Noch eine Runde: einatmen... 1... 2... 3... 4",
+        "Halten... 1... 2... 3... 4",
+        "Langsam ausatmen... 1... 2... 3... 4",
+        "Und halten... 1... 2... 3... 4",
+        "Lass deinen Atem in seinen eigenen Rhythmus zurückfinden und spüre, wie ruhig du geworden bist"
+      ]
+    }
+  },
   "thought-reframing": {
     en: { title: "Thought Reframing", description: "Challenge unhelpful thinking patterns", longDescription: "Based on Cognitive Behavioral Therapy (CBT), this exercise helps you identify, examine, and reframe thoughts that may be causing distress." },
     de: { 
@@ -164,6 +215,53 @@ export const exerciseTranslations: Record<string, {
         "Und 1 Sache, die du SCHMECKEN kannst",
         "Nimm noch einen tiefen Atemzug",
         "Bemerke, wie du dich jetzt fühlst, geerdet in diesem Moment"
+      ]
+    }
+  },
+  "pmr-short": {
+    en: { title: "Progressive Muscle Relaxation", description: "Release tension you didn't know you were holding", longDescription: "A short form of Jacobson's Progressive Muscle Relaxation: you briefly tense one muscle group at a time for about 5 seconds, then release for about 10 — teaching your body the difference between tension and deep relaxation." },
+    de: {
+      title: "Progressive Muskelentspannung",
+      description: "Löse Anspannung, die du gar nicht bemerkt hast",
+      longDescription: "Eine Kurzform der Progressiven Muskelentspannung nach Jacobson: Du spannst nacheinander einzelne Muskelgruppen für etwa 5 Sekunden an und lässt dann etwa 10 Sekunden los — so lernt dein Körper den Unterschied zwischen Anspannung und tiefer Entspannung.",
+      steps: [
+        "Finde eine bequeme Position, im Sitzen oder Liegen, und schließe die Augen",
+        "Atme langsam und tief ein... und lass wieder los",
+        "Balle beide Hände zu Fäusten und spanne deine Arme an... halten... 1... 2... 3... 4... 5",
+        "Und loslassen... lass deine Arme ganz locker werden... spüre den Unterschied",
+        "Zieh deine Schultern hoch zu den Ohren... halten... 1... 2... 3... 4... 5",
+        "Lass sie fallen... spüre, wie die Anspannung dahinschmilzt",
+        "Kneife dein Gesicht zusammen... Augen und Kiefer fest... halten... 1... 2... 3... 4... 5",
+        "Und loslassen... lass dein Gesicht ganz weich werden",
+        "Spanne deinen Bauch an... halten... 1... 2... 3... 4... 5",
+        "Loslassen... lass deinen Atem sanft in die Weichheit fließen",
+        "Drücke deine Füße in den Boden und spanne deine Beine an... halten... 1... 2... 3... 4... 5",
+        "Und loslassen... spüre, wie deine Beine schwer und warm werden",
+        "Wandere einmal durch deinen ganzen Körper... genieße die ruhige Schwere der Entspannung",
+        "Nimm noch einen tiefen Atemzug und öffne sanft die Augen"
+      ]
+    }
+  },
+  "body-scan": {
+    en: { title: "Body Scan", description: "Gentle awareness from head to toe", longDescription: "A mindfulness practice from MBSR (Mindfulness-Based Stress Reduction): you move your attention slowly through your body from head to toe, simply noticing what you find — without needing to change anything." },
+    de: {
+      title: "Body-Scan",
+      description: "Sanfte Aufmerksamkeit von Kopf bis Fuß",
+      longDescription: "Eine Achtsamkeitsübung aus der MBSR-Tradition (achtsamkeitsbasierte Stressreduktion): Du wanderst mit deiner Aufmerksamkeit langsam von Kopf bis Fuß durch deinen Körper und nimmst einfach wahr, was da ist — ohne etwas verändern zu müssen.",
+      steps: [
+        "Lege dich hin oder setz dich bequem und schließe die Augen",
+        "Nimm drei langsame Atemzüge und komme in deinem Körper an",
+        "Bringe deine Aufmerksamkeit zu deinem Scheitel und deiner Stirn... nimm einfach wahr, was du spürst",
+        "Wandere weiter zu deinem Gesicht... Augen, Wangen und Kiefer... lass sie weich werden",
+        "Spüre deinen Nacken und deine Schultern... wenn dort Anspannung ist, musst du nichts verändern — nur wahrnehmen",
+        "Lass deine Aufmerksamkeit die Arme hinabfließen, bis in die Fingerspitzen",
+        "Spüre, wie sich dein Brustkorb mit jedem Atemzug hebt und senkt",
+        "Bringe deine Aufmerksamkeit zu deinem Bauch... weich und warm",
+        "Nimm deinen Rücken wahr, von den Schultern bis zum unteren Rücken",
+        "Wandere zu Hüfte und Beinen... spüre ihr Gewicht auf der Unterlage",
+        "Und zum Schluss deine Füße... jeder Zeh... vielleicht Wärme oder Kribbeln",
+        "Spüre jetzt deinen ganzen Körper auf einmal, von Kopf bis Fuß... atmend, lebendig",
+        "Bewege langsam Finger und Zehen und öffne die Augen, wenn du bereit bist"
       ]
     }
   }

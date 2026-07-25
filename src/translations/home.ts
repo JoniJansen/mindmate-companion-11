@@ -46,6 +46,7 @@ export const homeTranslations: Translations = {
 
   // Memory Moments
   "home.memoryMoment": { en: "Memory Moment", de: "Erinnerung" },
+  "home.memoryMomentTitle": { en: "{name} remembers", de: "{name} erinnert sich" },
   "home.memoryMomentIntro": { en: "A while back you mentioned:", de: "Vor einiger Zeit hast du erwähnt:" },
   "home.memoryMomentQuestion": { en: "How has that been for you lately?", de: "Wie geht es dir damit heute?" },
   "home.talkAboutIt": { en: "Talk about it", de: "Darüber sprechen" },

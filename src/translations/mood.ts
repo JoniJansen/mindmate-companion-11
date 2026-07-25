@@ -63,6 +63,10 @@ export const moodTranslations: Translations = {
   "mood.bridge.contextPrefix": { en: "I just checked in with my mood: ", de: "Ich habe gerade meine Stimmung eingecheckt: " },
   "mood.bridge.notePrefix": { en: ". Note: \"", de: ". Notiz: \"" },
 
+  // Mood → Exercise bridge (gentle offer after a strained check-in)
+  "mood.exerciseBridge.invite": { en: "Would you like to try a short exercise? Sometimes a small moment of calm helps — no pressure at all.", de: "Magst du eine kurze Übung? Manchmal tut ein kleiner Moment Ruhe gut — ganz ohne Druck." },
+  "mood.exerciseBridge.start": { en: "Try it", de: "Ausprobieren" },
+
   // Heatmap (12-week grid)
   "mood.heatmap.dayShort.mon": { en: "Mon", de: "Mo" },
   "mood.heatmap.dayShort.tue": { en: "Tue", de: "Di" },

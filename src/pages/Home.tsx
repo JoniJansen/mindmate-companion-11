@@ -18,6 +18,8 @@ import { useCompanion } from "@/hooks/useCompanion";
 import { CompanionCard } from "@/components/companion/CompanionCard";
 import { useCompanionCheckins } from "@/hooks/useCompanionCheckins";
 import { CompanionCheckin } from "@/components/home/CompanionCheckin";
+import { useMemoryMoments } from "@/hooks/useMemoryMoments";
+import { MemoryMomentCard } from "@/components/home/MemoryMomentCard";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { useReturnState } from "@/hooks/useReturnState";
 import { WelcomeBackCard } from "@/components/home/WelcomeBackCard";
@@ -43,7 +45,8 @@ export default function Home() {
   const [showMilestone, setShowMilestone] = useState(true);
   const { loadRecentConversations } = useChatPersistence();
   const { companion } = useCompanion();
-  const { checkin: companionCheckin, dismiss: dismissCheckin } = useCompanionCheckins(companion?.name);
+  const { checkin: companionCheckin, isLoading: isCheckinLoading, dismiss: dismissCheckin } = useCompanionCheckins(companion?.name);
+  const { moment: memoryMoment, dismiss: dismissMemoryMoment, startConversation: startMemoryConversation } = useMemoryMoments();
   const [recentConversations, setRecentConversations] = useState<{ id: string; title: string | null; updated_at: string }[]>([]);
   const companionAvatarUrl = useAvatarUrl(companion?.avatar_url);
   const returnState = useReturnState(language, companion?.name || "Soulvay");
@@ -304,6 +307,25 @@ export default function Home() {
               navigate("/chat");
             }}
             onDismiss={() => { dismissCheckin(); setCompanionCheckinDismissed(true); }}
+          />
+        )}
+
+        {/* Memory Moment — companion remembers something (only when no check-in is active) */}
+        {memoryMoment && !isCheckinLoading && !companionCheckin && !companionCheckinDismissed && (
+          <MemoryMomentCard
+            content={memoryMoment.content}
+            companionName={companion?.name}
+            companionArchetype={companion?.archetype}
+            companionAvatarUrl={companionAvatarUrl}
+            onTalkAboutIt={() => {
+              startMemoryConversation();
+              localStorage.setItem(
+                'soulvay-initial-message',
+                `${t("home.memoryMomentMsg")} "${memoryMoment.content}" ${t("home.memoryMomentContinue")}`
+              );
+              navigate("/chat");
+            }}
+            onDismiss={dismissMemoryMoment}
           />
         )}
 
