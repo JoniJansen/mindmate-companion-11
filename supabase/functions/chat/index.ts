@@ -708,6 +708,15 @@ serve(async (req) => {
 
     const { messages, preferences } = await req.json();
 
+    // ── Crisis detection runs BEFORE any gate ──
+    // Safety rule (P0/B2): crisis support must never sit behind the daily
+    // limit, a paywall or any quota. Detection is local regex work — no
+    // network, no cost — so it runs here and short-circuits the rate limit
+    // below. A user who has exhausted their free messages and then writes
+    // something suicidal must reach help, not an upgrade prompt.
+    const crisisResult = detectCrisis(messages || []);
+    const isCrisis = crisisResult.detected;
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
@@ -776,7 +785,9 @@ serve(async (req) => {
     // ── Rate limit enforcement ──
     const isPremium = subResult.data && subResult.data.length > 0;
 
-    if (!isPremium) {
+    // `!isCrisis`: a crisis message is never rate-limited and never counted
+    // against the daily quota — see the crisis-detection block above.
+    if (!isPremium && !isCrisis) {
       const currentCount = usageResult.data?.message_count ?? 0;
 
       if (currentCount >= DAILY_LIMIT) {
@@ -838,8 +849,6 @@ serve(async (req) => {
       ...(profileData?.display_name ? { userName: profileData.display_name } : {}),
     };
 
-    const crisisResult = detectCrisis(messages || []);
-    const isCrisis = crisisResult.detected;
     const systemPrompt = buildSystemPrompt(userPreferences, isCrisis, memoriesContext);
 
     if (isCrisis) {
