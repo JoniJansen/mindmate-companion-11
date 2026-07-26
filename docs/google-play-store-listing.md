@@ -52,9 +52,10 @@ Soulvay ist dein privater mentaler Begleiter. Keine Therapie, kein Coaching – 
 
 🔒 DEINE PRIVATSPHÄRE IST HEILIG
 
-• Ende-zu-Ende verschlüsselt
-• Deine Daten gehören nur dir
-• Keine Weitergabe an Dritte
+• Verschlüsselte Übertragung und verschlüsselte Speicherung
+• Deine Daten gehören dir — Export und Kontolöschung jederzeit in den Einstellungen
+• Wir verkaufen deine Daten nicht und nutzen keine Werbenetzwerke
+• KI-Verarbeitung nur nach deiner ausdrücklichen Einwilligung
 • DSGVO-konform
 
 ✨ SOULVAY PLUS
@@ -127,9 +128,10 @@ Soulvay is your private mental companion. Not therapy, not coaching – but an e
 
 🔒 YOUR PRIVACY IS SACRED
 
-• End-to-end encrypted
-• Your data belongs only to you
-• No third-party sharing
+• Encrypted in transit and encrypted at rest
+• Your data is yours — export or delete your account anytime in settings
+• We never sell your data and use no ad networks
+• AI processing only with your explicit consent
 • GDPR compliant
 
 ✨ SOULVAY PLUS
