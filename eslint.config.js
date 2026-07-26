@@ -5,7 +5,19 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  {
+    // `.claude/worktrees` holds full checkouts of other branches — without
+    // this, every file exists several times over and the problem count is
+    // inflated roughly tenfold (3103 reported vs. 289 real).
+    ignores: [
+      "dist",
+      ".claude/worktrees/**",
+      "android/app/build/**",
+      "ios/App/**",
+      "coverage/**",
+      "public/assets/**",
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
