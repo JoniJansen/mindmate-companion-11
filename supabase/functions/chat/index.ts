@@ -117,11 +117,14 @@ function trimToCharBudget(
 // here and drifted: this copy still required the infinitive "nicht mehr leben
 // wollen" and therefore missed "ich will nicht mehr leben" entirely.
 function detectCrisis(messages: { role: string; content: string }[]): CrisisResult {
-  const recentUserMessages = messages
-    .slice(-6)
-    .filter((m) => m.role === "user")
-    .map((m) => m.content);
-  return detectCrisisIn(recentUserMessages);
+  // Every user message of the conversation, not a sliding window. The window
+  // was slice(-6) over ALL roles — about three user turns — so a disclosure
+  // made early stopped counting a few replies later: the crisis system prompt
+  // and the quota exemption fell away while the person was still in the
+  // conversation. Matching is local regex work, so scanning the whole thread
+  // costs nothing worth optimising.
+  const userMessages = messages.filter((m) => m.role === "user").map((m) => m.content);
+  return detectCrisisIn(userMessages);
 }
 
 /**

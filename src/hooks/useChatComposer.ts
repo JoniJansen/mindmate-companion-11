@@ -10,6 +10,7 @@ import { useActivityLog } from "@/hooks/useActivityLog";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMode, getModeSystemPrompt } from "@/components/chat/ChatModeSelector";
 import { getPreferences as getCentralPreferences } from "@/lib/preferences";
+import { detectCrisis } from "@/lib/crisisDetection";
 import { recordMetric } from "@/lib/diagnostics";
 import { logError, logInfo } from "@/lib/logger";
 
@@ -44,6 +45,9 @@ export function useChatComposer(chatMode: ChatMode) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  // Set by handleSend for any user message carrying a crisis signal. Cleared
+  // only when the user dismisses the card — never automatically.
+  const [crisisDetected, setCrisisDetected] = useState(false);
   const [isStreamingActive, setIsStreamingActive] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [lastUserMessage, setLastUserMessage] = useState("");
@@ -190,6 +194,17 @@ export function useChatComposer(chatMode: ChatMode) {
   ) => {
     const trimmed = content.trim();
     if (!trimmed || isLoading) return;
+
+    // Crisis detection sits at the very top of the only funnel every message
+    // passes through. Putting it in the page component missed three callers:
+    // the home-screen free-text field, the mood bridge and the journal bridge
+    // all call handleSend() directly. Everything below this line — the demo
+    // gate, the double-send guard, the quota check, the network call — is a
+    // gate that must not stand between a person and a helpline.
+    if (!isSystemAction) {
+      const crisis = detectCrisis(trimmed);
+      if (crisis.detected) setCrisisDetected(true);
+    }
 
     // Demo-Mode gate (Apple Review): never call backend or Gemini in demo mode.
     // Reviewer reaches /chat without a Supabase session → would 401 otherwise.

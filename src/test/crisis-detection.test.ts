@@ -276,3 +276,141 @@ describe("crisis detection — patterns are shared, not duplicated", () => {
     expect(HIGH_SEVERITY_PATTERNS.length).toBeGreaterThanOrEqual(20);
   });
 });
+
+/**
+ * Second adversarial corpus (2026-07-27, run #2).
+ *
+ * The first rebuild passed its own tests and still missed 75 of 129 independent
+ * phrasings — whole categories were blind: TikTok spellings ("kms", "unalive"),
+ * domestic violence in the active voice ("mein mann schlägt mich"), and any
+ * disclosure that followed a denial ("I told them I'm not suicidal but ...").
+ * These cases come from outside the implementation and are kept verbatim so a
+ * future refactor cannot quietly narrow the detector again.
+ */
+describe("crisis detection — second adversarial corpus", () => {
+  const mustDetect = [
+    "was wenn ich einfach nicht mehr wäre",
+    "ich hab keine lust mehr zu leben",
+    "ich mag nicht mehr",
+    "am liebsten würde ich mich vor den zug werfen",
+    "ich denke ans sterben",
+    "ich habe mir überlegt wie ich es machen würde",
+    "ich will mich umbrigen",
+    "ich wuerde am liebsten sterben",
+    "ich wär lieber tot",
+    "mein leben beenden",
+    "ich will von der brücke springen",
+    "ich hab schon tabletten gesammelt",
+    "ich denk oft dran mir was anzutun",
+    "ich will mir was antun",
+    "ich will mich selbst töten",
+    "ich bin es leid zu leben",
+    "ich möchte nicht mehr da sein",
+    "ich will einfach nicht mehr existieren",
+    "am liebsten wäre ich tot",
+    "ich denke über suizid nach",
+    "ich denke an suizid",
+    "kms",
+    "i wanna kms fr",
+    "i want to unalive myself",
+    "thinking about unaliving myself",
+    "im gonna off myself",
+    "i wanna off myself",
+    "i might just end it",
+    "i wish i was dead",
+    "i wish i were dead",
+    "i wish i could just disappear forever",
+    "i dont wanna be alive anymore",
+    "i dont wanna live anymore",
+    "what if i just wasnt here anymore",
+    "i'd be better off gone",
+    "ngl i been thinking bout ending it all",
+    "im finna end it",
+    "i wanna sleep and never wake up",
+    "i've been having thoughts of ending my life",
+    "i want to neck myself",
+    "i want to commit",
+    "im done with life",
+    "i cant live like this anymore",
+    "ich hab mich heute wieder verletzt",
+    "ich verletze mich selbst",
+    "ich hab mich geschnitten gestern nacht",
+    "ich schneide mir in den arm",
+    "ich brenne mich mit zigaretten",
+    "ich schlage mich selbst wenn ich wütend bin",
+    "sh gedanken sind wieder da",
+    "i relapsed on sh last night",
+    "i cut again yesterday",
+    "i want to cut",
+    "i've been scratching myself till it bleeds",
+    "i burned myself again",
+    "mein freund schlägt mich",
+    "mein mann schlägt mich regelmäßig",
+    "mein vater hat mich missbraucht",
+    "ich werde zuhause misshandelt",
+    "ich habe angst vor meinem partner",
+    "er bedroht mich mit dem messer",
+    "ich fühle mich zuhause nicht sicher",
+    "mein partner tut mir weh",
+    "my boyfriend hits me",
+    "my husband beats me",
+    "i'm scared he will kill me",
+    "he threatened to kill me",
+    "i want to hurt someone",
+    "ich will jemanden umbringen",
+    "dieser bug bringt mich noch um. ich will mich umbringen",
+    "i'm not going to work today. i want to kill myself",
+    "let me kill the process first. then i want to kill myself",
+    "ich bring das projekt um. ich will nicht mehr leben",
+    "ich hab gesagt ich bin nicht suizidal aber das stimmt nicht ich will sterben",
+    "i told my therapist i'm not suicidal but honestly i want to die",
+    "everyone keeps asking if i'm not suicidal and i keep lying, i want to kill myself",
+    "he abused me years ago and he is beating me again now",
+    "damals war ich in therapie. ich kann nicht mehr",
+    "damals ging es mir schlecht, heute ritze ich mich wieder",
+    "ich habe mich früher geritzt aber heute ritze ich mich wieder",
+    "i used to cut myself but i cut myself again last night",
+    "vor 3 jahren war ich in der klinik, jetzt kann ich nicht mehr",
+    "ich bin lebensmüde",
+    "ich-will-sterben",
+  ];
+
+  const mustNotDetect = [
+    "ich bring das projekt um",
+    "dieser bug bringt mich noch um",
+    "kill the background process",
+    "ich kann nicht mehr schlafen",
+    "we died laughing",
+    "ich bin nicht suizidal",
+    "früher habe ich mich geritzt aber das ist lange her",
+    "i used to cut myself years ago",
+    "ich kill den boss im spiel",
+    "der vortrag war sterbenslangweilig",
+    "i'd kill for a coffee",
+    "she is drop-dead gorgeous",
+    "i'm dead tired",
+    "dying to see the new season",
+    "ich könnte sterben vor scham",
+    "it's killing me that i missed it",
+    "let me kill this task",
+  ];
+
+  for (const text of mustDetect) {
+    it(`detects: "${text.slice(0, 50)}"`, () => {
+      expect(detectCrisis(text).detected).toBe(true);
+    });
+  }
+
+  for (const text of mustNotDetect) {
+    it(`ignores: "${text.slice(0, 50)}"`, () => {
+      expect(detectCrisis(text).detected).toBe(false);
+    });
+  }
+
+  it("handles NFD-decomposed umlauts (iOS and macOS deliver these)", () => {
+    // "lebensmüde" as u + combining diaeresis. Before normalize("NFC") the
+    // combining mark was stripped as punctuation and the word fell apart into
+    // "lebensmu de", matching nothing.
+    expect(detectCrisis("ich bin lebensmüde".normalize("NFD")).detected).toBe(true);
+  });
+});

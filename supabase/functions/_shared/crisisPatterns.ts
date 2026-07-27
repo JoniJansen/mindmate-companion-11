@@ -67,7 +67,50 @@ export const HIGH_SEVERITY_PATTERNS: readonly RegExp[] = [
   /\bnicht\s+mehr\s+aufwachen\b/i,
   /\bschluss\s+machen\s+mit\s+allem\b/i,
   /\bfür\s+immer\s+schlafen\b/i,
-  /\bich\s+will\s+nicht\s+mehr\s+(da\s+sein|hier\s+sein|existieren)\b/i,
+  /\bich\s+(will|möchte|moechte|mag)\s+(einfach\s+|gar\s+|jetzt\s+)*nicht\s+mehr\s+(da\s+sein|hier\s+sein|existieren|sein)\b/i,
+
+  // — English slang and moderation-evading spellings —
+  // "unalive" and "kms" are how this is written on TikTok/Instagram to get past
+  // content filters. A detector that does not know them is blind to the people
+  // most used to writing that way.
+  /\bkms\b/i,
+  /\bunalive\s+(myself|my\s?self)\b/i,
+  /\bunaliving\s+myself\b/i,
+  /\b(off|end|neck)\s+myself\b/i,
+  /\bi'?m?\s+(wanna|want\s+to|gonna|going\s+to|finna|might\s+just)\s+(off|end|neck)\s+(it|myself|it\s+all)\b/i,
+  /\bi\s+wish\s+i\s+(was|were)\s+dead\b/i,
+  /\bi\s+wish\s+i\s+could\s+(just\s+)?disappear\s+forever\b/i,
+  /\bi\s+(don'?t|dont)\s+(wanna|want\s+to)\s+(be\s+alive|live)\s+anymore\b/i,
+  /\bwhat\s+if\s+i\s+just\s+(wasn'?t|wasnt)\s+here\b/i,
+  /\bi('d|\s+would)\s+be\s+better\s+off\s+gone\b/i,
+  /\bthoughts\s+of\s+ending\s+(my\s+life|it\s+all)\b/i,
+  /\bending\s+it\s+all\b/i,
+  /\bi'?m?(\s+am)?\s+done\s+with\s+life\b/i,
+  /\bi\s+can'?\s?t\s+live\s+like\s+this\s+anymore\b/i,
+  /\bi\s+want\s+to\s+commit\b/i,
+  /\bnever\s+wake\s+up\b/i,
+
+  // — German: subjunctive and indirect forms, the way people actually write —
+  /\bwas\s+wenn\s+ich\s+(einfach\s+)?nicht\s+mehr\s+(wäre|da\s+wäre)\b/i,
+  /\b(ich\s+)?(hab|habe)\s+keine\s+lust\s+mehr\s+zu\s+leben\b/i,
+  /\bich\s+mag\s+nicht\s+mehr\b/i,
+  /\bich\s+(wär|wäre|waere)\s+lieber\s+tot\b/i,
+  /\bam\s+liebsten\s+(wäre|waere)\s+ich\s+tot\b/i,
+  /\bam\s+liebsten\s+würde\s+ich\s+(mich\s+)?(sterben|umbringen|vor\s+den\s+zug)\b/i,
+  /\bich\s+w(ü|ue)rde\s+am\s+liebsten\s+sterben\b/i,
+  /\bich\s+denke?\s+(oft\s+)?an[s]?\s+(sterben|suizid|selbstmord)\b/i,
+  /\bich\s+denke?\s+(oft\s+)?(über|ueber)\s+suizid\s+nach\b/i,
+  /\bmein\s+leben\s+beenden\b/i,
+  /\bich\s+will\s+mich\s+(selbst\s+)?t(ö|oe)ten\b/i,
+  /\bich\s+bin\s+es\s+leid\s+zu\s+leben\b/i,
+  /\bvor\s+den\s+zug\s+werfen\b/i,
+  /\bvon\s+(der\s+)?br(ü|ue)cke\s+springen\b/i,
+  /\btabletten\s+gesammelt\b/i,
+  /\bich\s+will\s+mir\s+(was|etwas)\s+antun\b/i,
+  /\bmir\s+(was|etwas)\s+an(zu)?tun\b/i,
+  /\bwie\s+ich\s+es\s+machen\s+w(ü|ue)rde\b/i,
+  /\bumbrigen\b/i,
+  /\bsuizid\b/i,
 ];
 
 /**
@@ -99,6 +142,7 @@ export const MEDIUM_SEVERITY_PATTERNS: readonly RegExp[] = [
   /\bich\s+(ritze|schneide)\s+mich\b/i,
   /\b(ritze|ritzen|geritzt)\b/i,
   /\bselbstverletzung\b/i,
+  /\bkann\s+ich\s+nicht\s+mehr\b/i,
   /\bich\s+kann\s+nicht\s+mehr(?!\s+(schlafen|einschlafen|essen|trinken|arbeiten|lernen|laufen|rennen|sehen|hören|lesen|schreiben))\b/i,
   /\bkein\s+bock\s+mehr\s+auf\s+alles\b/i,
   /\bwenn\s+ich\s+nicht\s+mehr\s+da\s+wäre\b/i,
@@ -106,7 +150,37 @@ export const MEDIUM_SEVERITY_PATTERNS: readonly RegExp[] = [
   /\bwill\s+einfach\s+nur\s+noch\s+weg\b/i,
   /\bhalte?\s+das\s+nicht\s+mehr\s+aus\b/i,
   /\bich\s+habe?\s+angst\s+um\s+mein\s+leben\b/i,
-  /\bwerde\s+(\w+\s+)?(geschlagen|missbraucht|bedroht)\b/i,
+  /\bwerde\s+(\w+\s+)?(geschlagen|missbraucht|bedroht|misshandelt)\b/i,
+
+  // — Self-harm, current phrasings —
+  /\bich\s+(hab|habe)\s+mich\s+(heute\s+|gestern\s+|wieder\s+)*(verletzt|geschnitten)\b/i,
+  /\bich\s+verletze\s+mich\b/i,
+  /\bich\s+f(ü|ue)ge\s+mir\s+\w*\s*(verletzungen|schmerzen)\s+zu\b/i,
+  /\bich\s+schneide\s+mir?\b/i,
+  /\bich\s+brenne\s+mich\b/i,
+  /\bich\s+schlage\s+mich\s+selbst\b/i,
+  /\bsh[- ]?gedanken\b/i,
+  /\brelapsed\s+on\s+sh\b/i,
+  /\bi\s+cut\s+again\b/i,
+  /\bi\s+want\s+to\s+cut\b/i,
+  /\bscratching\s+myself\b/i,
+  /\bi\s+burned\s+myself\b/i,
+
+  // — Danger from others, ACTIVE voice —
+  // The passive-only patterns ("werde geschlagen") missed every real phrasing:
+  // people write about the person doing it, not about themselves being acted on.
+  /\b(mein|meine)\s+\w+\s+(schl(ä|ae)gt|misshandelt|missbraucht|bedroht|verletzt|vergewaltigt)\s+mich\b/i,
+  /\b(mein|meine)\s+\w+\s+(hat|hatte)\s+mich\s+(missbraucht|geschlagen|vergewaltigt)\b/i,
+  /\ber\s+bedroht\s+mich\b/i,
+  /\bich\s+(hab|habe)\s+angst\s+vor\s+(meinem|meiner)\b/i,
+  /\bich\s+f(ü|ue)hle\s+mich\s+zuhause\s+nicht\s+sicher\b/i,
+  /\b(mein|meine)\s+\w+\s+tut\s+mir\s+weh\b/i,
+  /\bmy\s+(boyfriend|girlfriend|husband|wife|partner|dad|father|mom|mother|ex)\s+(hits|beats|abuses|abused|threatens|hurts|raped)\s+me\b/i,
+  /\bhe\s+threatened\s+to\s+kill\s+me\b/i,
+  /\b(he|she|they)\s+(is|keeps|was)?\s*(beating|hitting|hurting|abusing|threatening)\s+me\b/i,
+  /\b(i'?m|i\s+am)\s+scared\s+(he|she|they)\s+(will|might)\s+(kill|hurt)\s+me\b/i,
+  /\bi\s+want\s+to\s+hurt\s+someone\b/i,
+  /\bich\s+will\s+jemanden\s+umbringen\b/i,
 ];
 
 /**
@@ -162,8 +236,23 @@ export const PAST_TENSE_PATTERNS: readonly RegExp[] = [
   /\bdamals\b/i,
 ];
 
-/** How far a cancelling phrase may sit from a match, in characters. */
-const PROXIMITY_CHARS = 60;
+/**
+ * Cancellation is scoped to the CLAUSE a phrase appears in, not to a character
+ * window. The window version suppressed real disclosures:
+ *   "dieser bug bringt mich noch um. ich will mich umbringen"  -> nothing
+ *   "ich hab gesagt ich bin nicht suizidal aber ich will sterben" -> nothing
+ * The second is the exact shape in which people disclose, so it mattered most.
+ * Splitting first means an idiom or a denial can only neutralise its own
+ * clause — never the sentence that follows it.
+ */
+const CLAUSE_SPLIT = /[.!?;,\n]+|\b(?:aber|jedoch|allerdings|trotzdem|but|however|though|and|und)\b/i;
+
+export function splitIntoClauses(text: string): string[] {
+  return text
+    .split(CLAUSE_SPLIT)
+    .map((part) => (part ?? "").trim())
+    .filter((part) => part.length > 0);
+}
 
 /**
  * Flattens the differences that voice transcripts and casual typing introduce:
@@ -172,8 +261,13 @@ const PROXIMITY_CHARS = 60;
  */
 export function normalizeForDetection(text: string): string {
   return text
+    // NFD-decomposed umlauts arrive from iOS/macOS paths: "lebensmüde" becomes
+    // "u" + combining diaeresis, which \p{L} does not cover — the word was
+    // silently split into "lebensmu de" and never matched.
+    .normalize("NFC")
     .toLowerCase()
     .replace(/[’‘`´]/g, "'")
+    .replace(/[-_/]+/g, " ")
     // Strip anything that is not a letter, digit, apostrophe, hyphen or space —
     // this removes emoji and punctuation that would otherwise break \b…\b runs.
     .replace(/[^\p{L}\p{N}'\- ]+/gu, " ")
@@ -181,41 +275,34 @@ export function normalizeForDetection(text: string): string {
     .trim();
 }
 
-function firstMatchWithin(
-  text: string,
-  patterns: readonly RegExp[],
-  start: number,
-  end: number,
-): boolean {
+function matchesAny(clause: string, patterns: readonly RegExp[]): RegExpMatchArray | null {
   for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (!match || match.index === undefined) continue;
-    const negStart = match.index;
-    const negEnd = negStart + match[0].length;
-    if (negEnd >= start - PROXIMITY_CHARS && negStart <= end + PROXIMITY_CHARS) return true;
-  }
-  return false;
-}
-
-function scan(
-  text: string,
-  patterns: readonly RegExp[],
-  cancellers: readonly (readonly RegExp[])[],
-): RegExpMatchArray | null {
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (!match || match.index === undefined) continue;
-    const start = match.index;
-    const end = start + match[0].length;
-    const cancelled = cancellers.some((list) => firstMatchWithin(text, list, start, end));
-    if (!cancelled) return match;
+    const match = clause.match(pattern);
+    if (match) return match;
   }
   return null;
 }
 
 /**
+ * Evaluates ONE clause. A canceller only counts if it appears in the same
+ * clause — that is the whole point of splitting first.
+ */
+function scanClause(
+  clause: string,
+  patterns: readonly RegExp[],
+  cancellers: readonly (readonly RegExp[])[],
+): RegExpMatchArray | null {
+  const match = matchesAny(clause, patterns);
+  if (!match) return null;
+  for (const list of cancellers) {
+    if (matchesAny(clause, list)) return null;
+  }
+  return match;
+}
+
+/**
  * Detects crisis signals in one text or a list of texts.
- * Highest severity found anywhere in the input wins.
+ * Highest severity found in any clause wins.
  */
 export function detectCrisisIn(input: string | readonly string[]): CrisisResult {
   const texts = (Array.isArray(input) ? input : [input as string]).filter(
@@ -223,17 +310,20 @@ export function detectCrisisIn(input: string | readonly string[]): CrisisResult 
   );
   if (texts.length === 0) return { detected: false, severity: "none" };
 
-  // HIGH first, across the whole input. Only idioms/denials can cancel it.
-  for (const raw of texts) {
-    const text = normalizeForDetection(raw);
-    const match = scan(text, HIGH_SEVERITY_PATTERNS, [STRONG_NEGATION_PATTERNS]);
+  // Split on the raw text — normalisation strips the punctuation that marks
+  // clause boundaries — then normalise each clause for matching.
+  const clauses = texts
+    .flatMap((text) => splitIntoClauses(text))
+    .map((clause) => normalizeForDetection(clause))
+    .filter((clause) => clause.length > 0);
+
+  for (const clause of clauses) {
+    const match = scanClause(clause, HIGH_SEVERITY_PATTERNS, [STRONG_NEGATION_PATTERNS]);
     if (match) return { detected: true, severity: "high", matchedSignal: match[0] };
   }
 
-  // MEDIUM may additionally be cancelled by a past-tense marker.
-  for (const raw of texts) {
-    const text = normalizeForDetection(raw);
-    const match = scan(text, MEDIUM_SEVERITY_PATTERNS, [
+  for (const clause of clauses) {
+    const match = scanClause(clause, MEDIUM_SEVERITY_PATTERNS, [
       STRONG_NEGATION_PATTERNS,
       PAST_TENSE_PATTERNS,
     ]);
