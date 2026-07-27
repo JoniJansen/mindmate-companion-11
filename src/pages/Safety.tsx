@@ -1,32 +1,99 @@
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Phone, 
-  MessageCircle, 
-  ExternalLink, 
-  Heart, 
+import {
+  Phone,
+  MessageCircle,
+  ExternalLink,
+  Heart,
   AlertTriangle,
   Clock,
-  User
+  User,
+  Globe,
+  ChevronDown,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CalmCard } from "@/components/shared/CalmCard";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
 import { StandalonePage } from "@/components/layout/StandalonePage";
+import {
+  detectCrisisRegion,
+  getEmergencyNumbers,
+  getSafetyResources,
+  type CrisisContact,
+  type CrisisSection,
+} from "@/lib/crisisResources";
 
-interface CrisisLine {
-  name: string;
-  number: string;
-  tel: string;
-  description: string;
-  available: string;
-  isText?: boolean;
-  isLink?: boolean;
+/**
+ * Safety page — crisis helplines follow the DETECTED REGION (time zone, then
+ * locale), never the UI language. An English UI in Germany must never show a
+ * US-only number. Whatever the guess, international resources stay visible and
+ * the other countries are one visible tap away.
+ */
+
+function ContactIcon({ kind }: { kind: CrisisContact["kind"] }) {
+  if (kind === "text") return <MessageCircle className="w-4 h-4" />;
+  if (kind === "link") return <ExternalLink className="w-4 h-4" />;
+  return <Phone className="w-4 h-4" />;
 }
 
+function CrisisContactCard({ contact }: { contact: CrisisContact }) {
+  const { t } = useTranslation();
+  const name = t(contact.nameKey);
+  const displayValue = contact.value ?? (contact.valueKey ? t(contact.valueKey) : "");
+  const isExternal = contact.kind === "link";
+
+  return (
+    <CalmCard variant="elevated">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium text-foreground mb-1">{name}</h3>
+          <p className="text-lg font-bold text-primary mb-1 break-words">{displayValue}</p>
+          <p className="text-sm text-muted-foreground">{t(contact.descriptionKey)}</p>
+          <div className="flex items-start gap-1 mt-2 text-xs text-muted-foreground">
+            <Clock className="w-3 h-3 mt-0.5 shrink-0" />
+            <span>{t(contact.availabilityKey)}</span>
+          </div>
+        </div>
+        <Button variant="calm" size="icon" asChild className="shrink-0">
+          <a
+            href={contact.href}
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noopener noreferrer" : undefined}
+            aria-label={`${name} — ${displayValue}`}
+          >
+            <ContactIcon kind={contact.kind} />
+          </a>
+        </Button>
+      </div>
+    </CalmCard>
+  );
+}
+
+function CrisisSectionBlock({ section }: { section: CrisisSection }) {
+  const { t } = useTranslation();
+
+  return (
+    <div>
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+        {t(section.headingKey)}
+      </h3>
+      <div className="space-y-3">
+        {section.contacts.map((contact) => (
+          <CrisisContactCard key={contact.id} contact={contact} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Safety() {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
+  const [showOtherRegions, setShowOtherRegions] = useState(false);
+
+  const region = useMemo(() => detectCrisisRegion(), []);
+  const { primary, others, noticeKey } = useMemo(() => getSafetyResources(region), [region]);
+  const emergencyNumbers = useMemo(() => getEmergencyNumbers(region), [region]);
 
   // Professional contact
   const professionalContact = {
@@ -39,96 +106,13 @@ export default function Safety() {
     available: t("safety.professional.available"),
   };
 
-  // German crisis lines
-  const germanCrisisLines: CrisisLine[] = [
-    {
-      name: t("crisis.telefonseelsorge"),
-      number: t("crisis.telefonseelsorgeNum"),
-      tel: "tel:0800-111-0-111",
-      description: t("crisis.telefonseelsorgeDesc"),
-      available: t("safety.24_7"),
-      isText: false,
-    },
-    {
-      name: t("crisis.telefonseelsorge2"),
-      number: t("crisis.telefonseelsorge2Num"),
-      tel: "tel:0800-111-0-222",
-      description: t("crisis.telefonseelsorgeDesc"),
-      available: t("safety.24_7"),
-      isText: false,
-    },
-    {
-      name: t("crisis.nummerGegenKummer"),
-      number: t("crisis.nummerGegenKummerNum"),
-      tel: "tel:116-111",
-      description: t("crisis.nummerGegenKummerDesc"),
-      available: t("crisis.nummerGegenKummerHours"),
-      isText: false,
-    },
-    {
-      name: t("crisis.international"),
-      number: t("crisis.findLocalResources"),
-      tel: "https://www.iasp.info/resources/Crisis_Centres/",
-      description: t("crisis.crisisCentersWorldwide"),
-      available: t("safety.variesByLocation"),
-      isText: false,
-      isLink: true,
-    },
-  ];
-
-  // English crisis lines
-  const englishCrisisLines: CrisisLine[] = [
-    {
-      name: "National Suicide Prevention Lifeline",
-      number: "988",
-      tel: "tel:988",
-      description: "24/7, free and confidential support",
-      available: "24/7",
-      isText: false,
-    },
-    {
-      name: "Crisis Text Line",
-      number: "Text HOME to 741741",
-      tel: "sms:741741?body=HOME",
-      description: "Free, 24/7 crisis support via text",
-      available: "24/7",
-      isText: true,
-    },
-    {
-      name: "SAMHSA National Helpline",
-      number: "1-800-662-4357",
-      tel: "tel:1-800-662-4357",
-      description: "Treatment referrals and information",
-      available: "24/7",
-      isText: false,
-    },
-    {
-      name: t("crisis.international"),
-      number: t("crisis.findLocalResources"),
-      tel: "https://www.iasp.info/resources/Crisis_Centres/",
-      description: t("crisis.crisisCentersWorldwide"),
-      available: t("safety.variesByLocation"),
-      isText: false,
-      isLink: true,
-    },
-  ];
-
-  const crisisLinesByLang: Record<"de" | "en", CrisisLine[]> = {
-    de: germanCrisisLines,
-    en: englishCrisisLines,
-  };
-  const crisisLines = crisisLinesByLang[language];
-
-
-  const emergencyNumber = t("safety.emergencyNumberValue");
-
   return (
     <StandalonePage>
     <div className="min-h-screen min-h-[100dvh] bg-background">
-      <PageHeader 
-        title={t("safety.title")} 
+      <PageHeader
+        title={t("safety.title")}
         subtitle={t("safety.subtitle")}
-        showBack 
+        showBack
         backTo="/chat"
       />
 
@@ -151,63 +135,66 @@ export default function Safety() {
                 <p className="text-sm text-muted-foreground mb-3">
                   {t("safety.callEmergency")}
                 </p>
-                <Button variant="destructive" size="sm" asChild>
-                  <a href={`tel:${emergencyNumber}`}>
-                    <Phone className="w-4 h-4 mr-2" />
-                    {t("safety.call112")}
-                  </a>
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  {emergencyNumbers.map((emergency) => (
+                    <Button key={emergency.value} variant="destructive" size="sm" asChild>
+                      <a href={`tel:${emergency.value}`}>
+                        <Phone className="w-4 h-4 mr-2" />
+                        {t(emergency.labelKey)}
+                      </a>
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Crisis lines */}
+        {/* Crisis lines — ordered by detected region, international always visible */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
           className="mb-8"
         >
-          <h2 className="text-lg font-semibold text-foreground mb-4">
+          <h2 className="text-lg font-semibold text-foreground mb-1">
             {t("safety.crisisLines")}
           </h2>
-          
-          <div className="space-y-3">
-            {crisisLines.map((line, index) => (
-              <motion.div
-                key={line.name}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 + index * 0.05 }}
-              >
-                <CalmCard variant="elevated">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground mb-1">{line.name}</h3>
-                      <p className="text-lg font-bold text-primary mb-1">{line.number}</p>
-                      <p className="text-sm text-muted-foreground">{line.description}</p>
-                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        {line.available}
-                      </div>
-                    </div>
-                    <Button variant="calm" size="icon" asChild>
-                      <a href={line.tel} target={line.isLink ? "_blank" : undefined} rel={line.isLink ? "noopener noreferrer" : undefined}>
-                        {line.isText ? (
-                          <MessageCircle className="w-4 h-4" />
-                        ) : line.isLink ? (
-                          <ExternalLink className="w-4 h-4" />
-                        ) : (
-                          <Phone className="w-4 h-4" />
-                        )}
-                      </a>
-                    </Button>
-                  </div>
-                </CalmCard>
-              </motion.div>
+          <p className="text-sm text-muted-foreground mb-4">{t(noticeKey)}</p>
+
+          <div className="space-y-6">
+            {primary.map((section) => (
+              <CrisisSectionBlock key={section.id} section={section} />
             ))}
           </div>
+
+          {others.length > 0 && (
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-between"
+                onClick={() => setShowOtherRegions((open) => !open)}
+                aria-expanded={showOtherRegions}
+              >
+                <span className="flex items-center gap-2 text-left">
+                  <Globe className="w-4 h-4 shrink-0" />
+                  {showOtherRegions ? t("safety.region.hideOthers") : t("safety.region.showOthers")}
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 shrink-0 transition-transform ${showOtherRegions ? "rotate-180" : ""}`}
+                />
+              </Button>
+
+              {showOtherRegions && (
+                <div className="space-y-6 mt-4">
+                  {others.map((section) => (
+                    <CrisisSectionBlock key={section.id} section={section} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* Professional Contact - Jutta Jansen */}
@@ -220,7 +207,7 @@ export default function Safety() {
           <h2 className="text-lg font-semibold text-foreground mb-4">
             {t("safety.professionalSupportHeading")}
           </h2>
-          
+
           <CalmCard variant="gentle">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3 flex-1">
@@ -237,9 +224,9 @@ export default function Safety() {
                       <Clock className="w-3 h-3 shrink-0" />
                       <span>{professionalContact.available}</span>
                     </div>
-                    <a 
-                      href={professionalContact.website} 
-                      target="_blank" 
+                    <a
+                      href={professionalContact.website}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs text-primary hover:underline whitespace-nowrap"
                     >

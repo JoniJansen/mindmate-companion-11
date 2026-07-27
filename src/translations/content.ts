@@ -110,7 +110,6 @@ export const contentTranslations: Translations = {
   "safety.subtitle": { en: "You're not alone", de: "Du bist nicht allein" },
   "safety.immediateDANGER": { en: "In immediate danger?", de: "In akuter Gefahr?" },
   "safety.callEmergency": { en: "If you or someone else is in immediate danger, please call emergency services right away.", de: "Wenn du oder jemand anderes in akuter Gefahr ist, rufe bitte sofort den Notdienst an." },
-  "safety.call112": { en: "Call 911", de: "112 anrufen" },
   "safety.crisisLines": { en: "Crisis Helplines", de: "Krisentelefone" },
   "safety.okToAskForHelp": { en: "It's okay to ask for help", de: "Es ist okay, um Hilfe zu bitten" },
   "safety.reachingOut": { en: "Reaching out is a sign of strength, not weakness. You deserve support, and trained professionals are ready to listen — whenever you're ready.", de: "Sich Hilfe zu holen ist ein Zeichen von Stärke, nicht von Schwäche. Du verdienst Unterstützung, und ausgebildete Fachleute sind bereit zuzuhören — wann immer du bereit bist." },
@@ -118,6 +117,52 @@ export const contentTranslations: Translations = {
   "safety.24_7": { en: "24/7", de: "Rund um die Uhr" },
   "safety.variesByLocation": { en: "Varies by location", de: "Je nach Standort" },
   "crisis.telefonseelsorgeDesc": { en: "Free, anonymous, 24/7 support", de: "Kostenlos, anonym, rund um die Uhr" },
+
+  // Safety page — region of the shown helplines (detected from device, NOT from UI language)
+  "safety.region.heading.de": { en: "Germany", de: "Deutschland" },
+  "safety.region.heading.us": { en: "United States", de: "USA" },
+  "safety.region.heading.international": { en: "International", de: "International" },
+  "safety.region.notice.de": { en: "Helplines for Germany, based on your device settings. Numbers from other countries are listed below.", de: "Hilfsangebote für Deutschland, ermittelt aus deinen Geräteeinstellungen. Nummern aus anderen Ländern findest du weiter unten." },
+  "safety.region.notice.us": { en: "Helplines for the United States, based on your device settings. Numbers from other countries are listed below.", de: "Hilfsangebote für die USA, ermittelt aus deinen Geräteeinstellungen. Nummern aus anderen Ländern findest du weiter unten." },
+  "safety.region.notice.unknown": { en: "We couldn't tell which country you're in — international and German helplines are shown together. Numbers from other countries are listed below.", de: "Wir konnten dein Land nicht bestimmen — deshalb siehst du internationale und deutsche Hilfsangebote gleichermaßen. Nummern aus anderen Ländern findest du weiter unten." },
+  "safety.region.showOthers": { en: "In another country? Show more helplines", de: "In einem anderen Land? Weitere Hilfsangebote anzeigen" },
+  "safety.region.hideOthers": { en: "Hide helplines from other countries", de: "Hilfsangebote anderer Länder ausblenden" },
+
+  // Safety page — emergency services (region-based, never language-based)
+  "safety.emergency.call112": { en: "Call 112", de: "112 anrufen" },
+  "safety.emergency.call911": { en: "Call 911", de: "911 anrufen" },
+  "safety.emergency.call112Europe": { en: "Call 112 (Europe)", de: "112 anrufen (Europa)" },
+  "safety.emergency.call911Us": { en: "Call 911 (USA)", de: "911 anrufen (USA)" },
+
+  // Crisis — availability labels (shown on every helpline entry)
+  "crisis.availability.roundTheClockFree": { en: "24/7, free of charge", de: "Rund um die Uhr, kostenfrei" },
+  "crisis.availability.childLineHours": { en: "Mon–Sat 2–8pm, free of charge", de: "Mo–Sa 14–20 Uhr, kostenfrei" },
+  "crisis.availability.parentLineHours": { en: "Mon/Wed/Fri 9am–5pm, Tue/Thu 9am–7pm, free of charge", de: "Mo/Mi/Fr 9–17 Uhr, Di/Do 9–19 Uhr, kostenfrei" },
+  "crisis.availability.seeWebsite": { en: "Times and registration: see website", de: "Zeiten und Anmeldung: siehe Website" },
+  "crisis.availability.mailReply": { en: "Written counselling, reply by e-mail", de: "Schriftliche Beratung, Antwort per E-Mail" },
+
+  // Crisis — Germany (numbers live in src/lib/crisisResources.ts, only copy is translated)
+  "crisis.de.telefonseelsorge.name": { en: "TelefonSeelsorge", de: "TelefonSeelsorge" },
+  "crisis.de.telefonseelsorge.mainDesc": { en: "Nationwide counselling line — free, anonymous, day and night", de: "Bundesweite Beratung — kostenfrei, anonym, Tag und Nacht" },
+  "crisis.de.telefonseelsorge.altDesc": { en: "Second free number, same service", de: "Zweite kostenfreie Nummer, gleiches Angebot" },
+  "crisis.de.telefonseelsorgeChat.name": { en: "TelefonSeelsorge — chat counselling", de: "TelefonSeelsorge — Chatberatung" },
+  "crisis.de.telefonseelsorgeChat.label": { en: "Open chat counselling", de: "Chatberatung öffnen" },
+  "crisis.de.telefonseelsorgeChat.desc": { en: "Write instead of calling — free and anonymous", de: "Schreiben statt telefonieren — kostenfrei und anonym" },
+  "crisis.de.telefonseelsorgeMail.name": { en: "TelefonSeelsorge — e-mail counselling", de: "TelefonSeelsorge — Mailberatung" },
+  "crisis.de.telefonseelsorgeMail.label": { en: "Open e-mail counselling", de: "Mailberatung öffnen" },
+  "crisis.de.telefonseelsorgeMail.desc": { en: "For when talking feels impossible — free and anonymous", de: "Für Momente, in denen Sprechen nicht geht — kostenfrei und anonym" },
+  "crisis.de.childLine.name": { en: "Nummer gegen Kummer — children & youth helpline", de: "Nummer gegen Kummer — Kinder- und Jugendtelefon" },
+  "crisis.de.childLine.desc": { en: "For children and young people — limited hours, not around the clock", de: "Für Kinder und Jugendliche — eingeschränkte Zeiten, nicht rund um die Uhr" },
+  "crisis.de.parentLine.name": { en: "Nummer gegen Kummer — parents' helpline", de: "Nummer gegen Kummer — Elterntelefon" },
+  "crisis.de.parentLine.desc": { en: "Counselling for parents and carers — limited hours", de: "Beratung für Eltern und Erziehende — eingeschränkte Zeiten" },
+
+  // Crisis — United States
+  "crisis.us.lifeline.name": { en: "National Suicide Prevention Lifeline", de: "National Suicide Prevention Lifeline (USA)" },
+  "crisis.us.lifeline.desc": { en: "Free and confidential support, around the clock", de: "Kostenlose und vertrauliche Unterstützung, rund um die Uhr" },
+  "crisis.us.textLine.name": { en: "Crisis Text Line", de: "Crisis Text Line (USA)" },
+  "crisis.us.textLine.desc": { en: "Free crisis support by text — send HOME to this number", de: "Kostenlose Krisenhilfe per SMS — sende HOME an diese Nummer" },
+  "crisis.us.samhsa.name": { en: "SAMHSA National Helpline", de: "SAMHSA National Helpline (USA)" },
+  "crisis.us.samhsa.desc": { en: "Treatment referrals and information", de: "Vermittlung von Behandlungsangeboten und Informationen" },
 
   // Crisis
   "crisis.title": { en: "Support & Resources", de: "Unterstützung & Ressourcen" },
@@ -132,7 +177,7 @@ export const contentTranslations: Translations = {
   "crisis.telefonseelsorge2Num": { en: "0800 111 0 222", de: "0800 111 0 222" },
   "crisis.nummerGegenKummer": { en: "Nummer gegen Kummer", de: "Nummer gegen Kummer" },
   "crisis.nummerGegenKummerNum": { en: "116 111", de: "116 111" },
-  "crisis.nummerGegenKummerDesc": { en: "Children and youth helpline", de: "Kinder- und Jugendtelefon" },
+  "crisis.nummerGegenKummerDesc": { en: "Children and youth helpline — limited hours, not around the clock", de: "Kinder- und Jugendtelefon — eingeschränkte Zeiten, nicht rund um die Uhr" },
   "crisis.nummerGegenKummerHours": { en: "Mon-Sat 2-8pm", de: "Mo-Sa 14-20 Uhr" },
   "crisis.international": { en: "International Association for Suicide Prevention", de: "Internationale Gesellschaft für Suizidprävention" },
   "crisis.findLocalResources": { en: "Find local resources", de: "Lokale Ressourcen finden" },
@@ -162,7 +207,6 @@ export const contentTranslations: Translations = {
   "safety.professional.role": { en: "Psychologist M.Sc., Psychotherapist", de: "Psychologin M.Sc., Heilpraktikerin für Psychotherapie" },
   "safety.professional.description": { en: "Over 24 years experience in psychiatry and psychosomatic medicine. Specialized in trauma, anxiety, burnout and relationship counseling.", de: "Über 24 Jahre Erfahrung in Psychiatrie und Psychosomatik. Spezialisiert auf Trauma, Angst, Burnout und Beziehungsberatung." },
   "safety.professional.available": { en: "Mon–Fri 9am–3pm", de: "Mo–Fr 9:00–15:00 Uhr" },
-  "safety.emergencyNumberValue": { en: "911", de: "112" },
   "safety.professionalSupportHeading": { en: "Professional Support", de: "Persönliche Beratung" },
 
   // Landing page — inline strings
