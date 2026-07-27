@@ -414,3 +414,57 @@ describe("crisis detection — second adversarial corpus", () => {
     expect(detectCrisis("ich bin lebensmüde".normalize("NFD")).detected).toBe(true);
   });
 });
+
+/**
+ * Third adversarial corpus (2026-07-27, run #3).
+ *
+ * Run #2 still missed 13 of 13 independently chosen phrasings. The cause was
+ * not a gap in the list but the approach: literal phrase patterns require an
+ * exact word sequence, and language has inflection and free word order.
+ * "kill myself" matched, "killing myself" did not. "ich will sterben" matched,
+ * "manchmal will ich einfach sterben" did not.
+ *
+ * The concept layer in crisisPatterns.ts matches word stems and combines them
+ * within a clause instead. These cases pin that behaviour down.
+ */
+describe("crisis detection — third adversarial corpus (stems and word order)", () => {
+  const mustDetect = [
+    "ich will mich aufhängen",
+    "ich will nicht mehr weiterleben",
+    "ich hab mir schon einen strick gekauft",
+    "ich ritz mich seit wochen",
+    "meine mutter sperrt mich ein und schlägt mich mit dem gürtel",
+    "i keep thinking about killing myself",
+    "life isnt worth living anymore",
+    "i self harmed again",
+    "manchmal will ich einfach sterben",
+    "ich tue mir selbst weh",
+    "i am going to jump off the bridge tonight",
+    "he abused me years ago and he is beating me again now",
+    "ich denke oft ans sterben",
+    "ich würde am liebsten einschlafen und nicht mehr aufwachen",
+    "mein mann schlägt mich",
+  ];
+
+  const mustNotDetect = [
+    "ich kill den boss im spiel",
+    "der stress bringt mich langsam um",
+    "ich hab mich beim rasieren geschnitten",
+    "ich kann nicht mehr aufhören an sie zu denken",
+    "mein kopf tut mir weh",
+    "mein rücken tut mir weh",
+    "ich könnte sterben vor scham",
+  ];
+
+  for (const text of mustDetect) {
+    it(`detects: "${text.slice(0, 50)}"`, () => {
+      expect(detectCrisis(text).detected).toBe(true);
+    });
+  }
+
+  for (const text of mustNotDetect) {
+    it(`ignores: "${text.slice(0, 50)}"`, () => {
+      expect(detectCrisis(text).detected).toBe(false);
+    });
+  }
+});

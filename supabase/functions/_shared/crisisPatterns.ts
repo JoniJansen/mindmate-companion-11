@@ -143,7 +143,7 @@ export const MEDIUM_SEVERITY_PATTERNS: readonly RegExp[] = [
   /\b(ritze|ritzen|geritzt)\b/i,
   /\bselbstverletzung\b/i,
   /\bkann\s+ich\s+nicht\s+mehr\b/i,
-  /\bich\s+kann\s+nicht\s+mehr(?!\s+(schlafen|einschlafen|essen|trinken|arbeiten|lernen|laufen|rennen|sehen|hören|lesen|schreiben))\b/i,
+  /\bich\s+kann\s+nicht\s+mehr(?!\s+(schlafen|einschlafen|essen|trinken|arbeiten|lernen|laufen|rennen|sehen|hören|lesen|schreiben|aufhören|warten|zusehen|klar denken|weinen))\b/i,
   /\bkein\s+bock\s+mehr\s+auf\s+alles\b/i,
   /\bwenn\s+ich\s+nicht\s+mehr\s+da\s+wäre\b/i,
   /\bohne\s+mich\s+(wären|sind)\s+alle\s+besser\s+dran\b/i,
@@ -169,12 +169,13 @@ export const MEDIUM_SEVERITY_PATTERNS: readonly RegExp[] = [
   // — Danger from others, ACTIVE voice —
   // The passive-only patterns ("werde geschlagen") missed every real phrasing:
   // people write about the person doing it, not about themselves being acted on.
-  /\b(mein|meine)\s+\w+\s+(schl(ä|ae)gt|misshandelt|missbraucht|bedroht|verletzt|vergewaltigt)\s+mich\b/i,
+  /\b(mein|meine)\s+(\w+\s+)?(partner\w*|freund\w*|mann|frau|vater|mutter|stiefvater|stiefmutter|bruder|schwester|ex|onkel|chef\w*)\s+(schl(ä|ae)gt|misshandelt|missbraucht|bedroht|verletzt|vergewaltigt)\s+mich\b/i,
   /\b(mein|meine)\s+\w+\s+(hat|hatte)\s+mich\s+(missbraucht|geschlagen|vergewaltigt)\b/i,
   /\ber\s+bedroht\s+mich\b/i,
   /\bich\s+(hab|habe)\s+angst\s+vor\s+(meinem|meiner)\b/i,
   /\bich\s+f(ü|ue)hle\s+mich\s+zuhause\s+nicht\s+sicher\b/i,
-  /\b(mein|meine)\s+\w+\s+tut\s+mir\s+weh\b/i,
+  // Personenbezeichnungen statt \w+ — sonst trifft es "mein Kopf tut mir weh".
+  /\b(mein|meine)\s+(partner\w*|freund\w*|mann|frau|vater|mutter|stiefvater|stiefmutter|bruder|schwester|ex|chef\w*)\s+tut\s+mir\s+weh\b/i,
   /\bmy\s+(boyfriend|girlfriend|husband|wife|partner|dad|father|mom|mother|ex)\s+(hits|beats|abuses|abused|threatens|hurts|raped)\s+me\b/i,
   /\bhe\s+threatened\s+to\s+kill\s+me\b/i,
   /\b(he|she|they)\s+(is|keeps|was)?\s*(beating|hitting|hurting|abusing|threatening)\s+me\b/i,
@@ -226,6 +227,15 @@ export const STRONG_NEGATION_PATTERNS: readonly RegExp[] = [
  * Suppressing an acute disclosure is worse than showing a helpline to somebody
  * recounting their history.
  */
+/**
+ * Present-time markers. When one sits in the same clause, a past-tense marker
+ * no longer cancels: "he abused me years ago and he is beating me again now"
+ * describes something ongoing, not history. Without this, the words "years ago"
+ * silently suppressed a live disclosure of abuse.
+ */
+const PRESENT_MARKERS =
+  /\b(again|now|currently|still|these\s+days|this\s+(week|month)|wieder|jetzt|heute|gerade|aktuell|immer\s+noch|seit\s+(wochen|monaten|tagen))\b/i;
+
 export const PAST_TENSE_PATTERNS: readonly RegExp[] = [
   /\bi\s+used\s+to\s+(self[- ]?harm|cut|hurt\s+myself)\b/i,
   /\bin\s+the\s+past\s+(i|years?|months?)\b/i,
@@ -245,7 +255,7 @@ export const PAST_TENSE_PATTERNS: readonly RegExp[] = [
  * Splitting first means an idiom or a denial can only neutralise its own
  * clause — never the sentence that follows it.
  */
-const CLAUSE_SPLIT = /[.!?;,\n]+|\b(?:aber|jedoch|allerdings|trotzdem|but|however|though|and|und)\b/i;
+const CLAUSE_SPLIT = /[.!?;,\n]+|\b(?:aber|jedoch|allerdings|trotzdem|but|however|though)\b/i;
 
 export function splitIntoClauses(text: string): string[] {
   return text
@@ -273,6 +283,105 @@ export function normalizeForDetection(text: string): string {
     .replace(/[^\p{L}\p{N}'\- ]+/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+
+/**
+ * ── Concept layer ───────────────────────────────────────────────────────────
+ *
+ * Three rounds of literal phrase lists failed the same way: they require an
+ * exact word sequence. "kill myself" matched, "killing myself" did not.
+ * "ich will sterben" matched, "manchmal will ich einfach sterben" did not.
+ * Language has inflection, word order and filler; phrase lists have neither.
+ *
+ * This layer matches word STEMS and combines them within a clause instead.
+ * The clause is the scope, so no distance heuristics are needed.
+ *
+ * Two classes of death reference, because they need different evidence:
+ *  - SELF_EVIDENT: dying is already about the speaker ("sterben", "suizid").
+ *    A first-person marker in the clause is enough.
+ *  - NEEDS_REFLEXIVE: the verb takes an object ("umbringen", "kill", "hängen").
+ *    Without a reflexive marker it is about something else — "ich kill den
+ *    Boss" must stay silent.
+ */
+
+const FIRST_PERSON = /\b(ich|i|im|i'm|ive|i've)\b/i;
+const REFLEXIVE = /\b(mich|mir|myself|my\s?self|selbst)\b/i;
+
+/** Dying, referring to the speaker by its own meaning. */
+const DEATH_SELF_EVIDENT =
+  /\b(sterb\w*|gestorben|tot\b|todes\w*|suizid\w*|selbstmord\w*|lebensm(ü|ue)de|unalive\w*|kms\b|sewerslide|dying|dead\b)/i;
+
+/** Killing/hanging/ending — needs a reflexive marker to be about the speaker. */
+const DEATH_NEEDS_REFLEXIVE =
+  /\b(umbring\w*|umzubringen|aufh(ä|ae)ng\w*|erh(ä|ae)ng\w*|t(ö|oe)t\w*|kill\w*|hang\w*|end\w*\s+(it|my\s+life)|neck\w*|off\b)/i;
+
+/** Concrete method or preparation — strong signal regardless of grammar. */
+const METHOD_MARKER =
+  /\b(strick|seil|schlaftabletten|tabletten\s+gesammelt|vergift\w*|pulsadern|br(ü|ue)cke\s+springen|vor\s+den\s+zug|jump\s+off\s+(the\s+)?(bridge|roof)|overdose|hang\s+myself)/i;
+
+/** Not wanting to live on — inflection-tolerant. */
+const LIFE_REFUSAL =
+  /\b(nicht\s+mehr\s+(weiter)?leb\w*|nicht\s+mehr\s+weiter\s*mach\w*|keinen?\s+(sinn|grund)\s+(mehr\s+)?(zu\s+leben|im\s+leben)|not\s+worth\s+living|no\s+reason\s+to\s+live|isn'?t\s+worth\s+living|don'?t\s+want\s+to\s+(live|be\s+alive|be\s+here))/i;
+
+/** Self-injury stems. */
+const SELF_HARM_STEM =
+  /\b(ritz\w*|schneid\w*|geschnitten|verletz\w*|weh\s*tu\w*|wehtu\w*|selbstverletz\w*|cut\w*|harm\w*|burn\w*|scratch\w*|hurt\w*)/i;
+
+/**
+ * "ich tue mir weh" — agent form only. Deliberately excludes "tut", because
+ * "das tut mir weh" means something entirely different from "ich tue mir weh".
+ */
+const SELF_HARM_AGENT = /\b(tue|tu|f(ü|ue)ge)\s+(mir|mich)\s+(selbst\s+)?(weh|schmerzen|verletzungen)/i;
+
+/** Accidental/benign contexts for cutting — these must not read as self-harm. */
+const INJURY_ACCIDENT_CONTEXT =
+  /\b(rasier\w*|koch\w*|messer\s+abgerutscht|papier|unfall|versehentlich|beim\s+(kochen|basteln|arbeiten)|shaving|paper\s?cut|by\s+accident|accidentally)/i;
+
+/** Someone else harming the speaker. */
+const OTHER_PERSON =
+  /\b(mein|meine|er|sie|ihr|my|his|her|their|he|she|they|stiefvater|stiefmutter|vater|mutter|partner|freund|mann|frau|ex|boyfriend|girlfriend|husband|wife|dad|mom|father|mother)\b/i;
+
+const VIOLENCE_STEM =
+  /\b(schl(ä|ae)g\w*|geschlagen|misshandel\w*|missbrauch\w*|vergewaltig\w*|bedroh\w*|w(ü|ue)rg\w*|einsperr\w*|sperrt\s+mich\s+ein|hits?|beat\w*|abus\w*|rap(e|ed|ing)|threaten\w*|strangl\w*)/i;
+
+const TARGETS_SPEAKER = /\b(mich|mir|me)\b/i;
+
+/**
+ * Concept-based evaluation of a single clause.
+ * Returns the severity this clause warrants, or null.
+ */
+function conceptSeverity(clause: string): CrisisSeverity | null {
+  const first = FIRST_PERSON.test(clause);
+  const reflexive = REFLEXIVE.test(clause);
+
+  // Preparation or a named method outweighs grammar entirely.
+  if (METHOD_MARKER.test(clause) && (first || reflexive)) return "high";
+
+  // "ich will sterben", "manchmal will ich einfach sterben", "i'm dying"
+  if (first && DEATH_SELF_EVIDENT.test(clause)) return "high";
+
+  // "ich will mich aufhängen", "i keep thinking about killing myself"
+  if (reflexive && DEATH_NEEDS_REFLEXIVE.test(clause)) return "high";
+
+  // "ich will nicht mehr weiterleben", "life isn't worth living"
+  if (LIFE_REFUSAL.test(clause)) return "high";
+
+  // Self-injury — unless the clause describes an accident.
+  if (
+    (first || reflexive) &&
+    (SELF_HARM_STEM.test(clause) || SELF_HARM_AGENT.test(clause)) &&
+    !INJURY_ACCIDENT_CONTEXT.test(clause)
+  ) {
+    return "medium";
+  }
+
+  // Someone else harming the speaker.
+  if (OTHER_PERSON.test(clause) && VIOLENCE_STEM.test(clause) && TARGETS_SPEAKER.test(clause)) {
+    return "medium";
+  }
+
+  return null;
 }
 
 function matchesAny(clause: string, patterns: readonly RegExp[]): RegExpMatchArray | null {
@@ -320,14 +429,28 @@ export function detectCrisisIn(input: string | readonly string[]): CrisisResult 
   for (const clause of clauses) {
     const match = scanClause(clause, HIGH_SEVERITY_PATTERNS, [STRONG_NEGATION_PATTERNS]);
     if (match) return { detected: true, severity: "high", matchedSignal: match[0] };
+
+    // Concept layer catches the inflected and reordered forms the literal
+    // patterns above cannot express.
+    if (!matchesAny(clause, STRONG_NEGATION_PATTERNS) && conceptSeverity(clause) === "high") {
+      return { detected: true, severity: "high", matchedSignal: clause.slice(0, 60) };
+    }
   }
 
   for (const clause of clauses) {
-    const match = scanClause(clause, MEDIUM_SEVERITY_PATTERNS, [
-      STRONG_NEGATION_PATTERNS,
-      PAST_TENSE_PATTERNS,
-    ]);
+    const cancellers = PRESENT_MARKERS.test(clause)
+      ? [STRONG_NEGATION_PATTERNS]
+      : [STRONG_NEGATION_PATTERNS, PAST_TENSE_PATTERNS];
+    const match = scanClause(clause, MEDIUM_SEVERITY_PATTERNS, cancellers);
     if (match) return { detected: true, severity: "medium", matchedSignal: match[0] };
+
+    if (
+      !matchesAny(clause, STRONG_NEGATION_PATTERNS) &&
+      (PRESENT_MARKERS.test(clause) || !matchesAny(clause, PAST_TENSE_PATTERNS)) &&
+      conceptSeverity(clause) === "medium"
+    ) {
+      return { detected: true, severity: "medium", matchedSignal: clause.slice(0, 60) };
+    }
   }
 
   return { detected: false, severity: "none" };
