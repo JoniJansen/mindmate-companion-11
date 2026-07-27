@@ -61,8 +61,11 @@ export function useChatIntelligence() {
         }).catch(() => {});
       }
 
-      // Session insight — 6+ messages
-      if (userMsgCount >= 6) {
+      // Session insight — 6+ messages, suppressed for crisis conversations.
+      // These write to session_insights / emotional_patterns, and chat/index.ts
+      // injects both back into the system prompt. Blocking only extract-memories
+      // left two open doors into the same place.
+      if (userMsgCount >= 6 && !conversationHasCrisis) {
         const chatMsgs = messages
           .filter(m => !m.isError)
           .map(m => ({ role: m.role, content: m.content }));
@@ -72,8 +75,8 @@ export function useChatIntelligence() {
         }).catch(() => {});
       }
 
-      // Pattern detection — 8+ messages
-      if (userMsgCount >= 8) {
+      // Pattern detection — 8+ messages, same suppression.
+      if (userMsgCount >= 8 && !conversationHasCrisis) {
         fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/detect-patterns`, {
           method: "POST", headers,
           body: JSON.stringify({ language }),

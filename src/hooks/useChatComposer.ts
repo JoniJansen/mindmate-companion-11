@@ -378,6 +378,10 @@ export function useChatComposer(chatMode: ChatMode) {
     messagesRemaining, dailyMessageLimit,
     canUseClarifyMode, canUsePatternMode, canUseSessionSummary,
 
+    // Crisis (set inside handleSend — covers every caller)
+    crisisDetected,
+    dismissCrisis: () => setCrisisDetected(false),
+
     // Actions
     handleSend,
     handleRetry,

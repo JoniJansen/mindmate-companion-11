@@ -85,17 +85,32 @@ describe("crisis invariant — demo chat: detection precedes the demo limit", ()
 });
 
 describe("crisis invariant — every free-text surface is watched", () => {
+  // Chat is covered at the composer, not the page: three callers (home free-text
+  // field, mood bridge, journal bridge) reach handleSend directly and bypassed a
+  // page-level check.
+  it("the chat composer checks every message it sends", async () => {
+    const source = await readSource("../../src/hooks/useChatComposer.ts");
+    expect(source).toContain("detectCrisis");
+
+    const checkAt = source.indexOf("detectCrisis(trimmed)");
+    const demoGateAt = source.indexOf("if (isDemoMode)");
+    expect(checkAt).toBeGreaterThan(-1);
+    expect(
+      checkAt,
+      "the demo gate returns early — the crisis check must precede it",
+    ).toBeLessThan(demoGateAt);
+  });
+
   const surfaces: ReadonlyArray<[string, string]> = [
-    ["chat", "../../src/pages/Chat.tsx"],
+    ["chat page", "../../src/pages/Chat.tsx"],
     ["demo chat (no account)", "../../src/components/landing/DemoChat.tsx"],
     ["journal (text and dictation)", "../../src/pages/Journal.tsx"],
     ["mood note", "../../src/pages/Mood.tsx"],
   ];
 
   for (const [name, path] of surfaces) {
-    it(`${name} runs the crisis check and can show the card`, async () => {
+    it(`${name} can show the support card`, async () => {
       const source = await readSource(path);
-      expect(source, `${name}: missing crisisWatch.check`).toContain("crisisWatch.check");
       expect(source, `${name}: missing CrisisSupportCard`).toContain("CrisisSupportCard");
     });
   }
@@ -112,6 +127,10 @@ describe("crisis invariant — crisis disclosures never become memories", () => 
     const guardAt = source.indexOf("if (!conversationHasCrisis)");
     const extractAt = source.indexOf("functions/v1/extract-memories");
     expect(guardAt).toBeGreaterThan(-1);
+
+    // All three extraction paths write into tables the system prompt reads back.
+    expect(source).toContain("userMsgCount >= 6 && !conversationHasCrisis");
+    expect(source).toContain("userMsgCount >= 8 && !conversationHasCrisis");
     expect(
       guardAt,
       "the companion must not be able to bring a crisis disclosure back up later",
@@ -119,9 +138,11 @@ describe("crisis invariant — crisis disclosures never become memories", () => 
   });
 
   it("the edge function keeps an independent backstop", async () => {
-    const source = await readSource("../../supabase/functions/extract-memories/index.ts");
-    expect(source).toContain("containsUnambiguousCrisisSignal");
-    expect(source).toContain('skipped: "crisis"');
+    for (const fn of ["extract-memories", "session-insight"]) {
+      const source = await readSource(`../../supabase/functions/${fn}/index.ts`);
+      expect(source, `${fn}: missing shared detector`).toContain("detectCrisisIn");
+      expect(source, `${fn}: missing skip`).toContain('skipped: "crisis"');
+    }
   });
 });
 

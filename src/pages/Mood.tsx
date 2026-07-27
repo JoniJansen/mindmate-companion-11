@@ -219,6 +219,14 @@ export default function Mood() {
         <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full space-y-5">
           <TabHint tabId="mood" />
 
+          {/* Crisis support — deliberately outside the check-in card. It used to
+              live inside the collapsible section, so saving (which collapses it)
+              unmounted the card: it flashed for the length of one request and
+              vanished. */}
+          {crisisWatch.isVisible && (
+            <CrisisSupportCard onDismiss={() => crisisWatch.dismiss()} />
+          )}
+
           {/* Today's Check-in */}
           <CalmCard variant="calm" animate={false}>
             <div className="space-y-5">
@@ -273,10 +281,6 @@ export default function Mood() {
                           className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                           rows={2}
                         />
-
-                        {crisisWatch.isVisible && (
-                          <CrisisSupportCard onDismiss={() => crisisWatch.dismiss()} />
-                        )}
 
                         <Button onClick={handleSave} disabled={isSaving} className="w-full gap-2">
                           <Check className="w-4 h-4" />

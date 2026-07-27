@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { requireAIConsentAndPremium } from "../_shared/auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import { detectCrisisIn } from "../_shared/crisisPatterns.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,6 +16,20 @@ serve(async (req) => {
     const userId = user.id;
 
     const { messages, conversation_id, language = "en" } = await req.json();
+
+    // Crisis suppression (same rule as extract-memories): an insight derived
+    // from a crisis conversation lands in session_insights, which chat/index.ts
+    // injects back into the system prompt. The companion must not paraphrase a
+    // disclosure back at the person weeks later.
+    const userTextForCrisisCheck = (messages || [])
+      .filter((m: { role: string }) => m.role === "user")
+      .map((m: { content: string }) => m.content);
+    if (detectCrisisIn(userTextForCrisisCheck).detected) {
+      console.log("Session insight skipped: crisis signal in conversation");
+      return new Response(JSON.stringify({ skipped: "crisis" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 

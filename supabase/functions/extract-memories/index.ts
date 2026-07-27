@@ -1,37 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { requireAIConsent } from "../_shared/auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import { detectCrisisIn } from "../_shared/crisisPatterns.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
-
-/**
- * Unambiguous crisis signals — backstop only.
- *
- * Kept intentionally short and high-precision: this guard exists to stop a
- * crisis disclosure from being turned into a stored memory, not to classify
- * distress. The full, nuanced detector (paraphrases, slang, negation handling)
- * lives in `src/lib/crisisDetection.ts` and runs before this function is
- * called at all.
- */
-const UNAMBIGUOUS_CRISIS_PATTERNS: RegExp[] = [
-  /\b(i\s+want\s+to\s+(die|kill\s+myself|end\s+(my\s+life|it\s+all)))\b/i,
-  /\b(i('m|\s+am)\s+suicidal)\b/i,
-  /\b(suicid(e|al)\s+(thoughts?|ideation|plan|attempt))\b/i,
-  /\b(take\s+my\s+own\s+life)\b/i,
-  /\b(mich\s+umbringen|mich\s+umzubringen)\b/i,
-  /\bich\s+will\s+(einfach\s+|gar\s+)*nicht\s+mehr\s+leben\b/i,
-  /\b(ich\s+will\s+sterben|ich\s+möchte\s+sterben)\b/i,
-  /\b(lebensmüde)\b/i,
-  /\bmir\s+das\s+leben\s+(zu\s+)?nehmen\b/i,
-];
-
-function containsUnambiguousCrisisSignal(text: string): boolean {
-  const normalized = text.toLowerCase().replace(/\s+/g, " ");
-  return UNAMBIGUOUS_CRISIS_PATTERNS.some((pattern) => pattern.test(normalized));
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -49,7 +24,7 @@ serve(async (req) => {
     // still must not become a stored "memory" that the companion can bring
     // up casually later. Deliberately limited to unambiguous signals —
     // the nuanced matching lives in the client layer.
-    if (containsUnambiguousCrisisSignal(String(content ?? ""))) {
+    if (detectCrisisIn(String(content ?? "")).detected) {
       console.log("Memory extraction skipped: crisis signal in source text");
       return new Response(JSON.stringify({ memories: [], skipped: "crisis" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
