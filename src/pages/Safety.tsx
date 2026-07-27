@@ -95,13 +95,14 @@ export default function Safety() {
   const { primary, others, noticeKey } = useMemo(() => getSafetyResources(region), [region]);
   const emergencyNumbers = useMemo(() => getEmergencyNumbers(region), [region]);
 
-  // Professional contact
+  // Professional contact.
+  // Deliberately no phone number: this page is public and needs no login, so
+  // anything printed here is world-readable and indexable. A private mobile
+  // number does not belong on it. Contact goes through the practice website.
   const professionalContact = {
     name: "Jutta Jansen",
     role: t("safety.professional.role"),
     description: t("safety.professional.description"),
-    number: "+49 177 6536493",
-    tel: "tel:+491776536493",
     website: "https://www.juttajansen.com",
     available: t("safety.professional.available"),
   };
@@ -218,7 +219,6 @@ export default function Safety() {
                   <h3 className="font-semibold text-foreground">{professionalContact.name}</h3>
                   <p className="text-xs text-primary font-medium leading-tight">{professionalContact.role}</p>
                   <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{professionalContact.description}</p>
-                  <p className="text-lg font-bold text-foreground mt-2">{professionalContact.number}</p>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
                       <Clock className="w-3 h-3 shrink-0" />
@@ -237,8 +237,13 @@ export default function Safety() {
                 </div>
               </div>
               <Button variant="calm" size="icon" asChild className="shrink-0">
-                <a href={professionalContact.tel}>
-                  <Phone className="w-4 h-4" />
+                <a
+                  href={professionalContact.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={professionalContact.name}
+                >
+                  <ExternalLink className="w-4 h-4" />
                 </a>
               </Button>
             </div>
