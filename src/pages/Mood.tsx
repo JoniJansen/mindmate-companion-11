@@ -21,6 +21,8 @@ import { hapticImpact } from "@/lib/haptics";
 import { useActivityLog } from "@/hooks/useActivityLog";
 import { MoodChatBridge } from "@/components/mood/MoodChatBridge";
 import { MoodExerciseBridge } from "@/components/mood/MoodExerciseBridge";
+import { useCrisisWatch } from "@/hooks/useCrisisWatch";
+import { CrisisSupportCard } from "@/components/safety/CrisisSupportCard";
 import { shouldOfferExercise } from "@/lib/moodExerciseMap";
 import { analytics } from "@/hooks/useAnalytics";
 
@@ -38,6 +40,7 @@ export default function Mood() {
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [selectedFeelings, setSelectedFeelings] = useState<string[]>([]);
   const [note, setNote] = useState("");
+  const crisisWatch = useCrisisWatch();
   const [checkins, setCheckins] = useState<MoodCheckin[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [hasSavedToday, setHasSavedToday] = useState(false);
@@ -115,6 +118,11 @@ export default function Mood() {
 
   const handleSave = async () => {
     if (selectedMood === null || !user) return;
+
+    // The free-text note is a place people write things they say nowhere else.
+    // Checked locally before saving — no model, no consent required.
+    if (note.trim()) crisisWatch.check(note);
+
     setIsSaving(true);
 
     try {
@@ -265,6 +273,10 @@ export default function Mood() {
                           className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                           rows={2}
                         />
+
+                        {crisisWatch.isVisible && (
+                          <CrisisSupportCard onDismiss={() => crisisWatch.dismiss()} />
+                        )}
 
                         <Button onClick={handleSave} disabled={isSaving} className="w-full gap-2">
                           <Check className="w-4 h-4" />

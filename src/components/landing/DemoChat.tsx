@@ -11,6 +11,8 @@ import { lovable } from "@/integrations/lovable/index";
 import { DEMO_MESSAGE_LIMIT, saveDemoConversation } from "@/lib/demoConfig";
 import { shouldShowGoogleAuth, shouldShowAppleAuth } from "@/lib/platformSeparation";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useCrisisWatch } from "@/hooks/useCrisisWatch";
+import { CrisisSupportCard } from "@/components/safety/CrisisSupportCard";
 
 interface DemoChatProps {
   language: "en" | "de";
@@ -108,6 +110,7 @@ export function DemoChat({ language }: DemoChatProps) {
   const [showLimit, setShowLimit] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
   const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
+  const crisisWatch = useCrisisWatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -196,6 +199,11 @@ export function DemoChat({ language }: DemoChatProps) {
   const handleSend = useCallback(async () => {
     const text = input.trim();
     if (!text || isStreaming) return;
+
+    // Crisis check runs before the demo limit — see src/lib/crisisDetection.ts.
+    // This surface has no account, no consent and no backend call, so the
+    // local detector is the only thing that can offer help here at all.
+    crisisWatch.check(text);
 
     if (!demoStartedRef.current) {
       demoStartedRef.current = true;
@@ -651,6 +659,14 @@ export function DemoChat({ language }: DemoChatProps) {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Crisis support — rendered regardless of the demo limit, by design.
+            Help must not disappear because someone ran out of free messages. */}
+        {crisisWatch.isVisible && (
+          <div className="px-4 pb-3">
+            <CrisisSupportCard onDismiss={() => crisisWatch.dismiss()} />
+          </div>
+        )}
 
         {/* Input — only when not at limit */}
         {!showLimit && (

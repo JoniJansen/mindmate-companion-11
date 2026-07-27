@@ -135,6 +135,19 @@ export const contentTranslations: Translations = {
   "safety.emergency.call911Us": { en: "Call 911 (USA)", de: "911 anrufen (USA)" },
 
   // Crisis — availability labels (shown on every helpline entry)
+  // Inline crisis card (CrisisSupportCard). Tone is deliberately quiet — an
+  // alarm-styled box reads as shame to someone already in distress.
+  "crisis.card.title": {
+    en: "You don't have to carry this alone",
+    de: "Du musst das nicht allein tragen",
+  },
+  "crisis.card.body": {
+    en: "If things feel like too much right now, someone is there to listen — free, anonymous, day and night.",
+    de: "Wenn es gerade zu viel ist: Es ist jemand da, der zuhört — kostenfrei, anonym, Tag und Nacht.",
+  },
+  "crisis.card.moreOptions": { en: "More ways to get support", de: "Weitere Wege zu Unterstützung" },
+  "crisis.card.dismiss": { en: "Hide this note", de: "Hinweis ausblenden" },
+
   "crisis.availability.roundTheClockFree": { en: "24/7, free of charge", de: "Rund um die Uhr, kostenfrei" },
   "crisis.availability.childLineHours": { en: "Mon–Sat 2–8pm, free of charge", de: "Mo–Sa 14–20 Uhr, kostenfrei" },
   "crisis.availability.parentLineHours": { en: "Mon/Wed/Fri 9am–5pm, Tue/Thu 9am–7pm, free of charge", de: "Mo/Mi/Fr 9–17 Uhr, Di/Do 9–19 Uhr, kostenfrei" },

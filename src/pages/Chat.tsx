@@ -23,6 +23,8 @@ import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { VoiceTranscriptConfirm } from "@/components/chat/VoiceTranscriptConfirm";
 import { ChatModeSelector, ChatMode } from "@/components/chat/ChatModeSelector";
 import { ChatDisclaimer } from "@/components/chat/ChatDisclaimer";
+import { useCrisisWatch } from "@/hooks/useCrisisWatch";
+import { CrisisSupportCard } from "@/components/safety/CrisisSupportCard";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { ChatInputBar } from "@/components/chat/ChatInputBar";
 import { ChatActionButtons } from "@/components/chat/ChatActionButtons";
@@ -45,6 +47,7 @@ export default function Chat() {
   const { toast } = useToast();
   const { user, aiConsentGiven } = useAuth();
   const { t, language } = useTranslation();
+  const crisisWatch = useCrisisWatch();
   const { isOnline } = useNetworkStatus();
   const { canUseVoice } = usePremium();
 
@@ -314,6 +317,12 @@ export default function Chat() {
   const handleSend = useCallback(async (content: string) => {
     if (!content.trim()) return;
 
+    // Local safety net. The server detects crises too, but its response is
+    // produced by the model — if the gateway is down or slow, the user sees a
+    // generic error. This check runs before the request and does not depend
+    // on it, so help appears either way.
+    crisisWatch.check(content);
+
     // Subtle send feedback on native (no-op on web)
     void hapticImpact("light");
 
@@ -515,6 +524,12 @@ export default function Chat() {
       </div>
 
       <ChatDisclaimer />
+
+      {crisisWatch.isVisible && (
+        <div className="px-4 pb-2">
+          <CrisisSupportCard onDismiss={() => crisisWatch.dismiss()} />
+        </div>
+      )}
       <MessageLimitIndicator messagesRemaining={composer.messagesRemaining} dailyLimit={composer.dailyMessageLimit} isPremium={composer.isPremium} />
 
       {/* Real-time Voice Panel */}

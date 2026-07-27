@@ -12,6 +12,8 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { Skeleton, TextSkeleton } from "@/components/ui/loading-skeleton";
 import { TabHint } from "@/components/shared/TabHint";
 import { JournalEditor } from "@/components/journal/JournalEditor";
+import { useCrisisWatch } from "@/hooks/useCrisisWatch";
+import { CrisisSupportCard } from "@/components/safety/CrisisSupportCard";
 import { JournalEntryCard } from "@/components/journal/JournalEntryCard";
 import { AISummaryCard } from "@/components/journal/AISummaryCard";
 import { AISummaryDetail } from "@/components/journal/AISummaryDetail";
@@ -55,6 +57,7 @@ export default function Journal() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const crisisWatch = useCrisisWatch();
   const [draftContent, setDraftContent] = useState("");
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [aiReflection, setAiReflection] = useState("");
@@ -192,6 +195,10 @@ export default function Journal() {
 
   const handleSaveEntry = async (entry: { title: string; content: string; mood: string }) => {
     if (!user) return;
+
+    // Covers dictated entries too: the speech transcript is written into the
+    // same field, so there is no separate voice path to guard.
+    if (entry.content?.trim()) crisisWatch.check(entry.content);
 
     try {
       const payload = {
@@ -519,6 +526,10 @@ export default function Journal() {
       <PageHeader title={t("journal.title")} subtitle={t("journal.subtitle")} />
 
       <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-6 lg:px-8 py-5 pb-8 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full space-y-5">
+        {crisisWatch.isVisible && (
+          <CrisisSupportCard onDismiss={() => crisisWatch.dismiss()} />
+        )}
+
         {/* Journal → Chat Bridge */}
         {showChatBridge && lastSavedContent && (
           <JournalChatBridge
