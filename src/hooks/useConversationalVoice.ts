@@ -14,6 +14,7 @@
  * - UX warning states for broken mic
  */
 
+import { detectCrisis } from "@/lib/crisisDetection";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,6 +74,15 @@ export function useConversationalVoice({
   const [status, setStatus] = useState<RealtimeVoiceStatus>("disconnected");
   const [phase, setPhase] = useState<RealtimeVoicePhase>("idle");
   const [userTranscript, setUserTranscript] = useState("");
+  /**
+   * Set when a spoken user turn carries a crisis signal.
+   *
+   * The realtime voice mode talks to the ElevenLabs agent directly and never
+   * touches supabase/functions/chat — so the server-side detection there does
+   * not see a single word of it. Speaking is the most intimate way to use this
+   * app; it must not be the one modality without a safety net.
+   */
+  const [crisisDetected, setCrisisDetected] = useState(false);
   const [agentTranscript, setAgentTranscript] = useState("");
   const [transcriptHistory, setTranscriptHistory] = useState<TranscriptEntry[]>([]);
   const [isSupported, setIsSupported] = useState(true);
@@ -333,6 +343,7 @@ export function useConversationalVoice({
         const text = message?.user_transcription_event?.user_transcript || "";
         setUserTranscript(text);
         setTranscriptHistory(prev => [...prev, { role: "user", text, timestamp: Date.now() }]);
+        if (text && detectCrisis(text).detected) setCrisisDetected(true);
         // User transcript proves mic is working — clear any warning
         setMicWarning(prev => prev === "no_signal" ? null : prev);
       }
@@ -663,6 +674,8 @@ export function useConversationalVoice({
     userTranscript,
     agentTranscript,
     transcriptHistory,
+    crisisDetected,
+    dismissCrisis: () => setCrisisDetected(false),
     visualState,
     micWarning,
     micEnvironment,

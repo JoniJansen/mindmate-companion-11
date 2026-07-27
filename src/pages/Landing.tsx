@@ -50,7 +50,7 @@ export default function Landing() {
       pricing: {
         title: "Simple, transparent pricing",
         free: { name: "Free", price: "€0", features: ["15 messages per day", "Basic journaling", "Mood tracking", "Community exercises"] },
-        plus: { name: "Plus", price: "€9.99", period: "/month", trial: "7-day free trial", features: ["Unlimited messages", "Voice conversations", "Weekly insights", "Premium exercises", "Priority support"], cta: "Start Free Trial" },
+        plus: { name: "Plus", price: "€9.99", period: "/month", trial: "7-day free trial", features: ["Unlimited messages", "Voice conversations", "Weekly insights", "AI journal reflections", "Priority support"], cta: "Start Free Trial" },
       },
       howItWorks: {
         title: "How it works",
@@ -81,7 +81,7 @@ export default function Landing() {
       pricing: {
         title: "Einfache, transparente Preise",
         free: { name: "Kostenlos", price: "€0", features: ["15 Nachrichten pro Tag", "Basis-Tagebuch", "Stimmungstracking", "Community-Übungen"] },
-        plus: { name: "Plus", price: "€9,99", period: "/Monat", trial: "7 Tage kostenlos testen", features: ["Unbegrenzte Nachrichten", "Sprachgespräche", "Wöchentliche Einblicke", "Premium-Übungen", "Prioritäts-Support"], cta: "Kostenlos testen" },
+        plus: { name: "Plus", price: "€9,99", period: "/Monat", trial: "7 Tage kostenlos testen", features: ["Unbegrenzte Nachrichten", "Sprachgespräche", "Wöchentliche Einblicke", "KI-Reflexionen im Tagebuch", "Prioritäts-Support"], cta: "Kostenlos testen" },
       },
       howItWorks: {
         title: "So funktioniert's",

@@ -517,9 +517,17 @@ export default function Chat() {
 
       <ChatDisclaimer />
 
-      {composer.crisisDetected && (
+      {/* Covers both modalities: typed messages via the composer, and spoken
+          turns in realtime voice mode — the latter never reaches the chat edge
+          function, so its detection runs entirely on the transcript locally. */}
+      {(composer.crisisDetected || realtimeVoice.crisisDetected) && (
         <div className="px-4 pb-2">
-          <CrisisSupportCard onDismiss={composer.dismissCrisis} />
+          <CrisisSupportCard
+            onDismiss={() => {
+              composer.dismissCrisis();
+              realtimeVoice.dismissCrisis();
+            }}
+          />
         </div>
       )}
       <MessageLimitIndicator messagesRemaining={composer.messagesRemaining} dailyLimit={composer.dailyMessageLimit} isPremium={composer.isPremium} />

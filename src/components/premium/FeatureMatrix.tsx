@@ -22,7 +22,6 @@ const featureRows: FeatureRow[] = [
   { name: { en: "Weekly recaps", de: "Wochenrückblicke" }, free: false, premium: true },
   { name: { en: "Mood trends & insights", de: "Stimmungstrends & Insights" }, free: false, premium: true },
   { name: { en: "Topic paths", de: "Themen-Pfade" }, free: false, premium: true },
-  { name: { en: "Audio library", de: "Audio-Bibliothek" }, free: false, premium: true },
   { name: { en: "Session summaries", de: "Sitzungszusammenfassungen" }, free: false, premium: true },
 ];
 
