@@ -152,17 +152,26 @@ describe("crisis detection — must NOT fire on idioms and everyday speech", () 
   }
 });
 
-describe("crisis detection — past tense should not fire on its own", () => {
+describe("crisis detection — past tense cancels medium signals only", () => {
   const cases = [
     "früher habe ich mich geritzt aber das ist lange her",
     "i used to cut myself years ago",
-    "damals war ich lebensmüde, heute geht es mir gut",
   ];
   for (const text of cases) {
-    it(`ignores historical reference: "${text}"`, () => {
+    it(`ignores historical self-harm reference: "${text}"`, () => {
       expect(detectCrisis(text).detected).toBe(false);
     });
   }
+
+  it("still fires on an explicit statement, even in a past-tense sentence", () => {
+    // Deliberate. Past-tense markers used to cancel high-severity matches too,
+    // which meant "Es geht mir nicht mehr so gut, ich will mich umbringen" was
+    // silently discarded because "nicht mehr so" sat nearby. Words like
+    // "damals", "no longer" and "nicht mehr so" are ordinary speech, not
+    // reliable tense markers. Showing a calm card to somebody recounting their
+    // recovery is the acceptable side of that trade.
+    expect(detectCrisis("damals war ich lebensmüde, heute geht es mir gut").detected).toBe(true);
+  });
 });
 
 describe("crisis detection — present statement wins over nearby past tense", () => {
@@ -211,36 +220,59 @@ describe("crisis detection — input handling", () => {
   });
 });
 
-describe("crisis detection — kept in sync with the server copy", () => {
+/**
+ * Regression corpus from the adversarial review of 2026-07-27.
+ *
+ * Every case below was a MISS in the first implementation. They are grouped
+ * separately as a reminder of why: the original 73 tests were written from the
+ * patterns, so they only ever asserted what the patterns already did. These
+ * were written from the opposite direction — how do people actually type — and
+ * broke eight of them immediately.
+ */
+describe("crisis detection — regressions found by adversarial review", () => {
+  const mustDetect: ReadonlyArray<[string, string]> = [
+    ["most common German phrasing (server missed it entirely)", "ich will nicht mehr leben"],
+    ["polite German variant", "ich möchte sterben"],
+    ["German self-description", "ich bin suizidal"],
+    ["German present tense, spaced verb", "ich bringe mich um"],
+    ["German compound noun", "ich habe selbstmordgedanken"],
+    ["umlaut typed as vowel pair", "ich bin lebensmuede"],
+    ["colloquial English contraction", "i wanna die"],
+    ["dropped apostrophe from transcript", "i can t take it anymore"],
+    ["emoji between words", "ich will nicht 😭 mehr leben"],
+    ["everyday 'no longer' must not cancel an acute statement", "I no longer see a point, I want to die"],
+    ["everyday 'nicht mehr so' must not cancel", "Es geht mir nicht mehr so gut, ich will mich umbringen"],
+    ["'damals' must not cancel a present statement", "Damals hat es angefangen, ich will mich umbringen"],
+    ["past marker AFTER the statement must not cancel it", "Jetzt will ich mich umbringen. Früher habe ich sowas nie gedacht."],
+  ];
+
+  for (const [why, text] of mustDetect) {
+    it(`${why}: "${text.slice(0, 45)}"`, () => {
+      expect(detectCrisis(text).detected).toBe(true);
+    });
+  }
+});
+
+describe("crisis detection — patterns are shared, not duplicated", () => {
   /**
-   * The edge function `supabase/functions/chat/index.ts` carries its own copy
-   * of these patterns (it runs in Deno and cannot import from `src/`). Silent
-   * divergence would mean the server stops recognising something the client
-   * still flags, or vice versa. Rather than compare every pattern — the client
-   * list is deliberately broader — this asserts that the server still contains
-   * the core high-severity signals.
+   * The previous version of this test compared substrings of the server source
+   * and passed while the server was blind to "ich will nicht mehr leben".
+   * A string comparison cannot detect a semantic gap, so both sides now import
+   * the same module and the test asserts exactly that — no second copy exists.
    */
-  it("server still carries the core high-severity signals", async () => {
+  it("the edge function imports the shared patterns instead of redefining them", async () => {
     const mod = await import("../../supabase/functions/chat/index.ts?raw");
     const source: string = (mod as { default?: string }).default ?? (mod as unknown as string);
 
-    expect(typeof source).toBe("string");
-    expect(source.length).toBeGreaterThan(1000);
+    expect(source).toContain('from "../_shared/crisisPatterns.ts"');
+    expect(source).toContain("detectCrisisIn");
 
-    const coreSignals = [
-      "want\\s+to\\s+(die",
-      "mich\\s+umbringen",
-      "lebensmüde",
-      "suicid",
-    ];
-    for (const signal of coreSignals) {
-      expect(source).toContain(signal);
-    }
+    // No local redefinition may creep back in.
+    expect(source).not.toContain("const HIGH_SEVERITY_PATTERNS");
+    expect(source).not.toContain("const NEGATION_PATTERNS");
   });
 
-  it("client high-severity list has not shrunk below the server baseline", () => {
-    // Guards against someone deleting patterns during a refactor. The client
-    // list may grow freely; it must never fall below what the server knows.
-    expect(HIGH_SEVERITY_PATTERNS.length).toBeGreaterThanOrEqual(10);
+  it("the pattern lists are non-trivial", () => {
+    expect(HIGH_SEVERITY_PATTERNS.length).toBeGreaterThanOrEqual(20);
   });
 });

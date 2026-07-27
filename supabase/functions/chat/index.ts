@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { requireAIConsent } from "../_shared/auth.ts";
+import { detectCrisisIn, type CrisisResult } from "../_shared/crisisPatterns.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
 const corsHeaders = {
@@ -110,130 +111,17 @@ function trimToCharBudget(
   return result;
 }
 
-// ── Crisis Detection with Context-Aware Severity Scoring ──
-
-interface CrisisResult {
-  detected: boolean;
-  severity: "none" | "low" | "medium" | "high";
-  matchedSignal?: string;
-}
-
-// High-severity: direct, unambiguous expressions of intent
-const HIGH_SEVERITY_PATTERNS: RegExp[] = [
-  /\b(i\s+want\s+to\s+(die|kill\s+myself|end\s+(my\s+life|it\s+all)))\b/i,
-  /\b(i('m|\s+am)\s+going\s+to\s+(kill|hurt|harm)\s+myself)\b/i,
-  /\b(i\s+have\s+a\s+(plan|method)\s+to\s+(die|kill|end))\b/i,
-  /\b(take\s+my\s+own\s+life)\b/i,
-  /\b(suicid(e|al)\s+(thoughts?|ideation|plan|attempt|note))\b/i,
-  /\b(i('m|\s+am)\s+suicidal)\b/i,
-  /\b(nicht\s+mehr\s+leben\s+wollen)\b/i,
-  /\b(mich\s+umbringen)\b/i,
-  /\b(ich\s+will\s+sterben)\b/i,
-  /\b(lebensmüde)\b/i,
-];
-
-// Medium-severity: concerning but may be contextual
-const MEDIUM_SEVERITY_PATTERNS: RegExp[] = [
-  /\b(don'?t\s+want\s+to\s+live)\b/i,
-  /\b(no\s+reason\s+to\s+live)\b/i,
-  /\b(not\s+worth\s+living)\b/i,
-  /\b(can'?t\s+go\s+on)\b/i,
-  /\b(better\s+off\s+(dead|without\s+me))\b/i,
-  /\b(people\s+would\s+be\s+better\s+off\s+without\s+me)\b/i,
-  /\b(hurting\s+myself)\b/i,
-  /\b(self[- ]?harm(ing)?)\b/i,
-  /\b(cutting\s+myself)\b/i,
-  /\b(burn(ing)?\s+myself)\b/i,
-  /\b(afraid\s+for\s+my\s+life)\b/i,
-  /\b(being\s+(abused|beaten|attacked))\b/i,
-  /\b(domestic\s+violence)\b/i,
-  /\b(someone\s+is\s+hurting\s+me)\b/i,
-  /\b(unsafe\s+at\s+home)\b/i,
-  /\b(keinen\s+Sinn\s+mehr)\b/i,
-  /\b(mir\s+selbst\s+(weh\s+tun|schaden))\b/i,
-  /\b(ritze|ritzen)\b/i,
-];
-
-// Negation / safe-context patterns that CANCEL a match
-const NEGATION_PATTERNS: RegExp[] = [
-  /\b(i\s+(don'?t|do\s+not)\s+want\s+to\s+(hurt|harm|kill)\s+myself)\b/i,
-  /\b(i('m|\s+am)\s+not\s+(suicidal|going\s+to))\b/i,
-  /\b(i\s+used\s+to\s+(self[- ]?harm|cut|hurt\s+myself))\b/i,
-  /\b(no\s+longer)\b/i,
-  /\b(in\s+the\s+past)\b/i,
-  /\b(years?\s+ago)\b/i,
-  /\b(cut\s+myself\s+some\s+slack)\b/i,
-  /\b(dead\s+tired)\b/i,
-  /\b(dead\s+serious)\b/i,
-  /\b(killing\s+it)\b/i,
-  /\b(died\s+(laughing|of\s+laughter))\b/i,
-  /\b(drop[- ]?dead\s+gorgeous)\b/i,
-  /\b(i\s+could\s+kill\s+for\s+a)\b/i,
-  /\b(it'?s\s+killing\s+me\s+(that|how))\b/i,
-  /\b(früher\s+(mal\s+)?ge(ritzt|schnitten))\b/i,
-  /\b(nicht\s+mehr\s+so)\b/i,
-];
-
-/**
- * Check if a negation pattern is PROXIMATE to a crisis match.
- * Only cancels the crisis match if the negation overlaps or is within
- * ~40 characters of the crisis match position. This prevents global
- * negation from cancelling unrelated crisis signals in the same message.
- * 
- * Example: "I used to cut myself years ago but now I want to die"
- *  → "years ago" negation is near "cut myself" but NOT near "want to die"
- *  → "want to die" should still trigger high severity
- */
-function isNegationProximate(text: string, crisisMatch: RegExpMatchArray): boolean {
-  if (!crisisMatch.index && crisisMatch.index !== 0) return false;
-  const crisisStart = crisisMatch.index;
-  const crisisEnd = crisisStart + crisisMatch[0].length;
-  const PROXIMITY_CHARS = 50;
-
-  for (const negPattern of NEGATION_PATTERNS) {
-    const negMatch = text.match(negPattern);
-    if (!negMatch || (!negMatch.index && negMatch.index !== 0)) continue;
-    const negStart = negMatch.index;
-    const negEnd = negStart + negMatch[0].length;
-    // Check if negation overlaps or is within proximity of the crisis match
-    if (negEnd >= crisisStart - PROXIMITY_CHARS && negStart <= crisisEnd + PROXIMITY_CHARS) {
-      return true;
-    }
-  }
-  return false;
-}
-
+// ── Crisis Detection ──
+// Patterns and matching logic live in _shared/crisisPatterns.ts, shared with
+// the client layer (src/lib/crisisDetection.ts). They used to be duplicated
+// here and drifted: this copy still required the infinitive "nicht mehr leben
+// wollen" and therefore missed "ich will nicht mehr leben" entirely.
 function detectCrisis(messages: { role: string; content: string }[]): CrisisResult {
   const recentUserMessages = messages
-    .slice(-4)
-    .filter(m => m.role === "user")
-    .map(m => m.content);
-
-  if (recentUserMessages.length === 0) return { detected: false, severity: "none" };
-
-  for (const content of recentUserMessages) {
-    const lower = content.toLowerCase();
-
-    // Check high severity with proximity-aware negation
-    for (const pattern of HIGH_SEVERITY_PATTERNS) {
-      const match = lower.match(pattern);
-      if (match) {
-        if (isNegationProximate(lower, match)) continue;
-        return { detected: true, severity: "high", matchedSignal: pattern.source };
-      }
-    }
-
-    // Check medium severity with proximity-aware negation
-    for (const pattern of MEDIUM_SEVERITY_PATTERNS) {
-      const match = lower.match(pattern);
-      if (match) {
-        if (isNegationProximate(lower, match)) continue;
-        return { detected: true, severity: "medium", matchedSignal: pattern.source };
-      }
-    }
-  }
-
-  return { detected: false, severity: "none" };
+    .slice(-6)
+    .filter((m) => m.role === "user")
+    .map((m) => m.content);
+  return detectCrisisIn(recentUserMessages);
 }
 
 /**
