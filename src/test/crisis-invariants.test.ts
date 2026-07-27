@@ -101,6 +101,30 @@ describe("crisis invariant — every free-text surface is watched", () => {
   }
 });
 
+describe("crisis invariant — crisis disclosures never become memories", () => {
+  it("the client withholds crisis conversations from memory extraction", async () => {
+    const source = await readSource("../../src/hooks/useChatIntelligence.ts");
+
+    expect(source).toContain("detectCrisis");
+    expect(source).toContain("conversationHasCrisis");
+
+    // The extraction call must sit inside the suppression guard, not before it.
+    const guardAt = source.indexOf("if (!conversationHasCrisis)");
+    const extractAt = source.indexOf("functions/v1/extract-memories");
+    expect(guardAt).toBeGreaterThan(-1);
+    expect(
+      guardAt,
+      "the companion must not be able to bring a crisis disclosure back up later",
+    ).toBeLessThan(extractAt);
+  });
+
+  it("the edge function keeps an independent backstop", async () => {
+    const source = await readSource("../../supabase/functions/extract-memories/index.ts");
+    expect(source).toContain("containsUnambiguousCrisisSignal");
+    expect(source).toContain('skipped: "crisis"');
+  });
+});
+
 describe("crisis invariant — the safety page stays reachable without a login", () => {
   it("/safety is registered outside the onboarding guard", async () => {
     const source = await readSource("../../src/App.tsx");

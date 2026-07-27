@@ -6,6 +6,7 @@
 import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { detectCrisis } from "@/lib/crisisDetection";
 import { useCompanion } from "@/hooks/useCompanion";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/hooks/use-toast";
@@ -44,11 +45,21 @@ export function useChatIntelligence() {
         .map(m => `${m.role}: ${m.content}`)
         .join("\n\n");
 
-      // Memory extraction — always for 4+ messages
-      fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-memories`, {
-        method: "POST", headers,
-        body: JSON.stringify({ content: conversationContent, source: "chat", language }),
-      }).catch(() => {});
+      // Crisis suppression: a conversation containing a crisis disclosure is
+      // never mined for "memories". Two reasons. The companion must not bring
+      // the darkest thing somebody ever wrote back up casually weeks later —
+      // and the text never has to leave the device for extraction in the first
+      // place, which keeps it out of the gateway and its logs.
+      const userTexts = messages.filter(m => m.role === "user" && !m.isError).map(m => m.content);
+      const conversationHasCrisis = detectCrisis(userTexts).detected;
+
+      // Memory extraction — always for 4+ messages, unless suppressed above
+      if (!conversationHasCrisis) {
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-memories`, {
+          method: "POST", headers,
+          body: JSON.stringify({ content: conversationContent, source: "chat", language }),
+        }).catch(() => {});
+      }
 
       // Session insight — 6+ messages
       if (userMsgCount >= 6) {
