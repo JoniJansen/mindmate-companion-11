@@ -119,7 +119,11 @@ export function useChatComposer(chatMode: ChatMode) {
         },
         body: JSON.stringify({
           messages: chatMsgs,
-          preferences: { ...preferences.current, modePrompt: modePrompt + personalizationContext },
+          // Read fresh rather than using the ref captured at mount. The ref was
+          // filled once and never updated, so changing the language in settings
+          // left the chat sending the old value: the interface switched to
+          // German while the companion kept answering in English.
+          preferences: { ...getPreferences(), modePrompt: modePrompt + personalizationContext },
         }),
         signal,
       });

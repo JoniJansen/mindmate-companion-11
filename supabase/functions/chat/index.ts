@@ -727,8 +727,16 @@ serve(async (req) => {
     const companionData = companionResult.data as any;
     const profileData = profileResult.data as any;
     const userPreferences: Preferences = {
-      language: "en", tone: "gentle", addressForm: "du", innerDialogue: false,
+      // German default: the app's audience is German-speaking, and a missing or
+      // malformed `preferences.language` used to silently produce English
+      // replies inside an otherwise German interface.
+      language: "de", tone: "gentle", addressForm: "du", innerDialogue: false,
       ...preferences,
+      // Guard against a stored value like "de-DE" or undefined reaching the
+      // prompt builder, which only understands "de" | "en".
+      ...(preferences?.language === "en" || preferences?.language === "de"
+        ? { language: preferences.language }
+        : { language: "de" }),
       // Inject companion identity from DB (server-side truth)
       ...(companionData ? {
         companionName: companionData.name,

@@ -299,5 +299,7 @@ Der Nutzer möchte seine Muster besser verstehen. Deine Rolle:
     },
   };
 
-  return prompts[mode][language];
+  // A stored value like "de-DE" would index to undefined and put the literal
+  // string "undefined" into the system prompt.
+  return prompts[mode][language] ?? prompts[mode].de;
 }

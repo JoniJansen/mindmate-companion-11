@@ -20,13 +20,33 @@ export interface AppPreferences {
 const STORAGE_KEY = "soulvay-preferences";
 const LEGACY_STORAGE_KEY = "mindmate-preferences";
 
-const DEFAULT_PREFERENCES: AppPreferences = {
-  language: "en",
-  tone: "gentle",
-  addressForm: "du",
-  notifications: true,
-  innerDialogue: false,
-};
+/**
+ * Language default, resolved the same way `useTranslation` resolves it.
+ *
+ * These two disagreed: this module defaulted to "en" while the UI hook
+ * defaulted to "de" for every non-English browser. A German user on a device
+ * without a stored preference therefore saw a German interface while the chat
+ * sent "en" to the model — the interface was German and the companion answered
+ * in English.
+ */
+function defaultLanguage(): "en" | "de" {
+  try {
+    const browserLang = navigator.language?.toLowerCase() || "";
+    return browserLang.startsWith("en") ? "en" : "de";
+  } catch {
+    return "de";
+  }
+}
+
+function defaultPreferences(): AppPreferences {
+  return {
+    language: defaultLanguage(),
+    tone: "gentle",
+    addressForm: "du",
+    notifications: true,
+    innerDialogue: false,
+  };
+}
 
 // In-memory cache to avoid repeated JSON.parse calls
 let _cached: AppPreferences | null = null;
@@ -50,18 +70,18 @@ export function getPreferences(): AppPreferences {
 
   const primary = readKey(STORAGE_KEY);
   if (primary) {
-    _cached = { ...DEFAULT_PREFERENCES, ...primary };
+    _cached = { ...defaultPreferences(), ...primary };
     return _cached;
   }
 
   // Legacy fallback: users from before the mindmate → Soulvay rebrand.
   const legacy = readKey(LEGACY_STORAGE_KEY);
   if (legacy) {
-    _cached = { ...DEFAULT_PREFERENCES, ...legacy };
+    _cached = { ...defaultPreferences(), ...legacy };
     return _cached;
   }
 
-  _cached = { ...DEFAULT_PREFERENCES };
+  _cached = defaultPreferences();
   return _cached;
 }
 

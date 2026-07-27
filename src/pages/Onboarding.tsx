@@ -13,6 +13,7 @@ import logoImage from "@/assets/logo.png";
 import { CompanionAvatarAnimated } from "@/components/companion/CompanionAvatarAnimated";
 import { analytics } from "@/hooks/useAnalytics";
 import { useTranslation } from "@/hooks/useTranslation";
+import { invalidatePreferencesCache } from "@/lib/preferences";
 
 type Language = "en" | "de";
 
@@ -178,6 +179,9 @@ export default function Onboarding() {
       disclaimerAccepted: true,
     });
     localStorage.setItem("soulvay-preferences", prefsPayload);
+    // Direct write bypasses the preferences cache; without this the chat keeps
+    // sending the language from before onboarding.
+    invalidatePreferencesCache();
 
     // Save personalization
     localStorage.setItem("soulvay-personalization", JSON.stringify({
@@ -248,6 +252,7 @@ export default function Onboarding() {
                 const stored = localStorage.getItem("soulvay-preferences");
                 const prefs = stored ? JSON.parse(stored) : {};
                 localStorage.setItem("soulvay-preferences", JSON.stringify({ ...prefs, language: nextLang }));
+                invalidatePreferencesCache();
                 window.dispatchEvent(new Event("soulvay-preferences-changed"));
               } catch {
                 // storage may be unavailable — state.language still updates
