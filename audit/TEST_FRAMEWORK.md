@@ -278,6 +278,36 @@ Die ursprüngliche Fassung verlangte eine Prüfung „nicht von derselben Person
 
 ---
 
+## Bewertungsmaßstab — wie aus einer Prüfung eine Zahl wird
+
+*Bis hierher sagte das Gerüst, WAS geprüft wird und wann ein Release blockiert. Es sagte nicht, wie man von 0 bis 100 bewertet — und ohne das ist jede Zahl nur ein Eindruck in Tabellenform. Der folgende Maßstab gilt für alle 93 Punkte gleich.*
+
+| Stufe | Bedeutung | Bedingung |
+|---|---|---|
+| **100** | Erledigt und abgesichert | Anforderung erfüllt **und** durch einen automatischen Test gegen Rückfall geschützt, der bei Verletzung den Build bricht |
+| **85** | Erledigt, ungesichert | Anforderung erfüllt, aber nichts verhindert, dass es morgen wieder kaputtgeht |
+| **70** | Erfüllt mit bekannter Einschränkung | Kern erfüllt, eine dokumentierte Lücke bleibt (z. B. eine Region, eine Plattform, ein Randfall) |
+| **50** | Teilweise | Die Hälfte der Flächen, Fälle oder Plattformen ist abgedeckt |
+| **25** | Angefangen | Etwas existiert, wirkt aber nicht durchgängig oder ist nicht erreichbar |
+| **0** | Nicht vorhanden | Kein Gegenstück im Code oder Prozess auffindbar |
+
+**Zwischenwerte sind erlaubt**, wenn eine Messung sie hergibt — eine Trefferquote von 87 % ist 87, keine Stufe. Wo eine Zahl gemessen wird, gilt die Zahl. Wo nur ein Zustand feststellbar ist, gilt die Stufe.
+
+### Zwei Regeln, die Selbstbetrug verhindern
+
+**Deckelregel.** Ein Punkt kann höchstens **70** erreichen, solange die Prüfung nicht unabhängig ist — also solange Korpus oder Spezifikation nicht nachweislich vor der Implementierung entstanden sind (Commit-Zeitstempel). Das ist der Ersatz für die ursprüngliche, unerfüllbare Fassung dieser Regel.
+
+**Blockerregel.** Ist das Blocker-Kriterium eines Punktes erfüllt, ist der Punkt **0** — unabhängig davon, wie gut der Rest aussieht. Ein Krisenpfad, der an einer Fläche versagt, ist kein 80er mit Schönheitsfehler.
+
+### Statuskennzeichnung
+
+Jeder Punkt trägt zusätzlich zur Zahl einen Status:
+`automatisiert` (läuft im Tor) · `manuell` (Release-Karte oder Quartal) · `ungeprüft` (noch nie gemessen) · `nicht prüfbar` (mit Begründung, z. B. fehlender Backend-Zugriff).
+
+**Ungeprüfte Punkte zählen als 0**, nicht als „unbekannt". Sonst schmeichelt jede Gesamtnote sich selbst, indem sie weglässt, was niemand angesehen hat.
+
+---
+
 ## Anwendung
 
 **Vor jedem Release** werden alle Blocker-Kriterien geprüft. Ein einziger roter Blocker in Gruppe **B** oder **C** verhindert die Auslieferung, unabhängig vom Rest.
