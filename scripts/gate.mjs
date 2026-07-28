@@ -26,8 +26,41 @@ function pruefe(punkt, titel, fn) {
   }
 }
 
+// Farbcodes entfernen. Vitest schreibt unter CI ANSI-Sequenzen mitten in die
+// Zusammenfassung ("Tests \x1b[2m 15 passed"), lokal am Terminal nicht.
+// Genau daran ist der erste CI-Lauf dieses Tors gescheitert: lokal grün,
+// in der CI vier rote Punkte — und keiner davon war ein echter Mangel.
+const OHNE_FARBE = /\[[0-9;]*m/g;
+
 function sh(cmd) {
-  return execSync(cmd, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  const out = execSync(cmd, {
+    cwd: ROOT,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    // Umgebung festnageln, damit lokal und in der CI dieselbe Ausgabe entsteht.
+    // Ein Tor, dessen Ergebnis vom Terminal abhängt, misst nicht die App.
+    env: { ...process.env, CI: "true", NO_COLOR: "1", FORCE_COLOR: "0" },
+  });
+  return out.replace(OHNE_FARBE, "");
+}
+
+// Vitest-Zusammenfassung auswerten. Eine Stelle statt drei Kopien, damit ein
+// Formatwechsel künftig an einem Ort auffällt.
+function testZahlen(out) {
+  const m = out.match(/Tests\s+(\d+)\s+passed(?:\s*\|\s*(\d+)\s+failed)?\s+\((\d+)\)/);
+  if (m) return { bestanden: Number(m[1]), gescheitert: Number(m[2] ?? 0), gesamt: Number(m[3]) };
+  // "Tests 12 failed | 3 passed (15)" — umgekehrte Reihenfolge bei Rot.
+  const f = out.match(/Tests\s+(\d+)\s+failed\s*\|\s*(\d+)\s+passed\s+\((\d+)\)/);
+  if (f) return { bestanden: Number(f[2]), gescheitert: Number(f[1]), gesamt: Number(f[3]) };
+  return null;
+}
+
+// Wenn die Zusammenfassung nicht auswertbar ist, muss der Grund sichtbar sein.
+// "Testlauf nicht auswertbar" allein kostete beim ersten CI-Lauf eine
+// Fehlersuche, die eine einzige Zeile Ausgabe erspart hätte.
+function unlesbar(out) {
+  const letzte = out.trim().split("\n").filter((l) => l.trim()).slice(-2).join(" · ");
+  return `Zusammenfassung nicht auswertbar — letzte Ausgabe: ${letzte.slice(0, 160)}`;
 }
 
 function lies(p) {
@@ -52,24 +85,22 @@ function alleDateien(dir, endungen) {
 // ── B1 · Krisenerkennung: Trefferquote gegen unabhängigen Korpus ──────────
 pruefe("B1", "Krisenerkennung trifft", () => {
   const out = sh("bunx vitest run src/test/crisis-detection.test.ts 2>&1 || true");
-  const m = out.match(/Tests\s+(\d+)\s+passed\s+\((\d+)\)/);
-  if (!m) return { ok: false, note: "Testlauf nicht auswertbar" };
-  const [, bestanden, gesamt] = m.map(Number);
-  const quote = (bestanden / gesamt) * 100;
+  const z = testZahlen(out);
+  if (!z) return { ok: false, note: unlesbar(out) };
+  const quote = (z.bestanden / z.gesamt) * 100;
   return {
     ok: quote >= 95,
     wert: quote.toFixed(1),
-    note: `${bestanden}/${gesamt} Fälle (${quote.toFixed(1)} %), gefordert ≥ 95 %`,
+    note: `${z.bestanden}/${z.gesamt} Fälle (${quote.toFixed(1)} %), gefordert ≥ 95 %`,
   };
 });
 
 // ── B2/B3/B5 · Invarianten: Hilfe nie hinter einem Gate ───────────────────
 pruefe("B2/B3/B5", "Krisenhilfe steht vor jedem Gate", () => {
   const out = sh("bunx vitest run src/test/crisis-invariants.test.ts 2>&1 || true");
-  const m = out.match(/Tests\s+(\d+)\s+passed\s+\((\d+)\)/);
-  if (!m) return { ok: false, note: "Testlauf nicht auswertbar" };
-  const [, bestanden, gesamt] = m.map(Number);
-  return { ok: bestanden === gesamt, wert: `${bestanden}/${gesamt}`, note: `${bestanden}/${gesamt} Zusicherungen` };
+  const z = testZahlen(out);
+  if (!z) return { ok: false, note: unlesbar(out) };
+  return { ok: z.bestanden === z.gesamt, wert: `${z.bestanden}/${z.gesamt}`, note: `${z.bestanden}/${z.gesamt} Zusicherungen` };
 });
 
 // ── B3 · Jede Eingabefläche ist überwacht ─────────────────────────────────
@@ -108,16 +139,17 @@ pruefe("B20", "Erkennung aus einer Quelle", () => {
 // ── A2/A4/A5/H1 · Testsuite ───────────────────────────────────────────────
 pruefe("A2/A4/A5/H1", "Testsuite grün", () => {
   const out = sh("bun run test 2>&1 || true");
-  const m = out.match(/Tests\s+(\d+)\s+passed\s+\((\d+)\)/);
-  if (!m) return { ok: false, note: "Testlauf nicht auswertbar" };
-  const [, bestanden, gesamt] = m.map(Number);
-  return { ok: bestanden === gesamt, wert: `${bestanden}/${gesamt}`, note: `${bestanden} von ${gesamt}` };
+  const z = testZahlen(out);
+  if (!z) return { ok: false, note: unlesbar(out) };
+  return { ok: z.bestanden === z.gesamt, wert: `${z.bestanden}/${z.gesamt}`, note: `${z.bestanden} von ${z.gesamt}` };
 });
 
 // ── A6 · Keine Geister-Übersetzungsschlüssel ──────────────────────────────
 pruefe("A6", "Keine Geister-Schlüssel", () => {
   const out = sh("bunx vitest run src/test/i18n-no-ghost-keys.test.ts 2>&1 || true");
-  return { ok: /Tests\s+\d+\s+passed/.test(out) && !/failed/.test(out), note: "Ratchet über alle t()-Aufrufe" };
+  const z = testZahlen(out);
+  if (!z) return { ok: false, note: unlesbar(out) };
+  return { ok: z.gescheitert === 0, wert: `${z.bestanden}/${z.gesamt}`, note: "Ratchet über alle t()-Aufrufe" };
 });
 
 // ── C2 · Typsicherheit ────────────────────────────────────────────────────
