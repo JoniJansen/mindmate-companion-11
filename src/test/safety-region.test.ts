@@ -5,6 +5,7 @@ import {
   ALL_CRISIS_CONTACTS,
   GERMAN_CRISIS_CONTACTS,
   detectCrisisRegion,
+  contactsForCard,
   getEmergencyNumbers,
   getSafetyResources,
   type CrisisRegion,
@@ -143,6 +144,52 @@ describe("safety resources: help is never hidden behind a wrong guess", () => {
     expect(getEmergencyNumbers("AT").map((e) => e.value)).toEqual(["112", "144"]);
     expect(getEmergencyNumbers("CH").map((e) => e.value)).toEqual(["112", "144"]);
     expect(getEmergencyNumbers("unknown").map((e) => e.value)).toEqual(["112", "911"]);
+  });
+});
+
+describe("Hilfekarte im Chat: wen die zwei Nummern erreichen", () => {
+  // Die Karte zeigte bis zum 28.07.2026 schlicht die ersten zwei Einträge.
+  // Für Deutschland waren das zweimal TelefonSeelsorge; die Nummer gegen
+  // Kummer stand an sechster Stelle und erschien nie. Ein 15-Jähriger in
+  // einer Krise bekam damit ausschließlich Erwachsenenangebote zu sehen.
+  it("zeigt in jeder Region genau zwei Nummern", () => {
+    for (const region of ALL_REGIONS) {
+      expect(contactsForCard(region), `region ${region}`).toHaveLength(2);
+    }
+  });
+
+  it("zeigt nie zweimal dieselbe Nummer", () => {
+    for (const region of ALL_REGIONS) {
+      const werte = contactsForCard(region).map((c) => c.value);
+      expect(new Set(werte).size, `region ${region}`).toBe(werte.length);
+    }
+  });
+
+  it("stellt jeder Region mit Jugendleitung genau eine davon auf die Karte", () => {
+    for (const region of ["DE", "AT", "CH"] as const) {
+      const jugend = contactsForCard(region).filter((c) => c.audience === "youth");
+      expect(jugend, `region ${region}`).toHaveLength(1);
+    }
+  });
+
+  it("nennt für Deutschland die Nummer gegen Kummer, nicht zweimal TelefonSeelsorge", () => {
+    const werte = contactsForCard("DE").map((c) => c.value);
+    expect(werte).toContain("116 111");
+  });
+
+  it("gibt auch ohne Jugendleitung zwei verschiedene Nummern aus", () => {
+    const werte = contactsForCard("US").map((c) => c.value);
+    expect(new Set(werte).size).toBe(2);
+  });
+
+  it("trägt auf jedem Karteneintrag eine Verfügbarkeitsangabe", () => {
+    // Niemand darf eine Leitung wählen, die geschlossen ist, und daraus
+    // schließen, dass niemand für ihn da ist.
+    for (const region of ALL_REGIONS) {
+      for (const contact of contactsForCard(region)) {
+        expect(contact.availabilityKey, `${region}/${contact.id}`).toBeTruthy();
+      }
+    }
   });
 });
 

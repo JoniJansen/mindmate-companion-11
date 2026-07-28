@@ -41,6 +41,12 @@ export interface CrisisContact {
   descriptionKey: string;
   /** Opening hours / cost — mandatory on every entry. */
   availabilityKey: string;
+  /**
+   * Zielgruppe, wenn die Leitung ausdrücklich für sie da ist.
+   * Wird gebraucht, damit die Hilfekarte nicht ausschließlich
+   * Erwachsenenangebote zeigt — siehe `contactsForCard`.
+   */
+  audience?: "youth";
 }
 
 export interface CrisisSection {
@@ -113,6 +119,7 @@ export const GERMAN_CRISIS_CONTACTS: readonly CrisisContact[] = [
     descriptionKey: "crisis.de.childLine.desc",
     // NOT 24/7 — mislabelling this line as always available was the original bug.
     availabilityKey: "crisis.availability.childLineHours",
+    audience: "youth",
   },
   {
     id: "de-nummer-gegen-kummer-eltern",
@@ -150,6 +157,7 @@ export const AT_CRISIS_CONTACTS: readonly CrisisContact[] = [
     nameKey: "crisis.at.youthLine.name",
     descriptionKey: "crisis.at.youthLine.desc",
     availabilityKey: "crisis.availability.roundTheClockFree",
+    audience: "youth",
   },
   {
     id: "at-telefonseelsorge-chat",
@@ -197,6 +205,7 @@ export const CH_CRISIS_CONTACTS: readonly CrisisContact[] = [
     nameKey: "crisis.ch.youthLine.name",
     descriptionKey: "crisis.ch.youthLine.desc",
     availabilityKey: "crisis.availability.roundTheClockFree",
+    audience: "youth",
   },
   {
     id: "ch-dargebotene-hand-english",
@@ -372,6 +381,42 @@ export function getSafetyResources(region: CrisisRegion): SafetyResources {
         others: [section("AT"), section("CH"), section("US")],
       };
   }
+}
+
+/**
+ * Die zwei Nummern, die auf der Hilfekarte im Chat erscheinen.
+ *
+ * Die Kappung auf zwei ist Absicht: Wer gerade geschrieben hat, dass er nicht
+ * mehr leben will, ist mit einer Liste von sieben Nummern nicht geholfen.
+ * Falsch war bisher die **Auswahl** — die Karte nahm schlicht die ersten zwei
+ * Einträge. Für Deutschland waren das zweimal dieselbe Organisation
+ * (TelefonSeelsorge über zwei Rufnummern), und die Nummer gegen Kummer für
+ * Kinder und Jugendliche stand an sechster Stelle und erschien nie.
+ *
+ * Ein 15-Jähriger in einer Krise bekam damit ausschließlich
+ * Erwachsenenangebote zu sehen.
+ *
+ * Deshalb jetzt: eine Erwachsenenleitung, eine Jugendleitung. Beide tragen
+ * ihre Zielgruppe und ihre Zeiten im Text, sodass niemand raten muss, ob eine
+ * Nummer für ihn gemeint ist.
+ *
+ * Das ersetzt keine Altersfeststellung (Gerüstpunkt B15, fehlt bislang) — es
+ * ist das Beste, was ohne sie möglich ist.
+ */
+export function contactsForCard(region: CrisisRegion): CrisisContact[] {
+  const telefon = getSafetyResources(region)
+    .primary.flatMap((section) => section.contacts)
+    .filter((contact) => contact.kind === "phone");
+
+  const jugend = telefon.find((contact) => contact.audience === "youth");
+  const erwachsene = telefon.find((contact) => contact.audience !== "youth");
+
+  const gewaehlt = [erwachsene, jugend].filter((c): c is CrisisContact => Boolean(c));
+  if (gewaehlt.length === 2) return gewaehlt;
+
+  // Region ohne eigene Jugendleitung: mit der nächsten verschiedenen Nummer
+  // auffüllen, statt eine Zeile leer zu lassen.
+  return telefon.filter((c, i, alle) => alle.findIndex((x) => x.value === c.value) === i).slice(0, 2);
 }
 
 /** Emergency services number(s) for the detected region. */

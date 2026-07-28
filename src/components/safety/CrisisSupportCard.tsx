@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Phone, ArrowRight, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { detectCrisisRegion, getSafetyResources } from "@/lib/crisisResources";
+import { contactsForCard, detectCrisisRegion } from "@/lib/crisisResources";
 
 interface CrisisSupportCardProps {
   /** Called when the user closes the card. Omit to render it non-dismissible. */
@@ -24,14 +24,11 @@ interface CrisisSupportCardProps {
 export function CrisisSupportCard({ onDismiss, className = "" }: CrisisSupportCardProps) {
   const { t } = useTranslation();
 
-  // Phone contacts of the primary region, capped at two so the card stays calm.
-  const contacts = useMemo(() => {
-    const { primary } = getSafetyResources(detectCrisisRegion());
-    return primary
-      .flatMap((section) => section.contacts)
-      .filter((contact) => contact.kind === "phone")
-      .slice(0, 2);
-  }, []);
+  // Zwei Nummern, damit die Karte ruhig bleibt — aber eine für Erwachsene und
+  // eine für Jugendliche. Die Auswahl liegt in contactsForCard, samt der
+  // Begründung, warum die frühere Fassung (schlicht die ersten zwei) für
+  // Minderjährige gefährlich war.
+  const contacts = useMemo(() => contactsForCard(detectCrisisRegion()), []);
 
   return (
     <div
