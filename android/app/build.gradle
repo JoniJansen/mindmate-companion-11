@@ -1,5 +1,17 @@
 apply plugin: 'com.android.application'
 
+// Signaturdaten liegen außerhalb der Versionsverwaltung.
+// Vorher standen Passwort und Alias im Klartext in dieser Datei und damit in
+// der Historie eines öffentlichen Repositories. Die Vorlage steht in
+// keystore.properties.example, die echte Datei ist über .gitignore gesperrt.
+// Fehlt sie, lässt sich nur unsigniert bauen — Debug-Builds bleiben unberührt.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+def hasSigningConfig = keystorePropertiesFile.exists()
+if (hasSigningConfig) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
 android {
     namespace = "de.mindmate.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -18,17 +30,21 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('soulvay-release.jks')
-            storePassword 'soulvay2026'
-            keyAlias 'soulvay'
-            keyPassword 'soulvay2026'
+            if (hasSigningConfig) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            // Ohne keystore.properties bewusst unsigniert statt mit fest
+            // verdrahtetem Passwort zu bauen.
+            signingConfig hasSigningConfig ? signingConfigs.release : null
         }
     }
 }

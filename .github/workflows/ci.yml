@@ -25,6 +25,33 @@ jobs:
       - name: Run tests
         run: bun run test
 
+  # Das Tor — Ebene 1 des Prüfgerüsts (audit/TEST_FRAMEWORK.md).
+  # Zwölf maschinelle Prüfungen, jede einem Gerüstpunkt zugeordnet.
+  # BLOCKIEREND und ohne continue-on-error: Ein Tor, das nicht blockiert, ist
+  # keins. Der Lint-Job unten ist der Gegenbeweis — er lief monatelang
+  # non-blocking bei angeblich 1087 Fehlern, die niemand je angesehen hat
+  # (real waren es 275, der Rest kam aus mitgescannten Arbeitskopien).
+  gate:
+    name: Tor (Prüfgerüst)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Prüfgerüst-Integrität
+        run: python3 scripts/check-framework.py
+
+      - name: Tor durchlaufen
+        run: bun run gate
+
   # Lint job runs as a non-blocking signal — the repo currently has ~1087
   # pre-existing lint errors (mostly no-explicit-any in edge functions).
   # Remove `continue-on-error` once that debt is cleaned up (Elite-Audit backlog).
