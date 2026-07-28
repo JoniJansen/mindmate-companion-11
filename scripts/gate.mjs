@@ -138,6 +138,37 @@ pruefe("B21", "Erkennung aus einer Quelle", () => {
   return { ok: geteilt && !dupliziert, note: geteilt ? (dupliziert ? "Duplikat wieder eingeführt" : "Server importiert die geteilte Quelle") : "Server nutzt eigene Muster" };
 });
 
+// ── N1 · Eine Quelle je Regel: Notfallnummern ─────────────────────────────
+pruefe("N1", "Notfallnummern aus einer Quelle", () => {
+  // Die Nummern lagen an vier Stellen und waren nicht identisch: Die beiden
+  // Systemprompts kannten 116 123 nicht — ausgerechnet die europaweit
+  // einheitliche Nummer. Wer in Österreich eine Krise offenlegte, bekam vom
+  // Modell deutsche 0800-Nummern genannt, die von dort nicht durchstellen.
+  //
+  // Gesucht wird nur, was zweifelsfrei eine wählbare Nummer ist. Die erste
+  // Fassung dieser Prüfung suchte auch nach "143" und "147" und schlug
+  // prompt bei "§ 147 AO" an — einer Steuervorschrift. Eine Prüfung, die
+  // Fehlalarme produziert, wird abgeschaltet, nicht befolgt.
+  const erlaubt = [
+    "supabase/functions/_shared/emergencyNumbers.ts",
+    "src/lib/crisisResources.ts",
+    // Hält Namen und Verfügbarkeitstexte ("Tel 143 — englischsprachig"),
+    // keine wählbaren Nummern. Die drei *Num-Schlüssel wurden entfernt.
+    "src/translations/content.ts",
+  ];
+  const nummern = /0800\s*111\s*0\s*\d{3}|\b116\s*1(23|11)\b|\b741741\b|tel:\s*\d/;
+  const dateien = [
+    ...alleDateien("src", [".ts", ".tsx"]),
+    ...alleDateien("supabase/functions", [".ts"]),
+  ].filter((p) => !erlaubt.includes(p) && !p.includes("/test/") && !p.includes(".test."));
+  const funde = dateien.filter((d) => nummern.test(lies(d)));
+  return {
+    ok: funde.length === 0,
+    wert: funde.length,
+    note: funde.length ? `wählbare Nummern außerhalb der Quelle: ${funde.join(", ")}` : "nur in der geteilten Quelle",
+  };
+});
+
 // ── K10 · Regressionsnetz: die vorhandene Testsuite ───────────────────────
 pruefe("K10", "Testsuite grün", () => {
   const out = sh("bun run test 2>&1 || true");

@@ -219,12 +219,13 @@ export const contentTranslations: Translations = {
   "crisis.available247": { en: "Available 24/7", de: "Rund um die Uhr erreichbar" },
   "crisis.crisisLines": { en: "Crisis Helplines", de: "Krisentelefone" },
   "crisis.freeAndConfidential": { en: "Free, anonymous, and confidential", de: "Kostenlos, anonym und vertraulich" },
+  // Die drei Schlüssel *Num wurden am 28.07.2026 entfernt: Sie hielten
+  // Telefonnummern als Übersetzungstext, obwohl Nummern in jeder Sprache
+  // gleich sind — und niemand las sie. Die Nummern stehen in
+  // supabase/functions/_shared/emergencyNumbers.ts, einmal, für alle Seiten.
   "crisis.telefonseelsorge": { en: "Telefonseelsorge", de: "Telefonseelsorge" },
-  "crisis.telefonseelsorgeNum": { en: "0800 111 0 111", de: "0800 111 0 111" },
   "crisis.telefonseelsorge2": { en: "Telefonseelsorge (Alternative)", de: "Telefonseelsorge (Alternativ)" },
-  "crisis.telefonseelsorge2Num": { en: "0800 111 0 222", de: "0800 111 0 222" },
   "crisis.nummerGegenKummer": { en: "Nummer gegen Kummer", de: "Nummer gegen Kummer" },
-  "crisis.nummerGegenKummerNum": { en: "116 111", de: "116 111" },
   "crisis.nummerGegenKummerDesc": { en: "Children and youth helpline — limited hours, not around the clock", de: "Kinder- und Jugendtelefon — eingeschränkte Zeiten, nicht rund um die Uhr" },
   "crisis.nummerGegenKummerHours": { en: "Mon-Sat 2-8pm", de: "Mo-Sa 14-20 Uhr" },
   "crisis.international": { en: "International Association for Suicide Prevention", de: "Internationale Gesellschaft für Suizidprävention" },

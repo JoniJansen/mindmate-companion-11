@@ -294,7 +294,7 @@ MDCG 2019-11 Annex IV sagt dagegen: *„Diagnostic MDSW intended for scoring dep
 *Der Praktikabilitäts-Kritiker hat nachgerechnet: In der ursprünglichen Fassung waren pro Release rund 28 Unterpunkte fällig, davon etwa 20 von Hand — 10 bis 20 Stunden. Bei der bisherigen Release-Kadenz wäre das nach dem zweiten Mal stillschweigend übersprungen worden, und damit das ganze Gerüst tot. Ein Prüfschema, das niemand anwendet, ist wertlos.*
 
 **Ebene 1 — Tor (`bun run gate`, jeder PR, null Menschenzeit)**
-A6, B1, B2, B3, B5, B7, B21, C1, C3, I4, K6, K7, K10, N3.
+A6, B1, B2, B3, B5, B7, B21, C1, C3, I4, K6, K7, K10, N1, N3.
 Alle maschinell, alle blockierend. Wer hier rot ist, merged nicht.
 
 > **Diese Liste ist maschinell an das Tor gebunden.** `scripts/check-framework.py` vergleicht sie mit den Punkten, die `scripts/gate.mjs` tatsächlich meldet, und schlägt bei jeder Abweichung fehl (Punkt K7). Wer hier einen Punkt hinzufügt, ohne die Prüfung zu bauen, bricht die CI — und umgekehrt.

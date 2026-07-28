@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { requireAIConsent } from "../_shared/auth.ts";
 import { detectCrisisIn, type CrisisResult } from "../_shared/crisisPatterns.ts";
+import { crisisLinesForPrompt } from "../_shared/emergencyNumbers.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
 const corsHeaders = {
@@ -282,10 +283,7 @@ ${addressInstruction}
 
 3. **Professional Resources** (Third)
    - Recommend contacting appropriate crisis services:
-     * Telefonseelsorge: 0800 111 0 111 oder 0800 111 0 222 (Germany, 24/7, free)
-     * National Suicide Prevention Lifeline: 988 (US)
-     * Crisis Text Line: Text HOME to 741741
-     * Emergency services: 112 (EU) / 911 (US)
+${crisisLinesForPrompt(preferences.language)}
    - Emphasize these services are confidential and staffed by trained professionals
 
 4. **Supportive Presence** (Fourth)

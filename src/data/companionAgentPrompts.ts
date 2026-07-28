@@ -8,6 +8,7 @@
 
 import { companionArchetypes, type CompanionArchetype } from "./companions";
 import { getCompanionVoiceProfile } from "./companionVoiceProfiles";
+import { crisisLinesForPrompt } from "../../supabase/functions/_shared/emergencyNumbers";
 
 export interface CompanionAgentConfig {
   /** System prompt for the agent */
@@ -90,9 +91,7 @@ ${memoriesSection}
 ## Safety
 If someone expresses suicidal thoughts or self-harm:
 - Acknowledge their pain with genuine empathy
-- ${isGerman 
-    ? "Empfehle die Telefonseelsorge: 0800 111 0 111 (kostenlos, 24/7)"
-    : "Recommend crisis resources: 988 Suicide & Crisis Lifeline (US) or local emergency services"}
+- ${crisisLinesForPrompt(isGerman ? "de" : "en")}
 - Stay calm and supportive`;
 }
 
