@@ -4,8 +4,12 @@
 
 **Maßstab:** Was ein Team bei Apple, Headspace oder Calm abliefern würde — nicht „geht schon".
 
-**Aufbau:** 11 Oberpunkte (A–K), je 4–6 Unterpunkte. Jeder Unterpunkt trägt:
+**Aufbau:** 13 Gruppen mit **105 Prüfpunkten**. Jeder Punkt trägt:
 `Prüfmethode` · `Werkzeug` · `Rhythmus` · `Blocker-Kriterium` (was einen Release verhindert).
+
+*Gewachsen von 58 auf 93 durch den Normabgleich (ISO/IEC 25010, ISO/TS 82304-2, OWASP MASVS, MDCG 2019-11, VERA-MH, EU AI Act), dann auf 105 durch den maschinellen Abgleich zwischen Gerüst und Tor am 28.07.2026 — der zeigte, dass fünf Prüfungen einen Punkt meldeten, den sie nicht maßen, und dass ISO 25010 ein ganzes Hauptmerkmal kennt, für das es hier keine Gruppe gab (Wartbarkeit, jetzt Gruppe N).*
+
+**Selbstprüfung:** `python3 scripts/check-framework.py` prüft dieses Dokument auf Nummernlücken, fehlende Gruppen, Gewichtssumme, Blocker-Kriterien und darauf, ob die Ebene-1-Liste mit den tatsächlichen Prüfungen in `scripts/gate.mjs` übereinstimmt. Läuft blockierend in der CI.
 
 **Bewertung je Unterpunkt:** 0–100, plus Status `automatisiert` / `manuell` / `ungeprüft`.
 Ein Unterpunkt gilt erst als geprüft, wenn die Prüfung **unabhängig** von der Implementierung entstanden ist — Tests, die aus dem Code abgeleitet wurden, bestätigen nur sich selbst.
@@ -158,6 +162,13 @@ Erkennung (B1, B7, B10, B11) 40 % · Verfügbarkeit (B2, B3) 20 % · Interventio
 | K3 | Abdeckung gemessen ohne Artefakte, pro Verzeichnis ausgewiesen | automatisiert | vitest --coverage | jeder PR | Kernpfad unter 60 % |
 | K4 | CI-Gates blockieren wirklich (Tests, Lint-Ratchet, E2E, Secret-Scan) | Konfigurationsprüfung | .github/workflows | monatlich | Gate ohne Wirkung |
 | K5 | Manuelle Geräte-Checkliste gepflegt und abgearbeitet | Dokument | dieses Gerüst | jeder Release | ungeprüfte Punkte |
+| K6 | Gerüst-Integrität: keine Nummernlücken, jede Gruppe vorhanden, Gewichte ergeben 100 %, jeder Punkt hat ein Blocker-Kriterium | automatisiert | scripts/check-framework.py | jeder PR | Mangel gemeldet |
+| K7 | Zuordnungstreue: jede maschinelle Prüfung nennt den Punkt, den sie **tatsächlich** misst; die Ebene-1-Liste im Gerüst und die Prüfungen im Tor sind deckungsgleich | Mengenvergleich Gerüst ↔ Tor | scripts/check-framework.py | jeder PR | ein Tor meldet einen Punkt, den es nicht misst |
+| K8 | Reproduzierbarkeit: dieselbe Prüfung liefert lokal und in der CI dasselbe Urteil | Umgebung im Prüfskript festgenagelt, Doppellauf | scripts/gate.mjs | jeder PR | Urteil hängt von Terminal, Sprache oder Zeitzone ab |
+| K9 | Fehlbarkeit: jede Prüfung wird durch eine absichtliche Verletzung rot | Mutationsprüfung | manuell, dokumentiert | quartalsweise | eine Prüfung, die nie rot werden kann |
+| K10 | Regressionsnetz: die gesamte vorhandene Testsuite läuft grün | automatisiert | bun run test | jeder PR | ein Test rot |
+
+**Warum K7 bis K10 nachträglich entstanden sind.** Alle vier stammen aus Fehlern, die an einem einzigen Tag auftraten und die das Gerüst in seiner damaligen Fassung nicht hätte finden können: Das Tor meldete Punkte, die es nicht maß (K7). Es war lokal grün und in der CI rot, weil Vitest je nach Terminal andere Zeichen ausgibt (K8). Sein Auswerter erkannte nur bestandene Läufe, ein roter wäre als „nicht auswertbar" durchgerutscht (K9). Und „die Testsuite ist grün" wurde als Beleg für Persistenz, Zeitzonen und Fehlerbehandlung verbucht (K10). Ein Prüfgerüst, das seine eigenen Messungen nicht misst, bestätigt sich selbst.
 
 ---
 
@@ -251,13 +262,56 @@ MDCG 2019-11 Annex IV sagt dagegen: *„Diagnostic MDSW intended for scoring dep
 
 ---
 
+## N — Wartbarkeit & Codequalität ⚠️ NEUE GRUPPE (2026-07-28)
+
+*Gefunden beim Abgleich des Tors mit dem Gerüst. ISO/IEC 25010:2023 kennt neun Hauptmerkmale; acht davon hatten hier eine Gruppe. **Wartbarkeit** hatte keine — obwohl der schwerste Fehler dieses Projekts genau dort entstand: Die Krisenmuster lagen doppelt im Code, Client und Server drifteten auseinander, und der Server verfehlte monatelang „ich will nicht mehr leben". Kein einziger Punkt des Gerüsts hätte das gefunden. Wartbarkeit ist bei dieser App keine Aufräumfrage, sondern ein Sicherheitsthema.*
+
+| # | Unterpunkt | Prüfmethode | Werkzeug | Rhythmus | Blocker |
+|---|---|---|---|---|---|
+| N1 | Eine Quelle je Regel: Krisenmuster, Preise, Berechtigungen, Notfallnummern existieren genau einmal | Duplikatsuche über Kernregeln | Skript im Tor | jeder PR | dieselbe Regel an zwei Stellen gepflegt |
+| N2 | Toter Code: nicht erreichbare Dateien, Routen und Exporte, Anteil am Quelltext | Erreichbarkeitsanalyse ab Einstiegspunkten | knip / eigenes Skript | monatlich | > 10 % oder eine tote Route im Navigationsmenü |
+| N3 | Analysierbarkeit: Typprüfung ohne Fehler, Lint-Zähler fällt monoton | automatisiert | tsc --noEmit, eslint-Ratchet | jeder PR | Typfehler > 0 oder Zähler steigt |
+| N4 | Änderbarkeit: Größe von Dateien und Funktionen im Kernpfad (Chat, Krise, Abrechnung) | Messung | Skript | monatlich | Datei im Kernpfad > 600 Zeilen ohne Aufteilungsplan |
+| N5 | Abhängigkeiten: Anzahl, Aktualität, ungenutzte Pakete, bekannte Schwachstellen | Stückliste + Abgleich | bun audit, knip | monatlich | ungepatchte Schwachstelle mit hoher Bewertung |
+| N6 | Bauen ohne Sondergerät: frischer Klon, `bun install`, Build und Tests laufen ohne Handgriffe | Trockenlauf im leeren Verzeichnis | CI-Job | jeder Release | manueller Eingriff nötig |
+
+**Warum N1 im Tor steht und nicht im Quartal:** Die Musterduplikation war zwischen zwei Releases entstanden und blieb unbemerkt, weil niemand danach suchte. Ein Punkt, der einen bereits eingetretenen stillen Schaden verhindern soll, gehört an die Stelle, die bei jedem Push läuft.
+
+---
+
+## Nachtrag Nutzersicherheit — B21
+
+| # | Unterpunkt | Prüfmethode | Werkzeug | Rhythmus | Blocker |
+|---|---|---|---|---|---|
+| B21 | Erkennungslogik stammt aus einer geteilten Quelle; Client und Server importieren dieselbe Datei | Importprüfung + Suche nach wiedereingeführten Kopien | Skript im Tor | jeder PR | Server oder Client pflegt eigene Muster |
+
+*Dieser Punkt existierte faktisch schon als maschinelle Prüfung, war im Gerüst aber fälschlich als B20 (Modell-Drift) verbucht. Beides sind eigenständige Anforderungen: B21 verhindert Drift **im Quelltext**, B20 Drift **im Modell**. B20 ist weiterhin ungeprüft.*
+
+---
+
 ## Ausführungsmodell — drei Ebenen statt vier Rhythmen
 
 *Der Praktikabilitäts-Kritiker hat nachgerechnet: In der ursprünglichen Fassung waren pro Release rund 28 Unterpunkte fällig, davon etwa 20 von Hand — 10 bis 20 Stunden. Bei der bisherigen Release-Kadenz wäre das nach dem zweiten Mal stillschweigend übersprungen worden, und damit das ganze Gerüst tot. Ein Prüfschema, das niemand anwendet, ist wertlos.*
 
 **Ebene 1 — Tor (`bun run gate`, jeder PR, null Menschenzeit)**
-B1, B2, B3, B5, B7, B20, C1 (gegen lokales `supabase start`), C2, C3, C15, A2, A4, A5, A6, H1, K3.
+A6, B1, B2, B3, B5, B7, B21, C1, C3, I4, K6, K7, K10, N3.
 Alle maschinell, alle blockierend. Wer hier rot ist, merged nicht.
+
+> **Diese Liste ist maschinell an das Tor gebunden.** `scripts/check-framework.py` vergleicht sie mit den Punkten, die `scripts/gate.mjs` tatsächlich meldet, und schlägt bei jeder Abweichung fehl (Punkt K7). Wer hier einen Punkt hinzufügt, ohne die Prüfung zu bauen, bricht die CI — und umgekehrt.
+
+**Korrektur vom 28.07.2026 — was diese Liste vorher fälschlich behauptete.** Beim ersten maschinellen Abgleich zeigte sich, dass fünf der zwölf Prüfungen im Tor einen Gerüstpunkt meldeten, den sie nachweislich nicht messen. Die Liste sah dadurch deutlich vollständiger aus, als sie war:
+
+| Gemeldet | Tatsächlich gemessen | Was der Punkt im Gerüst bedeutet | Jetzt |
+|---|---|---|---|
+| `B20` | Client und Server teilen die Erkennungsquelle | Modell-Drift gegen den Live-Endpunkt | → **B21** (neu). B20 bleibt **ungeprüft** |
+| `C2` | Typprüfung ohne Fehler | Authentifizierung, JWT, Rechteausweitung | → **N3**. C2 bleibt **ungeprüft** |
+| `C15` | RLS auf jeder Tabelle aktiviert | Datenmigration vorwärts/rückwärts | → **C1** (statischer Teil). C15 bleibt **ungeprüft** |
+| `K3` | Gerüst widerspruchsfrei | Testabdeckung je Verzeichnis | → **K6** (neu). K3 bleibt **ungeprüft** |
+| `A2`, `A4`, `A5`, `H1` | die vorhandene Testsuite läuft grün | Persistenz, Eingabegrenzen, Zeitzonen, Fehlerbehandlung | → **K10** (neu). Alle vier bleiben **ungeprüft** |
+
+**Sieben Punkte sind damit von „automatisiert" auf „ungeprüft" zurückgestuft** — A2, A4, A5, B20, C2, C15, H1 und K3. Das ist kein Rückschritt in der App, sondern eine Korrektur der Buchführung: Sie waren nie gemessen. Nach der Regel „ungeprüfte Punkte zählen als 0" senkt das die Gesamtnote, und das ist richtig so.
+
+**Zu C1:** Das Tor prüft statisch, dass jede Tabelle Row Level Security aktiviert hat — eine notwendige, keine hinreichende Bedingung. Der eigentliche Nachweis (Konto B erreicht keine Ressource von Konto A, gegen lokales `supabase start`) fehlt weiterhin und ist der nächste Ausbauschritt des Tors.
 
 **Ebene 2 — Release-Karte (eine Seite, Zeitfenster 90 Minuten)**
 A1 auf dem Gerät · B6 · B12 · B18 · C6 · Textdurchsicht (D3+D4) · Geräte-Smoke (G1–G5 zusammengelegt, je einmal iOS und Android, 15 Minuten) · I1 · I4 · H4 · J10.
@@ -318,15 +372,20 @@ Jeder Punkt trägt zusätzlich zur Zahl einen Status:
 |---|---|---|
 | B Nutzersicherheit | 25 % | Zielgruppe entscheidet |
 | C Sicherheit & Datenschutz | 20 % | Gesundheitsdaten |
-| A Funktionale Korrektheit | 14 % | Grundlage |
-| H Zuverlässigkeit & Betrieb | 11 % | ohne Auslieferung keine Wirkung |
-| D Erlebnisqualität | 8 % | Bindung |
-| I Geschäftslogik | 3 % | Tragfähigkeit |
+| A Funktionale Korrektheit | 12 % | Grundlage; zwei Punkte abgegeben, weil A6 und Teile von A inzwischen maschinell gesichert sind |
+| H Zuverlässigkeit & Betrieb | 10 % | ohne Auslieferung keine Wirkung |
+| D Erlebnisqualität | 7 % | Bindung |
 | J Compliance | 7 % | Marktzugang, Wirksamkeitsnachweis für ZPP |
+| L Regulatorische Qualifizierung | 6 % | Existenzrisiko: falsche Einstufung kann Vertrieb stoppen |
+| N Wartbarkeit & Codequalität | 5 % | ISO-25010-Hauptmerkmal, das bisher ganz fehlte — und die Stelle, an der die Krisenmuster auseinanderdrifteten |
 | E Barrierefreiheit | 4 % | gesetzlich, wachsend |
+| I Geschäftslogik | 2 % | Tragfähigkeit; abgestuft, weil I2/I3 den Umsatz betreffen, nicht die Sicherheit der Nutzer |
 | F Performance | 1 % | derzeit unkritisch |
 | G Plattform | 1 % | in H/D enthalten |
-| L Regulatorische Qualifizierung | 6 % | Existenzrisiko: falsche Einstufung kann Vertrieb stoppen |
 | K Testinfrastruktur | — | Korrekturfaktor: senkt alle anderen Noten, wenn unabhängige Prüfung fehlt |
 
-**Regel gegen Selbstbestätigung:** Eine Gruppennote darf nur dann über 70 liegen, wenn mindestens eine unabhängige Prüfung stattgefunden hat, die nicht von derselben Person oder Instanz stammt, die den Code geschrieben hat.
+*Umverteilung vom 28.07.2026 für Gruppe N: A −2, H −1, D −1, I −1. Summe bleibt 100 %.*
+
+**Regel gegen Selbstbestätigung:** Eine Gruppennote darf nur dann über 70 liegen, wenn für mindestens einen ihrer Punkte eine **unabhängige** Prüfung im Sinne der artefakt-basierten Regel oben vorliegt — Prüfkorpus oder Spezifikation liegen ausweislich des Commit-Zeitstempels vor der Implementierung und sind in einer getrennten Sitzung entstanden.
+
+*Korrigiert am 28.07.2026: Hier stand bis eben noch die ursprüngliche Fassung („nicht von derselben Person oder Instanz"), die weiter oben im selben Dokument bereits als Konstruktionsfehler verworfen worden war. Das Gerüst widersprach sich also an zwei Stellen selbst — gefunden erst beim Zeile-für-Zeile-Abgleich, nicht beim Lesen.*

@@ -128,16 +128,16 @@ pruefe("B7", "Alltagssprache löst nicht aus", () => {
   return { ok: anzahl >= 30, wert: anzahl, note: `${anzahl} ausgeführte Negativfälle, gefordert ≥ 30` };
 });
 
-// ── B20 · Muster werden geteilt, nicht dupliziert ─────────────────────────
-pruefe("B20", "Erkennung aus einer Quelle", () => {
+// ── B21 · Muster werden geteilt, nicht dupliziert ─────────────────────────
+pruefe("B21", "Erkennung aus einer Quelle", () => {
   const server = lies("supabase/functions/chat/index.ts");
   const geteilt = server.includes('from "../_shared/crisisPatterns.ts"');
   const dupliziert = /const HIGH_SEVERITY_PATTERNS|const NEGATION_PATTERNS/.test(server);
   return { ok: geteilt && !dupliziert, note: geteilt ? (dupliziert ? "Duplikat wieder eingeführt" : "Server importiert die geteilte Quelle") : "Server nutzt eigene Muster" };
 });
 
-// ── A2/A4/A5/H1 · Testsuite ───────────────────────────────────────────────
-pruefe("A2/A4/A5/H1", "Testsuite grün", () => {
+// ── K10 · Regressionsnetz: die vorhandene Testsuite ───────────────────────
+pruefe("K10", "Testsuite grün", () => {
   const out = sh("bun run test 2>&1 || true");
   const z = testZahlen(out);
   if (!z) return { ok: false, note: unlesbar(out) };
@@ -152,8 +152,8 @@ pruefe("A6", "Keine Geister-Schlüssel", () => {
   return { ok: z.gescheitert === 0, wert: `${z.bestanden}/${z.gesamt}`, note: "Ratchet über alle t()-Aufrufe" };
 });
 
-// ── C2 · Typsicherheit ────────────────────────────────────────────────────
-pruefe("C2", "Typprüfung fehlerfrei", () => {
+// ── N3 · Analysierbarkeit: Typprüfung ─────────────────────────────────────
+pruefe("N3", "Typprüfung fehlerfrei", () => {
   try {
     sh("./node_modules/.bin/tsc --noEmit");
     return { ok: true, note: "0 Fehler" };
@@ -180,8 +180,8 @@ pruefe("C3", "Keine Klartext-Geheimnisse", () => {
   return { ok: funde.length === 0, wert: funde.length, note: funde.length ? funde.join(" · ") : "keine Funde" };
 });
 
-// ── C15 · Migrationen mit RLS ─────────────────────────────────────────────
-pruefe("C15", "Jede Tabelle hat RLS", () => {
+// ── C1 · Mandantentrennung, statischer Teil: RLS auf jeder Tabelle ────────
+pruefe("C1", "Jede Tabelle hat RLS", () => {
   const dir = "supabase/migrations";
   if (!existsSync(join(ROOT, dir))) return { ok: false, note: "Migrationsverzeichnis fehlt" };
   const sql = readdirSync(join(ROOT, dir)).filter((f) => f.endsWith(".sql")).map((f) => lies(`${dir}/${f}`)).join("\n");
@@ -207,8 +207,8 @@ pruefe("I4", "Keine verkauften Geisterfunktionen", () => {
   return { ok: verwaist.length === 0, wert: verwaist.length, note: verwaist.length ? `ohne Entsprechung: ${verwaist.join(", ")}` : `${namen.length} Einträge geprüft` };
 });
 
-// ── K3 · Gerüst-Integrität ────────────────────────────────────────────────
-pruefe("K3", "Prüfgerüst widerspruchsfrei", () => {
+// ── K6/K7 · Gerüst-Integrität und Zuordnungstreue ─────────────────────────
+pruefe("K6/K7", "Prüfgerüst widerspruchsfrei", () => {
   try {
     sh("python3 scripts/check-framework.py");
     return { ok: true, note: "vollständig" };

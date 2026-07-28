@@ -32,9 +32,11 @@ GRUPPEN = {
     "J": "Compliance & Recht",
     "K": "Testinfrastruktur",
     "L": "Regulatorische Qualifizierung",
+    "N": "Wartbarkeit & Codequalität",
 }
 
-ZEILE = re.compile(r"^\|\s*([A-L])(\d+)\s*\|(.+)$")
+ZEILE = re.compile(r"^\|\s*([A-N])(\d+)\s*\|(.+)$")
+GATE = Path(__file__).resolve().parent / "gate.mjs"
 
 
 def main() -> int:
@@ -102,8 +104,43 @@ def main() -> int:
     if not mangel:
         print("  alle vorhanden")
 
+    # K7 — Zuordnungstreue. Das Tor meldete fünf Punkte, die es nicht maß;
+    # aufgefallen ist das nur, weil jemand von Hand nachschaute. Ab hier
+    # vergleicht die Maschine die Ebene-1-Liste mit den Prüfungen im Tor.
+    print("\n── Zuordnung Gerüst ↔ Tor (K7) ──")
+    if not GATE.exists():
+        print(f"  ⚠️  {GATE} nicht gefunden")
+        mangel = True
+    else:
+        m = re.search(r"\*\*Ebene 1 — Tor[^\n]*\*\*\n([^\n]+)", text)
+        if not m:
+            print("  ⚠️  Ebene-1-Liste im Gerüst nicht gefunden")
+            mangel = True
+        else:
+            im_geruest = set(re.findall(r"\b([A-N]\d+)\b", m.group(1)))
+            im_tor: set[str] = set()
+            for label in re.findall(r'pruefe\("([^"]+)"', GATE.read_text(encoding="utf-8")):
+                im_tor.update(t for t in label.split("/") if re.fullmatch(r"[A-N]\d+", t))
+
+            nur_geruest = sorted(im_geruest - im_tor)
+            nur_tor = sorted(im_tor - im_geruest)
+            erfunden = sorted(p for p in im_tor if int(p[1:]) not in punkte.get(p[0], {}))
+
+            print(f"  Gerüst nennt {len(im_geruest)}, Tor meldet {len(im_tor)} Punkte")
+            if erfunden:
+                print(f"  ⚠️  Tor meldet Punkte, die im Gerüst nicht existieren: {erfunden}")
+                mangel = True
+            if nur_geruest:
+                print(f"  ⚠️  in Ebene 1 gelistet, aber im Tor nicht geprüft: {nur_geruest}")
+                mangel = True
+            if nur_tor:
+                print(f"  ⚠️  im Tor geprüft, aber in Ebene 1 nicht gelistet: {nur_tor}")
+                mangel = True
+            if not (erfunden or nur_geruest or nur_tor):
+                print("  deckungsgleich")
+
     print("\n── Gewichtung ──")
-    gewichte = re.findall(r"^\|\s*([A-L])\s+[^|]+\|\s*(\d+)\s*%", text, re.M)
+    gewichte = re.findall(r"^\|\s*([A-N])\s+[^|]+\|\s*(\d+)\s*%", text, re.M)
     summe = sum(int(w) for _, w in gewichte)
     genannt = {g for g, _ in gewichte}
     print(f"  {len(gewichte)} Gruppen gewichtet, Summe {summe} %")
