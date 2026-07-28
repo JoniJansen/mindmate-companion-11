@@ -16,7 +16,9 @@ import {
  * US line 988, which does not connect from Germany.
  */
 
-const ALL_REGIONS: CrisisRegion[] = ["DE", "US", "unknown"];
+// Vollzählig halten: Die Invarianten unten laufen über diese Liste, und eine
+// Region, die hier fehlt, wird von keiner einzigen davon geprüft.
+const ALL_REGIONS: CrisisRegion[] = ["DE", "AT", "CH", "US", "unknown"];
 
 describe("region detection: time zone is the primary signal", () => {
   it("maps Europe/Berlin to DE", () => {
@@ -36,10 +38,15 @@ describe("region detection: time zone is the primary signal", () => {
     expect(detectCrisisRegion({ timeZone: "America/New_York", languages: ["de-DE"] })).toBe("US");
   });
 
-  it("does not treat Vienna or Zurich as Germany (the 0800 lines are German)", () => {
+  it("gives Austria and Switzerland their own region, not Germany's", () => {
+    // Bis zum 28.07.2026 fielen beide auf "unknown" zurück und bekamen die
+    // deutschen 0800-Nummern zu sehen, die von dort nicht durchstellen.
+    // Dieser Test hielt genau diese Notlösung fest — er prüfte den Umweg,
+    // nicht die Anforderung.
     expect(countryFromTimeZone("Europe/Vienna")).toBe("AT");
     expect(countryFromTimeZone("Europe/Zurich")).toBe("CH");
-    expect(detectCrisisRegion({ timeZone: "Europe/Vienna", languages: ["de-AT"] })).toBe("unknown");
+    expect(detectCrisisRegion({ timeZone: "Europe/Vienna", languages: ["de-AT"] })).toBe("AT");
+    expect(detectCrisisRegion({ timeZone: "Europe/Zurich", languages: ["de-CH"] })).toBe("CH");
   });
 });
 
@@ -97,11 +104,30 @@ describe("safety resources: help is never hidden behind a wrong guess", () => {
     }
   });
 
-  it("puts the detected region first", () => {
-    expect(getSafetyResources("DE").primary[0].id).toBe("DE");
-    expect(getSafetyResources("DE").others.map((s) => s.id)).toEqual(["US"]);
-    expect(getSafetyResources("US").primary[0].id).toBe("US");
-    expect(getSafetyResources("US").others.map((s) => s.id)).toEqual(["DE"]);
+  it("puts the detected region first and keeps every other region reachable", () => {
+    for (const region of ["DE", "AT", "CH", "US"] as const) {
+      const { primary, others } = getSafetyResources(region);
+      expect(primary[0].id).toBe(region);
+      // Kein Land darf verschwinden, nur weil ein anderes erkannt wurde:
+      // eine falsche Ortsvermutung soll Hilfe verschieben, nie verbergen.
+      expect(new Set([...primary, ...others].map((s) => s.id))).toEqual(
+        new Set(["DE", "AT", "CH", "US", "INTERNATIONAL"]),
+      );
+    }
+  });
+
+  it("offers Austrian and Swiss lines with their real availability", () => {
+    const at = getSafetyResources("AT").primary[0].contacts;
+    expect(at.map((c) => c.value)).toContain("142");
+    expect(at.map((c) => c.value)).toContain("147");
+
+    const ch = getSafetyResources("CH").primary[0].contacts;
+    expect(ch.map((c) => c.value)).toContain("143");
+    // Die 143 ist rund um die Uhr erreichbar, aber NICHT kostenlos.
+    // Eine falsche Kostenangabe kann jemanden vom Anruf abhalten.
+    expect(ch.find((c) => c.value === "143")?.availabilityKey).toBe(
+      "crisis.availability.chBaseRate",
+    );
   });
 
   it("shows international and German lines side by side when the region is unknown", () => {
@@ -113,6 +139,9 @@ describe("safety resources: help is never hidden behind a wrong guess", () => {
   it("uses region-based emergency numbers (112 in DE, 911 in the US, both if unsure)", () => {
     expect(getEmergencyNumbers("DE").map((e) => e.value)).toEqual(["112"]);
     expect(getEmergencyNumbers("US").map((e) => e.value)).toEqual(["911"]);
+    // 112 erreicht in AT und CH die Notrufzentrale, 144 direkt die Rettung.
+    expect(getEmergencyNumbers("AT").map((e) => e.value)).toEqual(["112", "144"]);
+    expect(getEmergencyNumbers("CH").map((e) => e.value)).toEqual(["112", "144"]);
     expect(getEmergencyNumbers("unknown").map((e) => e.value)).toEqual(["112", "911"]);
   });
 });

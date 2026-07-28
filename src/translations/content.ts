@@ -121,7 +121,12 @@ export const contentTranslations: Translations = {
   // Safety page — region of the shown helplines (detected from device, NOT from UI language)
   "safety.region.heading.de": { en: "Germany", de: "Deutschland" },
   "safety.region.heading.us": { en: "United States", de: "USA" },
+  "safety.region.heading.at": { en: "Austria", de: "Österreich" },
+  "safety.region.heading.ch": { en: "Switzerland", de: "Schweiz" },
   "safety.region.heading.international": { en: "International", de: "International" },
+  "safety.region.notice.at": { en: "Helplines for Austria, based on your device settings. Numbers from other countries are listed below.", de: "Hilfsangebote für Österreich, ermittelt aus deinen Geräteeinstellungen. Nummern aus anderen Ländern findest du weiter unten." },
+  "safety.region.notice.ch": { en: "Helplines for Switzerland, based on your device settings. Numbers from other countries are listed below.", de: "Hilfsangebote für die Schweiz, ermittelt aus deinen Geräteeinstellungen. Nummern aus anderen Ländern findest du weiter unten." },
+  "safety.emergency.call144": { en: "Call 144 (ambulance)", de: "144 anrufen (Rettung)" },
   "safety.region.notice.de": { en: "Helplines for Germany, based on your device settings. Numbers from other countries are listed below.", de: "Hilfsangebote für Deutschland, ermittelt aus deinen Geräteeinstellungen. Nummern aus anderen Ländern findest du weiter unten." },
   "safety.region.notice.us": { en: "Helplines for the United States, based on your device settings. Numbers from other countries are listed below.", de: "Hilfsangebote für die USA, ermittelt aus deinen Geräteeinstellungen. Nummern aus anderen Ländern findest du weiter unten." },
   "safety.region.notice.unknown": { en: "We couldn't tell which country you're in — international and German helplines are shown together. Numbers from other countries are listed below.", de: "Wir konnten dein Land nicht bestimmen — deshalb siehst du internationale und deutsche Hilfsangebote gleichermaßen. Nummern aus anderen Ländern findest du weiter unten." },
@@ -152,6 +157,13 @@ export const contentTranslations: Translations = {
   "crisis.availability.childLineHours": { en: "Mon–Sat 2–8pm, free of charge", de: "Mo–Sa 14–20 Uhr, kostenfrei" },
   "crisis.availability.parentLineHours": { en: "Mon/Wed/Fri 9am–5pm, Tue/Thu 9am–7pm, free of charge", de: "Mo/Mi/Fr 9–17 Uhr, Di/Do 9–19 Uhr, kostenfrei" },
   "crisis.availability.seeWebsite": { en: "Times and registration: see website", de: "Zeiten und Anmeldung: siehe Website" },
+  // Österreich und Schweiz. Die Schweizer 143 ist NICHT kostenlos — 20 Rappen
+  // Grundtarif laut Bundesamt für Kommunikation. Das steht hier so, weil eine
+  // falsche Kostenangabe jemanden vom Anruf abhalten kann.
+  "crisis.availability.atChatHours": { en: "Daily 4–11pm", de: "Täglich 16–23 Uhr" },
+  "crisis.availability.atMailReply": { en: "Written counselling, reply within 48 hours", de: "Schriftliche Beratung, Antwort binnen 48 Stunden" },
+  "crisis.availability.chBaseRate": { en: "24/7, 20 centimes per call", de: "Rund um die Uhr, 20 Rappen pro Anruf" },
+  "crisis.availability.chEnglishHours": { en: "Daily 6–11pm, free of charge", de: "Täglich 18–23 Uhr, kostenfrei" },
   "crisis.availability.mailReply": { en: "Written counselling, reply by e-mail", de: "Schriftliche Beratung, Antwort per E-Mail" },
 
   // Crisis — Germany (numbers live in src/lib/crisisResources.ts, only copy is translated)
@@ -176,6 +188,29 @@ export const contentTranslations: Translations = {
   "crisis.us.textLine.desc": { en: "Free crisis support by text — send HOME to this number", de: "Kostenlose Krisenhilfe per SMS — sende HOME an diese Nummer" },
   "crisis.us.samhsa.name": { en: "SAMHSA National Helpline", de: "SAMHSA National Helpline (USA)" },
   "crisis.us.samhsa.desc": { en: "Treatment referrals and information", de: "Vermittlung von Behandlungsangeboten und Informationen" },
+
+  // Österreich — geprüft gegen telefonseelsorge.at und rataufdraht.at (28.07.2026)
+  "crisis.at.telefonseelsorge.name": { en: "TelefonSeelsorge Austria", de: "TelefonSeelsorge Österreich" },
+  "crisis.at.telefonseelsorge.desc": { en: "Nationwide emergency line — free, anonymous, day and night", de: "Notruf für ganz Österreich — kostenfrei, anonym, Tag und Nacht" },
+  "crisis.at.telefonseelsorgeChat.name": { en: "TelefonSeelsorge Austria — chat counselling", de: "TelefonSeelsorge Österreich — Chatberatung" },
+  "crisis.at.telefonseelsorgeChat.label": { en: "Open chat counselling", de: "Chatberatung öffnen" },
+  "crisis.at.telefonseelsorgeChat.desc": { en: "Write instead of calling — free and anonymous", de: "Schreiben statt telefonieren — kostenfrei und anonym" },
+  "crisis.at.telefonseelsorgeMail.name": { en: "TelefonSeelsorge Austria — e-mail counselling", de: "TelefonSeelsorge Österreich — Mailberatung" },
+  "crisis.at.telefonseelsorgeMail.label": { en: "Open e-mail counselling", de: "Mailberatung öffnen" },
+  "crisis.at.telefonseelsorgeMail.desc": { en: "For when talking feels impossible", de: "Für Momente, in denen Sprechen nicht geht" },
+  "crisis.at.youthLine.name": { en: "Rat auf Draht — children & youth helpline", de: "Rat auf Draht — Notruf für Kinder und Jugendliche" },
+  "crisis.at.youthLine.desc": { en: "For children and young people — free, anonymous, around the clock", de: "Für Kinder und Jugendliche — kostenfrei, anonym, rund um die Uhr" },
+
+  // Schweiz — geprüft gegen 143.ch und 147.ch (28.07.2026)
+  "crisis.ch.dargeboteneHand.name": { en: "Die Dargebotene Hand", de: "Die Dargebotene Hand" },
+  "crisis.ch.dargeboteneHand.desc": { en: "Counselling line for all of Switzerland — anonymous, around the clock", de: "Beratung für die ganze Schweiz — anonym, rund um die Uhr" },
+  "crisis.ch.dargeboteneHandEnglish.name": { en: "Tel 143 — English-language line", de: "Tel 143 — englischsprachiges Angebot" },
+  "crisis.ch.dargeboteneHandEnglish.desc": { en: "Counselling in English", de: "Beratung auf Englisch" },
+  "crisis.ch.dargeboteneHandChat.name": { en: "Die Dargebotene Hand — chat and e-mail", de: "Die Dargebotene Hand — Chat und Mail" },
+  "crisis.ch.dargeboteneHandChat.label": { en: "Open chat and e-mail counselling", de: "Chat- und Mailberatung öffnen" },
+  "crisis.ch.dargeboteneHandChat.desc": { en: "Write instead of calling", de: "Schreiben statt telefonieren" },
+  "crisis.ch.youthLine.name": { en: "Pro Juventute 147 — for young people", de: "Pro Juventute 147 — für junge Menschen" },
+  "crisis.ch.youthLine.desc": { en: "For children and young people — free, anonymous, around the clock", de: "Für Kinder und Jugendliche — kostenfrei, anonym, rund um die Uhr" },
 
   // Crisis
   "crisis.title": { en: "Support & Resources", de: "Unterstützung & Ressourcen" },

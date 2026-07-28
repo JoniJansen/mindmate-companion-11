@@ -35,13 +35,24 @@ Diese Sätze wurden als „harmlos" vorgeschlagen und von der Gegenprüfung zur�
 
 ---
 
-## B — Bewusst hingenommener Fehlalarm
+## B — Bewusst hingenommene Fehlalarme
 
-| Satz | Verhalten | Begründung |
-|---|---|---|
-| „früher wollte ich nicht mehr leben, heute geht es mir richtig gut" | **löst aus** | Eine Ausnahmeregel dafür war bereits geschrieben und wurde wieder entfernt. Ein zurückliegender Suizidversuch ist der stärkste bekannte Einzelprädiktor für einen künftigen. Wer davon erzählt, gehört nicht zu den Menschen, bei denen man das Hilfsangebot ausblendet. Der Preis ist eine ruhige Hilfekarte für jemanden, der von seiner Genesung berichtet. |
+Sechs Sätze lösen aus, obwohl sie harmlos gemeint sein können. In allen sechs Fällen war eine Regel dagegen bereits geschrieben — und wurde wieder entfernt, weil sie mehr zerstörte als sie half.
 
-Diese Entscheidung stand bereits im Testfall *„still fires on an explicit statement, even in a past-tense sentence"* — der unabhängige Korpus widersprach ihr, und die ältere, ausdrücklich begründete Entscheidung hat gewonnen.
+| Satz | Warum die Regel dagegen entfernt wurde |
+|---|---|
+| „früher wollte ich nicht mehr leben, heute geht es mir richtig gut" | Ein zurückliegender Suizidversuch ist der stärkste bekannte Einzelprädiktor für einen künftigen. Wer davon erzählt, gehört nicht zu den Menschen, bei denen man das Hilfsangebot ausblendet. |
+| „ich bin im letzten Level schon wieder gestorben" | Die Spiel-/Fiktionsregel riss 13 Löcher, darunter „meine Woche ist ein Endboss den ich nicht mehr schaffe, ich bin lebensmüde" und „Game over wäre ehrlich gesagt eine Erleichterung, ich will nicht mehr aufwachen". |
+| „meine Mutter hatte damals Suizidgedanken, heute ist sie stabil" | Die Drittpersonen-Regel riss 13 Löcher, darunter „my brother killed himself and now there is no reason to live" — ein Suizid in der Familie ist selbst ein Hochrisikofaktor. |
+| „ich bin Journalistin und recherchiere zur Berichterstattung über Suizid" | Die Fachkontext-Regel riss 14 Löcher, darunter „ich arbeite beim Krisendienst und habe selbst Suizidgedanken". |
+| „im Ethikseminar diskutieren wir gerade den assistierten Suizid" | Gleiche Regel. |
+| „ich denke nicht daran, mir etwas anzutun" | Die Verneinungsregel riss 10 Löcher, alle in der Form „ich habe nicht die Absicht das zu tun, aber der Gedanke an Suizid ist jeden Tag da" — die häufigste Art, wie Suizidgedanken zum ersten Mal ausgesprochen werden. |
+
+**Was davon übrig blieb:** Eine einzige Kontextregel. Sie erklärt nicht den Teilsatz, sondern nur ein Wort — steht das Todeswort ausschließlich in einem Fachbegriff („Suizidprävention", „Palliativstation"), zählt es nicht. Geprüft wird das, indem der Fachbegriff entfernt und erneut gesucht wird. „Ich schreibe meine Bachelorarbeit über Suizidprävention" löst damit nicht aus, „ich arbeite beim Krisendienst und habe selbst Suizidgedanken" schon.
+
+**Die 58 Angriffssätze stehen seit dem 28.07.2026 als Regressionstest** in `src/test/crisis-detection.test.ts`. Jede künftige Regel, die einen davon stilllegt, bricht den Build.
+
+**Falsch-Positiv-Rate nach dieser Runde:** 5 von 89 unabhängigen Fällen, also 5,6 %. Der Blocker für B7 liegt bei 10 %.
 
 ---
 

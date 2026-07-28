@@ -168,6 +168,10 @@ describe("crisis detection — must NOT fire on idioms and everyday speech", () 
 // ─────────────────────────────────────────────────────────────────────────────
 describe("crisis detection — independent negative corpus (must NOT fire)", () => {
   const cases = [
+    // Fünf Fälle stehen hier bewusst NICHT — sie lösen weiterhin aus, weil die
+    // Regeln, die sie unterdrückt hätten, im adversarischen Angriff 40 echte
+    // Krisenäußerungen mitgelöscht haben. Begründung je Fall in
+    // audit/KRISEN_GRAUBEREICH.md, Abschnitt B.
     // Kategorie 1 — Redewendungen und Idiome
     "ich sterbe vor Hunger",
     "ich sterbe vor Durst, gibt es hier irgendwo Wasser",
@@ -185,7 +189,6 @@ describe("crisis detection — independent negative corpus (must NOT fire)", () 
     "she is absolutely killing it at work right now",
     "I'm dead tired after that long flight",
     // Kategorie 2 — Gaming und Sport
-    "ich bin im letzten Level schon wieder gestorben",
     "der Endboss hat mich dreimal hintereinander gekillt",
     "das Spiel ging in sudden death",
     "mein Charakter ist beim Raid gestorben, ich respawne gleich",
@@ -214,7 +217,6 @@ describe("crisis detection — independent negative corpus (must NOT fire)", () 
     "meine Nachbarin hat ihren Mann durch Krebs verloren",
     "unser Hund musste letzte Woche eingeschl\u00e4fert werden",
     "auf der Beerdigung meines Onkels waren \u00fcber hundert Leute",
-    "meine Mutter hatte damals Suizidgedanken, heute ist sie stabil und in guter Behandlung",
     "mein Kollege spricht offen dar\u00fcber, dass sein Bruder gestorben ist",
     "my grandfather passed away last spring and I still miss him",
     "a classmate of mine died in an accident when we were teenagers",
@@ -232,9 +234,7 @@ describe("crisis detection — independent negative corpus (must NOT fire)", () 
     "als Pflegekraft erlebe ich den Tod fast jede Woche",
     "ich schreibe meine Bachelorarbeit \u00fcber Suizidpr\u00e4vention",
     "in meiner Ausbildung lernen wir, Krisensignale fr\u00fch zu erkennen",
-    "ich bin Journalistin und recherchiere zur Berichterstattung \u00fcber Suizid",
     "als Not\u00e4rztin muss ich manchmal den Tod feststellen",
-    "im Ethikseminar diskutieren wir gerade den assistierten Suizid",
     "ich mache eine Fortbildung zum Thema Trauerbegleitung",
     "I volunteer on a crisis helpline two evenings a month",
     // Kategorie 7 — Genesung mit ausdrücklichem Gegenwartsbezug
@@ -269,7 +269,6 @@ describe("crisis detection — independent negative corpus (must NOT fire)", () 
     "he is drop dead gorgeous",
     // Kategorie 10 — Verneinung mit ausdrücklichem Schutzfaktor
     "ich will auf keinen Fall sterben, ich habe noch so viel vor",
-    "ich denke nicht daran, mir etwas anzutun, das war noch nie ein Thema f\u00fcr mich",
     "I have no intention of hurting myself, I just needed to vent",
   ];
   for (const text of cases) {
@@ -277,6 +276,93 @@ describe("crisis detection — independent negative corpus (must NOT fire)", () 
       const result = detectCrisis(text);
       expect(result.detected).toBe(false);
       expect(result.severity).toBe("none");
+    });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Adversarischer Angriff auf die Kontextregeln, 28.07.2026.
+//
+// Nachdem der unabhängige Negativkorpus 16 Fehlalarme gezeigt hatte, wurden
+// vier Kontextregeln eingebaut. Eine dritte Instanz hat sie daraufhin
+// angegriffen — nicht durch Raten, sondern indem sie jeden Kandidatensatz
+// zweimal gegen den echten Code laufen ließ: einmal mit und einmal ohne die
+// jeweilige Regel. Ergebnis: 58 echte Krisenäußerungen wurden von den neuen
+// Regeln verschluckt, 44 davon auf der höchsten Stufe.
+//
+// Drei der vier Regeln wurden daraufhin ersatzlos entfernt. Diese Sätze sind
+// der Beleg, dass sie nicht zurückkommen dürfen — jede künftige Regel, die
+// einen davon stilllegt, bricht hier.
+//
+// Der letzte Fall ("im suicidal") war kein Schaden der Regeln, sondern eine
+// bestehende Lücke: das Wort "suicidal" fehlte in den Wortstämmen, und das
+// Literalmuster verlangte zwingend "i'm" oder "i am".
+// ─────────────────────────────────────────────────────────────────────────────
+describe("crisis detection — adversarial attack on the context rules", () => {
+  const mustDetect = [
+    "Am liebsten wuerde ich einfach respawnen ich will nicht mehr da sein",
+    "Mein leben ist wie ein level das ich nie schaffe ich bin so lebensmuede",
+    "Nach der letzten runde chemo bin ich einfach nur noch lebensmuede",
+    "Ich hab die nachrichten gesehen und dachte nur ich will auch sterben",
+    "Seit der reportage ueber suizid denke ich nur noch daran",
+    "In dem buch bringt sich der held um und ich versteh ihn zu gut ich will auch tot sein",
+    "Game over waere ehrlich gesagt eine erleichterung ich will nicht mehr aufwachen",
+    "Ich will einfach nur noch weg so wie am ende der staffel",
+    "Seit der doku ueber depression denke ich staendig ans sterben",
+    "Beim match heute hab ich die ganze zeit gedacht wie gern ich tot waere",
+    "In der verlaengerung hab ich nur gedacht ich waer lieber tot",
+    "Ich fuehl mich wie ein tamagotchi das keiner mehr fuettert ich will nicht mehr da sein",
+    "Meine woche ist ein endboss den ich nicht mehr schaffe ich bin lebensmuede",
+    "Ich arbeite als pflegekraft und bin selbst lebensmuede",
+    "Ich arbeite beim krisendienst und habe selbst suizidgedanken",
+    "Ich schreibe meine bachelorarbeit ueber suizid und merke dass ich selbst sterben will",
+    "Ich mache eine fortbildung zu trauerbegleitung und bin danach jedes mal lebensmuede",
+    "Als notaerztin sehe ich das jeden tag und will inzwischen selbst nicht mehr aufwachen",
+    "Ich sitze im ethikseminar ueber sterbehilfe und denke die ganze zeit ich waere lieber tot",
+    "Ich hab bei der beratungsstelle angerufen und wieder aufgelegt jetzt will ich einfach tot sein",
+    "Ich arbeite in der palliativpflege und beneide meine patienten weil sie sterben duerfen",
+    "Ich mache ein praktikum im hospiz und moechte selber sterben",
+    "Meine recherche zum thema hat mich total getriggert jetzt denke ich nur noch ans sterben",
+    "Im seminar ging es um suizidpraevention und ich hab gemerkt dass ich selbst suizidgedanken habe",
+    "Seit dem studium der pflege bin ich lebensmuede",
+    "Ich bin journalistin und schreibe ueber suizid weil ich selbst nicht mehr aufwachen will",
+    "In der vorlesung ueber suizidrate sass ich da und wusste ich bin genau die statistik ich will sterben",
+    "Seit meine mutter gestorben ist macht das alles keinen sinn mehr",
+    "Seit meine schwester tot ist gibt es keinen grund mehr zu leben",
+    "Meine freundin ist gestorben und alles hat keinen sinn mehr",
+    "Seit mein vater tot ist will einfach nur noch weg",
+    "My mother died and life is not worth living anymore",
+    "My brother killed himself and now there is no reason to live",
+    "Seit mein bruder weg ist halte das nicht mehr aus",
+    "Mein opa ist gestorben und seitdem kein bock mehr auf alles",
+    "Her friend said everyone would be better off without me",
+    "Mein partner sagt sowas jeden tag someone is hurting me",
+    "Seit meine oma tot ist waere schluss machen mit allem eine erloesung",
+    "Mein kollege hat es getan und seitdem sind suizidgedanken jeden tag da",
+    "Ich denke nicht daran aufzugeben, aber manchmal will einfach nur noch weg",
+    "Ich hatte nie vor jemandem wehzutun, trotzdem gibt es keinen grund mehr zu leben",
+    "Ich habe nicht die absicht das zu tun, aber der gedanke an suizid ist jeden tag da",
+    "I have no intention of doing anything, but there is no reason to live anymore",
+    "Ich habe nicht vor etwas zu machen, aber lebensmuede beschreibt es ganz gut",
+    "Ich denke nicht daran es zu tun, aber nicht mehr aufwachen waere schoen",
+    "Ich hatte nie vor jemandem das anzutun, aber suizidgedanken sind seit wochen da",
+    "Ich habe nicht vor irgendwas zu machen, trotzdem waere schluss machen mit allem das beste",
+    "Ich denke nicht daran wegzulaufen, aber selbstmord ist jeden tag ein thema",
+    "Ich hatte nie vor dass es so weit kommt, aber das leben hat keinen sinn mehr",
+    "im at the point where dying sounds peaceful",
+    "im planning to overdose tonight",
+    "im already dead inside and nothing helps",
+    "im cutting again and nobody knows",
+    "im ready to be dead",
+    "im at my limit and dying feels easier than this",
+    "im almost dead inside",
+    "im pretty much dead already",
+    "im seriously considering the overdose",
+    "im suicidal",
+  ];
+  for (const text of mustDetect) {
+    it(`detects despite context: "${text.slice(0, 55)}"`, () => {
+      expect(detectCrisis(text).detected).toBe(true);
     });
   }
 });
