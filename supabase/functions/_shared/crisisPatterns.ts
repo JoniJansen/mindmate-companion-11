@@ -216,7 +216,41 @@ export const STRONG_NEGATION_PATTERNS: readonly RegExp[] = [
   /\bsterbenslangweilig\b/i,
   /\bsterben\s+vor\s+(scham|langeweile|lachen|neugier)\b/i,
   /\bbring(e|t)?\s+(das|den|die)\s+\w+\s+um\b/i,
+
+  // Ergänzt am 28.07.2026 nach dem ersten unabhängigen Negativkorpus. Alle
+  // folgenden Formen lösten fälschlich aus; der vorherige Korpus war aus den
+  // Mustern selbst abgeleitet und konnte das nicht zeigen.
+  /\bsterb\w*\s+vor\s+(hunger|durst|angst|freude|sehnsucht|m(ü|ue)digkeit|k(ä|ae)lte|hitze|aufregung|schreck)\b/i,
+  /\blach\w*\s+(mich|uns|dich)\s+(tot|schlapp|kaputt)\b/i,
+  /\bsterbe\s+gleich\b/i,
+  /\bdying\s+(laughing|of\s+laughter)\b/i,
+
+  // Ausdrückliche Verneinung mit benanntem Schutzfaktor.
+  /\bno\s+intention\s+of\s+(hurting|harming|killing)\b/i,
+  /\b(auf\s+keinen\s+fall|keinesfalls|niemals|nie)\s+sterben\b/i,
 ];
+
+/**
+ * Verneinungen, die sich auf den FOLGENDEN Teilsatz beziehen.
+ *
+ * "ich denke nicht daran, mir etwas anzutun" zerfällt am Komma in
+ * "ich denke nicht daran" und "mir etwas anzutun". Die Verneinung bleibt im
+ * ersten Teil zurück, das Signal steht allein im zweiten — und löste aus.
+ *
+ * Die Wirkung ist bewusst eng: Sie reicht genau einen Teilsatz weit und nur
+ * dann, wenn der folgende Teilsatz KEIN eigenes „ich" trägt. Sonst würde
+ * "ich denke nicht daran aufzugeben, aber ich will mich umbringen" von seiner
+ * eigenen Einleitung stillgelegt.
+ */
+const DENIAL_LEAD: readonly RegExp[] = [
+  /\bdenke?\s+nicht\s+daran\b/i,
+  /\bhabe?\s+nicht\s+vor\b/i,
+  /\bhatte?\s+nie\s+vor\b/i,
+  /\bnicht\s+die\s+absicht\b/i,
+  /\bno\s+intention\b/i,
+];
+
+const OWN_SUBJECT = /\b(ich|i)\b/i;
 
 /**
  * Past-tense markers — apply to MEDIUM signals only.
@@ -305,8 +339,58 @@ export function normalizeForDetection(text: string): string {
  *    Boss" must stay silent.
  */
 
-const FIRST_PERSON = /\b(ich|i|im|i'm|ive|i've)\b/i;
+const FIRST_PERSON = /\b(ich|i|i'm|ive|i've)\b/i;
+
+/**
+ * „im" ohne Apostroph ist in Transkripten englisches „I'm" — und zugleich die
+ * häufigste deutsche Präposition. In der ersten Fassung stand es in
+ * FIRST_PERSON, wodurch „im Film", „im letzten Level" und „im Ethikseminar"
+ * als Ich-Aussage galten. Es zählt nur noch mit englischer Fortsetzung.
+ */
+const ENGLISH_IM =
+  /\bim\s+(not|so|really|just|gonna|going|done|tired|sad|scared|alone|worthless|useless|dying|dead|over|feeling|thinking|about|sick|exhausted|lost|empty|numb|broken|struggling|suicidal)\b/i;
+
 const REFLEXIVE = /\b(mich|mir|myself|my\s?self|selbst)\b/i;
+
+/**
+ * ── Kontextregeln ───────────────────────────────────────────────────────────
+ *
+ * Alle drei verlangen einen ausdrücklichen Marker im selben Teilsatz. Keine
+ * wirkt durch das Fehlen von Belegen — eine Regel, die bei Unklarheit
+ * stillstellt, wäre in dieser App der gefährlichste Bauteil überhaupt.
+ */
+
+/** Spiel, Sport, Fiktion: es stirbt eine Figur, kein Mensch. */
+const PLAY_OR_FICTION_CONTEXT =
+  /\b(level|boss|endboss|raid|respawn\w*|game\s?over|checkpoint|match|runde|verl(ä|ae)ngerung|overtime|sudden\s+death|spielfigur|charakter|character|serie|staffel|folge|film|roman|krimi|buch|podcast|doku\w*|reportage|nachrichten|season|show|tamagotchi)\b/i;
+
+/** Fachliche, akademische oder journalistische Befassung mit dem Thema. */
+const DOMAIN_CONTEXT =
+  /\b(suizidpr(ä|ae)vention|pr(ä|ae)vention|suizidrate|trauerbegleitung|palliativ\w*|hospiz|sterbehilfe|bachelorarbeit|masterarbeit|hausarbeit|seminar|vorlesung|ausbildung|fortbildung|studium|studie|recherch\w*|journalist\w*|berichterstattung|helpline|krisendienst|beratungsstelle|pflegekraft|not(ä|ae)rztin|notarzt|ethikseminar)\b/i;
+
+/** Der Teilsatz handelt von einer anderen Person und nennt kein Ich. */
+const THIRD_PARTY_SUBJECT =
+  /\b(mein|meine|sein|seine|ihr|ihre|my|his|her|their)\s+(mutter|vater|oma|opa|gro(ß|ss)\w*|bruder|schwester|kolleg\w*|nachbar\w*|freund\w*|partner\w*|onkel|tante|cousin\w*|mother|father|grand\w*|brother|sister|colleague|neighbou?r|classmate|friend)\b/i;
+
+/**
+ * BEWUSST NICHT UMGESETZT: eine Ausnahme für Genesungsrückblicke.
+ *
+ * "früher wollte ich nicht mehr leben, heute geht es mir richtig gut" löst
+ * weiterhin aus. Der unabhängige Negativkorpus führte den Satz als harmlos,
+ * und eine Regel dafür war bereits geschrieben — dann kollidierte sie mit
+ * einer älteren, ausdrücklich begründeten Entscheidung weiter unten im
+ * Testfall "still fires on an explicit statement, even in a past-tense
+ * sentence".
+ *
+ * Die ältere Entscheidung gewinnt: Ein zurückliegender Suizidversuch ist der
+ * stärkste bekannte Einzelprädiktor für einen künftigen. Wer davon erzählt,
+ * gehört nicht zu den Menschen, bei denen man das Hilfsangebot ausblendet.
+ * Der Preis ist eine ruhige Hilfekarte für jemanden, der von seiner Genesung
+ * berichtet — das ist die verkraftbare Seite dieses Handels.
+ *
+ * Der Fall steht als bewusst hingenommener Fehlalarm in
+ * audit/KRISEN_GRAUBEREICH.md.
+ */
 
 /** Dying, referring to the speaker by its own meaning. */
 const DEATH_SELF_EVIDENT =
@@ -351,15 +435,49 @@ const TARGETS_SPEAKER = /\b(mich|mir|me)\b/i;
  * Concept-based evaluation of a single clause.
  * Returns the severity this clause warrants, or null.
  */
+/**
+ * Ausdrücklich auf die eigene Person gerichtete Absicht. Solange eine davon im
+ * Teilsatz steht, hebt KEINE Kontextregel das Signal auf — sonst könnte
+ * „ich arbeite beim Krisendienst und will mich umbringen" durch das Wort
+ * Krisendienst stillgelegt werden.
+ */
+function selfDirectedIntent(clause: string): boolean {
+  return (
+    METHOD_MARKER.test(clause) ||
+    LIFE_REFUSAL.test(clause) ||
+    SELF_HARM_AGENT.test(clause) ||
+    (REFLEXIVE.test(clause) && DEATH_NEEDS_REFLEXIVE.test(clause))
+  );
+}
+
+/** Der Teilsatz trägt einen Marker, der das Todeswort erklärt. */
+function benignContext(clause: string): boolean {
+  if (selfDirectedIntent(clause)) return false;
+  return PLAY_OR_FICTION_CONTEXT.test(clause) || DOMAIN_CONTEXT.test(clause);
+}
+
+/** Bericht über eine dritte Person, ohne jeden Bezug auf die eigene Lage. */
+function aboutSomeoneElse(clause: string): boolean {
+  return (
+    THIRD_PARTY_SUBJECT.test(clause) &&
+    !FIRST_PERSON.test(clause) &&
+    !ENGLISH_IM.test(clause) &&
+    !REFLEXIVE.test(clause)
+  );
+}
+
 function conceptSeverity(clause: string): CrisisSeverity | null {
-  const first = FIRST_PERSON.test(clause);
+  const first = FIRST_PERSON.test(clause) || ENGLISH_IM.test(clause);
   const reflexive = REFLEXIVE.test(clause);
 
   // Preparation or a named method outweighs grammar entirely.
   if (METHOD_MARKER.test(clause) && (first || reflexive)) return "high";
 
   // "ich will sterben", "manchmal will ich einfach sterben", "i'm dying"
-  if (first && DEATH_SELF_EVIDENT.test(clause)) return "high";
+  // Die schwächste der Ableitungen — ein Ich und irgendein Todeswort. Genau
+  // hier entstanden alle Fehlalarme des unabhängigen Korpus, deshalb ist sie
+  // als einzige an den Kontext gebunden.
+  if (first && DEATH_SELF_EVIDENT.test(clause) && !benignContext(clause)) return "high";
 
   // "ich will mich aufhängen", "i keep thinking about killing myself"
   if (reflexive && DEATH_NEEDS_REFLEXIVE.test(clause)) return "high";
@@ -426,9 +544,22 @@ export function detectCrisisIn(input: string | readonly string[]): CrisisResult 
     .map((clause) => normalizeForDetection(clause))
     .filter((clause) => clause.length > 0);
 
-  for (const clause of clauses) {
+  /** Teilsätze, die aus dem Kontext heraus nicht gewertet werden. */
+  const uebergehen = (clause: string, index: number): boolean => {
+    if (aboutSomeoneElse(clause)) return true;
+    // Verneinung aus dem vorangehenden Teilsatz, nur bei fehlendem eigenem "ich".
+    const vorher = index > 0 ? clauses[index - 1] : null;
+    if (vorher && !OWN_SUBJECT.test(clause) && matchesAny(vorher, DENIAL_LEAD)) return true;
+    return false;
+  };
+
+  for (const [index, clause] of clauses.entries()) {
+    if (uebergehen(clause, index)) continue;
+
     const match = scanClause(clause, HIGH_SEVERITY_PATTERNS, [STRONG_NEGATION_PATTERNS]);
-    if (match) return { detected: true, severity: "high", matchedSignal: match[0] };
+    if (match && !benignContext(clause)) {
+      return { detected: true, severity: "high", matchedSignal: match[0] };
+    }
 
     // Concept layer catches the inflected and reordered forms the literal
     // patterns above cannot express.
@@ -437,12 +568,16 @@ export function detectCrisisIn(input: string | readonly string[]): CrisisResult 
     }
   }
 
-  for (const clause of clauses) {
+  for (const [index, clause] of clauses.entries()) {
+    if (uebergehen(clause, index)) continue;
+
     const cancellers = PRESENT_MARKERS.test(clause)
       ? [STRONG_NEGATION_PATTERNS]
       : [STRONG_NEGATION_PATTERNS, PAST_TENSE_PATTERNS];
     const match = scanClause(clause, MEDIUM_SEVERITY_PATTERNS, cancellers);
-    if (match) return { detected: true, severity: "medium", matchedSignal: match[0] };
+    if (match && !benignContext(clause)) {
+      return { detected: true, severity: "medium", matchedSignal: match[0] };
+    }
 
     if (
       !matchesAny(clause, STRONG_NEGATION_PATTERNS) &&

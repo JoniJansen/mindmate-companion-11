@@ -152,6 +152,135 @@ describe("crisis detection — must NOT fire on idioms and everyday speech", () 
   }
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Unabhängiger Negativkorpus, 28.07.2026.
+//
+// Erstellt von einer Instanz, die die Erkennungsmuster ausdrücklich nicht
+// gelesen hat, und anschließend von einer zweiten adversarisch gegengeprüft.
+// Die Gegenprüfung hat zehn Fälle verworfen — dokumentiert samt Begründung in
+// audit/KRISEN_GRAUBEREICH.md. Verworfen wurde vor allem fast die gesamte
+// Verneinungs-Kategorie: Sätze wie "ich habe keine solchen Gedanken, ich bin
+// einfach nur müde" als harmlos einzuchecken würde die Regel "Verneinung heißt
+// sicher" festschreiben — und durch dasselbe Raster fiele dann auch
+// "ich will nicht mehr leben".
+//
+// Deckt Gerüstpunkt B7 ab (Falsch-Positiv-Rate, gefordert ≥ 50 Fälle).
+// ─────────────────────────────────────────────────────────────────────────────
+describe("crisis detection — independent negative corpus (must NOT fire)", () => {
+  const cases = [
+    // Kategorie 1 — Redewendungen und Idiome
+    "ich sterbe vor Hunger",
+    "ich sterbe vor Durst, gibt es hier irgendwo Wasser",
+    "ich bin todm\u00fcde",
+    "der Vortrag war zum Sterben langweilig",
+    "ich lach mich tot",
+    "das war echt zum Totlachen",
+    "ich sch\u00e4me mich zu Tode",
+    "Totgesagte leben l\u00e4nger",
+    "nur \u00fcber meine Leiche kommt das Sofa in dieses Wohnzimmer",
+    "ich habe mich totgesucht nach meinen Schl\u00fcsseln",
+    "mein Handy ist tot, der Akku ist leer",
+    "der Drucker ist mal wieder gestorben",
+    "mein Laptop hat gestern endg\u00fcltig den Geist aufgegeben",
+    "she is absolutely killing it at work right now",
+    "I'm dead tired after that long flight",
+    // Kategorie 2 — Gaming und Sport
+    "ich bin im letzten Level schon wieder gestorben",
+    "der Endboss hat mich dreimal hintereinander gekillt",
+    "das Spiel ging in sudden death",
+    "mein Charakter ist beim Raid gestorben, ich respawne gleich",
+    "ich habe nur noch ein Leben \u00fcbrig, dann ist Game over",
+    "unser Team ist in der Verl\u00e4ngerung komplett gestorben",
+    "meine Pflanze auf dem Balkon ist leider eingegangen",
+    "mein Tamagotchi ist gestorben, als ich acht war",
+    "wir haben die Gegner im Match komplett vernichtet",
+    "I died right at the final checkpoint again",
+    "that last boss killed me like ten times in a row",
+    "the match went into sudden death overtime",
+    // Kategorie 3 — Übertreibung im Alltagsfrust
+    "dieser Job bringt mich noch um",
+    "die Hitze killt mich heute komplett",
+    "diese Deadline bringt mich fast ins Grab",
+    "der Stau heute Morgen hat mich fast umgebracht",
+    "das Meeting war m\u00f6rderisch lang",
+    "die Steuererkl\u00e4rung ist der Tod jeder guten Laune",
+    "diese Kopfschmerzen bringen mich um den Verstand",
+    "der Umzug am Wochenende hat mich fast erledigt",
+    "ich sterbe gleich, wenn ich heute noch eine Excel-Tabelle sehen muss",
+    "meine Nachbarn mit ihrer Bohrmaschine bringen mich noch ins Grab",
+    // Kategorie 4 — Berichte über Dritte oder Vergangenes
+    "mein Opa ist letztes Jahr gestorben, ich denke oft an ihn",
+    "meine Oma ist friedlich im Schlaf eingeschlafen",
+    "meine Nachbarin hat ihren Mann durch Krebs verloren",
+    "unser Hund musste letzte Woche eingeschl\u00e4fert werden",
+    "auf der Beerdigung meines Onkels waren \u00fcber hundert Leute",
+    "meine Mutter hatte damals Suizidgedanken, heute ist sie stabil und in guter Behandlung",
+    "mein Kollege spricht offen dar\u00fcber, dass sein Bruder gestorben ist",
+    "my grandfather passed away last spring and I still miss him",
+    "a classmate of mine died in an accident when we were teenagers",
+    // Kategorie 5 — Medien, Bücher, Nachrichten, Serien
+    "in der Serie stirbt in jeder Folge irgendjemand",
+    "ich lese gerade einen Krimi, in dem drei Menschen ermordet werden",
+    "in den Nachrichten ging es heute um die Suizidrate bei Jugendlichen",
+    "der Podcast behandelt das Thema Sterbehilfe sehr sachlich",
+    "im Film hat sich am Ende jemand umgebracht, das war ziemlich heftig",
+    "ich habe gestern eine Doku \u00fcber Suizidpr\u00e4vention gesehen",
+    "der Roman endet damit, dass die Hauptfigur ins Wasser geht",
+    "the show killed off my favorite character in season three",
+    // Kategorie 6 — Fachliche oder berufliche Rede
+    "ich arbeite auf der Palliativstation und begleite sterbende Menschen",
+    "als Pflegekraft erlebe ich den Tod fast jede Woche",
+    "ich schreibe meine Bachelorarbeit \u00fcber Suizidpr\u00e4vention",
+    "in meiner Ausbildung lernen wir, Krisensignale fr\u00fch zu erkennen",
+    "ich bin Journalistin und recherchiere zur Berichterstattung \u00fcber Suizid",
+    "als Not\u00e4rztin muss ich manchmal den Tod feststellen",
+    "im Ethikseminar diskutieren wir gerade den assistierten Suizid",
+    "ich mache eine Fortbildung zum Thema Trauerbegleitung",
+    "I volunteer on a crisis helpline two evenings a month",
+    // Kategorie 7 — Genesung mit ausdrücklichem Gegenwartsbezug
+    // "fr\u00fcher wollte ich nicht mehr leben, heute geht es mir richtig gut" steht
+    // hier bewusst NICHT. Der Satz l\u00f6st weiterhin aus \u2014 begr\u00fcndet in
+    // audit/KRISEN_GRAUBEREICH.md und im Testfall \u00fcber die Vergangenheitsform
+    // weiter unten. Ein zur\u00fcckliegender Suizidversuch ist der st\u00e4rkste bekannte
+    // Einzelpr\u00e4diktor; bei dieser Gruppe blenden wir das Angebot nicht aus.
+    "vor zehn Jahren war ich in einer schweren Krise, die liegt weit hinter mir",
+    "ich habe meine Therapie erfolgreich abgeschlossen und f\u00fchle mich seitdem stabil",
+    "damals war ich in der Klinik, heute stehe ich fest im Leben",
+    "ich bin froh, dass ich mir damals Hilfe geholt habe, seitdem geht es mir gut",
+    "meine dunkelste Zeit ist lange vorbei, ich bin heute dankbar, dass ich sie \u00fcberstanden habe",
+    "I used to struggle a lot years ago, but I am in a good place now",
+    // Kategorie 8 — Erschöpfung mit klarer zeitlicher oder sachlicher Begrenzung
+    "ich bin heute echt fertig, ich brauche einfach mal Schlaf",
+    "ich bin total ausgelaugt von dieser Woche",
+    "ich bin frustriert und will heute einfach nichts mehr machen",
+    "ich habe keine Lust mehr auf diese Arbeitswoche, Freitag kann kommen",
+    "ich bin traurig, weil mein Urlaub schon wieder vorbei ist",
+    "I'm exhausted and just want to sleep for twelve hours",
+    // Kategorie 9 — Englischer Alltag und Slang
+    "this deadline is killing me",
+    "I could just die of embarrassment",
+    "I'm dead serious about this",
+    "that joke killed me, I laughed for minutes",
+    "my phone battery is dead again",
+    "the party was dead boring",
+    "I'm dying laughing at this meme",
+    "we absolutely murdered that presentation today",
+    "I would kill for a coffee right now",
+    "he is drop dead gorgeous",
+    // Kategorie 10 — Verneinung mit ausdrücklichem Schutzfaktor
+    "ich will auf keinen Fall sterben, ich habe noch so viel vor",
+    "ich denke nicht daran, mir etwas anzutun, das war noch nie ein Thema f\u00fcr mich",
+    "I have no intention of hurting myself, I just needed to vent",
+  ];
+  for (const text of cases) {
+    it(`ignores: "${text}"`, () => {
+      const result = detectCrisis(text);
+      expect(result.detected).toBe(false);
+      expect(result.severity).toBe("none");
+    });
+  }
+});
+
 describe("crisis detection — past tense cancels medium signals only", () => {
   const cases = [
     "früher habe ich mich geritzt aber das ist lange her",

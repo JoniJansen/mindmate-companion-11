@@ -123,9 +123,11 @@ pruefe("B7", "Alltagssprache löst nicht aus", () => {
   // Die tatsächlich ausgeführten Testnamen zählen, nicht Vorkommen im Quelltext:
   // die Negativfälle stehen in Schleifen, eine frühere Fassung dieser Prüfung
   // zählte deshalb drei Schleifen statt aller Fälle.
+  // Schwelle 50, nicht 30: Das Gerüst fordert ≥ 50 Fälle, das Tor ließ 30
+  // durchgehen — ein Tor, das laxer ist als die Norm, die es durchsetzen soll.
   const out = sh("bunx vitest run src/test/crisis-detection.test.ts --reporter=verbose 2>&1 || true");
   const anzahl = (out.match(/ignores:/g) || []).length;
-  return { ok: anzahl >= 30, wert: anzahl, note: `${anzahl} ausgeführte Negativfälle, gefordert ≥ 30` };
+  return { ok: anzahl >= 50, wert: anzahl, note: `${anzahl} ausgeführte Negativfälle, gefordert ≥ 50` };
 });
 
 // ── B21 · Muster werden geteilt, nicht dupliziert ─────────────────────────
