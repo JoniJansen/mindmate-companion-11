@@ -1,6 +1,6 @@
 # Prüfanweisungen — wie die 105 Punkte tatsächlich gemessen werden
 
-**Stand:** 28.07.2026 · gehört zu `audit/TEST_FRAMEWORK.md`
+**Stand:** 06.08.2026 · vollständig, 105 von 105 Punkten · gehört zu `audit/TEST_FRAMEWORK.md`
 
 Das Prüfgerüst sagt, **was** geprüft wird und wann ein Release blockiert. Der Bewertungsmaßstab sagt, **wie aus einer Prüfung eine Zahl wird**. Was bis hierher fehlte, ist das Dazwischen: eine Anweisung, die so konkret ist, dass zwei Personen unabhängig voneinander zum selben Ergebnis kommen.
 
