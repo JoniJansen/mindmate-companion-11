@@ -31,7 +31,7 @@ Fünf getrennte Bearbeiter, je einer pro Gruppenbündel, ohne Sicht auf die Arbe
 **Sie haben dabei Befunde geliefert, die keine der bisherigen Prüfungen hatte:**
 
 - Die **Notfallnummern lagen an vier Stellen** und waren nicht identisch. Beide Systemprompts kannten 116 123 nicht — die einzige Nummer, die auch aus Österreich und der Schweiz durchstellt. *Behoben am selben Tag, siehe `supabase/functions/_shared/emergencyNumbers.ts`.*
-- Die **Hilfekarte zeigt nur die ersten zwei Nummern** (`CrisisSupportCard.tsx`, `.slice(0, 2)`). Für Deutschland sind das zwei Erwachsenenangebote; die Nummer gegen Kummer für Kinder und Jugendliche steht an sechster Stelle und erscheint auf der Karte nie. *Offen — Gerüstpunkt B17.*
+- Die **Hilfekarte zeigte nur die ersten zwei Nummern** (`CrisisSupportCard.tsx`, `.slice(0, 2)`). Für Deutschland waren das zwei Erwachsenenangebote derselben Organisation; die Nummer gegen Kummer für Kinder und Jugendliche stand an sechster Stelle und erschien nie. *Behoben am 28.07.2026 — die Karte wählt jetzt eine Erwachsenen- und eine Jugendleitung. Gerüstpunkt B17 damit auf dem 70er-Anker; 100 verlangt eine Altersfeststellung, die weiterhin fehlt (B15).*
 - Der **Krisen-Systemprompt enthält keinen Schritt zur Mittelsicherung**, obwohl B13 ihn verlangt. *Offen.*
 - **Drei Lockdateien** liegen nebeneinander (`bun.lock`, `bun.lockb`, `package-lock.json`). Welche gilt, entscheidet das zufällig aufgerufene Werkzeug. *Offen — N6.*
 - Die Zahl **1087 Lint-Fehler** im CI-Kommentar ist veraltet; tatsächlich sind es 275. *Offen — N3.*
